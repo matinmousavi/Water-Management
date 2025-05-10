@@ -1,0 +1,105 @@
+import { useEffect, useState, useRef } from 'react'
+import useNotification from '../hooks/useNotification'
+
+const apiUrl = "/api"
+
+export default function useAPI() {
+	const [data, setData] = useState(false)
+	const [isLoading, setLoading] = useState(false)
+	const [error, setError] = useState(false)
+	const { openNotification } = useNotification()
+	const callsRef = useRef(0)
+
+	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve, reject } = {}) {
+		const requestInit = { method, headers: {} }
+
+		let querystring = ''
+		switch (method) {
+			case 'GET':
+				if (params) {
+					if (typeof params === 'string' && params.startsWith('?')) {
+						querystring = params
+					}
+				}
+				break
+			case 'DELETE':
+			case 'POST':
+			case 'PUT':
+			case 'PATCH':
+				if (params instanceof FormData) {
+					requestInit.body = params
+				} else {
+					requestInit.headers = {
+						Accept: 'application/json',
+						'Content-Type': 'application/json',
+					}
+					requestInit.body = JSON.stringify(params)
+				}
+				break
+		}
+
+		const token = localStorage.getItem('token')
+		if (token) requestInit.headers['Authorization'] = `Bearer ${token}`
+
+		if (callsRef.current === 0) setLoading(true)
+		callsRef.current++
+
+		try {
+			const url = `${apiUrl.replace(/\/+$/g, '')}/${requestUrl.replace(/^\/+/g, '')}${querystring}`
+			const response = await fetch(url, requestInit)
+			const contentType = response.headers.get('Content-Type')
+			const data = contentType.includes('application/json') ? await response.json() : await response.text()
+
+			if (response.status === 200 || response.status === 201) {
+				if (setState) setData(data)
+				if (resolve) resolve(data)
+				setError(false)
+				return data
+			} else {
+				const error = {
+					error: {
+						status: response.status,
+						statusText: response.statusText,
+						...data,
+					},
+				}
+				if (response.status === 403) {
+					localStorage.removeItem('token')
+					location = '/'
+				}
+				if (response.status === 406) {
+					openNotification('error', data.message)
+				}
+				setError(error)
+				return error
+			}
+		} catch (error) {
+			if (error.code !== 20) setError(error)
+			return error
+		} finally {
+			callsRef.current--
+			if (callsRef.current <= 1) setLoading(false)
+		}
+	}
+
+	return {
+		init: (requestUrl, params) => {
+			const promise = new Promise((resolve, reject) => {
+				useEffect(() => {
+					const abortController = new AbortController()
+					getAPI({ requestUrl, params, signal: abortController.signal, resolve, reject })
+					return () => abortController.abort()
+				}, [])
+			})
+			return promise
+		},
+		get: (requestUrl, params) => getAPI({ requestUrl, params }),
+		post: (requestUrl, params) => getAPI({ requestUrl, method: 'POST', params, setState: false }),
+		put: (requestUrl, params) => getAPI({ requestUrl, method: 'PUT', params, setState: false }),
+		delete: (requestUrl, params) => getAPI({ requestUrl, method: 'DELETE', params, setState: false }),
+		patch: (requestUrl, params) => getAPI({ requestUrl, method: 'PATCH', params, setState: false }),
+		data,
+		isLoading,
+		error,
+	}
+}
