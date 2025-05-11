@@ -36,7 +36,7 @@ export const sendOtp = async (req, res) => {
 	console.log(`🔐 OTP: ${otp}`)
 	console.log('=================================================\n\n')
 
-	return res.json({ cooldownUntil: expiresAt, message: 'کد ارسال شد.' })
+	return res.json({ success: true, cooldownUntil: expiresAt, message: 'کد ارسال شد.' })
 }
 
 export const verifyOtp = async (req, res) => {
@@ -64,5 +64,5 @@ export const verifyOtp = async (req, res) => {
 		sameSite: 'strict',
 		maxAge: 7 * 24 * 60 * 60 * 1000,
 	})
-	return res.json({ message: 'ورود با موفقیت انجام شد.' })
+	return res.json({ success: true, message: 'ورود با موفقیت انجام شد.' })
 }
