@@ -2,28 +2,30 @@ import mongoose from '../connectToDatabase.js'
 
 const userSchema = new mongoose.Schema(
 	{
-		username: {
+		roles: {
+			type: String,
+			enum: ['admin', 'irrigator', 'landOwner'],
+		},
+		firstName: {
 			type: String,
 			trim: true,
-			sparse: true,
 		},
-		password: {
+		lastName: {
 			type: String,
-			select: false,
+			trim: true,
 		},
-		role: {
-			type: String,
-			required: true,
-		},
-		first_name: { type: String, trim: true },
-		last_name: { type: String, trim: true },
 		mobile: {
 			type: String,
 			trim: true,
 			unique: true,
 		},
-		email: { type: String, trim: true, lowercase: true },
-		profile_picture: {
+		email: {
+			type: String,
+			trim: true,
+			lowercase: true,
+			unique: true,
+		},
+		profilePicture: {
 			type: {
 				name: String,
 				md5: String,
@@ -31,9 +33,12 @@ const userSchema = new mongoose.Schema(
 				size: Number,
 				url: String,
 			},
+			default: null,
 		},
 	},
-	{ timestamps: true }
+	{
+		timestamps: true,
+	}
 )
 
 export default mongoose.model('User', userSchema)

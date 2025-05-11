@@ -1,22 +1,29 @@
 import { Router } from 'express'
 import jwt from 'jsonwebtoken'
+import Cookies from 'cookies'
+
+import otp from './otp/otp.routes.js'
+import me from './me/me.routes.js'
 
 const router = Router()
 
 router.use((req, res, next) => {
-	const token = req.headers['authorization']
+	const cookies = new Cookies(req, res)
+	const token = cookies.get('token')
 
 	req.isAdmin = false
 	req.isLogin = false
 
+	console.log(token)
+
 	if (token) {
-		jwt.verify(token.substring(7), process.env.JWT_SECRET, (err, decoded) => {
+		jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
 			if (err) {
 				return res.status(403).json({ message: 'شناسه نامعتبر' })
 			} else {
 				req.user = decoded
 				req.isLogin = true
-				req.isAdmin = decoded.role === 'admins'
+				req.isAdmin = decoded.roles.includes('admin')
 			}
 			next()
 		})
@@ -40,6 +47,9 @@ export function isAdmin(req, res, next) {
 		next()
 	})
 }
+
+router.use('/otp', otp)
+router.use('/me', isLogin, me)
 
 router.all(/.*/, (req, res) => {
 	return res.status(405).send({ error: 'Method Not Allowed' })

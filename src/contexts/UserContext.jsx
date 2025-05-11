@@ -1,70 +1,75 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Spin, Flex } from 'antd'
-
 import useAPI from '../hooks/useAPI'
 import Errors from '../pages/public/Errors/Errors'
 
-const userContext = createContext({})
+const UserContext = createContext({})
 
-export default function UserContext(props) {
+export default function UserProvider({ children }) {
 	const [user, setUser] = useState(false)
-
-	const isSuperAdmin = user.role == 'admin'
-	const isAdmin = user.organizations?.[0]?.isAdmin ?? false
-	const isManager = user.organizations?.[0]?.isManager ?? false
-	const isLogin = !!user
-	const token = localStorage.getItem('token')
-	const hasToken = !!token
-
+	const [initLoading, setInitLoading] = useState(true)
 	const api = useAPI()
-	const apiWithoutLoading = useAPI()
+	const apiSilent = useAPI()
 
-	async function getMe() {
-		const me = await apiWithoutLoading.get('me')
-		setUser(me)
+	const isAdmin = user?.roles.includes('admin')
+	const isIrrigator = user?.roles.includes('irrigator')
+	const isLandOwner = user?.roles.includes('landOwner')
+
+	const isLogin = !!user
+
+	const getMe = async () => {
+		try {
+			const me = await apiSilent.get('me')
+			setUser(me)
+		} catch (err) {
+			console.error(err)
+			setUser(null)
+		} finally {
+			setInitLoading(false)
+		}
 	}
 
 	useEffect(() => {
-		if (hasToken) {
-			api.get('me').then(data => {
-				setUser(data)
-			})
-		}
+		getMe()
 	}, [])
 
-	async function login({ token }) {
-		localStorage.setItem('token', token)
-		getMe()
-	}
-	async function logout() {
-		localStorage.removeItem('token')
-		setUser(false)
+	const logout = async () => {
+		try {
+			await apiSilent.post('me/logout')
+		} catch (err) {
+			console.log(err)
+		}
+		setUser(null)
 	}
 
-	const showLoading = api.isLoading || (hasToken && !isLogin)
+	const showLoading = initLoading || api.isLoading
 
 	return (
-		<userContext.Provider value={{ user, setUser, isSuperAdmin, isLogin, isAdmin, isManager, hasToken, token, login, logout, getMe }}>
+		<UserContext.Provider
+			value={{
+				user,
+				setUser,
+				isAdmin,
+				isIrrigator,
+				isLandOwner,
+				isLogin,
+				getMe,
+				logout,
+			}}
+		>
 			{showLoading && (
-				<Flex style={{ height: '100dvh' }} gap='middle' justify='center' align='center'>
+				<Flex style={{ height: '100vh' }} justify='center' align='center'>
 					<Spin size='large' />
 				</Flex>
 			)}
-			{api.error && api.error.status !== 403 && (
-				<Errors
-					message="There's an issue with your internet connection. Please try again."
-					onClick={() =>
-						api.get('me').then(data => {
-							setUser(data)
-						})
-					}
-				/>
+			{api.error && !showLoading && api.error.error?.status !== 403 && (
+				<Errors message='خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.' onClick={getMe} />
 			)}
-			{!showLoading && !api.error ? props.children : null}
-		</userContext.Provider>
+			{!showLoading && !api.error && children}
+		</UserContext.Provider>
 	)
 }
 
 export function useUser() {
-	return useContext(userContext)
+	return useContext(UserContext)
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import useNotification from '../hooks/useNotification'
 
-const apiUrl = "/api"
+const apiUrl = '/api'
 
 export default function useAPI() {
 	const [data, setData] = useState(false)
@@ -11,15 +11,13 @@ export default function useAPI() {
 	const callsRef = useRef(0)
 
 	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve, reject } = {}) {
-		const requestInit = { method, headers: {} }
+		const requestInit = { method, headers: {}, credentials: 'include', signal }
 
 		let querystring = ''
 		switch (method) {
 			case 'GET':
-				if (params) {
-					if (typeof params === 'string' && params.startsWith('?')) {
-						querystring = params
-					}
+				if (params && typeof params === 'string' && params.startsWith('?')) {
+					querystring = params
 				}
 				break
 			case 'DELETE':
@@ -38,16 +36,13 @@ export default function useAPI() {
 				break
 		}
 
-		const token = localStorage.getItem('token')
-		if (token) requestInit.headers['Authorization'] = `Bearer ${token}`
-
 		if (callsRef.current === 0) setLoading(true)
 		callsRef.current++
 
 		try {
 			const url = `${apiUrl.replace(/\/+$/g, '')}/${requestUrl.replace(/^\/+/g, '')}${querystring}`
 			const response = await fetch(url, requestInit)
-			const contentType = response.headers.get('Content-Type')
+			const contentType = response.headers.get('Content-Type') || ''
 			const data = contentType.includes('application/json') ? await response.json() : await response.text()
 
 			if (response.status === 200 || response.status === 201) {
@@ -56,22 +51,24 @@ export default function useAPI() {
 				setError(false)
 				return data
 			} else {
-				const error = {
+				const errObj = {
 					error: {
 						status: response.status,
 						statusText: response.statusText,
 						...data,
 					},
 				}
-				if (response.status === 403) {
-					localStorage.removeItem('token')
-					location = '/'
+
+				if (response.status === 401 || response.status === 403) {
+					location.replace('/')
 				}
+
 				if (response.status === 406) {
 					openNotification('error', data.message)
 				}
-				setError(error)
-				return error
+
+				setError(errObj)
+				return errObj
 			}
 		} catch (error) {
 			if (error.code !== 20) setError(error)

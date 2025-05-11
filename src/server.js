@@ -6,6 +6,7 @@ import fileUpload from 'express-fileupload'
 import compression from 'compression'
 import morgan from 'morgan'
 import api from './backend/apis/index.js'
+import cookieParser from 'cookie-parser'
 
 const isProd = import.meta.env?.PROD
 const PORT = process.env.PORT || 5173
@@ -20,6 +21,8 @@ async function createServer() {
 
 	// Basic logging
 	app.use(morgan(isProd ? 'common' : 'dev'))
+
+	app.use(cookieParser())
 
 	app.use(express.json())
 
@@ -87,7 +90,9 @@ async function createServer() {
 			console.error(`🚨 Failed to start server on port ${PORT}:`, err.message)
 			process.exit(1)
 		} else {
-			console.log(`✅ Server is running at http://localhost:${PORT}`)
+			console.log('\n\n================== ✅ Server Started ==================')
+			console.log(`🚀 Running at: http://localhost:${PORT}`)
+			console.log('=======================================================\n\n')
 		}
 	})
 }
