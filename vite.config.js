@@ -20,7 +20,7 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
-		include: ['react', 'react-dom', 'react-router-dom', 'antd'],
+		include: ['react', 'react-dom', 'react-router-dom', 'antd', '@ant-design/icons'],
 	},
 	server: {
 		watch: {

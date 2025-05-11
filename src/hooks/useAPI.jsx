@@ -1,8 +1,17 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, createContext } from 'react'
 import useNotification from '../hooks/useNotification'
 
 const apiUrl = '/api'
 
+const APIContext = createContext({})
+
+export function APIProvider({ config = { cache: false }, requests, cache = {}, children }) {
+	return (
+		<APIContext.Provider value={{ config, requests, cache }} config={config}>
+			{children}
+		</APIContext.Provider>
+	)
+}
 export default function useAPI() {
 	const [data, setData] = useState(false)
 	const [isLoading, setLoading] = useState(false)

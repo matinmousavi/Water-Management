@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Spin, Flex } from 'antd'
 import useAPI from '../hooks/useAPI'
-import Errors from '../pages/public/Errors/Errors'
+import Errors from '../pages/public/errors/Errors'
 
 const UserContext = createContext({})
 
@@ -46,18 +46,18 @@ export default function UserProvider({ children }) {
 
 	return (
 		<UserContext.Provider
-			value={{
-				user,
-				setUser,
-				isAdmin,
-				isIrrigator,
-				isLandOwner,
-				isLogin,
-				getMe,
-				logout,
-			}}
+		// value={{
+		// user,
+		// 	setUser,
+		// 	isAdmin,
+		// 	isIrrigator,
+		// 	isLandOwner,
+		// 	isLogin,
+		// 	getMe,
+		// 	logout,
+		// }}
 		>
-			{showLoading && (
+			{/* {showLoading && (
 				<Flex style={{ height: '100vh' }} justify='center' align='center'>
 					<Spin size='large' />
 				</Flex>
@@ -65,7 +65,8 @@ export default function UserProvider({ children }) {
 			{api.error && !showLoading && api.error.error?.status !== 403 && (
 				<Errors message='خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.' onClick={getMe} />
 			)}
-			{!showLoading && !api.error && children}
+			{!showLoading && !api.error && children} */}
+			{children}
 		</UserContext.Provider>
 	)
 }
