@@ -4,7 +4,7 @@ import img from '../../../../assets/images/water.png'
 import useAPI from "../../../../hooks/useAPI"
 import useNotification from "../../../../hooks/useNotification"
 
-const MobileNumberForm = ({ setStep, setMobile }) => {
+const MobileNumberForm = ({ setStep, setMobile , setExpireDate}) => {
   const [form] = Form.useForm()
   const optApi = useAPI()
   const { openNotification } = useNotification()
@@ -15,6 +15,7 @@ const MobileNumberForm = ({ setStep, setMobile }) => {
       if (response.success) {
         setStep(2)
         setMobile(mobile)
+        setExpireDate(response.cooldownUntil)
         openNotification('success', 'کد تأیید ارسال شد!')
       }
 

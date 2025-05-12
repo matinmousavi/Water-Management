@@ -3,14 +3,9 @@ import MobileNumberForm from './components/MobileNumberForm'
 const Login = () => {
 	const [step, setStep] = useState(1);
 	const [mobile, setMobile] = useState('');
-	const changeStep = stepParam => {
-		setStep(stepParam)
-	}
-	const getMobile = mobileParam => {
-		setMobile(mobileParam)
-	}
+	const [expireDate, setExpireDate] = useState();
 	return (
-		<MobileNumberForm setStep={changeStep} setMobile={getMobile} />
+		<MobileNumberForm setStep={setStep} setMobile={setMobile} setExpireDate={setExpireDate} />
 	)
 }
 
