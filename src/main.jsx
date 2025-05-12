@@ -1,7 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { APIProvider } from './hooks/useAPI.jsx'
 import UserProvider from './contexts/UserContext.jsx'
 import { ConfigProvider } from 'antd'
 
@@ -23,7 +22,7 @@ createRoot(document.getElementById('root')).render(
 						contentFontSizeLG: 14,
 						primaryShadow: 'none',
 						controlHeightLG: 40,
-						colorPrimary: '#34B1AA',
+						colorPrimary: '#3372EF',
 						defaultBorderColor: 'rgba(217, 217, 217, 1)',
 						colorLink: 'rgba(59, 143, 243, 1)',
 						paddingInlineLG: 40,
