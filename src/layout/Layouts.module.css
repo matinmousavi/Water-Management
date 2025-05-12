@@ -1,0 +1,11 @@
+.content {
+	margin: 24px 16px 0;
+}
+
+.menu {
+	flex-grow: 1;
+}
+
+.footer {
+	text-align: center;
+}

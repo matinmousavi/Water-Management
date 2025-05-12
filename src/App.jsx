@@ -1,10 +1,11 @@
+import { App as AntApp } from 'antd'
 import './App.css'
-import Login from './pages/public/login/Login'
+import { useUser } from './contexts/UserContext'
+import AuthRoutes from './routes/AuthRoutes'
 
 function App() {
-	return (
-		<Login />
-	)
+	const { isLogin } = useUser()
+	return <AntApp>{!isLogin && <AuthRoutes />}</AntApp>
 }
 
 export default App

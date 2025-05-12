@@ -9,11 +9,8 @@ const Login = () => {
 	const getMobile = mobileParam => {
 		setMobile(mobileParam)
 	}
-	console.log(mobile);
-	console.log(step);
-	
 	return (
-		<MobileNumberForm setStep={changeStep} setMobile={getMobile}  />
+		<MobileNumberForm setStep={changeStep} setMobile={getMobile} />
 	)
 }
 

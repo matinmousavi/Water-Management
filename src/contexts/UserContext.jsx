@@ -11,9 +11,10 @@ export default function UserProvider({ children }) {
 	const api = useAPI()
 	const apiSilent = useAPI()
 
-	const isAdmin = user?.roles.includes('admin')
-	const isIrrigator = user?.roles.includes('irrigator')
-	const isLandOwner = user?.roles.includes('landOwner')
+	const roles = user?.roles ?? []
+	const isAdmin = roles.includes('admin')
+	const isIrrigator = roles.includes('irrigator')
+	const isLandOwner = roles.includes('landOwner')
 
 	const isLogin = !!user
 
@@ -22,8 +23,8 @@ export default function UserProvider({ children }) {
 			const me = await apiSilent.get('me')
 			setUser(me)
 		} catch (err) {
-			console.error(err)
-			setUser(null)
+			console.log(err)
+			setUser(false)
 		} finally {
 			setInitLoading(false)
 		}
@@ -46,18 +47,18 @@ export default function UserProvider({ children }) {
 
 	return (
 		<UserContext.Provider
-		// value={{
-		// user,
-		// 	setUser,
-		// 	isAdmin,
-		// 	isIrrigator,
-		// 	isLandOwner,
-		// 	isLogin,
-		// 	getMe,
-		// 	logout,
-		// }}
+			value={{
+				user,
+				setUser,
+				isAdmin,
+				isIrrigator,
+				isLandOwner,
+				isLogin,
+				getMe,
+				logout,
+			}}
 		>
-			{/* {showLoading && (
+			{showLoading && (
 				<Flex style={{ height: '100vh' }} justify='center' align='center'>
 					<Spin size='large' />
 				</Flex>
@@ -65,8 +66,7 @@ export default function UserProvider({ children }) {
 			{api.error && !showLoading && api.error.error?.status !== 403 && (
 				<Errors message='خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.' onClick={getMe} />
 			)}
-			{!showLoading && !api.error && children} */}
-			{children}
+			{!showLoading && !api.error && children}
 		</UserContext.Provider>
 	)
 }
