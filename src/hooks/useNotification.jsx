@@ -1,14 +1,25 @@
 import { App } from 'antd'
 
 export default function useNotification() {
-	const { notification } = App.useApp()
+  const { notification } = App.useApp()
 
-	const openNotification = (type, message) => {
-		notification[type]({
-			message,
-			placement: 'bottomLeft'
-		})
-	}
+  const openNotification = (type, message, description = '') => {
+    if (!notification) {
+      console.error('notification is undefined. Make sure App is wrapped in <App> provider.')
+      return
+    }
 
-	return { openNotification }
+    if (typeof notification[type] !== 'function') {
+      console.error(`Invalid notification type: ${type}`)
+      return
+    }
+
+    notification[type]({
+      message,
+      description,
+      placement: 'bottomLeft',
+    })
+  }
+
+  return { openNotification }
 }
