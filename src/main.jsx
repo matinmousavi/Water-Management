@@ -36,7 +36,11 @@ createRoot(document.getElementById('root')).render(
 		>
 			<BrowserRouter>
 				<UserProvider>
-					<App />
+					<BrowserRouter>
+						<UserProvider>
+							<App />
+						</UserProvider>
+					</BrowserRouter>
 				</UserProvider>
 			</BrowserRouter>
 		</ConfigProvider>
