@@ -27,7 +27,4 @@ export default defineConfig({
 			usePolling: true,
 		},
 	},
-	ssr: {
-		noExternal: ['react-helmet-async'],
-	},
 })
