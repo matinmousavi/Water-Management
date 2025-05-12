@@ -1,15 +1,17 @@
 import React from 'react'
-import { UploadOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
-import { Card, Layout, Menu } from 'antd'
+import { UserOutlined } from '@ant-design/icons'
+import { Card, Flex, Image, Layout, Menu } from 'antd'
 import { Outlet } from 'react-router'
 import style from './Layouts.module.css'
 
 const { Sider, Content } = Layout
 
-const items = [UserOutlined, VideoCameraOutlined, UploadOutlined, UserOutlined].map((icon, index) => ({
-	key: String(index + 1),
-	icon: React.createElement(icon),
-	label: `nav ${index + 1}`,
+const items = [
+	{ key: '1', icon: UserOutlined, label: 'پروفایل' },
+].map((item) => ({
+	key: item.key,
+	icon: React.createElement(item.icon),
+	label: item.label,
 }))
 
 const Layouts = () => {
@@ -25,13 +27,22 @@ const Layouts = () => {
 					console.log(collapsed, type)
 				}}
 			>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['4']} items={items} className={style.menu} />
+				<Flex
+					align='center'
+					gap={6}
+					className={style.logo}
+				>
+					<Image
+						width={30}
+						src="../assets/images/water.png"
+					/>
+					<h2 className={style.listTitle}>مدیریت آب</h2>
+				</Flex>
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={items} className={style.menu} />
 			</Sider>
 			<Layout>
 				<Content className={style.content}>
-					<Card>
-						<Outlet />
-					</Card>
+					<Outlet />
 				</Content>
 			</Layout>
 		</Layout>
