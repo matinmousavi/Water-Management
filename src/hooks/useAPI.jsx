@@ -69,7 +69,10 @@ export default function useAPI() {
 				}
 
 				if (response.status === 401 || response.status === 403) {
-					location.replace('/')
+					const currentPath = window.location.pathname
+					if (currentPath !== '/') {
+						window.location.replace('/')
+					}
 				}
 
 				if (response.status === 406) {
@@ -77,11 +80,11 @@ export default function useAPI() {
 				}
 
 				setError(errObj)
-				return errObj
+				throw errObj
 			}
 		} catch (error) {
 			if (error.code !== 20) setError(error)
-			return error
+			throw error
 		} finally {
 			callsRef.current--
 			if (callsRef.current <= 1) setLoading(false)

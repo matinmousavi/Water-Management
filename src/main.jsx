@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { APIProvider } from './hooks/useAPI.jsx'
-// import UserProvider from './contexts/UserContext.jsx'
+import UserProvider from './contexts/UserContext.jsx'
 import { ConfigProvider } from 'antd'
 
 import App from './App.jsx'
@@ -35,13 +35,11 @@ createRoot(document.getElementById('root')).render(
 				},
 			}}
 		>
-			<APIProvider config={{ authorization: 'token' }}>
-				<BrowserRouter>
-					{/* <UserProvider> */}
+			<BrowserRouter>
+				<UserProvider>
 					<App />
-					{/* </UserProvider> */}
-				</BrowserRouter>
-			</APIProvider>
+				</UserProvider>
+			</BrowserRouter>
 		</ConfigProvider>
 	</StrictMode>
 )
