@@ -1,5 +1,8 @@
+import MobileNumberForm from './components/MobileNumberForm'
 const Login = () => {
-	return <div>Login</div>
+	return (
+		<MobileNumberForm />
+	)
 }
 
 export default Login

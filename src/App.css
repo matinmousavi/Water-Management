@@ -1,8 +1,228 @@
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
-
 :root {
+	--color-primary-dark: #050C9C;
+	--color-primary: #3572EF;
+	--color-accent: #3ABEF9;
+	--color-bg-light: #A7E6FF;
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
+body {
+	margin: 0;
+	min-width: 320px;
+	min-height: 100dvh;
+	direction: rtl;
+	font-family: 'Vazirmatn', sans-serif;
+}
+h1, h3, h4, p {
+	padding: 0;
+	margin: 0;
+}
+
+.ant-btn-lg {
+	border-radius: 100px;
+}
+h1 {
+	font-size: 14px;
+}
+
+.ant-layout-content {
+	background-color: #f5f5f5 !important;
+	padding: 24px;
+}
+
+.ant-notification .ant-notification-notice-wrapper .ant-notification-notice-with-icon .ant-notification-notice-message {
+	margin-bottom: 0;
+}
+
+.ant-notification-notice {
+	border-radius: 8px;
+	line-height: 0;
+	box-shadow: none !important;
+}
+
+.ant-notification-notice-error {
+	background-color: #fff2f0;
+}
+
+.ant-notification-notice-success {
+	background-color: #f6ffed;
+}
+
+.ant-tabs-nav-wrap {
+	display: flex;
+	align-items: center;
+	margin-bottom: 32px;
+}
+.ant-tabs-nav-list {
+	display: flex;
+	align-items: center;
+	direction: rtl;
+}
+
+.ant-tabs-tab-btn {
+	text-align: center !important;
+	padding: 5px;
+}
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+	color: #fff !important;
+	background: #439552;
+	border-radius: 5px;
+	text-align: center;
+}
+
+.ant-tabs-nav::before {
+	border-bottom: none !important;
+}
+
+.ant-tabs-tab {
+	font-size: 15px !important;
+	font-weight: 400;
+}
+
+.ant-tabs .ant-tabs-ink-bar {
+	display: none !important;
+}
+
+.spinner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.ant-select .ant-select-arrow {
+	color: #439552 !important;
+}
+
+.ant-select-multiple.ant-select-lg {
+	font-size: 14px;
+}
+
+h4.ant-list-item-meta-title {
+	font-size: 16px !important;
+}
+
+.ant-input-search-button {
+	border-radius: 8px 0 0 8px !important;
+}
+
+/* ----common styles between components---- */
+
+.custom-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	order: -1;
+	background-color: rgba(240, 240, 240, 0.8);
+	padding: 12px 5px;
+	border-radius: 10px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	/* width: 45px; */
+}
+.custom_button {
+	color: #666;
+	border: none;
+	outline: none;
+	border-radius: 5px;
+	font-size: 15px;
+	transition: all 0.3s ease;
+	background: #f9f9f9;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	padding: 8px 12px;
+	cursor: pointer;
+	/* width: 80%; */
+}
+
+.custom_button:hover {
+	color: #1abc9c !important;
+	background-color: #f0f0f0 !important;
+	transform: translateY(-2px);
+}
+
+/* Danger button styling */
+.danger_button {
+	color: #d9534f;
+}
+
+.danger_button:hover {
+	color: #c9302c !important;
+	background-color: #f0f0f0 !important;
+	transform: translateY(-2px);
+}
+
+.item {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 20px;
+}
+.item_desc {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 8px;
+	font-size: 15px;
+	color: #333;
+}
+
+textarea {
+	border-radius: 8px !important;
+}
+
+.ant-descriptions-item-content,
+.ant-descriptions-item-label {
+	width: 400px !important;
+}
+
+.ant-modal-content {
+	padding: 24px !important;
+}
+
+.ant-modal-footer .ant-btn {
+	width: 114px !important;
+	height: 40px !important;
+}
+
+@media (max-width: 768px) {
+	.ant-layout-content {
+		padding: 16px 18px;
+	}
+	.ant-layout {
+		overflow-y: auto !important;
+	}
+}
+
+@media print {
+	@page {
+		size: A4;
+		margin: 0mm;
+	}
+
+	body {
+		height: auto !important;
+		overflow: visible !important;
+	}
+
+	html {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	.ant-layout-content {
+		padding: 0;
+		background-color: #fff !important;
+		height: auto !important;
+	}
+
+	.ant-layout {
+		height: auto !important;
+		overflow-y: auto !important;
+	}
+}
+

@@ -1,0 +1,57 @@
+body {
+    background: var(--color-bg-light);
+}
+.form {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.07);
+    padding: 32px 24px 24px 24px;
+    min-width: 360px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.input {
+    width: 100% !important;
+}
+:global(#root) {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+:global(.ant-btn-primary) {
+    background: var(--color-primary);
+    border-radius: 24px;
+    border: none;
+    font-size: 16px;
+    font-family: inherit;
+    height: 44px;
+    margin-top: 8px;
+}
+:global(.ant-btn-primary):hover,
+:global(.ant-btn-primary):focus {
+    background: var(--color-primary-dark);
+}
+:global(.ant-input) {
+    border-radius: 12px;
+    height: 44px;
+    font-size: 15px;
+    direction: ltr;
+}
+:global(.ant-form-item-label > label),
+:global(.ant-form-item-explain-error) {
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+:global(.ant-form-item) {
+    margin-bottom: 18px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    justify-content: center;
+}
