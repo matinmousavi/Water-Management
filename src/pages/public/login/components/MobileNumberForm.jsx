@@ -1,32 +1,47 @@
-import { Form, Input, Button } from "antd"
+import { Form, Input, Button, notification } from "antd"
 import styles from '../Login.module.css'
 import img from '../../../../assets/images/water.png'
+import useAPI from "../../../../hooks/useAPI"
+import useNotification from "../../../../hooks/useNotification"
 
-const MobileNumberForm = () => {
+const MobileNumberForm = ({ setStep, setMobile , setExpireDate}) => {
   const [form] = Form.useForm()
+  const optApi = useAPI()
+  const { openNotification } = useNotification()
+  const handleMobileSubmit = async values => {
+    const { mobile } = values
+    try {
+      const response = await optApi.post('otp/send', { mobile })
+      if (response.success) {
+        setStep(2)
+        setMobile(mobile)
+        setExpireDate(response.cooldownUntil)
+        openNotification('success', 'کد تأیید ارسال شد!')
+      }
 
-  const handleMobileSubmit = (values) => {
-    console.log('Form values:', values)
+    } catch (error) {
+      openNotification('error', 'کاربری با این شماره موبایل یافت نشد')
+    }
   }
 
   return (
-    <div style={{ margin: '0 auto' }}>
-      <div className={styles.logo}>
-        <div>
-          <img src={img} alt="water logo" width={50} height={50} />
-        </div>
-        <h2 style={{ fontWeight: 700, fontSize: 24, margin: 0, color: '#222' }}>مدیریت آب</h2>
-      </div>
-      <p style={{ textAlign: 'center', marginBottom: 24, color: '#222', fontSize: 15 }}>
-        برای ورود به پنل، شماره موبایل خود را وارد کنید.
-      </p>
+    <div className={styles.formWrapper}>
       <Form form={form} onFinish={handleMobileSubmit} layout='vertical' className={styles.form}>
+        <div className={styles.header}>
+          <div className={styles.logo}>
+            <img src={img} alt="water logo" />
+          </div>
+          <h2 className={styles.title}>مدیریت آب</h2>
+        </div>
+        <p className={styles.text}>
+          برای ورود به پنل، شماره موبایل خود را وارد کنید.
+        </p>
         <Form.Item
           className={styles.input}
           label='شماره موبایل'
           name='mobile'
           rules={[
-            { required: true, message: 'شماره موبایل خود را وارد کنید!' },
+            { message: 'شماره موبایل خود را وارد کنید!' },
             {
               pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/,
               message: 'شماره موبایل معتبر نیست!',

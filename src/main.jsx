@@ -25,7 +25,7 @@ createRoot(document.getElementById('root')).render(
 						contentFontSizeLG: 14,
 						primaryShadow: 'none',
 						controlHeightLG: 40,
-						colorPrimary: '#3372EF',
+						colorPrimary: '#3ABEF9',
 						defaultBorderColor: 'rgba(217, 217, 217, 1)',
 						colorLink: 'rgba(59, 143, 243, 1)',
 						paddingInlineLG: 40,
@@ -38,9 +38,9 @@ createRoot(document.getElementById('root')).render(
 			}}
 		>
 			<BrowserRouter>
-				<UserProvider>
+				{/* <UserProvider> */}
 					<App />
-				</UserProvider>
+				{/* </UserProvider> */}
 			</BrowserRouter>
 		</ConfigProvider>
 	</StrictMode>
