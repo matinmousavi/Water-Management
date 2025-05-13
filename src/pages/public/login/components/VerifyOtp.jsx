@@ -40,7 +40,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
 		return english2persian(`${min}:${sec}`)
 	}
 
-	const isOtpValid = otp.length === 4 && /^\d{4}$/.test(otp)
+	const isOtpValid = otp.length === 6 && /^\d{6}$/.test(otp)
 
 	const resendOtp = async () => {
 		try {
@@ -60,6 +60,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
 		const { otp } = values
 		try {
 			const response = await optApi.post('otp/verify', { mobile, otp })
+			console.log(response)
 			if (response.success) {
 				openNotification('success', 'ورود با موفقیت انجام شد.!')
 			}
@@ -78,17 +79,17 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
 					</div>
 					<h2 className={styles.title}>مدیریت آب</h2>
 				</div>
-				<p className={styles.text}>کد ۴ رقمی به شماره {english2persian(mobile)} ارسال شد.</p>
+				<p className={styles.text}>کد ۶ رقمی به شماره {english2persian(mobile)} ارسال شد.</p>
 
 				<Form.Item
 					className={styles.input}
-					label='کد تایید ۴ رقمی '
+					label='کد تایید ۶ رقمی '
 					name='otp'
 					rules={[
 						{ required: true, message: 'کد تأیید را وارد کنید!' },
 						{
-							pattern: /^\d{4}$/,
-							message: 'کد تأیید باید شامل ۴ رقم باشد!',
+							pattern: /^\d{6}$/,
+							message: 'کد تأیید باید شامل ۶ رقم باشد!',
 						},
 					]}
 				>
@@ -97,7 +98,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
 						size='large'
 						type='tel'
 						inputMode='numeric'
-						maxLength={4}
+						maxLength={6}
 						value={otp}
 						onChange={e => {
 							setOtp(e.target.value)

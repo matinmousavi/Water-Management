@@ -5,11 +5,12 @@ import Home from '../pages/public/home/Home'
 
 const LayoutRoutes = ({ isLogin }) => (
 	<Routes>
-		<Route path='/' element={<Login />} />
-		{isLogin && (
+		{isLogin ? (
 			<Route element={<Layouts />}>
-				<Route path='/' element={<Home />} />
+				<Route path='/home' element={<Home />} />
 			</Route>
+		) : (
+			<Route path='/' element={<Login />} />
 		)}
 	</Routes>
 )

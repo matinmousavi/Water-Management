@@ -39,6 +39,34 @@ export const sendOtp = async (req, res) => {
 	return res.json({ success: true, cooldownUntil: expiresAt, message: 'کد ارسال شد.' })
 }
 
+// export const verifyOtp = async (req, res) => {
+// 	const { mobile, otp } = req.body
+
+// 	const record = await OTP.findOne({
+// 		identifier: mobile,
+// 		otp,
+// 		verified: false,
+// 		expiresAt: { $gt: new Date() },
+// 	}).sort({ createdAt: -1 })
+
+// 	if (!record) return res.status(400).json({ message: 'کد اشتباه یا منقضی شده است.' })
+
+// 	await User.create({ mobile })
+
+// 	record.verified = true
+// 	await record.save()
+
+// 	const token = jwt.sign({ mobile }, process.env.JWT_SECRET, { expiresIn: '7d' })
+
+// 	res.cookie('token', token, {
+// 		httpOnly: true,
+// 		secure: isProd,
+// 		sameSite: 'strict',
+// 		maxAge: 7 * 24 * 60 * 60 * 1000,
+// 	})
+// 	return res.json({ success: true, message: 'ورود با موفقیت انجام شد.' })
+// }
+
 export const verifyOtp = async (req, res) => {
 	const { mobile, otp } = req.body
 
@@ -49,13 +77,21 @@ export const verifyOtp = async (req, res) => {
 		expiresAt: { $gt: new Date() },
 	}).sort({ createdAt: -1 })
 
-	if (!record) return res.status(400).json({ message: 'کد اشتباه یا منقضی شده است.' })
+	if (!record) {
+		return res.status(400).json({ message: 'کد اشتباه یا منقضی شده است.' })
+	}
 
-	await User.create({ mobile })
+	// ✅ بررسی اینکه آیا کاربر از قبل وجود دارد
+	let user = await User.findOne({ mobile })
+	if (!user) {
+		user = await User.create({ mobile })
+	}
 
+	// علامت‌گذاری OTP به عنوان تأیید شده
 	record.verified = true
 	await record.save()
 
+	// تولید توکن
 	const token = jwt.sign({ mobile }, process.env.JWT_SECRET, { expiresIn: '7d' })
 
 	res.cookie('token', token, {
@@ -64,5 +100,6 @@ export const verifyOtp = async (req, res) => {
 		sameSite: 'strict',
 		maxAge: 7 * 24 * 60 * 60 * 1000,
 	})
+
 	return res.json({ success: true, message: 'ورود با موفقیت انجام شد.' })
 }
