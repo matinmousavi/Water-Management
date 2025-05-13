@@ -17,6 +17,7 @@ export default function UserProvider({ children }) {
 	const isLandOwner = roles.includes('landOwner')
 
 	const isLogin = !!user
+	console.log(user)
 
 	const getMe = async () => {
 		try {

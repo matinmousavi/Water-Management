@@ -35,11 +35,11 @@ const Layouts = () => {
 					console.log(collapsed, type)
 				}}
 			>
-				<Flex align='center' gap={6} className={style.logo}>
+				<Flex align='center' gap={6} className={styles.logo}>
 					<Image width={30} src='../assets/images/water.png' />
-					<h2 className={style.listTitle}>مدیریت آب</h2>
+					<h2 className={styles.listTitle}>مدیریت آب</h2>
 				</Flex>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={items} className={style.menu} />
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={items} className={styles.menu} />
 			</Sider>
 			<Layout>
 				<Content className={styles.content}>

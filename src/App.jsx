@@ -4,8 +4,7 @@ import AuthRoutes from './routes/AuthRoutes'
 import LayoutRoutes from './routes/LayoutRoutes'
 
 function App() {
-	// const { isLogin } = useUser()
-	const isLogin = true
+	const { isLogin } = useUser()
 	return <AntApp>{!isLogin ? <AuthRoutes /> : <LayoutRoutes />}</AntApp>
 }
 

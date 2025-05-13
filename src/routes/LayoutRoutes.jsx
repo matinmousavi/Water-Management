@@ -1,17 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
 import Layouts from '../layout/Layouts'
-import Login from '../pages/public/login/Login'
-import Profile from '../pages/landOwner/profile/Profile'
+import Dashboard from '../pages/admin/Dashboard/Dashboard'
 
-const LayoutRoutes = ({ isLogin }) => (
+const LayoutRoutes = () => (
 	<Routes>
-		{isLogin ? (
-			<Route element={<Layouts />}>
-				<Route path='/home' element={<Home />} />
-			</Route>
-		) : (
-			<Route path='/' element={<Login />} />
-		)}
+		<Route element={<Layouts />}>
+			<Route path='/' element={<Dashboard />} />
+		</Route>
 	</Routes>
 )
 
