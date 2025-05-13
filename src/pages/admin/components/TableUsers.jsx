@@ -1,7 +1,23 @@
 import { Button, Card, Input, Table } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
-
+import useApi from '../../../hooks/useAPI'
+import { useEffect, useState } from 'react'
 const TableUsers = () => {
+	const userApi = useApi()
+	const [userList, setUserList] = useState([])
+	const fetchData = async () => {
+		try {
+			const data = await userApi.get('endpoint/path')
+			setUserList(data)
+		} catch (error) {
+			console.error('Error fetching data:', error)
+		}
+	}
+	useEffect(() => {
+		fetchData()
+	}, [])
+	// console.log(userList)
+
 	const dataSource = [
 		{
 			key: '1',
