@@ -13,12 +13,17 @@ export const sendOtp = async (req, res) => {
 	if (!mobile) return res.status(400).json({ message: 'شماره موبایل الزامی است.' })
 
 	const existingOtp = await OTP.findOne({
-		identifier: mobile,
+		mobile,
 		expiresAt: { $gt: new Date() },
 		verified: false,
 	})
 
 	if (existingOtp) {
+		console.log('\n\n================== 📩 OTP Sent ==================')
+		console.log(`📱 Mobile: ${existingOtp.mobile}`)
+		console.log(`🔐 OTP: ${existingOtp.otp}`)
+		console.log('=================================================\n\n')
+
 		return res.json({
 			success: true,
 			message: 'کدی که قبلا برای این شماره ارسال شده، منقضی نشده',
@@ -29,69 +34,37 @@ export const sendOtp = async (req, res) => {
 	const otp = generateOTP()
 	const expiresAt = new Date(Date.now() + 3 * 60 * 1000)
 
-	await OTP.create({ identifier: mobile, otp, expiresAt })
+	await OTP.create({ mobile, otp, expiresAt })
 
 	console.log('\n\n================== 📩 OTP Sent ==================')
-	console.log(`📱 Phone: ${mobile}`)
+	console.log(`📱 Mobile: ${mobile}`)
 	console.log(`🔐 OTP: ${otp}`)
 	console.log('=================================================\n\n')
 
 	return res.json({ success: true, cooldownUntil: expiresAt, message: 'کد ارسال شد.' })
 }
 
-// export const verifyOtp = async (req, res) => {
-// 	const { mobile, otp } = req.body
-
-// 	const record = await OTP.findOne({
-// 		identifier: mobile,
-// 		otp,
-// 		verified: false,
-// 		expiresAt: { $gt: new Date() },
-// 	}).sort({ createdAt: -1 })
-
-// 	if (!record) return res.status(400).json({ message: 'کد اشتباه یا منقضی شده است.' })
-
-// 	await User.create({ mobile })
-
-// 	record.verified = true
-// 	await record.save()
-
-// 	const token = jwt.sign({ mobile }, process.env.JWT_SECRET, { expiresIn: '7d' })
-
-// 	res.cookie('token', token, {
-// 		httpOnly: true,
-// 		secure: isProd,
-// 		sameSite: 'strict',
-// 		maxAge: 7 * 24 * 60 * 60 * 1000,
-// 	})
-// 	return res.json({ success: true, message: 'ورود با موفقیت انجام شد.' })
-// }
-
 export const verifyOtp = async (req, res) => {
 	const { mobile, otp } = req.body
 
 	const record = await OTP.findOne({
-		identifier: mobile,
+		mobile,
 		otp,
 		verified: false,
 		expiresAt: { $gt: new Date() },
 	}).sort({ createdAt: -1 })
 
-	if (!record) {
-		return res.status(400).json({ message: 'کد اشتباه یا منقضی شده است.' })
-	}
+	if (!record) return res.status(400).json({ message: 'کد اشتباه یا منقضی شده است.' })
 
-	// ✅ بررسی اینکه آیا کاربر از قبل وجود دارد
-	let user = await User.findOne({ mobile })
+	const user = await User.findOne({ mobile })
+
 	if (!user) {
-		user = await User.create({ mobile })
+		await User.create({ mobile })
 	}
 
-	// علامت‌گذاری OTP به عنوان تأیید شده
 	record.verified = true
 	await record.save()
 
-	// تولید توکن
 	const token = jwt.sign({ mobile }, process.env.JWT_SECRET, { expiresIn: '7d' })
 
 	res.cookie('token', token, {
@@ -100,6 +73,5 @@ export const verifyOtp = async (req, res) => {
 		sameSite: 'strict',
 		maxAge: 7 * 24 * 60 * 60 * 1000,
 	})
-
 	return res.json({ success: true, message: 'ورود با موفقیت انجام شد.' })
 }
