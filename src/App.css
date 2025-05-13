@@ -1,31 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
+
 :root {
-	--color-primary-dark: #050C9C;
-	--color-primary: #3572EF;
-	--color-accent: #3ABEF9;
-	--color-bg-light: #A7E6FF;
+	--color-primary-dark: #050c9c;
+	--color-primary: #3572ef;
+	--color-accent: #3abef9;
+	--color-bg-light: #a7e6ff;
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
-body {
-	margin: 0;
-	min-width: 320px;
-	min-height: 100dvh;
-	direction: rtl;
-	font-family: 'Vazirmatn', sans-serif;
-}
-h1, h3, h4, p {
-	padding: 0;
-	margin: 0;
-}
 
 .ant-btn-lg {
 	border-radius: 100px;
-}
-h1 {
-	font-size: 14px;
 }
 
 .ant-layout-content {
@@ -226,3 +213,6 @@ textarea {
 	}
 }
 
+.ant-layout {
+	min-height: 100vh;
+}

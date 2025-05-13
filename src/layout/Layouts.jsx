@@ -14,7 +14,7 @@ const items = [{ key: '1', icon: UserOutlined, label: 'پروفایل' }].map(it
 
 const Layouts = () => {
 	return (
-		<Layout>
+		<Layout className={styles.layout}>
 			<Sider
 				breakpoint='lg'
 				collapsedWidth='0'
