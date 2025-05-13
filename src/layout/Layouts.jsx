@@ -2,7 +2,7 @@ import React from 'react'
 import { UploadOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import { Card, Layout, Menu } from 'antd'
 import { Outlet } from 'react-router'
-import style from './Layouts.module.css'
+import styles from './Layouts.module.css'
 
 const { Sider, Content } = Layout
 
@@ -25,10 +25,10 @@ const Layouts = () => {
 					console.log(collapsed, type)
 				}}
 			>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['4']} items={items} className={style.menu} />
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['4']} items={items} className={styles.menu} />
 			</Sider>
 			<Layout>
-				<Content className={style.content}>
+				<Content className={styles.content}>
 					<Card>
 						<Outlet />
 					</Card>
