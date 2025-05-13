@@ -1,31 +1,37 @@
-import jwt from 'jsonwebtoken'
-import User from '../../database/models/User.model.js'
-
-const isProd = import.meta.env?.PROD
-
 export async function getMe(req, res) {
-	const token = req.cookies.token
+	const user = req.user
 
-	if (!token) {
+	if (!user) {
 		return res.status(401).json({ message: 'لطفاً وارد حساب کاربری خود شوید.' })
 	}
 
-	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET)
+	return res.json({ user })
+}
 
-		const { mobile } = decoded
+export async function updateMe(req, res) {
+	const user = req.user
 
-		const user = await User.findOne({ mobile })
+	if (!user) {
+		return res.status(401).json({ message: 'لطفاً وارد حساب کاربری خود شوید.' })
+	}
 
-		if (!user) {
-			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
+	const updatableFields = ['firstName', 'lastName', 'email', 'profilePicture']
+
+	updatableFields.forEach(field => {
+		if (req.body[field] !== undefined) {
+			user[field] = req.body[field]
 		}
+	})
 
-		return res.json({ user })
+	try {
+		await user.save()
+		return res.json({ message: 'اطلاعات با موفقیت به‌روزرسانی شد.', user })
 	} catch (err) {
-		return res.status(401).json({ error: err, message: 'توکن معتبر نیست یا منقضی شده است.' })
+		return res.status(500).json({ error: err.message, message: 'خطا در به‌روزرسانی اطلاعات.' })
 	}
 }
+
+const isProd = import.meta.env?.PROD
 
 export const logout = (req, res) => {
 	res.clearCookie('token', {

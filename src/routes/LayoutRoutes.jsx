@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Layouts from '../layout/Layouts'
 import Login from '../pages/public/login/Login'
-import Home from '../pages/public/home/Home'
+import Profile from '../pages/landOwner/profile/Profile'
 
 const LayoutRoutes = ({ isLogin }) => (
 	<Routes>

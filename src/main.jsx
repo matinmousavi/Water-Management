@@ -38,9 +38,9 @@ createRoot(document.getElementById('root')).render(
 			}}
 		>
 			<BrowserRouter>
-				<UserProvider>
+				{/* <UserProvider> */}
 					<App />
-				</UserProvider>
+				{/* </UserProvider> */}
 			</BrowserRouter>
 		</ConfigProvider>
 	</StrictMode>
