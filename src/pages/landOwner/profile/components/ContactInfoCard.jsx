@@ -23,7 +23,7 @@ const ContactInfoCard = () => (
     <div className={styles.infoWrapper}>
       <Row gutter={[0, 8]}>
         {contactInfo.map((item, index) => (
-          <Col key={index} xs={24} md={16} lg={18} className={styles.line}>
+          <Col key={index} xs={24} md={20} lg={18} className={styles.line}>
             <Row>
               <Col xs={10}>
                 <Text className={styles.text} strong>{item.label}</Text>

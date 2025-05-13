@@ -1,5 +1,6 @@
 .title {
     padding: 10px;
+    margin-right: 25px;
 }
 .card {
     margin-top: 10px;
@@ -20,6 +21,9 @@
 }
 /* ------------- tablet ------------- */
 @media (min-width: 768px) {
+    .title {
+        padding: 10px;
+    }
     .text {
         font-size: 14px;
     }

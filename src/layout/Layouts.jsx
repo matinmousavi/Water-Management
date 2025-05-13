@@ -20,6 +20,7 @@ const Layouts = () => {
 			<Sider
 				breakpoint='lg'
 				collapsedWidth='0'
+				zeroWidthTriggerStyle={{ backgroundColor: "transparent", top: 30, right: 20, borderRadius: 0, color: "#000", width: 30, height: 30, fontSize: 17 }}
 				onBreakpoint={broken => {
 					console.log(broken)
 				}}
