@@ -41,4 +41,20 @@ const userSchema = new mongoose.Schema(
 	}
 )
 
+userSchema.statics.initializeAdmin = async function () {
+	const count = await this.countDocuments()
+	if (count === 0) {
+		await this.create({
+			roles: 'admin',
+			firstName: 'مدیر',
+			lastName: 'سیستم',
+			mobile: '09123456789',
+			email: 'admin@example.com',
+		})
+		console.log('✅ ادمین پیش‌فرض از داخل مدل ایجاد شد.')
+	} else {
+		console.log('ℹ️ ادمین موجود بود. نیازی به ایجاد نیست.')
+	}
+}
+
 export default mongoose.model('User', userSchema)

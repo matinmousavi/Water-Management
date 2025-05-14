@@ -1,3 +1,5 @@
+const isProd = import.meta.env?.PROD
+
 export async function getMe(req, res) {
 	const user = req.user
 
@@ -30,8 +32,6 @@ export async function updateMe(req, res) {
 		return res.status(500).json({ error: err.message, message: 'خطا در به‌روزرسانی اطلاعات.' })
 	}
 }
-
-const isProd = import.meta.env?.PROD
 
 export const logout = (req, res) => {
 	res.clearCookie('token', {
