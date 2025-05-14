@@ -10,7 +10,7 @@ const Login = () => {
 	return (
 		<>
 			{step === 1 && <MobileNumberForm setStep={setStep} setMobile={setMobile} setExpireDate={setExpireDate} />}
-			{step === 2 && <VerifyOtp mobile={mobile} expireDate={expireDate} />}
+			{step === 2 && <VerifyOtp mobile={mobile} expireDate={expireDate} onBack={() => setStep(1)} />}
 		</>
 	)
 }

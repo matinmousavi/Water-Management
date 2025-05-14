@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react'
-import { Form, Input, Button } from 'antd'
+import { Form, Input, Button, Flex } from 'antd'
 import img from '../../../../assets/images/water.png'
 import useAPI from '../../../../hooks/useAPI'
 import useNotification from '../../../../hooks/useNotification'
 import english2persian from '../../../../utils/english2persian'
+import { useNavigate } from 'react-router'
+import { useUser } from '../../../../contexts/UserContext'
+import { EditOutlined } from '@ant-design/icons'
 import styles from '../Login.module.css'
 
-const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
+const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 	const [form] = Form.useForm()
 
 	const optApi = useAPI()
 
 	const { openNotification } = useNotification()
+
+	const navigate = useNavigate()
+	const { getMe } = useUser()
 
 	const [timeLeft, setTimeLeft] = useState(0)
 	const [expireDate, setExpireDate] = useState(initExpireDate)
@@ -60,9 +66,10 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
 		const { otp } = values
 		try {
 			const response = await optApi.post('otp/verify', { mobile, otp })
-			console.log(response)
 			if (response.success) {
+				await getMe()
 				openNotification('success', 'ورود با موفقیت انجام شد.!')
+				navigate('/')
 			}
 		} catch (error) {
 			openNotification('error', '  کد اشتباه یا منقضی شده است.    ')
@@ -80,7 +87,12 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
 					<h2 className={styles.title}>مدیریت آب</h2>
 				</div>
 				<p className={styles.text}>کد ۶ رقمی به شماره {english2persian(mobile)} ارسال شد.</p>
-
+				<Flex align='center'>
+					<Button type='link' onClick={onBack}>
+						<EditOutlined />
+						ویرایش شماره موبایل
+					</Button>
+				</Flex>
 				<Form.Item
 					className={styles.input}
 					label='کد تایید ۶ رقمی '
@@ -110,9 +122,12 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate }) => {
 					{timeLeft > 0 ? (
 						`${formatTime(timeLeft)} تا ارسال مجدد کد`
 					) : (
-						<Button type='link' onClick={resendOtp}>
-							ارسال مجدد کد
-						</Button>
+						<Flex align='center'>
+							<p>کد را دیافت نکرده اید؟</p>
+							<Button type='link' onClick={resendOtp}>
+								ارسال مجدد کد
+							</Button>
+						</Flex>
 					)}
 				</div>
 

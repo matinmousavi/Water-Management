@@ -49,7 +49,12 @@ body {
 	height: 100%;
 }
 /* ------------- mobile ------------- */
-@media (min-width: 425px) {
+@media (min-width: 360px) {
+	.form {
+		width: auto;
+		height: auto;
+		border-radius: 16px;
+	}
 }
 /* ------------- tablet ------------- */
 @media (min-width: 768px) {
