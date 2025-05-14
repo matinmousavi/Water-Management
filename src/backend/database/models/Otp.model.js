@@ -1,7 +1,7 @@
 import mongoose from '../connectToDatabase.js'
 
 const otpSchema = new mongoose.Schema({
-	identifier: { type: String, required: true },
+	mobile: { type: String, required: true },
 	otp: { type: String, required: true },
 	verified: { type: Boolean, default: false },
 	expiresAt: { type: Date, required: true },

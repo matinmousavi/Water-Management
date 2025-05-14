@@ -1,0 +1,11 @@
+.title {
+	padding: 10px;
+	margin-right: 25px;
+}
+
+/* ------------- tablet ------------- */
+@media (min-width: 768px) {
+	.title {
+		padding: 10px;
+	}
+}

@@ -22,10 +22,20 @@ const Layouts = () => {
 	//const { isAdmin } = useUser()
 
 	return (
-		<Layout>
+		<Layout className={styles.layout}>
 			<Sider
 				breakpoint='lg'
 				collapsedWidth='0'
+				zeroWidthTriggerStyle={{
+					backgroundColor: 'transparent',
+					top: 30,
+					right: 20,
+					borderRadius: 0,
+					color: '#000',
+					width: 30,
+					height: 30,
+					fontSize: 17,
+				}}
 				zeroWidthTriggerStyle={{
 					backgroundColor: 'transparent',
 					top: 30,
@@ -57,8 +67,10 @@ const Layouts = () => {
 				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={/* isAdmin ? itemsUser : */ itemsAdmin} className={style.menu} />
 			</Sider>
 			<Layout>
-				<Content className={style.content}>
-					<Outlet />
+				<Content className={styles.content}>
+					<Card>
+						<Outlet />
+					</Card>
 				</Content>
 			</Layout>
 		</Layout>

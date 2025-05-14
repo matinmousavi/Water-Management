@@ -1,29 +1,29 @@
-import jwt from 'jsonwebtoken'
-import User from '../../database/models/User.model.js'
-
 const isProd = import.meta.env?.PROD
 
 export async function getMe(req, res) {
-	const token = req.cookies.token
+	const user = req.user
 
-	if (!token) {
+	if (!user) {
 		return res.status(401).json({ message: 'لطفاً وارد حساب کاربری خود شوید.' })
 	}
 
+	return res.json({ user })
+}
+
+export async function updateMe(req, res) {
 	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
-		const { mobile } = decoded
-
-		const user = await User.findOne({ mobile })
+		const user = req.user
+		const updates = req.body
 
 		if (!user) {
-			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
+			return res.status(401).json({ message: 'لطفاً وارد حساب کاربری خود شوید.' })
 		}
 
-		return res.json({ user })
+		Object.assign(user, updates)
+		await user.save()
+		return res.json({ message: 'اطلاعات با موفقیت به‌روزرسانی شد.', user })
 	} catch (err) {
-		return res.status(401).json({ error: err, message: 'توکن معتبر نیست یا منقضی شده است.' })
+		return res.status(500).json({ error: err.message, message: 'خطا در به‌روزرسانی اطلاعات.' })
 	}
 }
 
