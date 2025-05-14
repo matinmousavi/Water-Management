@@ -22,7 +22,7 @@ const Layouts = () => {
 	//const { isAdmin } = useUser()
 
 	return (
-		<Layout>
+		<Layout className={style.layout}>
 			<Sider
 				breakpoint='lg'
 				collapsedWidth='0'
