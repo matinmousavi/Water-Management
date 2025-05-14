@@ -1,20 +1,28 @@
 import React from 'react'
-import { UserOutlined } from '@ant-design/icons'
-import { Card, Flex, Image, Layout, Menu } from 'antd'
+import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
+import { Card, Col, Flex, Image, Layout, Menu, Row } from 'antd'
 import { Outlet } from 'react-router'
-import styles from './Layouts.module.css'
+import style from './Layouts.module.css'
+import { useUser } from '../contexts/UserContext'
 
 const { Sider, Content } = Layout
 
-const items = [{ key: '1', icon: UserOutlined, label: 'پروفایل' }].map(item => ({
+const itemsUser = [{ key: '1', icon: UserOutlined, label: 'پروفایل' }].map(item => ({
+	key: item.key,
+	icon: React.createElement(item.icon),
+	label: item.label,
+}))
+const itemsAdmin = [{ key: '1', icon: UnorderedListOutlined, label: 'لیست کاربران' }].map(item => ({
 	key: item.key,
 	icon: React.createElement(item.icon),
 	label: item.label,
 }))
 
 const Layouts = () => {
+	//const { isAdmin } = useUser()
+
 	return (
-		<Layout className={styles.layout}>
+		<Layout>
 			<Sider
 				breakpoint='lg'
 				collapsedWidth='0'
@@ -35,17 +43,22 @@ const Layouts = () => {
 					console.log(collapsed, type)
 				}}
 			>
-				<Flex align='center' gap={6} className={styles.logo}>
-					<Image width={30} src='../assets/images/water.png' />
-					<h2 className={styles.listTitle}>مدیریت آب</h2>
+				<Flex align='center' gap={6} className={style.logo}>
+					<Col>
+						<Flex align='center' gap={6}>
+							<Image width={30} src='../assets/images/water.png' />
+							<h2 className={style.listTitle}>مدیریت آب</h2>
+						</Flex>
+						<h3 className={style.textPanel}>
+							{/* {isAdmin ?  */}پنل مدیر {/* : 'پنل کاربری'} */}
+						</h3>
+					</Col>
 				</Flex>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={items} className={styles.menu} />
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={/* isAdmin ? itemsUser : */ itemsAdmin} className={style.menu} />
 			</Sider>
 			<Layout>
-				<Content className={styles.content}>
-					<Card>
-						<Outlet />
-					</Card>
+				<Content className={style.content}>
+					<Outlet />
 				</Content>
 			</Layout>
 		</Layout>
