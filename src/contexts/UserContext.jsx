@@ -11,10 +11,9 @@ export default function UserProvider({ children }) {
 	const api = useAPI()
 	const apiSilent = useAPI()
 
-	const roles = user?.roles ?? []
-	const isAdmin = roles.includes('admin')
-	const isIrrigator = roles.includes('irrigator')
-	const isLandOwner = roles.includes('landOwner')
+	const isAdmin = user?.role === 'admin'
+	const isIrrigator = user?.role === 'irrigator'
+	const isLandOwner = user?.role === 'landOwner'
 
 	const isLogin = !!user
 

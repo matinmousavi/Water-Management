@@ -22,7 +22,7 @@ export async function authMiddleware(req, res, next) {
 
 		req.user = user
 		req.isLogin = true
-		req.isAdmin = user.roles === 'admin'
+		req.isAdmin = user.role === 'admin'
 		next()
 	} catch {
 		req.user = null

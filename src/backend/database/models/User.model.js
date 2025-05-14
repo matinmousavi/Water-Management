@@ -2,7 +2,7 @@ import mongoose from '../connectToDatabase.js'
 
 const userSchema = new mongoose.Schema(
 	{
-		roles: {
+		role: {
 			type: String,
 			enum: ['admin', 'irrigator', 'landOwner'],
 		},
@@ -45,7 +45,7 @@ userSchema.statics.initializeAdmin = async function () {
 	const count = await this.countDocuments()
 	if (count === 0) {
 		await this.create({
-			roles: 'admin',
+			role: 'admin',
 			firstName: 'مدیر',
 			lastName: 'سیستم',
 			mobile: '09123456789',

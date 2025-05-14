@@ -16,9 +16,9 @@ export const getUsers = async (req, res) => {
 
 export const createUser = async (req, res) => {
 	try {
-		const { roles, firstName, lastName, mobile, email } = req.body
+		const { role, firstName, lastName, mobile, email } = req.body
 
-		await User.create({ roles, firstName, lastName, mobile, email })
+		await User.create({ role, firstName, lastName, mobile, email })
 
 		return res.status(201).json({
 			message: 'کاربر با موفقیت ایجاد شد.',
