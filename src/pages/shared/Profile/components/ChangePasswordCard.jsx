@@ -1,6 +1,6 @@
 import { Card, Button, Flex } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
-import styles from '../ChangePasswordCard.module.css'
+import styles from './ChangePasswordCard.module.css'
 
 const ChangePasswordCard = () => (
 	<Card className={styles.card}>
