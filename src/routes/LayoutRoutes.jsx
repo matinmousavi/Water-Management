@@ -1,17 +1,25 @@
 import { Routes, Route } from 'react-router-dom'
 import Layouts from '../layout/Layouts'
 import Dashboard from '../pages/admin/Dashboard/Dashboard'
-import Admin from '../pages/admin/UsersList/UsersList'
+import Login from '../pages/public/login/Login'
+import { useUser } from '../contexts/UserContext'
+import UsersList from '../pages/admin/UsersList/UsersList'
 import Profile from '../pages/shared/Profile/Profile'
-
-const LayoutRoutes = () => (
-	<Routes>
-		<Route element={<Layouts />}>
-			<Route path='/' element={<Dashboard />} />
+const LayoutRoutes = () => {
+	const { isLogin } = useUser()
+	return (
+		<Routes>
+			{/* {isLogin ? (
+				<Route path='/' element={<Login />} />
+			) : (
+			)} */}
+			<Route element={<Layouts />}>
+				<Route path='/' element={<Dashboard />} />
 			<Route path='/profile' element={<Profile />} />
-			<Route path='/admin' element={<Admin />} />
-		</Route>
-	</Routes>
-)
+				<Route path='/users' element={<UsersList />} />
+			</Route>
+		</Routes>
+	)
+}
 
 export default LayoutRoutes

@@ -1,13 +1,16 @@
-import { Button, Card, Input, Table } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import { Button, Card, Flex, Form, Input, Modal, Popconfirm, Space, Table } from 'antd'
+import { DeleteTwoTone, EditTwoTone, SearchOutlined } from '@ant-design/icons'
 import useApi from '../../../hooks/useAPI'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
+import FormUsers from './FormUsers'
 const TableUsers = () => {
 	const userApi = useApi()
 	const [userList, setUserList] = useState([])
+	const [isModalOpenFormUser, setIsModalOpenFormUser] = useState(false)
 	const fetchData = async () => {
 		try {
-			const data = await userApi.get('endpoint/path')
+			const data = await userApi.get('/users')
 			setUserList(data)
 		} catch (error) {
 			console.error('Error fetching data:', error)
@@ -16,30 +19,11 @@ const TableUsers = () => {
 	useEffect(() => {
 		fetchData()
 	}, [])
-	// test
-	// console.log(userList)
-
-	const dataSource = [
-		{
-			key: '1',
-			name: 'محمد',
-			address: 'باغ شوکت آباد',
-			tel: '0911111111',
-		},
-		{
-			key: '2',
-			name: 'امیر',
-			address: 'باغ بیدمشک',
-			tel: '0911111111',
-		},
-	]
-
+	const showModal = () => {
+		setIsModalOpenFormUser(true)
+	}
 	const handleSearch = (selectedKeys, confirm) => {
 		confirm()
-	}
-
-	const handleReset = clearFilters => {
-		clearFilters()
 	}
 
 	const getColumnSearchProps = dataIndex => ({
@@ -56,9 +40,6 @@ const TableUsers = () => {
 					<Button type='primary' onClick={() => handleSearch(selectedKeys, confirm)} icon={<SearchOutlined />} size='small' style={{ width: 90 }}>
 						جستجو
 					</Button>
-					<Button onClick={() => handleReset(clearFilters)} size='small' style={{ width: 90 }}>
-						حالت مجدد
-					</Button>
 				</div>
 			</div>
 		),
@@ -69,25 +50,55 @@ const TableUsers = () => {
 	const columns = [
 		{
 			title: 'نام و نام خانوادگی',
-			dataIndex: 'name',
-			key: 'name',
-			...getColumnSearchProps('name'),
+			dataIndex: 'firstName',
+			key: 'firstName',
+			...getColumnSearchProps('firstName'),
+			render: (_, record) => (
+				<Button type='link'>
+					<Link to={record._id} />
+					{record?.firstName} {record?.lastName}
+					<Link />
+				</Button>
+			),
 		},
 		{
 			title: 'شماره همراه',
-			dataIndex: 'tel',
-			key: 'tel',
+			dataIndex: 'mobile',
+			key: 'mobile',
 		},
 		{
-			title: 'آدرس',
-			dataIndex: 'address',
-			key: 'address',
+			title: 'ایمیل',
+			dataIndex: 'email',
+			key: 'email',
+		},
+		{
+			title: 'عملیات',
+			key: 'action',
+			width: 80,
+			render: (_, record) => (
+				<Space size='middle'>
+					{record.role !== 'admin' && (
+						<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
+							<a>
+								<DeleteTwoTone twoToneColor='#eb2f96' />
+							</a>
+						</Popconfirm>
+					)}
+				</Space>
+			),
 		},
 	]
+
 	return (
 		<Card>
-			<h2>جدول کاربران</h2>
-			<Table scroll={{ x: 'max-content' }} columns={columns} dataSource={dataSource} rowKey='key' />
+			<Flex justify='space-between' style={{ marginBottom: '10px' }}>
+				<h2>جدول کاربران</h2>
+				<Button onClick={showModal} type='primary'>
+					افزودن کاربر
+				</Button>
+			</Flex>
+			<Table scroll={{ x: 'max-content' }} columns={columns} dataSource={userList.users} rowKey={record => record._id} />
+			<FormUsers isOpen={isModalOpenFormUser} setIsOpen={setIsModalOpenFormUser} />
 		</Card>
 	)
 }
