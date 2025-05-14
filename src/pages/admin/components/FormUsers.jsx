@@ -1,4 +1,10 @@
+import { Form, Input, Modal } from 'antd'
+import useAPI from '../../../hooks/useAPI'
+
 const FormUsers = ({ isOpen, setIsOpen }) => {
+	const [form] = Form.useForm()
+	const userApi = useAPI()
+
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
@@ -7,7 +13,7 @@ const FormUsers = ({ isOpen, setIsOpen }) => {
 				lastName: values.lastName,
 				email: values.email,
 				mobile: values.mobile,
-				role: 'admin',
+				role: 'landOwner',
 			})
 			form.resetFields()
 			setIsOpen(false)
