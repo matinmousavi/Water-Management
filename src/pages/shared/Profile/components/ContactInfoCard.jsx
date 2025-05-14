@@ -41,7 +41,7 @@ const ContactInfoCard = () => {
 		setSaving(true)
 		const res = await profileApi.patch('/me', values)
 		if (res?.user) {
-			setUserData(res.user) // تغییر مستقیم
+			setUserData(res.user)
 		}
 		setSaving(false)
 		setIsShowModal(false)
@@ -54,8 +54,6 @@ const ContactInfoCard = () => {
 			</div>
 		)
 	}
-
-	// ❗ اینجا contactInfo باید بعد از userData ساخته بشه
 	const contactInfo = [
 		{ label: 'نام و نام خانوادگی:', value: `${userData.firstName} ${userData.lastName}` },
 		{ label: 'ایمیل:', value: userData.email },
