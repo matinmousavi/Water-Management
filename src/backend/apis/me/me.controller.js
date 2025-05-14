@@ -11,21 +11,15 @@ export async function getMe(req, res) {
 }
 
 export async function updateMe(req, res) {
-	const user = req.user
-
-	if (!user) {
-		return res.status(401).json({ message: 'لطفاً وارد حساب کاربری خود شوید.' })
-	}
-
-	const updatableFields = ['firstName', 'lastName', 'email', 'profilePicture']
-
-	updatableFields.forEach(field => {
-		if (req.body[field] !== undefined) {
-			user[field] = req.body[field]
-		}
-	})
-
 	try {
+		const user = req.user
+		const updates = req.body
+
+		if (!user) {
+			return res.status(401).json({ message: 'لطفاً وارد حساب کاربری خود شوید.' })
+		}
+
+		Object.assign(user, updates)
 		await user.save()
 		return res.json({ message: 'اطلاعات با موفقیت به‌روزرسانی شد.', user })
 	} catch (err) {

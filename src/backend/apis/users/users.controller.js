@@ -1,5 +1,10 @@
 import User from '../../database/models/User.model.js'
 
+const fieldTranslations = {
+	mobile: 'شماره موبایل',
+	email: 'ایمیل',
+}
+
 export const getUsers = async (req, res) => {
 	try {
 		const users = await User.find().lean()
@@ -13,28 +18,18 @@ export const createUser = async (req, res) => {
 	try {
 		const { roles, firstName, lastName, mobile, email } = req.body
 
-		const existingUser = await User.findOne({
-			$or: [{ mobile }, { email }],
-		})
-
-		if (existingUser) {
-			return res.status(409).json({
-				message: 'کاربری با این ایمیل یا شماره موبایل قبلاً ثبت شده است.',
-			})
-		}
-
-		await User.create({
-			roles,
-			firstName,
-			lastName,
-			mobile,
-			email,
-		})
+		await User.create({ roles, firstName, lastName, mobile, email })
 
 		return res.status(201).json({
 			message: 'کاربر با موفقیت ایجاد شد.',
 		})
 	} catch (err) {
+		if (err.code === 11000) {
+			const field = Object.keys(err.keyValue)[0]
+			const fieldName = fieldTranslations[field] || field
+
+			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
+		}
 		return res.status(500).json({
 			message: 'خطا در ایجاد کاربر.',
 			error: err.message,
@@ -52,25 +47,19 @@ export const updateUser = async (req, res) => {
 			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
 		}
 
-		if (updates.email && updates.email !== user.email) {
-			const existing = await User.findOne({ email: updates.email })
-			if (existing) {
-				return res.status(400).json({ message: 'ایمیل قبلاً ثبت شده است.' })
-			}
-		}
-
-		if (updates.mobile && updates.mobile !== user.mobile) {
-			const existing = await User.findOne({ mobile: updates.mobile })
-			if (existing) {
-				return res.status(400).json({ message: 'شماره موبایل قبلاً ثبت شده است.' })
-			}
-		}
-
 		Object.assign(user, updates)
+
 		await user.save()
 
 		return res.status(200).json({ message: 'کاربر با موفقیت ویرایش شد.', user })
 	} catch (err) {
+		if (err.code === 11000) {
+			const field = Object.keys(err.keyValue)[0]
+			const fieldName = fieldTranslations[field] || field
+
+			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
+		}
+
 		console.error('خطا در ویرایش کاربر:', err)
 		return res.status(500).json({ message: 'خطای داخلی سرور', error: err.message })
 	}
