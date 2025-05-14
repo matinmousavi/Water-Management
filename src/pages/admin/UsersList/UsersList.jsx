@@ -1,8 +1,8 @@
 import { Flex } from 'antd'
 import styles from './admin.module.css'
-import TableUsers from './components/TableUsers'
+import TableUsers from '../components/TableUsers'
 
-const Admin = () => {
+const UsersList = () => {
 	return (
 		<Flex vertical justify='space-between' className={styles.container}>
 			<h1 className={styles.title}>لیست کاربران</h1>
@@ -11,4 +11,4 @@ const Admin = () => {
 	)
 }
 
-export default Admin
+export default UsersList
