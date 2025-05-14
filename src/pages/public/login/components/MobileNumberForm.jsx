@@ -1,13 +1,16 @@
-import { Form, Input, Button, notification } from 'antd'
-import styles from '../Login.module.css'
+import { Form, Input, Button } from 'antd'
 import img from '../../../../assets/images/water.png'
 import useAPI from '../../../../hooks/useAPI'
 import useNotification from '../../../../hooks/useNotification'
+import styles from './MobileNumberForm.module.css'
 
 const MobileNumberForm = ({ setStep, setMobile, setExpireDate }) => {
 	const [form] = Form.useForm()
+
 	const optApi = useAPI()
+
 	const { openNotification } = useNotification()
+
 	const handleMobileSubmit = async values => {
 		const { mobile } = values
 		try {

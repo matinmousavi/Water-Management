@@ -7,18 +7,22 @@
 	margin: 24px 16px 0;
 	padding: 0;
 }
+
 .menu {
 	flex-grow: 1;
 	margin-top: 10px;
 }
+
 .footer {
 	text-align: center;
 }
+
 .listTitle {
 	color: #fff;
 	font-size: 17px;
 	padding-top: 5px;
 }
+
 .logo {
 	padding: 0 10px;
 	margin-top: 20px;

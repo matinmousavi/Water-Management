@@ -7,7 +7,7 @@ import english2persian from '../../../../utils/english2persian'
 import { useNavigate } from 'react-router'
 import { useUser } from '../../../../contexts/UserContext'
 import { EditOutlined } from '@ant-design/icons'
-import styles from '../Login.module.css'
+import styles from './VerifyOtp.module.css'
 
 const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 	const [form] = Form.useForm()
