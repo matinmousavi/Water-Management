@@ -1,5 +1,5 @@
 import { Flex } from 'antd'
-import styles from './admin.module.css'
+import styles from './UsersList.module.css'
 import TableUsers from '../components/TableUsers'
 
 const UsersList = () => {
