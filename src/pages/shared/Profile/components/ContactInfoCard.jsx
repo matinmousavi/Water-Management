@@ -93,6 +93,7 @@ const ContactInfoCard = () => {
 				centered
 				open={isShowModal}
 				onCancel={handleCloseModal}
+				footer={null}
 			>
 				<Form form={form} onFinish={onFinish} layout="vertical" size="large">
 					<Row gutter={[16, 16]}>
