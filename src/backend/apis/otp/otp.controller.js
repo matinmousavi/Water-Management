@@ -43,9 +43,8 @@ export const sendOtp = async (req, res) => {
 		console.log('=================================================\n\n')
 
 		return res.json({ success: true, cooldownUntil: expiresAt, message: 'کد ارسال شد.' })
-	} catch (error) {
-		console.error('Error in sendOtp:', error)
-		return res.status(500).json({ message: 'خطا در ارسال کد OTP.' })
+	} catch (err) {
+		return res.status(500).json({ error: err.message, message: 'خطا در ارسال کد OTP.' })
 	}
 }
 
@@ -80,8 +79,7 @@ export const verifyOtp = async (req, res) => {
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 		return res.json({ success: true, message: 'ورود با موفقیت انجام شد.' })
-	} catch (error) {
-		console.error('Error in verifyOtp:', error)
-		return res.status(500).json({ message: 'خطا در تایید کد OTP.' })
+	} catch (err) {
+		return res.status(500).json({ error: err.message, message: 'خطا در تایید کد OTP.' })
 	}
 }

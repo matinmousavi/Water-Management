@@ -61,6 +61,6 @@ export const updateUser = async (req, res) => {
 		}
 
 		console.error('خطا در ویرایش کاربر:', err)
-		return res.status(500).json({ message: 'خطای داخلی سرور', error: err.message })
+		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
 	}
 }
