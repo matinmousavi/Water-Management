@@ -33,3 +33,15 @@
 	border-right: 4px solid #ffffff;
 	padding-right: 10px;
 }
+.logoutButton {
+	position: absolute;
+	border-radius: 0;
+	bottom: 0;
+	width: 100%;
+	font-size: 17px;
+	padding: 20px 0;
+	background-color: transparent !important;
+}
+.logoutButton:hover {
+	background-color: #3372EF !important;
+}
