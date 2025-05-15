@@ -1,6 +1,6 @@
 import React from 'react'
-import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
-import { Card, Col, Flex, Image, Layout, Menu, Row } from 'antd'
+import { DashboardOutlined, LogoutOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
+import { Button, Card, Col, Flex, Image, Layout, Menu, Row } from 'antd'
 import { Link, Outlet } from 'react-router'
 import style from './Layouts.module.css'
 import { useUser } from '../contexts/UserContext'
@@ -8,7 +8,10 @@ import { useUser } from '../contexts/UserContext'
 const { Sider, Content } = Layout
 
 const menuItems = {
-	user: [{ key: '1', icon: <UserOutlined />, label: <Link to='/profile'>پروفایل</Link> }],
+	user: [
+		{ key: '1', icon: <DashboardOutlined />, label: <Link to='/'>داشبورد</Link> },
+		{ key: '2', icon: <UserOutlined />, label: <Link to='/profile'>پروفایل</Link> },
+	],
 	admin: [
 		{ key: '1', icon: <UserOutlined />, label: <Link to='/profile'>پروفایل</Link> },
 		{ key: '2', icon: <UnorderedListOutlined />, label: <Link to='/users'>لیست کاربران</Link> },
@@ -16,7 +19,7 @@ const menuItems = {
 }
 
 const Layouts = () => {
-	const { isAdmin } = useUser()
+	const { isAdmin, logout } = useUser()
 
 	return (
 		<Layout className={style.layout}>
@@ -49,7 +52,17 @@ const Layouts = () => {
 						<h3 className={style.textPanel}>{isAdmin ? 'پنل کاربری' : 'پنل مدیر'}</h3>
 					</Col>
 				</Flex>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={isAdmin ? menuItems.user : menuItems.admin} className={style.menu} />
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={isAdmin ? menuItems.admin : menuItems.user} className={style.menu} />
+				<Button
+					type='text'
+					icon={<LogoutOutlined />}
+					onClick={logout}
+					className={style.logoutButton}
+					color='primary	'	
+					variant='solid'
+				>
+					خروج
+				</Button>
 			</Sider>
 			<Layout>
 				<Content className={style.content}>

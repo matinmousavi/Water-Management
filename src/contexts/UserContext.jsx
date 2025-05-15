@@ -35,7 +35,7 @@ export default function UserProvider({ children }) {
 
 	const logout = async () => {
 		try {
-			await apiSilent.post('me/logout')
+			await apiSilent.get('me/logout')
 		} catch (err) {
 			console.log(err)
 		}

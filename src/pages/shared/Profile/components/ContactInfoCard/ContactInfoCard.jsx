@@ -2,7 +2,7 @@ import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Input, Spin } fr
 import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
 import { useEffect, useState } from 'react'
-import useAPI from '../../../../hooks/useAPI'
+import useAPI from '../../../../../hooks/useAPI'
 
 const { Text } = Typography
 
@@ -55,16 +55,16 @@ const ContactInfoCard = () => {
 		)
 	}
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: `${userData.firstName} ${userData.lastName}` },
-		{ label: 'ایمیل:', value: userData.email },
-		{ label: 'موبایل:', value: userData.mobile },
+		{ label: 'نام و نام خانوادگی:', value: `${(userData.firstName || '-')} ${(userData.lastName || '-')} ` || '-' },
+		{ label: 'ایمیل:', value: userData.email || '-' },
+		{ label: 'موبایل:', value: userData.mobile || '-' },
 	]
 
 	return (
 		<>
 			<Card className={styles.card}>
 				<Flex align='center' justify='space-between'>
-					<h2>اطلاعات تماس</h2>
+					<h2>اطلاعات شخصی</h2>
 					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
 						<span>ویرایش</span>
 					</Button>
