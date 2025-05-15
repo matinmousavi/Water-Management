@@ -1,25 +1,22 @@
 import React from 'react'
 import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
 import { Card, Col, Flex, Image, Layout, Menu, Row } from 'antd'
-import { Outlet } from 'react-router'
+import { Link, Outlet } from 'react-router'
 import style from './Layouts.module.css'
 import { useUser } from '../contexts/UserContext'
 
 const { Sider, Content } = Layout
 
-const itemsUser = [{ key: '1', icon: UserOutlined, label: 'پروفایل' }].map(item => ({
-	key: item.key,
-	icon: React.createElement(item.icon),
-	label: item.label,
-}))
-const itemsAdmin = [{ key: '1', icon: UnorderedListOutlined, label: 'لیست کاربران' }].map(item => ({
-	key: item.key,
-	icon: React.createElement(item.icon),
-	label: item.label,
-}))
+const menuItems = {
+	user: [{ key: '1', icon: <UserOutlined />, label: <Link to='/profile'>پروفایل</Link> }],
+	admin: [
+		{ key: '1', icon: <UserOutlined />, label: <Link to='/profile'>پروفایل</Link> },
+		{ key: '2', icon: <UnorderedListOutlined />, label: <Link to='/users'>لیست کاربران</Link> },
+	],
+}
 
 const Layouts = () => {
-	//const { isAdmin } = useUser()
+	const { isAdmin } = useUser()
 
 	return (
 		<Layout className={style.layout}>
@@ -49,12 +46,10 @@ const Layouts = () => {
 							<Image width={30} src='../assets/images/water.png' />
 							<h2 className={style.listTitle}>مدیریت آب</h2>
 						</Flex>
-						<h3 className={style.textPanel}>
-							{/* {isAdmin ?  */}پنل مدیر {/* : 'پنل کاربری'} */}
-						</h3>
+						<h3 className={style.textPanel}>{isAdmin ? 'پنل کاربری' : 'پنل مدیر'}</h3>
 					</Col>
 				</Flex>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={/* isAdmin ? itemsUser : */ itemsAdmin} className={style.menu} />
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={isAdmin ? menuItems.user : menuItems.admin} className={style.menu} />
 			</Sider>
 			<Layout>
 				<Content className={style.content}>
