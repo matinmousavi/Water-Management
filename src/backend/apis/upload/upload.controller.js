@@ -4,16 +4,20 @@ import User from '../../database/models/User.model.js'
 
 export const uploadProfilePicture = async (req, res) => {
 	try {
-		const userId = req.user._id
+		const userId = req.params.userId || req.user._id
 		const user = await User.findById(userId)
 		if (!user) return res.status(404).json({ message: 'کاربر یافت نشد' })
 
-		if (!req.files || !req.files.profilePicture) return res.status(400).json({ message: 'فایلی برای آپلود ارسال نشده' })
+		if (!req.files || !req.files.profilePicture) {
+			return res.status(400).json({ message: 'فایلی برای آپلود ارسال نشده' })
+		}
 
 		const file = req.files.profilePicture
 
 		const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
-		if (!allowedTypes.includes(file.mimetype)) return res.status(400).json({ message: 'فرمت فایل قابل قبول نیست' })
+		if (!allowedTypes.includes(file.mimetype)) {
+			return res.status(400).json({ message: 'فرمت فایل قابل قبول نیست' })
+		}
 
 		const fileName = `${Date.now()}_${file.name}`
 		const uploadPath = path.join('uploads', fileName)
