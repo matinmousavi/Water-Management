@@ -12,7 +12,7 @@ export async function authMiddleware(req, res, next) {
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET)
-		const user = await User.findOne({ mobile: decoded.mobile })
+		const user = await User.findOne({ mobile: decoded.mobile }).populate('profilePicture')
 
 		if (!user) {
 			req.user = null
