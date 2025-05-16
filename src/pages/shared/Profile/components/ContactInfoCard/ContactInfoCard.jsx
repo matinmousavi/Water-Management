@@ -8,39 +8,11 @@ const { Text } = Typography
 
 const ContactInfoCard = ({ userId }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
+	const [editUser, setEditUser] = useState()
 	const [form] = Form.useForm()
-	const [loading, setLoading] = useState(true)
 	const [saving, setSaving] = useState(false)
-	const [userData, setUserData] = useState(null)
 	const profileApi = useAPI()
-
-	/* const fetchUserData = async () => {
-		setLoading(true)
-		const res = await profileApi.get(`users/${userId}`)
-		console.log(res)
-		setUserData(res.user)
-
-		if (res?.user) {
-			setUserData(res.user)
-		}
-		setLoading(false)
-	} */
-
-	const fetchUserData = async () => {
-		try {
-			const res = await profileApi.get(`/users`)
-			const data = res.users.filter(item => item._id === userId)[0]
-			setUserData(data)
-			console.log(data)
-		} catch (error) {
-			console.log(error)
-		}
-	}
-
-	useEffect(() => {
-		fetchUserData()
-	}, [])
-
+	profileApi.init(`users/${userId}`)
 	const handleOpenModal = () => {
 		setIsShowModal(true)
 		form.setFieldsValue(userData)
@@ -53,25 +25,29 @@ const ContactInfoCard = ({ userId }) => {
 
 	const onFinish = async values => {
 		setSaving(true)
-		const res = await profileApi.patch('/me', values)
+		const res = await profileApi.patch(`users/${userId}`, values)
 		if (res?.user) {
-			setUserData(res.user)
+			setEditUser(res.user)
 		}
 		setSaving(false)
 		setIsShowModal(false)
 	}
+	useEffect(() => {
+		profileApi.get(`users/${userId}`)
+	}, [editUser])
 
-	if (loading || !userData) {
+	if (profileApi.isLoading) {
 		return (
 			<div style={{ textAlign: 'center', marginTop: 64 }}>
 				<Spin size='large' />
 			</div>
 		)
 	}
+	const userData = profileApi.data.user
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: `${userData.firstName || '-'} ${userData.lastName || '-'} ` || '-' },
-		{ label: 'ایمیل:', value: userData.email || '-' },
-		{ label: 'موبایل:', value: userData.mobile || '-' },
+		{ label: 'نام و نام خانوادگی:', value: `${userData?.firstName || '-'} ${userData?.lastName || '-'} ` || '-' },
+		{ label: 'ایمیل:', value: userData?.email || '-' },
+		{ label: 'موبایل:', value: userData?.mobile || '-' },
 	]
 
 	return (
