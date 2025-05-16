@@ -26,13 +26,8 @@ const userSchema = new mongoose.Schema(
 			unique: true,
 		},
 		profilePicture: {
-			type: {
-				name: String,
-				md5: String,
-				mimetype: String,
-				size: Number,
-				url: String,
-			},
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'File',
 			default: null,
 		},
 	},

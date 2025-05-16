@@ -2,11 +2,8 @@ import express from 'express'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
-import fileUpload from 'express-fileupload'
 import compression from 'compression'
-import morgan from 'morgan'
 import api from './backend/apis/index.js'
-import cookieParser from 'cookie-parser'
 
 const isProd = import.meta.env?.PROD
 const PORT = process.env.PORT || 5173
@@ -18,23 +15,6 @@ const assetsDir = path.resolve(__dirname, './assets')
 
 async function createServer() {
 	const app = express()
-
-	// Basic logging
-	app.use(morgan(isProd ? 'common' : 'dev'))
-
-	app.use(cookieParser())
-
-	app.use(express.json())
-
-	// File uploads
-	app.use(
-		fileUpload({
-			createParentPath: true,
-			limits: { fileSize: 5 * 1024 * 1024 },
-			useTempFiles: true,
-			tempFileDir: '/tmp/',
-		})
-	)
 
 	// Using compression middleware to compress responses
 	app.use(compression())
