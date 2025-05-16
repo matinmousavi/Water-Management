@@ -7,6 +7,7 @@ const { Text } = Typography
 
 const ContactInfoCard = ({ userData , profileApi }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
+	const [editUser, setEditUser] = useState()
 	const [form] = Form.useForm()
 	const handleOpenModal = () => {
 		setIsShowModal(true)
@@ -59,37 +60,23 @@ const ContactInfoCard = ({ userData , profileApi }) => {
 					</Row>
 				</div>
 			</Card>
-			<Modal
-				title="ویرایش اطلاعات"
-				centered
-				open={isShowModal}
-				onCancel={handleCloseModal}
-				footer={null}
-			>
-				<Form form={form} onFinish={onFinish} layout="vertical" size="large">
+			<Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
+				<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
 					<Row gutter={[16, 16]}>
 						<Col span={12}>
-							<Form.Item
-								name="firstName"
-								label="نام"
-								rules={[{ required: true, message: 'این فیلد الزامی است' }]}
-							>
+							<Form.Item name='firstName' label='نام' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 								<Input />
 							</Form.Item>
 						</Col>
 						<Col span={12}>
-							<Form.Item
-								name="lastName"
-								label="نام خانوادگی"
-								rules={[{ required: true, message: 'این فیلد الزامی است' }]}
-							>
+							<Form.Item name='lastName' label='نام خانوادگی' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 								<Input />
 							</Form.Item>
 						</Col>
 					</Row>
 					<Form.Item
-						name="email"
-						label="ایمیل"
+						name='email'
+						label='ایمیل'
 						rules={[
 							{
 								pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -99,21 +86,16 @@ const ContactInfoCard = ({ userData , profileApi }) => {
 					>
 						<Input />
 					</Form.Item>
-					<Form.Item
-						name="mobile"
-						label="موبایل"
-						rules={[{ required: true, message: 'شماره موبایل الزامی است' }]}
-					>
+					<Form.Item name='mobile' label='موبایل' rules={[{ required: true, message: 'شماره موبایل الزامی است' }]}>
 						<Input />
 					</Form.Item>
-					<Row justify="end" gutter={8}>
+					<Row justify='end' gutter={8}>
 						<Col>
-							<Button onClick={handleCloseModal}>
-								انصراف
-							</Button>
+							<Button onClick={handleCloseModal}>انصراف</Button>
 						</Col>
 						<Col>
 							<Button type="primary" htmlType="submit" >
+							<Button type='primary' htmlType='submit' loading={saving}>
 								ذخیره
 							</Button>
 						</Col>
