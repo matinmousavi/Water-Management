@@ -1,13 +1,21 @@
 import { Form, Input, Modal } from 'antd'
 import useAPI from '../../../../hooks/useAPI'
+import useNotification from '../../../../hooks/useNotification'
 
-const FormUsers = ({ isOpen, setIsOpen }) => {
+const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
+	const { openNotification } = useNotification()
 	const [form] = Form.useForm()
 	const userApi = useAPI()
+	const handleCancel = () => {
+		form.resetFields()
+		setIsOpen(false)
+	}
 
 	const handleSubmit = async () => {
 		try {
-			const values = await form.validateFields()
+			await form.validateFields()
+			const values = form.getFieldsValue()
+
 			await userApi.post('/users', {
 				firstName: values.firstName,
 				lastName: values.lastName,
@@ -15,11 +23,13 @@ const FormUsers = ({ isOpen, setIsOpen }) => {
 				mobile: values.mobile,
 				role: 'landOwner',
 			})
+
+			openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
 			form.resetFields()
-			setIsOpen(false)
-			await fetchData()
+			setIsRenderList(prev => !prev)
+			handleCancel()
 		} catch (error) {
-			console.error(error)
+			openNotification('error', 'خطا', userApi.error.error?.message)
 		}
 	}
 	return (
