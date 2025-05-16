@@ -8,7 +8,6 @@ import Profile from '../pages/shared/Profile/Profile'
 
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin } = useUser()
-	console.log('login status:', isLogin)
 
 	return (
 		<Routes>
