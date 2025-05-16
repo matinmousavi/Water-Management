@@ -6,8 +6,6 @@ import { useParams } from 'react-router'
 
 const Profile = () => {
 	const { userId } = useParams()
-	console.log(userId)
-
 	return (
 		<Flex vertical justify='space-between'>
 			<h1 className={styles.title}>پروفایل - متین موسوی</h1>
