@@ -37,6 +37,19 @@ export const createUser = async (req, res) => {
 	}
 }
 
+export const getUser = async (req, res) => {
+	try {
+		const { userId } = req.params
+		const user = await User.findById(userId)
+		if (!user) {
+			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
+		}
+		return res.status(200).json({ user })
+	} catch (err) {
+		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
+	}
+}
+
 export const updateUser = async (req, res) => {
 	try {
 		const { userId } = req.params
@@ -61,6 +74,22 @@ export const updateUser = async (req, res) => {
 		}
 
 		console.error('خطا در ویرایش کاربر:', err)
+		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
+	}
+}
+
+export const deleteUser = async (req, res) => {
+	try {
+		const { userId } = req.params
+
+		const user = await User.findByIdAndDelete(userId)
+
+		if (!user) {
+			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
+		}
+
+		return res.status(200).json({ message: 'کاربر با موفقیت حذف شد.' })
+	} catch (err) {
 		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
 	}
 }
