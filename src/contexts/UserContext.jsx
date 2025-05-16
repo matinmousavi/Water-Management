@@ -36,6 +36,7 @@ export default function UserProvider({ children }) {
 	const logout = async () => {
 		try {
 			await apiSilent.get('me/logout')
+			location.replace('/')
 		} catch (err) {
 			console.log(err)
 		}

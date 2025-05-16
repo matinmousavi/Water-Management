@@ -12,6 +12,7 @@
 	},
 	"dependencies": {
 		"antd": "5.25.1",
+		"antd-img-crop": "^4.25.0",
 		"compression": "1.8.0",
 		"cookie-parser": "^1.4.7",
 		"express": "5.1.0",

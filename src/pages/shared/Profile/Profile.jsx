@@ -1,16 +1,26 @@
 import { Flex } from 'antd'
-import ProfileImageCard from './components/ProfileImageCard'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import styles from './Profile.module.css'
+import useAPI from '../../../hooks/useAPI'
+import Loading from '../../../components/Loading/Loading'
 import { useParams } from 'react-router'
+import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 
 const Profile = () => {
+	const profileApi = useAPI()
+	const { data, isLoading } = profileApi
 	const { userId } = useParams()
+	userId ? profileApi.init(`users/${userId}`) : profileApi.init('me')
+
 	return (
 		<Flex vertical justify='space-between'>
-			<h1 className={styles.title}>پروفایل - متین موسوی</h1>
-			<ProfileImageCard />
-			<ContactInfoCard userId={userId} />
+			{isLoading || !data ? <Loading /> : (
+				<>
+					<h1 className={styles.title}>پروفایل - متین موسوی</h1>
+					<ProfileImageCard initialSrc={data?.user?.profilePicture.url} />
+					<ContactInfoCard userData={data.user} profileApi={profileApi} />
+				</>
+			)}
 		</Flex>
 	)
 }

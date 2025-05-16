@@ -1,18 +1,13 @@
-import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Input, Spin } from 'antd'
+import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Input } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
-import { useEffect, useState } from 'react'
-import useAPI from '../../../../../hooks/useAPI'
+import { useState } from 'react'
 
 const { Text } = Typography
 
-const ContactInfoCard = ({ userId }) => {
+const ContactInfoCard = ({ userData, profileApi }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
-	const [editUser, setEditUser] = useState()
 	const [form] = Form.useForm()
-	const [saving, setSaving] = useState(false)
-	const profileApi = useAPI()
-	profileApi.init(`users/${userId}`)
 	const handleOpenModal = () => {
 		setIsShowModal(true)
 		form.setFieldsValue(userData)
@@ -24,28 +19,14 @@ const ContactInfoCard = ({ userId }) => {
 	}
 
 	const onFinish = async values => {
-		setSaving(true)
-		const res = await profileApi.patch(`users/${userId}`, values)
-		if (res?.user) {
-			setEditUser(res.user)
+		const res = await profileApi.patch('me', values)
+		if (!res?.error) {
+			profileApi.get('me')
 		}
-		setSaving(false)
 		setIsShowModal(false)
 	}
-	useEffect(() => {
-		profileApi.get(`users/${userId}`)
-	}, [editUser])
-
-	if (profileApi.isLoading) {
-		return (
-			<div style={{ textAlign: 'center', marginTop: 64 }}>
-				<Spin size='large' />
-			</div>
-		)
-	}
-	const userData = profileApi.data.user
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: `${userData?.firstName || '-'} ${userData?.lastName || '-'} ` || '-' },
+		{ label: 'نام و نام خانوادگی:', value: `${(userData?.firstName || '-')} ${(userData?.lastName || '-')} ` || '-' },
 		{ label: 'ایمیل:', value: userData?.email || '-' },
 		{ label: 'موبایل:', value: userData?.mobile || '-' },
 	]
@@ -112,7 +93,7 @@ const ContactInfoCard = ({ userId }) => {
 							<Button onClick={handleCloseModal}>انصراف</Button>
 						</Col>
 						<Col>
-							<Button type='primary' htmlType='submit' loading={saving}>
+							<Button type='primary' htmlType='submit'>
 								ذخیره
 							</Button>
 						</Col>

@@ -17,7 +17,7 @@ const LayoutRoutes = () => {
 				<Route element={<Layouts />}>
 					<Route index element={<Dashboard />} />
 					<Route path='/profile' element={<Profile />} />
-					{!isAdmin && (
+					{isAdmin && (
 						<>
 							<Route path='/users' element={<UsersList />} />
 							<Route path='/users/:userId' element={<Profile />} />
