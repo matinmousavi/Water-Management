@@ -1,6 +1,5 @@
-import React from 'react'
 import { DashboardOutlined, LogoutOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Card, Col, Flex, Image, Layout, Menu, Row } from 'antd'
+import { Button, Col, Flex, Image, Layout, Menu, Row } from 'antd'
 import { Link, Outlet } from 'react-router'
 import style from './Layouts.module.css'
 import { useUser } from '../contexts/UserContext'
@@ -36,9 +35,6 @@ const Layouts = () => {
 					height: 30,
 					fontSize: 17,
 				}}
-				onBreakpoint={broken => {
-					console.log(broken)
-				}}
 				onCollapse={(collapsed, type) => {
 					console.log(collapsed, type)
 				}}
@@ -52,15 +48,8 @@ const Layouts = () => {
 						<h3 className={style.textPanel}>{isAdmin ? 'پنل کاربری' : 'پنل مدیر'}</h3>
 					</Col>
 				</Flex>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={isAdmin ? menuItems.admin : menuItems.user} className={style.menu} />
-				<Button
-					type='text'
-					icon={<LogoutOutlined />}
-					onClick={logout}
-					className={style.logoutButton}
-					color='primary	'	
-					variant='solid'
-				>
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={!isAdmin ? menuItems.admin : menuItems.user} className={style.menu} />
+				<Button type='text' icon={<LogoutOutlined />} onClick={logout} className={style.logoutButton} color='primary	' variant='solid'>
 					خروج
 				</Button>
 			</Sider>
