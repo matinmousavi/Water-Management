@@ -5,6 +5,7 @@ import Login from '../pages/public/login/Login'
 import { useUser } from '../contexts/UserContext'
 import UsersList from '../pages/admin/UsersList/UsersList'
 import Profile from '../pages/shared/Profile/Profile'
+
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin } = useUser()
 	console.log('login status:', isLogin)
@@ -12,12 +13,17 @@ const LayoutRoutes = () => {
 	return (
 		<Routes>
 			{!isLogin ? (
-				<Route path='/' element={<Login />} />
+				<Route path='/*' element={<Login />} />
 			) : (
 				<Route element={<Layouts />}>
-					<Route path='/' element={<Dashboard />} />
+					<Route index element={<Dashboard />} />
 					<Route path='/profile' element={<Profile />} />
-					{!isAdmin && <Route path='/users' element={<UsersList />} />}
+					{!isAdmin && (
+						<>
+							<Route path='/users' element={<UsersList />} />
+							<Route path='/users/:userId' element={<Profile />} />
+						</>
+					)}
 				</Route>
 			)}
 		</Routes>

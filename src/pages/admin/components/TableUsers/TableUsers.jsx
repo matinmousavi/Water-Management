@@ -1,24 +1,20 @@
-import { Button, Card, Flex, Form, Input, Modal, Popconfirm, Space, Table } from 'antd'
-import { DeleteTwoTone, EditTwoTone, SearchOutlined } from '@ant-design/icons'
-import useApi from '../../../hooks/useAPI'
+import { Button, Card, Flex, Input, Popconfirm, Space, Spin, Table } from 'antd'
+import { DeleteTwoTone, SearchOutlined } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import FormUsers from './FormUsers'
+import FormUsers from '../FormUsers/FormUsers'
+import useAPI from '../../../../hooks/useAPI'
+
 const TableUsers = () => {
-	const userApi = useApi()
+	const userApi = useAPI()
 	const [userList, setUserList] = useState([])
 	const [isModalOpenFormUser, setIsModalOpenFormUser] = useState(false)
-	const fetchData = async () => {
-		try {
-			const data = await userApi.get('/users')
-			setUserList(data)
-		} catch (error) {
-			console.error('Error fetching data:', error)
-		}
-	}
-	useEffect(() => {
-		fetchData()
-	}, [])
+
+	userApi.init('users')
+	// چطور این دیتا رو توی userlist دخیره کنم؟
+	console.log(userApi.data.users)
+	console.log('loading:', userApi.isLoading)
+
 	const showModal = () => {
 		setIsModalOpenFormUser(true)
 	}
@@ -55,9 +51,9 @@ const TableUsers = () => {
 			...getColumnSearchProps('firstName'),
 			render: (_, record) => (
 				<Button type='link'>
-					<Link to={record._id} />
-					{record?.firstName} {record?.lastName}
-					<Link />
+					<Link to={record._id}>
+						{record?.firstName} {record?.lastName}
+					</Link>
 				</Button>
 			),
 		},
@@ -88,7 +84,13 @@ const TableUsers = () => {
 			),
 		},
 	]
-
+	if (userApi.isLoading) {
+		return (
+			<div>
+				<Spin />
+			</div>
+		)
+	}
 	return (
 		<Card>
 			<Flex justify='space-between' style={{ marginBottom: '10px' }}>
@@ -97,7 +99,7 @@ const TableUsers = () => {
 					افزودن کاربر
 				</Button>
 			</Flex>
-			<Table scroll={{ x: 'max-content' }} columns={columns} dataSource={userList.users} rowKey={record => record._id} />
+			<Table scroll={{ x: 'max-content' }} columns={columns} dataSource={userApi?.data?.users} rowKey={record => record._id} />
 			<FormUsers isOpen={isModalOpenFormUser} setIsOpen={setIsModalOpenFormUser} />
 		</Card>
 	)
