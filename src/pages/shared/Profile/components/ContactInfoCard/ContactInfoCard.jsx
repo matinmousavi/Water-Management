@@ -1,32 +1,13 @@
-import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Input, Spin } from 'antd'
+import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Input } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
-import { useEffect, useState } from 'react'
-import useAPI from '../../../../../hooks/useAPI'
+import { useState } from 'react'
 
 const { Text } = Typography
 
-const ContactInfoCard = () => {
+const ContactInfoCard = ({ userData , profileApi }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [form] = Form.useForm()
-	const [loading, setLoading] = useState(true)
-	const [saving, setSaving] = useState(false)
-	const [userData, setUserData] = useState(null)
-	const profileApi = useAPI()
-
-	const fetchUserData = async () => {
-		setLoading(true)
-		const res = await profileApi.get('/me')
-		if (res?.user) {
-			setUserData(res.user)
-		}
-		setLoading(false)
-	}
-
-	useEffect(() => {
-		fetchUserData()
-	}, [])
-
 	const handleOpenModal = () => {
 		setIsShowModal(true)
 		form.setFieldsValue(userData)
@@ -38,26 +19,16 @@ const ContactInfoCard = () => {
 	}
 
 	const onFinish = async values => {
-		setSaving(true)
-		const res = await profileApi.patch('/me', values)
-		if (res?.user) {
-			setUserData(res.user)
+		const res = await profileApi.patch('me', values)
+		if (!res?.error) {
+			profileApi.get('me')
 		}
-		setSaving(false)
 		setIsShowModal(false)
 	}
-
-	if (loading || !userData) {
-		return (
-			<div style={{ textAlign: 'center', marginTop: 64 }}>
-				<Spin size="large" />
-			</div>
-		)
-	}
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: `${(userData.firstName || '-')} ${(userData.lastName || '-')} ` || '-' },
-		{ label: 'ایمیل:', value: userData.email || '-' },
-		{ label: 'موبایل:', value: userData.mobile || '-' },
+		{ label: 'نام و نام خانوادگی:', value: `${(userData?.firstName || '-')} ${(userData?.lastName || '-')} ` || '-' },
+		{ label: 'ایمیل:', value: userData?.email || '-' },
+		{ label: 'موبایل:', value: userData?.mobile || '-' },
 	]
 
 	return (
@@ -142,7 +113,7 @@ const ContactInfoCard = () => {
 							</Button>
 						</Col>
 						<Col>
-							<Button type="primary" htmlType="submit" loading={saving}>
+							<Button type="primary" htmlType="submit" >
 								ذخیره
 							</Button>
 						</Col>

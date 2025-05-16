@@ -49,7 +49,6 @@ const Layouts = () => {
 							<Image width={30} src='../assets/images/water.png' />
 							<h2 className={style.listTitle}>مدیریت آب</h2>
 						</Flex>
-						<h3 className={style.textPanel}>{isAdmin ? 'پنل کاربری' : 'پنل مدیر'}</h3>
 					</Col>
 				</Flex>
 				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={isAdmin ? menuItems.admin : menuItems.user} className={style.menu} />
