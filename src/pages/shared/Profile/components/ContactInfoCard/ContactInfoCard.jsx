@@ -5,9 +5,8 @@ import { useState } from 'react'
 
 const { Text } = Typography
 
-const ContactInfoCard = ({ userData , profileApi }) => {
+const ContactInfoCard = ({ userData, profileApi }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
-	const [editUser, setEditUser] = useState()
 	const [form] = Form.useForm()
 	const handleOpenModal = () => {
 		setIsShowModal(true)
@@ -94,8 +93,7 @@ const ContactInfoCard = ({ userData , profileApi }) => {
 							<Button onClick={handleCloseModal}>انصراف</Button>
 						</Col>
 						<Col>
-							<Button type="primary" htmlType="submit" >
-							<Button type='primary' htmlType='submit' loading={saving}>
+							<Button type='primary' htmlType='submit'>
 								ذخیره
 							</Button>
 						</Col>

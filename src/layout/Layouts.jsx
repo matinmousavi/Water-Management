@@ -47,7 +47,7 @@ const Layouts = () => {
 						</Flex>
 					</Col>
 				</Flex>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={!isAdmin ? menuItems.admin : menuItems.user} className={style.menu} />
+				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={isAdmin ? menuItems.admin : menuItems.user} className={style.menu} />
 				<Button type='text' icon={<LogoutOutlined />} onClick={logout} className={style.logoutButton} color='primary	' variant='solid'>
 					خروج
 				</Button>

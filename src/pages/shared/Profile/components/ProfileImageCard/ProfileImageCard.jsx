@@ -1,90 +1,123 @@
-import { useState } from 'react'
-import { Card, Upload, message } from 'antd'
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons'
-import useAPI from '../../../../../hooks/useAPI'
-import styles from './ProfileImageCard.module.css'
+import React, { useState } from 'react';
+import { Card, Upload, message, Modal } from 'antd';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import ImgCrop from 'antd-img-crop';
+import useAPI from '../../../../../hooks/useAPI';
+import styles from './ProfileImageCard.module.css';
 
 const beforeUpload = (file) => {
-	const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
-	if (!isJpgOrPng) {
-		message.error('فقط فرمت JPG/PNG قابل قبول است!')
-	}
-	const isLt2M = file.size / 1024 / 1024 < 2
-	if (!isLt2M) {
-		message.error('حجم فایل باید کمتر از ۲ مگابایت باشد!')
-	}
-	return isJpgOrPng && isLt2M
-}
+  const isJpgOrPng =
+    file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJpgOrPng) {
+    message.error('فقط فرمت JPG/PNG قابل قبول است!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('حجم فایل باید کمتر از ۲ مگابایت باشد!');
+  }
+  return isJpgOrPng && isLt2M;
+};
 
-const ProfileImageCard = ({ src }) => {
-	const [loading, setLoading] = useState(false)
-	const [imageUrl, setImageUrl] = useState(null)
-	const uploadApi = useAPI()
+const ProfileImageCard = ({ initialSrc }) => {
+  const [fileList, setFileList] = useState(
+    initialSrc
+      ? [{ uid: '-1', name: 'avatar', status: 'done', url: initialSrc }]
+      : []
+  );
+  
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const uploadApi = useAPI();
 
+  const handleChange = ({ fileList: newList }) => {
+    setFileList(newList);
+  };
 
-	const getBase64 = (file, callback) => {
-		const reader = new FileReader()
-		reader.addEventListener('load', () => callback(reader.result))
-		reader.readAsDataURL(file)
-	}
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview) {
+      file.preview = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj);
+        reader.onload = () => resolve(reader.result);
+      });
+    }
+    setPreviewImage(file.url || file.preview);
+    setPreviewVisible(true);
+  };
 
-	const customUpload = async ({ file, onSuccess, onError }) => {
-		setLoading(true)
-		const formData = new FormData()
-		formData.append('profilePicture', file)
+  const handleRemove = async (file) => {
+    try {
+      await uploadApi.delete(`upload/profile/picture/${file.response.id}`);
+    } catch (err) {
+      console.error(err);
+    }
+    setFileList([]);
+    message.success('عکس حذف شد');
+    return true;
+  };
 
-		try {
-			const res = await uploadApi.post('upload/profile/picture', formData)
-			if (!res.error) {
-				throw new Error(res.message || 'خطا در آپلود')
-			}
-			getBase64(file, (url) => {
-				setImageUrl(url)
-				setLoading(false)
-				onSuccess(res)
-				message.success('عکس با موفقیت آپلود شد')
-			})
-		} catch (err) {
-			console.error(err)
-			message.error('آپلود عکس با خطا مواجه شد')
-			setLoading(false)
-			onError(err)
-		}
-	}
+  const customUpload = async ({ file, onSuccess, onError }) => {
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+    try {
+      const res = await uploadApi.post(
+        'upload/profile/picture',
+        formData
+      );
+      if (res.error) throw new Error(res.message);
+      onSuccess(res, file);
+      message.success('عکس با موفقیت آپلود شد');
+    } catch (err) {
+      message.error('آپلود عکس با خطا مواجه شد');
+      onError(err);
+    }
+  };
 
-	const uploadButton = (
-		<button style={{ border: 0, background: 'none' }} type='button'>
-			{loading ? <LoadingOutlined /> : <PlusOutlined />}
-			<div style={{ marginTop: 8 }}>آپلود</div>
-		</button>
-	)
+  return (
+    <Card className={styles.card}>
+      <h2>عکس پروفایل</h2>
+      <ImgCrop rotationSlider>
+        <Upload
+          accept=".jpg,.png"
+          name="profilePicture"
+          listType="picture-circle"
+          fileList={fileList}
+          beforeUpload={beforeUpload}
+          customRequest={customUpload}
+          onChange={handleChange}
+          onPreview={handlePreview}
+          onRemove={handleRemove}
+          maxCount={1}
+          showUploadList={{
+            showPreviewIcon: true,
+            showRemoveIcon: true,
+            removeIcon: <DeleteOutlined />,
+          }}
+        >
+          {fileList.length === 0 && (
+            <div>
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}>آپلود</div>
+            </div>
+          )}
+        </Upload>
+      </ImgCrop>
 
-	return (
-		<Card>
-			<h2>عکس پروفایل</h2>
-			<Upload
-				name='profilePicture'
-				listType='picture-circle'
-				showUploadList={false}
-				beforeUpload={beforeUpload}
-				customRequest={customUpload}
-			>
-				{imageUrl ? (
-					<Image
-						wrapperStyle={{ display: 'none' }}
-						preview={{
-							visible: previewOpen,
-							onVisibleChange: (visible) => setPreviewOpen(visible),
-							afterOpenChange: (visible) => !visible && setPreviewImage(''),
-						}}
-						src={src}
-					/>
-				) : (
-					uploadButton
-				)}
-			</Upload>
-		</Card>
-	)
-}
+      <Modal
+        open={previewVisible}
+        title="پیش‌نمایش تصویر"
+        destroyOnHidden
+        footer={null}
+        onCancel={() => setPreviewVisible(false)}
+      >
+        <img
+          alt="preview"
+          style={{ width: '100%' }}
+          src={previewImage}
+        />
+      </Modal>
+    </Card>
+  );
+};
 
-export default ProfileImageCard
+export default ProfileImageCard;
