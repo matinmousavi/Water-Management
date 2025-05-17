@@ -1,0 +1,13 @@
+.button {
+	border: 1px solid #ff0000;
+	background-color: #fac3c3;
+	color: #a10e0e;
+}
+.button:hover {
+	border: 1px solid #ff0000 !important;
+	color: #ffff !important;
+	background-color: #fd9c9c !important;
+}
+.card {
+	margin-top: 10px;
+}
