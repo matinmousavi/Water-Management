@@ -21,7 +21,7 @@ const Profile = () => {
 				<Loading />
 			) : (
 				<>
-					<h1 className={styles.title}>پروفایل - متین موسوی</h1>
+					<h1 className={styles.title}>پروفایل - {data?.user?.firstName} {data?.user?.lastName}</h1>
 					<ProfileImageCard initialSrc={data?.user?.profilePicture?.url} />
 					<ContactInfoCard userData={data.user} profileApi={profileApi} />
 					{isAdmin && <DeleteUserCard />}
