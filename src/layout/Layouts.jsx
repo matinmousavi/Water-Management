@@ -1,24 +1,43 @@
 import { DashboardOutlined, LogoutOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Col, Flex, Image, Layout, Menu, Row } from 'antd'
-import { Link, Outlet } from 'react-router'
+import { Button, Flex, Image, Layout, Menu } from 'antd'
+import { Link, Outlet, useLocation } from 'react-router'
 import style from './Layouts.module.css'
 import { useUser } from '../contexts/UserContext'
 
 const { Sider, Content } = Layout
 
-const menuItems = {
-	user: [
-		{ key: '1', icon: <DashboardOutlined />, label: <Link to='/'>داشبورد</Link> },
-		{ key: '2', icon: <UserOutlined />, label: <Link to='/profile'>پروفایل</Link> },
-	],
-	admin: [
-		{ key: '1', icon: <UserOutlined />, label: <Link to='/profile'>پروفایل</Link> },
-		{ key: '2', icon: <UnorderedListOutlined />, label: <Link to='/users'>لیست کاربران</Link> },
-	],
-}
-
 const Layouts = () => {
 	const { isAdmin, logout } = useUser()
+	const location = useLocation()
+	const mainMenuItems = isAdmin
+		? [
+			{ key: '/users', icon: <UnorderedListOutlined />, label: <Link to='/users'>لیست کاربران</Link> },
+		]
+		: [
+			{ key: '/', icon: <DashboardOutlined />, label: <Link to='/'>داشبورد</Link> },
+		]
+
+	const bottomMenuItems = [
+		{
+			key: '/profile',
+			icon: <UserOutlined />,
+			label: <Link to='/profile'>پروفایل</Link>,
+		},
+		{
+			key: 'logout',
+			label: (
+				<Button
+					type='text'
+					icon={<LogoutOutlined />}
+					onClick={logout}
+					className={style.logoutButton}
+					style={{ color: '#fff' }}
+				>
+					خروج
+				</Button>
+			),
+		},
+	]
 
 	return (
 		<Layout className={style.layout}>
@@ -35,23 +54,42 @@ const Layouts = () => {
 					height: 30,
 					fontSize: 17,
 				}}
-				onCollapse={(collapsed, type) => {
-					console.log(collapsed, type)
-				}}
+				className={style.sider}
 			>
-				<Flex align='center' gap={6} className={style.logo}>
-					<Col>
-						<Flex align='center' gap={6}>
-							<Image width={30} src='../assets/images/water.png' />
+				<Flex
+					vertical
+					justify='space-between'
+					style={{ height: '100%' }}
+				>
+					<div>
+						<Flex align='center' justify='center' gap={6} className={style.logo}>
+							<Link to='/'>
+								<Image width={30} src='../assets/images/water.png' preview={false} />
+							</Link>
 							<h2 className={style.listTitle}>مدیریت آب</h2>
 						</Flex>
-					</Col>
+
+						<Menu
+							theme='dark'
+							mode='inline'
+							selectedKeys={[location.pathname]}
+							items={mainMenuItems}
+							className={style.menu}
+						/>
+					</div>
+
+					<div>
+						<Menu
+							theme='dark'
+							mode='vertical'
+							selectedKeys={[location.pathname]}
+							items={bottomMenuItems}
+							className={style.menu}
+						/>
+					</div>
 				</Flex>
-				<Menu theme='dark' mode='inline' defaultSelectedKeys={['1']} items={isAdmin ? menuItems.admin : menuItems.user} className={style.menu} />
-				<Button type='text' icon={<LogoutOutlined />} onClick={logout} className={style.logoutButton} color='primary	' variant='solid'>
-					خروج
-				</Button>
 			</Sider>
+
 			<Layout>
 				<Content className={style.content}>
 					<Outlet />

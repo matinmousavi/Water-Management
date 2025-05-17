@@ -1,10 +1,11 @@
-import { Flex, Spin } from 'antd'
+import { Spin } from 'antd'
+import styles from "./Loading.module.css"
 
 const Loading = () => {
     return (
-        <Flex justify="center" align="center" style={{ height: '100vh' }}>
+        <div className={styles.wrapper}>
             <Spin size="large" />
-        </Flex>
+        </div>
     )
 }
 

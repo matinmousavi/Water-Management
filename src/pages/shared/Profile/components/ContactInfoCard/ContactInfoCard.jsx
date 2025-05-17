@@ -6,7 +6,7 @@ import { useParams } from 'react-router'
 
 const { Text } = Typography
 
-const ContactInfoCard = ({ userData, profileApi }) => {
+const ContactInfoCard = ({ userData, profileApi, title }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [form] = Form.useForm()
 	const { userId } = useParams()
@@ -36,7 +36,7 @@ const ContactInfoCard = ({ userData, profileApi }) => {
 		}
 	}
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: `${userData?.firstName || '-'} ${userData?.lastName || '-'} ` || '-' },
+		{ label: 'نام و نام خانوادگی:', value: (userData?.firstName || userData?.lastName) ? `${userData?.firstName} ${userData?.lastName}` : '-' },
 		{ label: 'ایمیل:', value: userData?.email || '-' },
 		{ label: 'موبایل:', value: userData?.mobile || '-' },
 	]
@@ -45,7 +45,7 @@ const ContactInfoCard = ({ userData, profileApi }) => {
 		<>
 			<Card className={styles.card}>
 				<Flex align='center' justify='space-between'>
-					<h2>اطلاعات شخصی</h2>
+					{title}
 					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
 						<span>ویرایش</span>
 					</Button>
