@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'fs'
 import File from '../../database/models/File.model.js'
 import User from '../../database/models/User.model.js'
 
@@ -39,6 +40,36 @@ export const uploadProfilePicture = async (req, res) => {
 		return res.status(200).json({
 			message: 'تصویر پروفایل با موفقیت بارگذاری شد',
 		})
+	} catch (err) {
+		console.error(err)
+		res.status(500).json({ error: 'Server error' })
+	}
+}
+
+export const deleteProfilePicture = async (req, res) => {
+	try {
+		const userId = req.params.userId || req.user._id
+		const user = await User.findById(userId).populate('profilePicture')
+
+		if (!user) {
+			return res.status(404).json({ message: 'کاربر یافت نشد' })
+		}
+
+		if (!user.profilePicture) {
+			return res.status(400).json({ message: 'تصویر پروفایلی برای حذف وجود ندارد' })
+		}
+
+		const filePath = path.join('uploads', path.basename(user.profilePicture.url))
+		fs.unlink(filePath, err => {
+			if (err) console.warn('خطا در حذف فایل:', err)
+		})
+
+		await File.findByIdAndDelete(user.profilePicture._id)
+
+		user.profilePicture = null
+		await user.save()
+
+		return res.status(200).json({ message: 'تصویر پروفایل با موفقیت حذف شد' })
 	} catch (err) {
 		console.error(err)
 		res.status(500).json({ error: 'Server error' })

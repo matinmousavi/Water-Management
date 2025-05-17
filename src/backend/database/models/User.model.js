@@ -46,9 +46,9 @@ userSchema.statics.initializeAdmin = async function () {
 			mobile: '09123456789',
 			email: 'admin@example.com',
 		})
-		console.log('✅ ادمین پیش‌فرض از داخل مدل ایجاد شد.')
+		console.log('✅ Default admin user created from the model.')
 	} else {
-		console.log('ℹ️ ادمین موجود بود. نیازی به ایجاد نیست.')
+		console.log('ℹ️ Admin user already exists. No need to create one.')
 	}
 }
 
