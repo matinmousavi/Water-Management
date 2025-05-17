@@ -20,7 +20,7 @@ export default function UserProvider({ children }) {
 	const getMe = async () => {
 		try {
 			const me = await apiSilent.get('me')
-			setUser(me)
+			setUser(me.user)
 		} catch (err) {
 			console.log(err)
 			setUser(false)

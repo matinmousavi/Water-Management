@@ -14,10 +14,12 @@ const Profile = () => {
 
 	return (
 		<Flex vertical justify='space-between'>
-			{isLoading || !data ? <Loading /> : (
+			{isLoading || !data ? (
+				<Loading />
+			) : (
 				<>
 					<h1 className={styles.title}>پروفایل - متین موسوی</h1>
-					<ProfileImageCard initialSrc={data?.user?.profilePicture.url} />
+					<ProfileImageCard initialSrc={data?.user?.profilePicture?.url} />
 					<ContactInfoCard userData={data.user} profileApi={profileApi} />
 				</>
 			)}

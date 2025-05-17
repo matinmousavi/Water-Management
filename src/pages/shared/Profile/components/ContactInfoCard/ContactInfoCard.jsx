@@ -2,12 +2,15 @@ import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Input } from 'an
 import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
 import { useState } from 'react'
+import { useParams } from 'react-router'
 
 const { Text } = Typography
 
 const ContactInfoCard = ({ userData, profileApi }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [form] = Form.useForm()
+	const { userId } = useParams()
+
 	const handleOpenModal = () => {
 		setIsShowModal(true)
 		form.setFieldsValue(userData)
@@ -19,14 +22,21 @@ const ContactInfoCard = ({ userData, profileApi }) => {
 	}
 
 	const onFinish = async values => {
-		const res = await profileApi.patch('me', values)
-		if (!res?.error) {
-			profileApi.get('me')
+		try {
+			const endpoint = userId ? `users/${userId}` : 'me'
+			const res = await profileApi.patch(endpoint, values)
+
+			if (!res?.error) {
+				await profileApi.get(endpoint)
+			}
+
+			setIsShowModal(false)
+		} catch (error) {
+			console.error('Operation failed:', error)
 		}
-		setIsShowModal(false)
 	}
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: `${(userData?.firstName || '-')} ${(userData?.lastName || '-')} ` || '-' },
+		{ label: 'نام و نام خانوادگی:', value: `${userData?.firstName || '-'} ${userData?.lastName || '-'} ` || '-' },
 		{ label: 'ایمیل:', value: userData?.email || '-' },
 		{ label: 'موبایل:', value: userData?.mobile || '-' },
 	]
