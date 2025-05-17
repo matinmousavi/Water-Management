@@ -6,8 +6,10 @@ import Loading from '../../../components/Loading/Loading'
 import { useParams } from 'react-router'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 import DeleteUserCard from './components/DeleteUserCard/DeleteUserCard'
+import { useUser } from '../../../contexts/UserContext'
 
 const Profile = () => {
+	const { isAdmin } = useUser()
 	const profileApi = useAPI()
 	const { data, isLoading } = profileApi
 	const { userId } = useParams()
@@ -22,7 +24,7 @@ const Profile = () => {
 					<h1 className={styles.title}>پروفایل - متین موسوی</h1>
 					<ProfileImageCard initialSrc={data?.user?.profilePicture?.url} />
 					<ContactInfoCard userData={data.user} profileApi={profileApi} />
-					<DeleteUserCard />
+					{isAdmin && <DeleteUserCard />}
 				</>
 			)}
 		</Flex>
