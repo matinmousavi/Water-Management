@@ -1,8 +1,12 @@
 import { Button, Card, Flex, message, App } from 'antd'
 import style from './DeleteUserCard.module.css'
+import useAPI from '../../../../../hooks/useAPI'
+import { useParams } from 'react-router'
 
 const DeleteUserCard = () => {
+	const { userId } = useParams()
 	const { modal } = App.useApp()
+	const { delete: deleteAPI, isLoading } = useAPI()
 
 	const handleDelete = () => {
 		modal.confirm({
@@ -12,8 +16,17 @@ const DeleteUserCard = () => {
 			cancelText: 'انصراف',
 			okType: 'danger',
 			centered: true,
-			onOk: () => {
-				message.success('عملیات حذف با موفقیت انجام شد (تست)')
+			onOk: async () => {
+				try {
+					await deleteAPI(`users/${userId}`)
+					message.success('کاربر با موفقیت حذف شد')
+				} catch (error) {
+					message.error('خطا در حذف کاربر')
+					console.error('Error deleting user:', error)
+				}
+			},
+			okButtonProps: {
+				loading: isLoading,
 			},
 		})
 	}
@@ -22,7 +35,7 @@ const DeleteUserCard = () => {
 		<Card className={style.card}>
 			<Flex justify='space-between' align='center'>
 				<h2 className={style.title}>حذف کاربر</h2>
-				<Button className={style.button} type='primary' danger onClick={handleDelete}>
+				<Button className={style.button} type='primary' danger onClick={handleDelete} loading={isLoading}>
 					حذف کاربر
 				</Button>
 			</Flex>
