@@ -3,10 +3,12 @@ import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
 import { useState } from 'react'
 import { useParams } from 'react-router'
+import { useUser } from '../../../../../contexts/UserContext'
 
 const { Text } = Typography
 
 const ContactInfoCard = ({ userData, profileApi, title }) => {
+	const { setUser } = useUser()
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [form] = Form.useForm()
 	const { userId } = useParams()
@@ -25,8 +27,8 @@ const ContactInfoCard = ({ userData, profileApi, title }) => {
 		try {
 			const endpoint = userId ? `users/${userId}` : 'me'
 			const res = await profileApi.patch(endpoint, values)
-
 			if (!res?.error) {
+				setUser(res.user) 
 				await profileApi.get(endpoint)
 			}
 
