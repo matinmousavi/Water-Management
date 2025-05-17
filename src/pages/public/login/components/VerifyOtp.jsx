@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Form, Input, Button, Flex } from 'antd'
+import { Form, Input, Button, Flex, Typography } from 'antd'
 import img from '../../../../assets/images/water.png'
 import useAPI from '../../../../hooks/useAPI'
 import useNotification from '../../../../hooks/useNotification'
@@ -9,8 +9,12 @@ import { useUser } from '../../../../contexts/UserContext'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './VerifyOtp.module.css'
 
+const { Title } = Typography
+
 const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 	const [form] = Form.useForm()
+	const otpValue = Form.useWatch('otp', form)
+	console.log(otpValue)
 
 	const optApi = useAPI()
 
@@ -46,8 +50,6 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 		return english2persian(`${min}:${sec}`)
 	}
 
-	const isOtpValid = otp.length === 6 && /^\d{6}$/.test(otp)
-
 	const resendOtp = async () => {
 		try {
 			const response = await optApi.post('otp/send', { mobile })
@@ -64,6 +66,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 
 	const handleOtpSubmit = async values => {
 		const { otp } = values
+		console.log('OTP submitted:', values.otp)
 		try {
 			const response = await optApi.post('otp/verify', { mobile, otp })
 			if (response.success) {
@@ -93,29 +96,8 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 						ویرایش شماره موبایل
 					</Button>
 				</Flex>
-				<Form.Item
-					className={styles.input}
-					label='کد تایید ۶ رقمی '
-					name='otp'
-					rules={[
-						{ required: true, message: 'کد تأیید را وارد کنید!' },
-						{
-							pattern: /^\d{6}$/,
-							message: 'کد تأیید باید شامل ۶ رقم باشد!',
-						},
-					]}
-				>
-					<Input
-						autoFocus
-						size='large'
-						type='tel'
-						inputMode='numeric'
-						maxLength={6}
-						value={otp}
-						onChange={e => {
-							setOtp(e.target.value)
-						}}
-					/>
+				<Form.Item className={styles.input} label='کد تایید ۶ رقمی ' name='otp' rules={[{ required: true, message: 'کد تأیید را وارد کنید!' }]}>
+					<Input.OTP autoFocus dir='rtl' value={otp} onChange={val => form.setFieldValue('otp', val)} />
 				</Form.Item>
 
 				<div className={styles.timer}>
@@ -132,7 +114,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 				</div>
 
 				<Form.Item className={styles.input}>
-					<Button htmlType='submit' size='large' block type='primary' disabled={!isOtpValid} className={!isOtpValid ? styles.disabledButton : ''}>
+					<Button htmlType='submit' size='large' block type='primary' disabled={(otpValue || '').length !== 6}>
 						ورود
 					</Button>
 				</Form.Item>
