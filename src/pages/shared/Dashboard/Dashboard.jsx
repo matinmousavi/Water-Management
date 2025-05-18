@@ -5,7 +5,7 @@ const Dashboard = () => {
 	return (
 		<div>
 			<Card className={style.card}>
-				<h1>داشبورد</h1>
+				<h1 className='text-h1'>داشبورد</h1>
 			</Card>
 		</div>
 	)
