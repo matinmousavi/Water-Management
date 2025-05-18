@@ -13,6 +13,14 @@ const FormFields = ({ fields }) => {
 		<Row gutter={[16, 16]}>
 			{fields.map(({ name, label, rules, col = 24, type = 'input', options = [] }) => {
 				const Component = componentMap[type] || Input
+				const additionalProps =
+					name === 'mobile'
+						? {
+								maxLength: 11,
+								type: 'tel',
+								inputMode: 'numeric',
+						  }
+						: {}
 
 				return (
 					<Col key={name} span={col}>
@@ -26,7 +34,7 @@ const FormFields = ({ fields }) => {
 									))}
 								</Select>
 							) : (
-								<Component />
+								<Component {...additionalProps} />
 							)}
 						</Form.Item>
 					</Col>
