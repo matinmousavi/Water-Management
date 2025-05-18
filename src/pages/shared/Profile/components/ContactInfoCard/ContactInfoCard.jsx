@@ -80,7 +80,13 @@ const ContactInfoCard = ({ userData }) => {
 		{
 			name: 'mobile',
 			label: 'موبایل',
-			rules: [{ required: true, message: 'شماره موبایل الزامی است' }],
+			rules: [
+				{ required: true, message: 'شماره موبایل الزامی است' },
+				{
+					pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/,
+					message: 'شماره موبایل معتبر نیست!',
+				},
+			],
 		},
 	]
 
