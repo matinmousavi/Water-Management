@@ -7,7 +7,7 @@ import { useUser } from '../../../../../contexts/UserContext'
 
 const { Text } = Typography
 
-const ContactInfoCard = ({ userData, profileApi, title }) => {
+const ContactInfoCard = ({ userData, profileApi }) => {
 	const { setUser } = useUser()
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [form] = Form.useForm()
@@ -28,7 +28,7 @@ const ContactInfoCard = ({ userData, profileApi, title }) => {
 			const endpoint = userId ? `users/${userId}` : 'me'
 			const res = await profileApi.patch(endpoint, values)
 			if (!res?.error) {
-				setUser(res.user) 
+				setUser(res.user)
 				await profileApi.get(endpoint)
 			}
 
@@ -38,7 +38,7 @@ const ContactInfoCard = ({ userData, profileApi, title }) => {
 		}
 	}
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: (userData?.firstName || userData?.lastName) ? `${userData?.firstName} ${userData?.lastName}` : '-' },
+		{ label: 'نام و نام خانوادگی:', value: userData?.firstName || userData?.lastName ? `${userData?.firstName} ${userData?.lastName}` : '-' },
 		{ label: 'ایمیل:', value: userData?.email || '-' },
 		{ label: 'موبایل:', value: userData?.mobile || '-' },
 	]
@@ -47,7 +47,7 @@ const ContactInfoCard = ({ userData, profileApi, title }) => {
 		<>
 			<Card className={styles.card}>
 				<Flex align='center' justify='space-between'>
-					{title}
+					<h2>اطلاعات شخصی</h2>
 					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
 						<span>ویرایش</span>
 					</Button>

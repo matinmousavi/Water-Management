@@ -6,7 +6,6 @@ import useAPI from '../../../../../hooks/useAPI'
 import styles from './ProfileImageCard.module.css'
 import { useParams } from 'react-router'
 
-
 const beforeUpload = file => {
 	const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
 	if (!isJpgOrPng) {
@@ -19,7 +18,7 @@ const beforeUpload = file => {
 	return isJpgOrPng && isLt2M
 }
 
-const ProfileImageCard = ({ initialSrc , title }) => {
+const ProfileImageCard = ({ initialSrc }) => {
 	const { userId } = useParams()
 	const [fileList, setFileList] = useState(initialSrc ? [{ uid: '-1', name: 'avatar', status: 'done', url: initialSrc }] : [])
 
@@ -83,7 +82,7 @@ const ProfileImageCard = ({ initialSrc , title }) => {
 
 	return (
 		<Card className={styles.card}>
-			{title}
+			<h2>عکس پروفایل</h2>
 			<ImgCrop rotationSlider>
 				<Upload
 					accept='.jpg,.png'
