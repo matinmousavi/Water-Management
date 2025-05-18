@@ -9,12 +9,9 @@ import { useUser } from '../../../../contexts/UserContext'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './VerifyOtp.module.css'
 
-const { Title } = Typography
-
 const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 	const [form] = Form.useForm()
 	const otpValue = Form.useWatch('otp', form)
-	console.log(otpValue)
 
 	const optApi = useAPI()
 
@@ -25,7 +22,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 
 	const [timeLeft, setTimeLeft] = useState(0)
 	const [expireDate, setExpireDate] = useState(initExpireDate)
-	const [otp, setOtp] = useState('')
+	const [otp] = useState('')
 
 	useEffect(() => {
 		if (!expireDate) return

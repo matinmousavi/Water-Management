@@ -1,8 +1,9 @@
-import { Button, Card, Flex, Spin } from 'antd'
+import { Button, Card, Flex } from 'antd'
 import { useEffect, useState } from 'react'
 import FormUsers from '../FormUsers/FormUsers'
 import useAPI from '../../../../hooks/useAPI'
 import UsersTable from './UsersTable'
+import Loading from '../../../../components/Loading/Loading'
 
 const UsersTableContainer = () => {
 	const userApi = useAPI()
@@ -17,11 +18,7 @@ const UsersTableContainer = () => {
 	}
 
 	if (userApi.isLoading) {
-		return (
-			<div>
-				<Spin />
-			</div>
-		)
+		return <Loading />
 	}
 	return (
 		<Card>

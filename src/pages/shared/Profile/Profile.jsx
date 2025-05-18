@@ -15,13 +15,16 @@ const Profile = () => {
 	const { userId } = useParams()
 	userId ? profileApi.init(`users/${userId}`) : profileApi.init('me')
 
+	const titleGeneratoe = () => (data?.user?.firstName || data?.user?.lastName ? `پروفایل - ${data?.user?.firstName} ${data?.user?.lastName}` : 'پروفایل من')
 	return (
 		<Flex vertical justify='space-between'>
 			{isLoading || !data ? (
 				<Loading />
 			) : (
 				<>
-					<h1 className={styles.title}>پروفایل - {data?.user?.firstName} {data?.user?.lastName}</h1>
+					<h1 className={styles.title}>
+						پروفایل - {data?.user?.firstName} {data?.user?.lastName}
+					</h1>
 					<ProfileImageCard initialSrc={data?.user?.profilePicture?.url} />
 					<ContactInfoCard userData={data.user} profileApi={profileApi} />
 					{isAdmin && <DeleteUserCard />}

@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
 			trim: true,
 			lowercase: true,
 			unique: true,
+			sparse: true,
 		},
 		profilePicture: {
 			type: mongoose.Schema.Types.ObjectId,

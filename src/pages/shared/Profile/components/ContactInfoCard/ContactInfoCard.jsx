@@ -3,10 +3,12 @@ import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
 import { useState } from 'react'
 import { useParams } from 'react-router'
+import { useUser } from '../../../../../contexts/UserContext'
 
 const { Text } = Typography
 
-const ContactInfoCard = ({ userData, profileApi }) => {
+const ContactInfoCard = ({ userData, profileApi, title }) => {
+	const { setUser } = useUser()
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [form] = Form.useForm()
 	const { userId } = useParams()
@@ -25,8 +27,8 @@ const ContactInfoCard = ({ userData, profileApi }) => {
 		try {
 			const endpoint = userId ? `users/${userId}` : 'me'
 			const res = await profileApi.patch(endpoint, values)
-
 			if (!res?.error) {
+				setUser(res.user) 
 				await profileApi.get(endpoint)
 			}
 
@@ -36,7 +38,7 @@ const ContactInfoCard = ({ userData, profileApi }) => {
 		}
 	}
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: `${userData?.firstName || '-'} ${userData?.lastName || '-'} ` || '-' },
+		{ label: 'نام و نام خانوادگی:', value: (userData?.firstName || userData?.lastName) ? `${userData?.firstName} ${userData?.lastName}` : '-' },
 		{ label: 'ایمیل:', value: userData?.email || '-' },
 		{ label: 'موبایل:', value: userData?.mobile || '-' },
 	]
@@ -45,7 +47,7 @@ const ContactInfoCard = ({ userData, profileApi }) => {
 		<>
 			<Card className={styles.card}>
 				<Flex align='center' justify='space-between'>
-					<h2>اطلاعات شخصی</h2>
+					{title}
 					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
 						<span>ویرایش</span>
 					</Button>
