@@ -7,7 +7,7 @@ import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 import DeleteUserCard from './components/DeleteUserCard/DeleteUserCard'
 import styles from './Profile.module.css'
-import MetaTitle from '../../../components/MeteTitle/MetaTitle'
+import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 
 const Profile = () => {
 	const { isAdmin } = useUser()
