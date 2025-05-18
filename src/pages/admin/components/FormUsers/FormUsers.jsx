@@ -1,74 +1,99 @@
 import { Button, Dropdown, Form, Input, Modal } from 'antd'
 import useAPI from '../../../../hooks/useAPI'
 import useNotification from '../../../../hooks/useNotification'
+import { useState } from 'react'
+import FormFields from '../../../../components/FormFields/FormFields'
 
-const ROLE_OPTIONS = [
-	{ value: 'admin', label: 'مدیر' },
-	{ value: 'irrigator', label: 'میراب' },
-	{ value: 'landOwner', label: 'مالک زمین' },
+const ROLES = [
+	{ key: 'admin', label: 'مدیر' },
+	{ key: 'irrigator', label: 'میراب' },
+	{ key: 'landOwner', label: 'مالک زمین' },
 ]
 
-const PHONE_REGEX = /^(۰|0)(۹|9)[0-9۰-۹]{9}$/
-
-const UserFormModal = ({ visible, onClose, onSuccess }) => {
-	const [form] = Form.useForm()
+const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 	const { openNotification } = useNotification()
-	const { post: createUser } = useAPI('/users')
+	const [selectValue, setSelectValue] = useState()
+	const [form] = Form.useForm()
+	const userApi = useAPI()
+
+	const handleCancel = () => {
+		form.resetFields()
+		setIsOpen(false)
+	}
 
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-			await createUser(values)
+
+			await userApi.post('/users', {
+				firstName: values.firstName,
+				lastName: values.lastName,
+				email: values.email,
+				mobile: values.mobile,
+				role: values.role,
+			})
 
 			openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
 			form.resetFields()
-			onSuccess()
-			onClose()
+			setIsRenderList(prev => !prev)
+			handleCancel()
 		} catch (error) {
 			openNotification('error', 'خطا', error.response?.data?.message || 'خطایی در ارسال داده رخ داد')
 		}
 	}
 
-	const getSelectedRoleLabel = () => {
-		const selectedRole = form.getFieldValue('role')
-		return ROLE_OPTIONS.find(role => role.value === selectedRole)?.label
-	}
+	const contactFormFields = [
+		{
+			name: 'firstName',
+			label: 'نام',
+			col: 12,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'lastName',
+			label: 'نام خانوادگی',
+			col: 12,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'email',
+			label: 'ایمیل',
+			rules: [
+				{
+					pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+					message: 'فرمت ایمیل معتبر نیست',
+				},
+			],
+		},
+		{
+			name: 'mobile',
+			label: 'موبایل',
+			rules: [
+				{ required: true, message: 'شماره موبایل الزامی است' },
+				{
+					pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/,
+					message: 'شماره موبایل معتبر نیست!',
+				},
+			],
+		},
+	]
 
 	return (
-		<Modal title='فرم افزودن کاربر' visible={visible} onOk={handleSubmit} onCancel={onClose} okText='ذخیره' cancelText='انصراف' destroyOnClose>
-			<Form form={form} layout='vertical' initialValues={{ role: 'landOwner' }}>
-				<Form.Item name='firstName' label='نام' rules={[{ required: true, message: 'لطفاً نام را وارد کنید!' }]}>
-					<Input placeholder='مثال: علی' />
-				</Form.Item>
-
-				<Form.Item name='lastName' label='نام خانوادگی' rules={[{ required: true, message: 'لطفاً نام خانوادگی را وارد کنید!' }]}>
-					<Input placeholder='مثال: محمدی' />
-				</Form.Item>
-
-				<Form.Item name='email' label='ایمیل' rules={[{ type: 'email', message: 'ایمیل معتبر نیست!' }]}>
-					<Input placeholder='example@domain.com' />
-				</Form.Item>
-
-				<Form.Item
-					name='mobile'
-					label='شماره موبایل'
-					rules={[
-						{ required: true, message: 'شماره موبایل خود را وارد کنید!' },
-						{ pattern: PHONE_REGEX, message: 'شماره موبایل معتبر نیست!' },
-					]}
-				>
-					<Input placeholder='مثال: 09121111111' type='tel' inputMode='numeric' maxLength={11} />
-				</Form.Item>
-
-				<Form.Item name='role' label='نقش کاربر' rules={[{ required: true, message: 'لطفاً نقش کاربر را انتخاب کنید' }]}>
+		<Modal title='فرم افزودن کاربر' open={isOpen} onOk={handleSubmit} onCancel={handleCancel} okText='ذخیره' cancelText='انصراف'>
+			<Form form={form} layout='vertical'>
+				<FormFields fields={contactFormFields} />
+				<Form.Item name='role' label='نقش کاربر' rules={[{ required: true, message: 'لطفا نقش کاربر را انتخاب کنید' }]}>
 					<Dropdown
 						menu={{
-							items: ROLE_OPTIONS,
-							onClick: ({ key }) => form.setFieldsValue({ role: key }),
+							items: ROLES,
+							onClick: ({ key }) => {
+								form.setFieldsValue({ role: key })
+								setSelectValue(key)
+							},
 						}}
 						trigger={['click']}
 					>
-						<Button>{getSelectedRoleLabel() || 'نقش کاربر را انتخاب کنید'}</Button>
+						<Button>{form.getFieldValue('role') ? ROLES.find(r => r.key === form.getFieldValue('role')).label : 'نقش کاربر را انتخاب کنید'}</Button>
 					</Dropdown>
 				</Form.Item>
 			</Form>
@@ -76,4 +101,4 @@ const UserFormModal = ({ visible, onClose, onSuccess }) => {
 	)
 }
 
-export default UserFormModal
+export default FormUsers
