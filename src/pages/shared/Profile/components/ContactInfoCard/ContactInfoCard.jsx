@@ -1,21 +1,27 @@
-import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Input } from 'antd'
+import { Card, Col, Row, Typography, Button, Flex, Modal, Form } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
 import { useState } from 'react'
 import { useParams } from 'react-router'
+import useAPI from '../../../../../hooks/useAPI'
 import { useUser } from '../../../../../contexts/UserContext'
+import FormFields from '../../../../../components/FormFields/FormFields'
 
 const { Text } = Typography
 
-const ContactInfoCard = ({ userData, profileApi, title }) => {
+const ContactInfoCard = ({ userData }) => {
 	const { setUser } = useUser()
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [form] = Form.useForm()
 	const { userId } = useParams()
+	const contactInfoApi = useAPI()
+	const { isLoading } = contactInfoApi
+
+	const [userInfo, setUserInfo] = useState(userData)
 
 	const handleOpenModal = () => {
 		setIsShowModal(true)
-		form.setFieldsValue(userData)
+		form.setFieldsValue(userInfo)
 	}
 
 	const handleCloseModal = () => {
@@ -26,44 +32,78 @@ const ContactInfoCard = ({ userData, profileApi, title }) => {
 	const onFinish = async values => {
 		try {
 			const endpoint = userId ? `users/${userId}` : 'me'
-			const res = await profileApi.patch(endpoint, values)
-			if (!res?.error) {
-				setUser(res.user) 
-				await profileApi.get(endpoint)
-			}
+			const res = await contactInfoApi.patch(endpoint, values)
 
-			setIsShowModal(false)
+			if (!res?.error) {
+				if (res?.user) {
+					userId ? setUserInfo(res.user) : setUser(res.user)
+				}
+				setIsShowModal(false)
+			}
 		} catch (error) {
 			console.error('Operation failed:', error)
 		}
 	}
+
 	const contactInfo = [
-		{ label: 'نام و نام خانوادگی:', value: (userData?.firstName || userData?.lastName) ? `${userData?.firstName} ${userData?.lastName}` : '-' },
-		{ label: 'ایمیل:', value: userData?.email || '-' },
-		{ label: 'موبایل:', value: userData?.mobile || '-' },
+		{
+			label: 'نام و نام خانوادگی:',
+			value: userInfo?.firstName || userInfo?.lastName ? `${userInfo?.firstName || ''} ${userInfo?.lastName || ''}`.trim() : '-',
+		},
+		{ label: 'ایمیل:', value: userInfo?.email || '-' },
+		{ label: 'موبایل:', value: userInfo?.mobile || '-' },
+	]
+
+	const contactFormFields = [
+		{
+			name: 'firstName',
+			label: 'نام',
+			col: 12,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'lastName',
+			label: 'نام خانوادگی',
+			col: 12,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'email',
+			label: 'ایمیل',
+			rules: [
+				{
+					pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+					message: 'فرمت ایمیل معتبر نیست',
+				},
+			],
+		},
+		{
+			name: 'mobile',
+			label: 'موبایل',
+			rules: [{ required: true, message: 'شماره موبایل الزامی است' }],
+		},
 	]
 
 	return (
 		<>
 			<Card className={styles.card}>
 				<Flex align='center' justify='space-between'>
-					{title}
+					<h2>اطلاعات شخصی</h2>
 					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
 						<span>ویرایش</span>
 					</Button>
 				</Flex>
+
 				<div className={styles.infoWrapper}>
 					<Row gutter={[0, 8]}>
 						{contactInfo.map((item, index) => (
 							<Col key={index} xs={24} md={20} lg={18} className={styles.line}>
 								<Row>
 									<Col xs={10}>
-										<Text className={styles.text} strong>
-											{item.label}
-										</Text>
+										<Text className='text-label'>{item.label}</Text>
 									</Col>
 									<Col xs={14}>
-										<Text className={styles.text}>{item.value}</Text>
+										<Text className='text-label'>{item.value}</Text>
 									</Col>
 								</Row>
 							</Col>
@@ -71,41 +111,17 @@ const ContactInfoCard = ({ userData, profileApi, title }) => {
 					</Row>
 				</div>
 			</Card>
+
 			<Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
 				<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
-					<Row gutter={[16, 16]}>
-						<Col span={12}>
-							<Form.Item name='firstName' label='نام' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-								<Input />
-							</Form.Item>
-						</Col>
-						<Col span={12}>
-							<Form.Item name='lastName' label='نام خانوادگی' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-								<Input />
-							</Form.Item>
-						</Col>
-					</Row>
-					<Form.Item
-						name='email'
-						label='ایمیل'
-						rules={[
-							{
-								pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-								message: 'فرمت ایمیل معتبر نیست',
-							},
-						]}
-					>
-						<Input />
-					</Form.Item>
-					<Form.Item name='mobile' label='موبایل' rules={[{ required: true, message: 'شماره موبایل الزامی است' }]}>
-						<Input />
-					</Form.Item>
+					<FormFields fields={contactFormFields} />
+
 					<Row justify='end' gutter={8}>
 						<Col>
 							<Button onClick={handleCloseModal}>انصراف</Button>
 						</Col>
 						<Col>
-							<Button type='primary' htmlType='submit'>
+							<Button type='primary' htmlType='submit' loading={isLoading}>
 								ذخیره
 							</Button>
 						</Col>

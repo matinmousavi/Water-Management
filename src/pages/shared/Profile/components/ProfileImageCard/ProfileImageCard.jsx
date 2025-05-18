@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { Card, Upload, message, Modal } from 'antd'
+import { Card, Upload, message, Modal, Flex } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import ImgCrop from 'antd-img-crop'
 import useAPI from '../../../../../hooks/useAPI'
-import styles from './ProfileImageCard.module.css'
 import { useParams } from 'react-router'
-
 
 const beforeUpload = file => {
 	const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
@@ -19,7 +17,7 @@ const beforeUpload = file => {
 	return isJpgOrPng && isLt2M
 }
 
-const ProfileImageCard = ({ initialSrc , title }) => {
+const ProfileImageCard = ({ initialSrc }) => {
 	const { userId } = useParams()
 	const [fileList, setFileList] = useState(initialSrc ? [{ uid: '-1', name: 'avatar', status: 'done', url: initialSrc }] : [])
 
@@ -43,7 +41,7 @@ const ProfileImageCard = ({ initialSrc , title }) => {
 		setPreviewVisible(true)
 	}
 
-	const handleRemove = async file => {
+	const handleRemove = async () => {
 		try {
 			const endpoint = userId ? `upload/profile/picture/${userId}` : 'upload/profile/picture'
 
@@ -82,39 +80,43 @@ const ProfileImageCard = ({ initialSrc , title }) => {
 	}
 
 	return (
-		<Card className={styles.card}>
-			{title}
-			<ImgCrop rotationSlider>
-				<Upload
-					accept='.jpg,.png'
-					name='profilePicture'
-					listType='picture-circle'
-					fileList={fileList}
-					beforeUpload={beforeUpload}
-					customRequest={customUpload}
-					onChange={handleChange}
-					onPreview={handlePreview}
-					onRemove={handleRemove}
-					maxCount={1}
-					showUploadList={{
-						showPreviewIcon: true,
-						showRemoveIcon: true,
-						removeIcon: <DeleteOutlined />,
-					}}
-				>
-					{fileList.length === 0 && (
-						<div>
-							<PlusOutlined />
-							<div style={{ marginTop: 8 }}>آپلود</div>
-						</div>
-					)}
-				</Upload>
-			</ImgCrop>
+		<>
+			<Card>
+				<Flex vertical justify='space-between' gap={10}>
+					<h2 className='text-h2'>عکس پروفایل</h2>
+					<ImgCrop rotationSlider>
+						<Upload
+							accept='.jpg,.png'
+							name='profilePicture'
+							listType='picture-circle'
+							fileList={fileList}
+							beforeUpload={beforeUpload}
+							customRequest={customUpload}
+							onChange={handleChange}
+							onPreview={handlePreview}
+							onRemove={handleRemove}
+							maxCount={1}
+							showUploadList={{
+								showPreviewIcon: true,
+								showRemoveIcon: true,
+								removeIcon: <DeleteOutlined />,
+							}}
+						>
+							{fileList.length === 0 && (
+								<div>
+									<PlusOutlined />
+									<div style={{ marginTop: 8 }}>آپلود</div>
+								</div>
+							)}
+						</Upload>
+					</ImgCrop>
+				</Flex>
+			</Card>
 
 			<Modal open={previewVisible} title='پیش‌نمایش تصویر' destroyOnHidden footer={null} onCancel={() => setPreviewVisible(false)}>
 				<img alt='preview' style={{ width: '100%' }} src={previewImage} />
 			</Modal>
-		</Card>
+		</>
 	)
 }
 

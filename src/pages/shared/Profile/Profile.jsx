@@ -1,31 +1,37 @@
-import { Flex, Typography } from 'antd'
-import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
-import styles from './Profile.module.css'
+import { Flex } from 'antd'
+import { useParams } from 'react-router-dom'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
-import { useParams } from 'react-router'
+import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
-const { Title } = Typography
+
+import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 
 const Profile = () => {
-	const profileApi = useAPI()
-	const { data, isLoading } = profileApi
 	const { userId } = useParams()
-	userId ? profileApi.init(`users/${userId}`) : profileApi.init('me')
+	const profileApi = useAPI()
 
-	const titleGeneratoe = () => data?.user?.firstName || data?.user?.lastName ? `پروفایل - ${data?.user?.firstName} ${data?.user?.lastName}` : 'پروفایل من'
+	const endpoint = userId ? `users/${userId}` : 'me'
+	profileApi.init(endpoint)
+
+	const { data, isLoading } = profileApi
+
+	const { firstName = '', lastName = '' } = data?.user || {}
+	const fullName = `${firstName} ${lastName}`
+	const pageTitle = fullName ? `پروفایل - ${fullName}` : 'پروفایل'
+
+	if (isLoading || !data) return <Loading />
+
 	return (
-		<Flex vertical justify='space-between'>
-			{isLoading || !data ? (
-				<Loading />
-			) : (
-				<>
-					<Title level={3} className={styles.title}>{titleGeneratoe()}</Title>
-					<ProfileImageCard initialSrc={data?.user?.profilePicture?.url} title={<Title level={4}>عکس پروفایل</Title>}/>
-					<ContactInfoCard userData={data.user} profileApi={profileApi} title={<Title level={4}>اطلاعات شخصی</Title>}/>
-				</>
-			)}
-		</Flex>
+		<>
+			<MetaTitle>پروفایل</MetaTitle>
+
+			<Flex vertical justify='space-between' gap={15}>
+				<h1 className='text-page-title'>{pageTitle}</h1>
+				<ProfileImageCard initialSrc={data.user.profilePicture?.url} />
+				<ContactInfoCard userData={data.user} />
+			</Flex>
+		</>
 	)
 }
 
