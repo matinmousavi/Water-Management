@@ -1,72 +1,79 @@
-import { Form, Input, Modal } from 'antd'
+import { Button, Dropdown, Form, Input, Modal } from 'antd'
 import useAPI from '../../../../hooks/useAPI'
 import useNotification from '../../../../hooks/useNotification'
 
-const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
-	const { openNotification } = useNotification()
+const ROLE_OPTIONS = [
+	{ value: 'admin', label: 'مدیر' },
+	{ value: 'irrigator', label: 'میراب' },
+	{ value: 'landOwner', label: 'مالک زمین' },
+]
+
+const PHONE_REGEX = /^(۰|0)(۹|9)[0-9۰-۹]{9}$/
+
+const UserFormModal = ({ visible, onClose, onSuccess }) => {
 	const [form] = Form.useForm()
-	const userApi = useAPI()
-	const handleCancel = () => {
-		form.resetFields()
-		setIsOpen(false)
-	}
+	const { openNotification } = useNotification()
+	const { post: createUser } = useAPI('/users')
 
 	const handleSubmit = async () => {
 		try {
-			await form.validateFields()
-			const values = form.getFieldsValue()
-
-			await userApi.post('/users', {
-				firstName: values.firstName,
-				lastName: values.lastName,
-				email: values.email,
-				mobile: values.mobile,
-				role: 'landOwner',
-			})
+			const values = await form.validateFields()
+			await createUser(values)
 
 			openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
 			form.resetFields()
-			setIsRenderList(prev => !prev)
-			handleCancel()
+			onSuccess()
+			onClose()
 		} catch (error) {
-			openNotification('error', 'خطا', userApi.error.error?.message)
+			openNotification('error', 'خطا', error.response?.data?.message || 'خطایی در ارسال داده رخ داد')
 		}
 	}
+
+	const getSelectedRoleLabel = () => {
+		const selectedRole = form.getFieldValue('role')
+		return ROLE_OPTIONS.find(role => role.value === selectedRole)?.label
+	}
+
 	return (
-		<Modal title='فرم افزودن کاربر' closable={{ 'aria-label': 'Custom Close Button' }} open={isOpen} onOk={handleSubmit} onCancel={() => setIsOpen(false)}>
-			<Form form={form} layout='vertical'>
+		<Modal title='فرم افزودن کاربر' visible={visible} onOk={handleSubmit} onCancel={onClose} okText='ذخیره' cancelText='انصراف' destroyOnClose>
+			<Form form={form} layout='vertical' initialValues={{ role: 'landOwner' }}>
 				<Form.Item name='firstName' label='نام' rules={[{ required: true, message: 'لطفاً نام را وارد کنید!' }]}>
 					<Input placeholder='مثال: علی' />
 				</Form.Item>
-				<Form.Item name='lastName' label=' نام خانوادگی' rules={[{ required: true, message: 'لطفاً نام را وارد کنید!' }]}>
+
+				<Form.Item name='lastName' label='نام خانوادگی' rules={[{ required: true, message: 'لطفاً نام خانوادگی را وارد کنید!' }]}>
 					<Input placeholder='مثال: محمدی' />
 				</Form.Item>
-				<Form.Item
-					name='email'
-					label='ایمیل'
-					rules={[
-						{ required: true, message: 'لطفاً ایمیل را وارد کنید!' },
-						{ type: 'email', message: 'ایمیل معتبر نیست!' },
-					]}
-				>
+
+				<Form.Item name='email' label='ایمیل' rules={[{ type: 'email', message: 'ایمیل معتبر نیست!' }]}>
 					<Input placeholder='example@domain.com' />
 				</Form.Item>
 
 				<Form.Item
-					label='شماره موبایل'
 					name='mobile'
+					label='شماره موبایل'
 					rules={[
-						{ message: 'شماره موبایل خود را وارد کنید!' },
-						{
-							pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/,
-							message: 'شماره موبایل معتبر نیست!',
-						},
+						{ required: true, message: 'شماره موبایل خود را وارد کنید!' },
+						{ pattern: PHONE_REGEX, message: 'شماره موبایل معتبر نیست!' },
 					]}
 				>
 					<Input placeholder='مثال: 09121111111' type='tel' inputMode='numeric' maxLength={11} />
+				</Form.Item>
+
+				<Form.Item name='role' label='نقش کاربر' rules={[{ required: true, message: 'لطفاً نقش کاربر را انتخاب کنید' }]}>
+					<Dropdown
+						menu={{
+							items: ROLE_OPTIONS,
+							onClick: ({ key }) => form.setFieldsValue({ role: key }),
+						}}
+						trigger={['click']}
+					>
+						<Button>{getSelectedRoleLabel() || 'نقش کاربر را انتخاب کنید'}</Button>
+					</Dropdown>
 				</Form.Item>
 			</Form>
 		</Modal>
 	)
 }
-export default FormUsers
+
+export default UserFormModal
