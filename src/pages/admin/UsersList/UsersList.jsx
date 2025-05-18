@@ -5,7 +5,6 @@ import UsersTableContainer from '../components/TableUsers/UsersTableContainer'
 const UsersList = () => {
 	return (
 		<Flex vertical justify='space-between' className={styles.container}>
-			<h1 className={styles.title}>لیست کاربران</h1>
 			<UsersTableContainer />
 		</Flex>
 	)
