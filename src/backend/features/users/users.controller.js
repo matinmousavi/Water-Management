@@ -3,6 +3,9 @@ import User from '../../models/User.model.js'
 const fieldTranslations = {
 	mobile: 'شماره موبایل',
 	email: 'ایمیل',
+	firstName: 'نام',
+	lastName: 'نام خانوادگی',
+	accountingCode: 'کد حسابداری',
 }
 
 export const getUsers = async (req, res) => {
@@ -10,30 +13,8 @@ export const getUsers = async (req, res) => {
 		const users = await User.find().lean()
 		return res.status(200).json({ users })
 	} catch (err) {
-		return res.status(500).json({ error: err.message, message: 'خطا در دریافت اطلاعات کاربران!' })
-	}
-}
-
-export const createUser = async (req, res) => {
-	try {
-		const { role, firstName, lastName, mobile, email } = req.body
-
-		await User.create({ role, firstName, lastName, mobile, email })
-
-		return res.status(201).json({
-			message: 'کاربر با موفقیت ایجاد شد.',
-		})
-	} catch (err) {
-		if (err.code === 11000) {
-			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations[field] || field
-
-			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
-		}
-		return res.status(500).json({
-			message: 'خطا در ایجاد کاربر.',
-			error: err.message,
-		})
+		console.error(err.message)
+		return res.status(500).json({ message: 'خطا در دریافت اطلاعات کاربران!' })
 	}
 }
 
@@ -46,7 +27,35 @@ export const getUser = async (req, res) => {
 		}
 		return res.status(200).json({ user })
 	} catch (err) {
-		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
+		console.error(err.message)
+		return res.status(500).json({ message: 'خطای داخلی سرور' })
+	}
+}
+
+export const createUser = async (req, res) => {
+	try {
+		const { role, firstName, lastName, mobile, email } = req.body
+
+		await User.create({ role, firstName, lastName, mobile, email })
+
+		return res.status(201).json({ message: 'کاربر با موفقیت ایجاد شد.' })
+	} catch (err) {
+		console.error(err.message)
+
+		if (err.code === 11000) {
+			const field = Object.keys(err.keyValue)[0]
+			const fieldName = fieldTranslations[field] || field
+			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
+		}
+
+		if (err.name === 'ValidationError') {
+			const firstError = Object.values(err.errors)[0]
+			const field = firstError.path
+			const fieldName = fieldTranslations[field] || field
+			return res.status(400).json({ message: `${fieldName} الزامی است.` })
+		}
+
+		return res.status(500).json({ message: 'خطا در ایجاد کاربر.' })
 	}
 }
 
@@ -61,19 +70,26 @@ export const updateUser = async (req, res) => {
 		}
 
 		Object.assign(user, updates)
-
 		await user.save()
 
 		return res.status(200).json({ message: 'کاربر با موفقیت ویرایش شد.', user })
 	} catch (err) {
+		console.error(err.message)
+
 		if (err.code === 11000) {
 			const field = Object.keys(err.keyValue)[0]
 			const fieldName = fieldTranslations[field] || field
-
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 
-		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
+		if (err.name === 'ValidationError') {
+			const firstError = Object.values(err.errors)[0]
+			const field = firstError.path
+			const fieldName = fieldTranslations[field] || field
+			return res.status(400).json({ message: `${fieldName} الزامی است.` })
+		}
+
+		return res.status(500).json({ message: 'خطای داخلی سرور' })
 	}
 }
 
@@ -89,6 +105,7 @@ export const deleteUser = async (req, res) => {
 
 		return res.status(200).json({ message: 'کاربر با موفقیت حذف شد.' })
 	} catch (err) {
-		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
+		console.error(err.message)
+		return res.status(500).json({ message: 'خطای داخلی سرور' })
 	}
 }

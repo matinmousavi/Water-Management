@@ -3,6 +3,8 @@ import Well from '../../models/Well.model.js'
 const fieldTranslations = {
 	licenseCode: 'کد پروانه',
 	title: 'عنوان',
+	cycleDays: 'تعداد روزهای چرخه',
+	irrigator: 'آبیار',
 }
 
 export const getWells = async (req, res) => {
@@ -55,26 +57,8 @@ export const createWell = async (req, res) => {
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
-
-			let message
-			switch (field) {
-				case 'title':
-					message = 'عنوان الزامی است.'
-					break
-				case 'licenseCode':
-					message = 'کد مجوز الزامی است.'
-					break
-				case 'cycleDays':
-					message = 'تعداد روزهای چرخه الزامی است.'
-					break
-				case 'irrigator':
-					message = 'آبیار الزامی است.'
-					break
-				default:
-					message = firstError.message
-			}
-
-			return res.status(400).json({ message })
+			const fieldName = fieldTranslations[field] || field
+			return res.status(400).json({ message: `${fieldName} الزامی است.` })
 		}
 
 		return res.status(500).json({
