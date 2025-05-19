@@ -1,4 +1,4 @@
-import User from '../../database/models/User.model.js'
+import User from '../../models/User.model.js'
 
 const fieldTranslations = {
 	mobile: 'شماره موبایل',

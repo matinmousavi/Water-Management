@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
-import OTP from '../../database/models/Otp.model.js'
-import User from '../../database/models/User.model.js'
+import OTP from '../../models/Otp.model.js'
+import User from '../../models/User.model.js'
 
 const isProd = import.meta.env?.PROD
 
