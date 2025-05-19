@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, Upload, message, Modal, Flex } from 'antd'
+import { Card, Upload, message, Modal, Flex, Typography } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import ImgCrop from 'antd-img-crop'
 import useAPI from '../../../../../hooks/useAPI'
@@ -20,7 +20,7 @@ const beforeUpload = file => {
 const ProfileImageCard = ({ initialSrc }) => {
 	const { userId } = useParams()
 	const [fileList, setFileList] = useState(initialSrc ? [{ uid: '-1', name: 'avatar', status: 'done', url: initialSrc }] : [])
-
+	const { Title } = Typography
 	const [previewVisible, setPreviewVisible] = useState(false)
 	const [previewImage, setPreviewImage] = useState('')
 	const uploadApi = useAPI()
@@ -83,7 +83,9 @@ const ProfileImageCard = ({ initialSrc }) => {
 		<>
 			<Card>
 				<Flex vertical justify='space-between' gap={10}>
-					<h2 className='text-h2'>عکس پروفایل</h2>
+					<Title level={2} className='text-h2'>
+						عکس پروفایل
+					</Title>
 					<ImgCrop rotationSlider>
 						<Upload
 							accept='.jpg,.png'
