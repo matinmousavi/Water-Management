@@ -11,16 +11,8 @@ const componentMap = {
 const FormFields = ({ fields }) => {
 	return (
 		<Row gutter={[16, 16]}>
-			{fields.map(({ name, label, rules, col = 24, type = 'input', options = [] }) => {
+			{fields.map(({ name, label, rules, col = 24, type = 'input', options = [], additionalProps = {} }) => {
 				const Component = componentMap[type] || Input
-				const additionalProps =
-					name === 'mobile'
-						? {
-								maxLength: 11,
-								type: 'tel',
-								inputMode: 'numeric',
-						  }
-						: {}
 
 				return (
 					<Col key={name} span={col}>
