@@ -1,10 +1,5 @@
-import {
-	DashboardOutlined,
-	LogoutOutlined,
-	UnorderedListOutlined,
-	UserOutlined,
-} from '@ant-design/icons'
-import { Button, Flex, Image, Layout, Menu } from 'antd'
+import { DashboardOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
+import { Flex, Image, Layout, Menu } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router'
 import style from './Layouts.module.css'
 import { useUser } from '../contexts/UserContext'
@@ -13,12 +8,17 @@ import { useMemo } from 'react'
 const { Sider, Content } = Layout
 
 const Layouts = () => {
-	const { isAdmin, logout, user } = useUser()
+	const { isAdmin, user } = useUser()
 	const location = useLocation()
 
 	const mainMenuItems = useMemo(() => {
 		return isAdmin
 			? [
+					{
+						key: '/',
+						icon: <DashboardOutlined />,
+						label: <Link to='/'>داشبورد</Link>,
+					},
 					{
 						key: '/users',
 						icon: <UnorderedListOutlined />,
@@ -55,52 +55,20 @@ const Layouts = () => {
 			>
 				<Flex vertical justify='space-between' style={{ height: '100%' }}>
 					<div>
-						<Flex
-							align='center'
-							justify='center'
-							gap={6}
-							className={style.logo}
-						>
+						<Flex align='center' justify='center' gap={6} className={style.logo}>
 							<Link to='/'>
-								<Image
-									width={30}
-									src='../assets/images/water.png'
-									preview={false}
-								/>
+								<Image width={30} src='../assets/images/water.png' preview={false} />
 							</Link>
 							<h2 className={style.listTitle}>مدیریت آب</h2>
 						</Flex>
 
-						<Menu
-							theme='dark'
-							mode='inline'
-							selectedKeys={[location.pathname]}
-							items={mainMenuItems}
-							className={style.menu}
-						/>
+						<Menu theme='dark' mode='inline' selectedKeys={[location.pathname]} items={mainMenuItems} className={style.menu} />
 					</div>
 
 					<div>
-						<Menu
-							theme='dark'
-							mode='vertical'
-							selectedKeys={[location.pathname]}
-							className={style.menu}
-						>
+						<Menu theme='dark' mode='vertical' selectedKeys={[location.pathname]} className={style.menu}>
 							<Menu.Item key='/profile' icon={<UserOutlined />}>
 								<Link to='/profile'>{fullName || 'پروفایل'}</Link>
-							</Menu.Item>
-
-							<Menu.Item key='logout'>
-								<Button
-									type='text'
-									icon={<LogoutOutlined />}
-									onClick={logout}
-									className={style.logoutButton}
-									style={{ color: '#fff' }}
-								>
-									خروج
-								</Button>
 							</Menu.Item>
 						</Menu>
 					</div>

@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
-import File from '../../database/models/File.model.js'
-import User from '../../database/models/User.model.js'
+import File from '../../models/File.model.js'
+import User from '../../models/User.model.js'
 
 export const uploadProfilePicture = async (req, res) => {
 	try {

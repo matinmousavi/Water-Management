@@ -1,4 +1,4 @@
-import mongoose from '../connectToDatabase.js'
+import mongoose from '../config/database.js'
 
 const userSchema = new mongoose.Schema(
 	{
@@ -26,6 +26,17 @@ const userSchema = new mongoose.Schema(
 			unique: true,
 			sparse: true,
 		},
+		address: {
+			type: String,
+			trim: true,
+			default: '',
+		},
+		accountingCode: {
+			type: String,
+			trim: true,
+			unique: true,
+			sparse: true,
+		},
 		profilePicture: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'File',
@@ -46,6 +57,8 @@ userSchema.statics.initializeAdmin = async function () {
 			lastName: 'سیستم',
 			mobile: '09123456789',
 			email: 'admin@example.com',
+			address: 'تهران، میدان آزادی',
+			accountingCode: 'ADM-001',
 		})
 		console.log('✅ Default admin user created from the model.')
 	} else {
