@@ -69,11 +69,9 @@ const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 					message: 'شماره موبایل معتبر نیست!',
 				},
 			],
-			additionalProps: {
-				maxLength: 11,
-				type: 'tel',
-				inputMode: 'numeric',
-			},
+			maxLength: 11,
+			type: 'tel',
+			inputMode: 'numeric',
 		},
 	]
 
