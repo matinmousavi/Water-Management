@@ -25,13 +25,7 @@ const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 		try {
 			const values = await form.validateFields()
 
-			await userApi.post('/users', {
-				firstName: values.firstName,
-				lastName: values.lastName,
-				email: values.email,
-				mobile: values.mobile,
-				role: values.role,
-			})
+			await userApi.post('/users', values)
 
 			openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
 			form.resetFields()
