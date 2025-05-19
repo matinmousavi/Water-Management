@@ -6,21 +6,26 @@ import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
+import { useUser } from '../../../contexts/UserContext'
 
 const Profile = () => {
+	const { user } = useUser()
 	const { userId } = useParams()
 	const profileApi = useAPI()
 
-	const endpoint = userId ? `users/${userId}` : 'me'
-	profileApi.init(endpoint)
+	if (userId) {
+		profileApi.init(`users/${userId}`)
+	}
 
 	const { data, isLoading } = profileApi
 
-	const { firstName = '', lastName = '' } = data?.user || {}
+	const userData = userId ? data?.user : user
+
+	const { firstName = '', lastName = '' } = userData || {}
 	const fullName = `${firstName} ${lastName}`
 	const pageTitle = fullName ? `پروفایل - ${fullName}` : 'پروفایل'
 
-	if (isLoading || !data) return <Loading />
+	if (userId && (isLoading || !data)) return <Loading />
 
 	return (
 		<>
@@ -28,8 +33,8 @@ const Profile = () => {
 
 			<Flex vertical justify='space-between' gap={15}>
 				<h1 className='text-page-title'>{pageTitle}</h1>
-				<ProfileImageCard initialSrc={data.user.profilePicture?.url} />
-				<ContactInfoCard userData={data.user} />
+				<ProfileImageCard initialSrc={userData.profilePicture?.url} />
+				<ContactInfoCard userData={userData} />
 			</Flex>
 		</>
 	)

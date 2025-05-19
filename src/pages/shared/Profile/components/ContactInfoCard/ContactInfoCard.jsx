@@ -36,7 +36,8 @@ const ContactInfoCard = ({ userData }) => {
 
 			if (!res?.error) {
 				if (res?.user) {
-					userId ? setUserInfo(res.user) : setUser(res.user)
+					setUserInfo(res.user)
+					setUser(res.user)
 				}
 				setIsShowModal(false)
 			}
