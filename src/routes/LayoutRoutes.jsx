@@ -5,6 +5,7 @@ import Login from '../pages/public/login/Login'
 import { useUser } from '../contexts/UserContext'
 import UsersList from '../pages/admin/UsersList/UsersList'
 import Profile from '../pages/shared/Profile/Profile'
+import LandsList from '../pages/admin/LandsList/LandsList'
 
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin } = useUser()
@@ -21,6 +22,7 @@ const LayoutRoutes = () => {
 						<>
 							<Route path='/users' element={<UsersList />} />
 							<Route path='/users/:userId' element={<Profile />} />
+							<Route path='/lands' element={<LandsList />} />
 						</>
 					)}
 				</Route>
