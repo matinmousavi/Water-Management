@@ -9,6 +9,7 @@ import otp from './otp/otp.routes.js'
 import me from './me/me.routes.js'
 import users from './users/users.routes.js'
 import upload from './upload/upload.routes.js'
+import wells from './wells/wells.routes.js'
 
 const isProd = import.meta.env?.PROD
 const router = Router()
@@ -41,5 +42,6 @@ router.use('/otp', otp)
 router.use('/me', isLogin, me)
 router.use('/users', isAdmin, users)
 router.use('/upload', isLogin, upload)
+router.use('/wells', wells)
 
 export default router

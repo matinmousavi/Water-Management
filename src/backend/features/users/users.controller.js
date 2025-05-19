@@ -73,7 +73,6 @@ export const updateUser = async (req, res) => {
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 
-		console.error('خطا در ویرایش کاربر:', err)
 		return res.status(500).json({ error: err.message, message: 'خطای داخلی سرور' })
 	}
 }
