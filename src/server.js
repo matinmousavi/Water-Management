@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import compression from 'compression'
-import api from './backend/apis/index.js'
+import api from './backend/features/index.js'
 
 const isProd = import.meta.env?.PROD
 const PORT = process.env.PORT || 5173

@@ -1,4 +1,4 @@
-import mongoose from '../connectToDatabase.js'
+import mongoose from '../config/database.js'
 
 const fileSchema = new mongoose.Schema(
 	{
