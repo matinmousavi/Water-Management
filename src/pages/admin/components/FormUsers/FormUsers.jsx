@@ -90,7 +90,7 @@ const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 						}}
 						trigger={['click']}
 					>
-						<Button>{form.getFieldValue('role') ? ROLES.find(r => r.key === form.getFieldValue('role')).label : 'نقش کاربر را انتخاب کنید'}</Button>
+						<Button>{form.getFieldValue('role') ? ROLES.find(r => r.key === selectValue).label : 'نقش کاربر را انتخاب کنید'}</Button>
 					</Dropdown>
 				</Form.Item>
 			</Form>
