@@ -1,4 +1,4 @@
-import { Flex } from 'antd'
+import { Flex, Typography } from 'antd'
 import { useParams } from 'react-router-dom'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
@@ -12,7 +12,7 @@ const Profile = () => {
 	const { user } = useUser()
 	const { userId } = useParams()
 	const profileApi = useAPI()
-
+	const { Title } = Typography
 	if (userId) {
 		profileApi.init(`users/${userId}`)
 	}
@@ -32,7 +32,7 @@ const Profile = () => {
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between' gap={15}>
-				<h1 className='text-page-title'>{pageTitle}</h1>
+				<Title className='text-h1'>{pageTitle}</Title>
 				<ProfileImageCard initialSrc={userData.profilePicture?.url} />
 				<ContactInfoCard userData={userData} />
 			</Flex>

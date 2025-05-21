@@ -1,10 +1,16 @@
 import { Button, Input, Table } from 'antd'
 import { Link } from 'react-router'
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 
 const handleSearch = (selectedKeys, confirm) => {
 	confirm()
 }
+
+const handleReset = (clearFilters, confirm) => {
+	clearFilters()
+	confirm()
+}
+
 const getColumnSearchProps = dataIndex => ({
 	filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
 		<div style={{ padding: 8 }}>
@@ -19,18 +25,21 @@ const getColumnSearchProps = dataIndex => ({
 				<Button type='primary' onClick={() => handleSearch(selectedKeys, confirm)} icon={<SearchOutlined />} size='small' style={{ width: 90 }}>
 					جستجو
 				</Button>
+				<Button onClick={() => handleReset(clearFilters, confirm)} size='small' style={{ width: 90 }} icon={<CloseOutlined />}>
+					حذف فیلتر
+				</Button>
 			</div>
 		</div>
 	),
 	filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-	onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+	onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
 })
+
 const columns = [
 	{
 		title: 'نام و نام خانوادگی',
 		dataIndex: 'firstName',
 		key: 'firstName',
-		...getColumnSearchProps('firstName'),
 		render: (_, record) => (
 			<Button type='link'>
 				<Link to={record._id}>
@@ -43,6 +52,7 @@ const columns = [
 		title: 'شماره همراه',
 		dataIndex: 'mobile',
 		key: 'mobile',
+		...getColumnSearchProps('mobile'),
 	},
 	{
 		title: 'ایمیل',
@@ -50,7 +60,9 @@ const columns = [
 		key: 'email',
 	},
 ]
+
 const UsersTable = ({ data }) => {
-	return <Table scroll={{ x: 'max-content' }} pagination={false} columns={columns} dataSource={data} rowKey={record => record._id} />
+	return <Table scroll={{ x: 'calc(90vh + 10%)', y: 50 * 7 }} pagination={false} columns={columns} dataSource={data} rowKey={record => record._id} />
 }
+
 export default UsersTable
