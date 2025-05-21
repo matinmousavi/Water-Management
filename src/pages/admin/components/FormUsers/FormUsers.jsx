@@ -25,20 +25,17 @@ const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 		try {
 			const values = await form.validateFields()
 
-			await userApi.post('/users', {
-				firstName: values.firstName,
-				lastName: values.lastName,
-				email: values.email,
-				mobile: values.mobile,
-				role: values.role,
-			})
-
-			openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
-			form.resetFields()
-			setIsRenderList(prev => !prev)
-			handleCancel()
+			const res = await userApi.post('/users', values)
+			if (res.error) {
+				openNotification('error', res.message)
+			} else {
+				openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
+				form.resetFields()
+				setIsRenderList(prev => !prev)
+				handleCancel()
+			}
 		} catch (error) {
-			openNotification('error', 'خطا', error.response?.data?.message || 'خطایی در ارسال داده رخ داد')
+			openNotification('error', 'خطا', error.error.message)
 		}
 	}
 
@@ -75,6 +72,9 @@ const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 					message: 'شماره موبایل معتبر نیست!',
 				},
 			],
+			maxLength: 11,
+			type: 'tel',
+			inputMode: 'numeric',
 		},
 	]
 
@@ -93,7 +93,7 @@ const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 						}}
 						trigger={['click']}
 					>
-						<Button>{form.getFieldValue('role') ? ROLES.find(r => r.key === form.getFieldValue('role')).label : 'نقش کاربر را انتخاب کنید'}</Button>
+						<Button>{form.getFieldValue('role') ? ROLES.find(r => r.key === selectValue).label : 'نقش کاربر را انتخاب کنید'}</Button>
 					</Dropdown>
 				</Form.Item>
 			</Form>

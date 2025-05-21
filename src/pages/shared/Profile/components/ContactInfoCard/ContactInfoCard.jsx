@@ -7,7 +7,7 @@ import useAPI from '../../../../../hooks/useAPI'
 import { useUser } from '../../../../../contexts/UserContext'
 import FormFields from '../../../../../components/FormFields/FormFields'
 
-const { Text } = Typography
+const { Text, Title } = Typography
 
 const ContactInfoCard = ({ userData }) => {
 	const { setUser } = useUser()
@@ -95,7 +95,9 @@ const ContactInfoCard = ({ userData }) => {
 		<>
 			<Card className={styles.card}>
 				<Flex align='center' justify='space-between'>
-					<h2>اطلاعات شخصی</h2>
+					<Title level={2} className='text-h2'>
+						اطلاعات شخصی
+					</Title>
 					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
 						<span>ویرایش</span>
 					</Button>

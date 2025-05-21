@@ -62,7 +62,7 @@ const columns = [
 ]
 
 const UsersTable = ({ data }) => {
-	return <Table scroll={{ x: 'max-content' }} pagination={false} columns={columns} dataSource={data} rowKey={record => record._id} />
+	return <Table scroll={{ x: 'calc(90vh + 10%)', y: 50 * 7 }} pagination={false} columns={columns} dataSource={data} rowKey={record => record._id} />
 }
 
 export default UsersTable

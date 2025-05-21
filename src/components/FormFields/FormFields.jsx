@@ -11,22 +11,14 @@ const componentMap = {
 const FormFields = ({ fields }) => {
 	return (
 		<Row gutter={[16, 16]}>
-			{fields.map(({ name, label, rules, col = 24, type = 'input', options = [] }) => {
-				const Component = componentMap[type] || Input
-				const additionalProps =
-					name === 'mobile'
-						? {
-								maxLength: 11,
-								type: 'tel',
-								inputMode: 'numeric',
-						  }
-						: {}
+			{fields.map(({ name, label, rules, col = 24, inputType = 'input', options = [], ...restProps }) => {
+				const Component = componentMap[inputType] || Input
 
 				return (
 					<Col key={name} span={col}>
 						<Form.Item name={name} label={label} rules={rules}>
-							{type === 'select' ? (
-								<Select>
+							{inputType === 'select' ? (
+								<Select {...restProps}>
 									{options.map(opt => (
 										<Select.Option key={opt.value} value={opt.value}>
 											{opt.label}
@@ -34,7 +26,7 @@ const FormFields = ({ fields }) => {
 									))}
 								</Select>
 							) : (
-								<Component {...additionalProps} />
+								<Component {...restProps} />
 							)}
 						</Form.Item>
 					</Col>
