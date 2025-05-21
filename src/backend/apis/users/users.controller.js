@@ -10,7 +10,17 @@ const fieldTranslations = {
 
 export const getUsers = async (req, res) => {
 	try {
-		const users = await User.find().lean()
+		const filter = {}
+
+		const allowedFields = ['role', 'firstName', 'lastName', 'mobile', 'email', 'address', 'accountingCode']
+
+		allowedFields.forEach(field => {
+			if (req.query[field]) {
+				filter[field] = { $regex: `^${req.query[field]}$`, $options: 'i' }
+			}
+		})
+
+		const users = await User.find(filter).lean()
 		return res.status(200).json({ users })
 	} catch (err) {
 		console.error(err.message)

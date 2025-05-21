@@ -43,7 +43,7 @@ router.use('/otp', otp)
 router.use('/me', isLogin, me)
 router.use('/users', isAdmin, users)
 router.use('/upload', isLogin, upload)
-router.use('/wells', wells)
-router.use('/lands', lands)
+router.use('/wells', isAdmin, wells)
+router.use('/lands', isAdmin, lands)
 
 export default router
