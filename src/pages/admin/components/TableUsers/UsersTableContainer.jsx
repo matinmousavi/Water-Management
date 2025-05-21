@@ -23,7 +23,9 @@ const UsersTableContainer = () => {
 	return (
 		<Flex vertical>
 			<Flex justify='space-between' align='center' style={{ marginBottom: '10px' }}>
-				<Title className='text-h1'>لیست کاربران</Title>
+				<Title level={1} className='text-h1'>
+					لیست کاربران
+				</Title>
 				<Button onClick={showModal} type='primary'>
 					افزودن کاربر
 				</Button>
