@@ -25,14 +25,17 @@ const FormUsers = ({ isOpen, setIsOpen, setIsRenderList }) => {
 		try {
 			const values = await form.validateFields()
 
-			await userApi.post('/users', values)
-
-			openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
-			form.resetFields()
-			setIsRenderList(prev => !prev)
-			handleCancel()
+			const res = await userApi.post('/users', values)
+			if (res.error) {
+				openNotification('error', res.message)
+			} else {
+				openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
+				form.resetFields()
+				setIsRenderList(prev => !prev)
+				handleCancel()
+			}
 		} catch (error) {
-			openNotification('error', 'خطا', error.response?.data?.message || 'خطایی در ارسال داده رخ داد')
+			openNotification('error', 'خطا', error.error.message)
 		}
 	}
 
