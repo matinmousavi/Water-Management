@@ -1,9 +1,12 @@
-import { Button, Card, Col, Flex, Row, Typography } from 'antd'
+import { Button, Card, Col, Flex, Form, Modal, Row, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './Land.module.css'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import DeleteCard from '../../admin/components/DeleteCard/DeleteCard'
+import FormFields from '../../../components/FormFields/FormFields'
+import { useState } from 'react'
+import Loading from '../../../components/Loading/Loading'
 
 const { Text, Title } = Typography
 
@@ -28,6 +31,8 @@ const mockLand = {
 
 const Land = () => {
   const { landId } = useParams()
+  const [isShowModal, setIsShowModal] = useState(false)
+  const [form] = Form.useForm()
   const useMock = true
 
   const landApi = useAPI()
@@ -38,10 +43,32 @@ const Land = () => {
   const { land } = landData
 
   const handleOpenModal = () => {
-    console.log('ویرایش کلیک شد')
+    setIsShowModal(true)
+    form.setFieldsValue(userInfo)
   }
 
-  if (!land || isLoading) return <p>در حال بارگذاری...</p>
+  const handleCloseModal = () => {
+    setIsShowModal(false)
+    form.resetFields()
+  }
+  const onFinish = async values => {
+    try {
+      const endpoint = userId ? `users/${userId}` : 'me'
+      const res = await contactInfoApi.patch(endpoint, values)
+
+      if (!res?.error) {
+        if (res?.user) {
+          setUserInfo(res.user)
+          setUser(res.user)
+        }
+        setIsShowModal(false)
+      }
+    } catch (error) {
+      console.error('Operation failed:', error)
+    }
+  }
+
+  if (!land || isLoading) return <Loading />
 
   const landInfoList = [
     { label: 'نام زمین', value: land.name },
@@ -51,6 +78,61 @@ const Land = () => {
     { label: 'موقعیت', value: land.location || '-' },
     { label: 'نوع آبیاری', value: land.irrigationType },
     { label: 'تعداد چاه‌ها', value: `${land.wells?.length || 0}` },
+  ]
+
+  const LandFormFields = [
+    {
+      name: 'name',
+      label: 'نام',
+      col: 12,
+      rules: [{ required: true, message: 'این فیلد الزامی است' }],
+    },
+    {
+      name: 'owner',
+      label: 'مالک',
+      col: 12,
+      rules: [{ required: true, message: 'این فیلد الزامی است' }],
+    },
+    {
+      name: 'area',
+      label: 'مساحت',
+      rules: [
+        {
+          required: true,
+          message: 'این فیلد الزامی است',
+        },
+      ],
+    },
+    {
+      name: 'kFactor',
+      label: 'ضریب K',
+      rules: [
+        {
+          required: true,
+          message: 'این فیلد الزامی است',
+        },
+      ],
+    },
+    {
+      name: 'location',
+      label: 'موقعیت',
+      rules: [
+        {
+          required: true,
+          message: 'این فیلد الزامی است',
+        },
+      ],
+    },
+    {
+      name: 'irrigationType',
+      label: 'نوع آبیاری',
+      rules: [
+        {
+          required: true,
+          message: 'این فیلد الزامی است',
+        },
+      ],
+    },
   ]
 
   return (
@@ -83,6 +165,23 @@ const Land = () => {
         </div>
       </Card>
       <DeleteCard title="زمین" api="lands" />
+
+      <Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
+        <Form form={form} onFinish={onFinish} layout='vertical' size='large'>
+          <FormFields fields={LandFormFields} />
+
+          <Row justify='end' gutter={8}>
+            <Col>
+              <Button onClick={handleCloseModal}>انصراف</Button>
+            </Col>
+            <Col>
+              <Button type='primary' htmlType='submit' loading={isLoading}>
+                ذخیره
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </>
   )
 }
