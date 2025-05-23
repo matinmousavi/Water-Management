@@ -16,7 +16,6 @@ const FormLands = ({ isOpen, setIsOpen, setIsRenderList }) => {
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-			console.log(values)
 			const res = await post('/lands', values)
 			if (res.error) {
 				openNotification('error', res.message)
