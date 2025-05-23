@@ -5,7 +5,7 @@ import Login from '../pages/public/login/Login'
 import { useUser } from '../contexts/UserContext'
 import UsersList from '../pages/admin/UsersList/UsersList'
 import Profile from '../pages/shared/Profile/Profile'
-import LandsList from '../pages/admin/LandsList/LandsList'
+import LandsList from '../pages/shared/LandsList/LandsList'
 
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin } = useUser()

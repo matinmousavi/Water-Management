@@ -1,5 +1,5 @@
 import { Flex } from 'antd'
-import LandsTableContainer from '../components/TableLands/LandsTableContainer'
+import LandsTableContainer from './components/TableLands/LandsTableContainer'
 
 const LandsList = () => {
 	return (

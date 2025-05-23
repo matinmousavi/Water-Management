@@ -10,6 +10,7 @@ const columns = [
 		title: 'مالک',
 		dataIndex: 'owner',
 		key: 'owner',
+		render: (_, record) => `${record.owner.firstName} ${record.owner.lastName}`,
 	},
 	{
 		title: 'مساحت',
@@ -33,6 +34,6 @@ const columns = [
 	},
 ]
 const LandsTable = ({ data }) => {
-	return <Table columns={columns} dataSource={data} />
+	return <Table scroll={{ x: 'calc(90vh + 10%)', y: 50 * 7 }} pagination={false} columns={columns} rowKey='_id' dataSource={data} />
 }
 export default LandsTable
