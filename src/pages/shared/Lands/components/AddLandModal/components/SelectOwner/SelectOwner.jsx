@@ -11,15 +11,13 @@ const SelectOwner = ({ value, onChange }) => {
 	useEffect(() => {
 		const getUsers = async () => {
 			try {
-				const params = {
+				await get('users', {
 					role: isAdmin ? 'admin' : null,
-					...(value?.firstName && { firstName: value.firstName }),
-					...(value?.lastName && { lastName: value.lastName }),
-				}
-
-				await get(`users`, { params })
+					firstName: value?.firstName,
+					lastName: value?.lastName,
+				})
 			} catch (error) {
-				console.error('Error fetching users:', error)
+				console.error('Error fetching users:', error.error.message)
 			}
 		}
 
