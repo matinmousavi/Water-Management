@@ -4,14 +4,13 @@ import { useEffect } from 'react'
 import { useUser } from '../../../../../../../contexts/UserContext'
 
 const SelectOwner = ({ value, onChange }) => {
-	const { init, get, data, loading } = useAPI()
+	const selectOwnerApi = useAPI()
 	const { isAdmin } = useUser()
 
-	init('users')
 	useEffect(() => {
 		const getUsers = async () => {
 			try {
-				await get('users', {
+				await selectOwnerApi.get('users', {
 					role: isAdmin ? 'admin' : null,
 					firstName: value?.firstName,
 					lastName: value?.lastName,
@@ -25,7 +24,7 @@ const SelectOwner = ({ value, onChange }) => {
 	}, [isAdmin, value?.firstName, value?.lastName])
 
 	const handleChange = selectedValue => {
-		const selectedUser = data?.users?.find(user => user._id === selectedValue)
+		const selectedUser = selectOwnerApi.data?.users?.find(user => user._id === selectedValue)
 		if (selectedUser) {
 			onChange?.({
 				_id: selectedValue,
@@ -39,11 +38,11 @@ const SelectOwner = ({ value, onChange }) => {
 		<Select
 			showSearch
 			placeholder='مالک را انتخاب کنید'
-			loading={loading}
+			loading={selectOwnerApi.isLoading}
 			value={value?._id}
 			onChange={handleChange}
 			filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-			options={data?.users?.map(user => ({
+			options={selectOwnerApi.data?.users?.map(user => ({
 				value: user._id,
 				label: `${user.firstName} ${user.lastName}`,
 			}))}
