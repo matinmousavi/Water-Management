@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Card, Table } from 'antd'
 
 const columns = [
 	{
@@ -33,7 +33,11 @@ const columns = [
 		key: 'irrigationType',
 	},
 ]
-const LandsList = ({ data }) => {
-	return <Table scroll={{ x: 'calc(90vh + 10%)', y: 50 * 7 }} pagination={false} columns={columns} rowKey='_id' dataSource={data} />
+const LandsList = ({ landsData }) => {
+	return (
+		<Card>
+			<Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
+		</Card>
+	)
 }
 export default LandsList

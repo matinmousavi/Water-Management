@@ -5,26 +5,27 @@ import FormFields from '../../../../../components/FormFields/FormFields'
 import SelectOwner from './components/SelectOwner/SelectOwner'
 import { useState } from 'react'
 
-const AddLandModal = ({ refetchLands }) => {
+const AddLandModal = ({ setLandsData }) => {
 	const [isOpen, setIsOpen] = useState(false)
-	const { post, get } = useAPI()
+	const addLandApi = useAPI()
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
+
 	const handleCancel = () => {
 		form.resetFields()
 		setIsOpen(false)
 	}
+
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-			const res = await post('/lands', values)
-			if (res.error) {
-				openNotification('error', res.message)
+			const response = await addLandApi.post('lands', values)
+			if (response.error) {
+				openNotification('error', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', 'زمین با موفقیت اضافه شد')
 				form.resetFields()
-				await get('lands')
-				refetchLands()
+				setLandsData(prev => [...prev, response.land])
 				handleCancel()
 			}
 		} catch (error) {
