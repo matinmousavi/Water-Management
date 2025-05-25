@@ -51,7 +51,9 @@ export const createLand = async (req, res) => {
 
 		const newLand = await Land.create({ name, owner, area, kFactor, location, irrigationType })
 
-		return res.status(201).json({ message: 'زمین با موفقیت ایجاد شد.', land: newLand })
+		const populatedLand = await newLand.populate('owner')
+
+		return res.status(201).json({ message: 'زمین با موفقیت ایجاد شد.', land: populatedLand })
 	} catch (err) {
 		console.error(err.message)
 
