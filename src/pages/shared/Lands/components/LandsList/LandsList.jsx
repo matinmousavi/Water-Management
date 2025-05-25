@@ -1,10 +1,12 @@
 import { Card, Table } from 'antd'
+import { Link } from 'react-router'
 
 const columns = [
 	{
 		title: 'نام زمین',
 		dataIndex: 'name',
 		key: 'name',
+		render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
 	},
 	{
 		title: 'مالک',
