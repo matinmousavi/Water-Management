@@ -1,15 +1,19 @@
-import { DashboardOutlined, EnvironmentOutlined, UnorderedListOutlined, UserOutlined, WomanOutlined } from '@ant-design/icons'
-import { Flex, Image, Layout, Menu } from 'antd'
-import { Link, Outlet, useLocation } from 'react-router'
-import style from './Layouts.module.css'
+import { DashboardOutlined, EnvironmentOutlined, UnorderedListOutlined, UserOutlined, WomanOutlined, MenuOutlined } from '@ant-design/icons'
+import { Drawer, Flex, Image, Layout, Menu, Button, Grid } from 'antd'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import style from './Layouts.module.css'
 
-const { Sider, Content } = Layout
+const { Header, Content } = Layout
+const { useBreakpoint } = Grid
 
 const Layouts = () => {
 	const { isAdmin, user } = useUser()
 	const location = useLocation()
+	const [drawerVisible, setDrawerVisible] = useState(false)
+	const screens = useBreakpoint()
+	const isMobile = !screens.md
 
 	const mainMenuItems = useMemo(() => {
 		return isAdmin
@@ -22,17 +26,17 @@ const Layouts = () => {
 					{
 						key: '/users',
 						icon: <UnorderedListOutlined />,
-						label: <Link to='/users'> کاربران</Link>,
+						label: <Link to='/users'>کاربران</Link>,
 					},
 					{
 						key: '/lands',
 						icon: <EnvironmentOutlined />,
-						label: <Link to='/lands'> زمین ها</Link>,
+						label: <Link to='/lands'>زمین‌ها</Link>,
 					},
 					{
 						key: '/wells',
 						icon: <WomanOutlined />,
-						label: <Link to='/wells'>لیست چاه ها</Link>,
+						label: <Link to='/wells'>لیست چاه‌ها</Link>,
 					},
 			  ]
 			: [
@@ -47,49 +51,38 @@ const Layouts = () => {
 	const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
 
 	return (
-		<Layout className={style.layout}>
-			<Sider
-				breakpoint='lg'
-				collapsedWidth='0'
-				zeroWidthTriggerStyle={{
-					backgroundColor: 'transparent',
-					top: 30,
-					right: 20,
-					borderRadius: 0,
-					color: '#000',
-					width: 30,
-					height: 30,
-					fontSize: 17,
-				}}
-				className={style.sider}
-			>
-				<Flex vertical justify='space-between' style={{ height: '100%' }}>
-					<div>
-						<Flex align='center' justify='center' gap={6} className={style.logo}>
-							<Link to='/'>
-								<Image width={30} src='../assets/images/water.png' preview={false} />
-							</Link>
-							<h2 className={style.listTitle}>مدیریت آب</h2>
-						</Flex>
-
-						<Menu theme='dark' mode='inline' selectedKeys={[location.pathname]} items={mainMenuItems} className={style.menu} />
-					</div>
-
-					<div>
-						<Menu theme='dark' mode='vertical' selectedKeys={[location.pathname]} className={style.menu}>
+		<Layout>
+			<Header>
+				<Flex align='center' justify='space-between'>
+					<Flex align='center' gap={6}>
+						<Link to='/'>
+							<Image width={30} src='../assets/images/water.png' preview={false} />
+						</Link>
+						<h2 className={style.title}>مدیریت آب</h2>
+						{!isMobile && <Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} className={style.menu} />}
+					</Flex>
+					{!isMobile ? (
+						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} className={style.menu}>
 							<Menu.Item key='/profile' icon={<UserOutlined />}>
 								<Link to='/profile'>{fullName || 'پروفایل'}</Link>
 							</Menu.Item>
 						</Menu>
-					</div>
+					) : (
+						<Button className={style.button} type='text' icon={<MenuOutlined />} onClick={() => setDrawerVisible(true)} />
+					)}
 				</Flex>
-			</Sider>
-
-			<Layout>
-				<Content className={style.content}>
-					<Outlet />
-				</Content>
-			</Layout>
+			</Header>
+			<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible} className={style.mobileDrawer}>
+				<Menu mode='vertical' selectedKeys={[location.pathname]} items={mainMenuItems} onClick={() => setDrawerVisible(false)} />
+				<Menu mode='vertical' selectedKeys={[location.pathname]}>
+					<Menu.Item key='/profile' icon={<UserOutlined />}>
+						<Link to='/profile'>{fullName || 'پروفایل'}</Link>
+					</Menu.Item>
+				</Menu>
+			</Drawer>
+			<Content className={style.content}>
+				<Outlet />
+			</Content>
 		</Layout>
 	)
 }
