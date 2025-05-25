@@ -1,4 +1,4 @@
-import { DashboardOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
+import { DashboardOutlined, EnvironmentOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
 import { Flex, Image, Layout, Menu } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router'
 import style from './Layouts.module.css'
@@ -22,7 +22,12 @@ const Layouts = () => {
 					{
 						key: '/users',
 						icon: <UnorderedListOutlined />,
-						label: <Link to='/users'>لیست کاربران</Link>,
+						label: <Link to='/users'> کاربران</Link>,
+					},
+					{
+						key: '/lands',
+						icon: <EnvironmentOutlined />,
+						label: <Link to='/lands'> زمین ها</Link>,
 					},
 					{
 						key: '/wells',
