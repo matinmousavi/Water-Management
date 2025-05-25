@@ -24,6 +24,11 @@ const Layouts = () => {
 						icon: <UnorderedListOutlined />,
 						label: <Link to='/users'>لیست کاربران</Link>,
 					},
+					{
+						key: '/wells',
+						icon: <UnorderedListOutlined />,
+						label: <Link to='/wells'>لیست چاه ها</Link>,
+					},
 			  ]
 			: [
 					{

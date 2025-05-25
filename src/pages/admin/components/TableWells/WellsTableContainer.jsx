@@ -1,42 +1,47 @@
 import { Button, Card, Flex, Typography } from 'antd'
 import { useEffect, useState } from 'react'
-import FormUsers from '../FormUsers/FormUsers'
+import AddWell from '../AddWell/AddWell'
 import useAPI from '../../../../hooks/useAPI'
-import UsersTable from './UsersTable'
+import WellsTable from './WellsTable'
 import Loading from '../../../../components/Loading/Loading'
 
 const { Title } = Typography
 
-const UsersTableContainer = () => {
-	const userApi = useAPI()
+const WellsTableContainer = () => {
+	const wellApi = useAPI()
 	const [isModalOpenFormUser, setIsModalOpenFormUser] = useState(false)
 	const [isRenderList, setIsRenderList] = useState(false)
-	userApi.init('users')
+
+	console.log(wellApi)
+
+	wellApi.init('wells')
 	useEffect(() => {
-		userApi.get('users')
+		wellApi.get('wells')
 	}, [isRenderList])
+
 	const showModal = () => {
 		setIsModalOpenFormUser(true)
 	}
 
-	if (userApi.isLoading) {
+	if (wellApi.isLoading) {
 		return <Loading />
 	}
 	return (
 		<Flex vertical>
-			<Flex justify='space-between' align='center' style={{ marginBottom: '10px' }}>
+			<Flex justify='space-between' style={{ marginBottom: '10px' }}>
 				<Title level={1} className='text-h1'>
-					لیست کاربران
+					لیست چاه ها
 				</Title>
 				<Button onClick={showModal} type='primary'>
-					افزودن کاربر
+					افزودن چاه
 				</Button>
 			</Flex>
 			<Card>
-				<UsersTable data={userApi?.data?.users} />
-				<FormUsers setIsRenderList={setIsRenderList} isOpen={isModalOpenFormUser} setIsOpen={setIsModalOpenFormUser} />
+				<WellsTable data={wellApi?.data?.wells} />
+				<AddWell setIsRenderList={setIsRenderList} isOpen={isModalOpenFormUser} setIsOpen={setIsModalOpenFormUser} />
 			</Card>
 		</Flex>
 	)
 }
-export default UsersTableContainer
+
+export default WellsTableContainer
