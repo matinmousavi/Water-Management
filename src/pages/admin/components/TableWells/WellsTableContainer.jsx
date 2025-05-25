@@ -12,8 +12,6 @@ const WellsTableContainer = () => {
 	const [isModalOpenFormUser, setIsModalOpenFormUser] = useState(false)
 	const [isRenderList, setIsRenderList] = useState(false)
 
-	console.log(wellApi)
-
 	wellApi.init('wells')
 	useEffect(() => {
 		wellApi.get('wells')

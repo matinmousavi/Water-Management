@@ -22,7 +22,6 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 
 	const [timeLeft, setTimeLeft] = useState(0)
 	const [expireDate, setExpireDate] = useState(initExpireDate)
-	const [otp] = useState('')
 
 	useEffect(() => {
 		if (!expireDate) return
@@ -63,7 +62,6 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 
 	const handleOtpSubmit = async values => {
 		const { otp } = values
-		console.log('OTP submitted:', values.otp)
 		try {
 			const response = await optApi.post('otp/verify', { mobile, otp })
 			if (response.success) {
