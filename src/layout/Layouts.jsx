@@ -1,4 +1,4 @@
-import { DashboardOutlined, EnvironmentOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons'
+import { DashboardOutlined, EnvironmentOutlined, UnorderedListOutlined, UserOutlined, WomanOutlined } from '@ant-design/icons'
 import { Flex, Image, Layout, Menu } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router'
 import style from './Layouts.module.css'
@@ -31,7 +31,7 @@ const Layouts = () => {
 					},
 					{
 						key: '/wells',
-						icon: <UnorderedListOutlined />,
+						icon: <WomanOutlined />,
 						label: <Link to='/wells'>لیست چاه ها</Link>,
 					},
 			  ]

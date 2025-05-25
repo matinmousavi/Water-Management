@@ -8,6 +8,7 @@ import Profile from '../pages/shared/Profile/Profile'
 import Land from '../pages/shared/Land/Land'
 import Lands from '../pages/shared/Lands/Lands'
 import WellsList from '../pages/admin/WellsList/WellsList'
+import Well from '../pages/shared/Well/Well'
 
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin } = useUser()
@@ -26,6 +27,7 @@ const LayoutRoutes = () => {
 							<Route path='/users/:userId' element={<Profile />} />
 
 							<Route path='/wells' element={<WellsList />} />
+							<Route path='/wells/:wellId' element={<Well />} />
 							<Route path='/lands' element={<Lands />} />
 							<Route path='/lands/:landId' element={<Land />} />
 						</>

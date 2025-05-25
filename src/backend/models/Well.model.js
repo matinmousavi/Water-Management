@@ -21,7 +21,6 @@ const wellSchema = new mongoose.Schema(
 		irrigator: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
-			required: true,
 		},
 		lands: [
 			{

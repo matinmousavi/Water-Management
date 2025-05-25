@@ -16,15 +16,12 @@ const AddWell = ({ isOpen, setIsOpen, setIsRenderList }) => {
 		try {
 			const values = await form.validateFields()
 
-			console.log(values)
-
 			const res = await wellApi.post('/wells', values)
-			console.log(res)
 
 			if (res.error) {
 				openNotification('error', res.message)
 			} else {
-				openNotification('success', 'عملیات موفق', 'کاربر با موفقیت اضافه شد.')
+				openNotification('success', 'عملیات موفق', 'چاه با موفقیت اضافه شد.')
 				form.resetFields()
 				setIsRenderList(prev => !prev)
 				handleCancel()
@@ -33,6 +30,7 @@ const AddWell = ({ isOpen, setIsOpen, setIsRenderList }) => {
 			openNotification('error', 'خطا', error.error.message)
 		}
 	}
+
 	return (
 		<Modal title=' افزودن چاه' closable={{ 'aria-label': 'Custom Close Button' }} open={isOpen} onOk={handleSubmit} onCancel={() => setIsOpen(false)}>
 			<Form form={form} layout='vertical'>
@@ -50,10 +48,6 @@ const AddWell = ({ isOpen, setIsOpen, setIsRenderList }) => {
 						{ type: 'text', message: 'تعداد روزهای چرخه معتبر نیست!' },
 					]}
 				>
-					<Input />
-				</Form.Item>
-
-				<Form.Item label='آبیار ' name='irrigator' rules={[{ required: true, message: 'نام آبیار خود را وارد کنید!' }]}>
 					<Input />
 				</Form.Item>
 			</Form>
