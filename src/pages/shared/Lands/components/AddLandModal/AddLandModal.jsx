@@ -51,7 +51,7 @@ const AddLandModal = ({ setLandsData }) => {
 		},
 		{
 			name: 'area',
-			label: 'مساحت',
+			label: 'مساحت (هکتار)',
 			rules: [
 				{
 					required: true,
@@ -65,7 +65,7 @@ const AddLandModal = ({ setLandsData }) => {
 		},
 		{
 			name: 'kFactor',
-			label: 'ضریب K',
+			label: 'K-Factor',
 			rules: [
 				{
 					required: true,
