@@ -5,185 +5,178 @@ import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import DeleteCard from '../../admin/components/DeleteCard/DeleteCard'
 import FormFields from '../../../components/FormFields/FormFields'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Loading from '../../../components/Loading/Loading'
+import useNotification from '../../../hooks/useNotification'
+import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 
 const { Text, Title } = Typography
 
-const mockLand = {
-  land: {
-    _id: 'land123',
-    name: 'زمین تستی',
-    owner: {
-      _id: 'user1',
-      name: 'علی رضایی',
-      email: 'ali@example.com',
-    },
-    area: 400,
-    kFactor: 1.1,
-    location: 'تهران',
-    irrigationType: 'بارانی',
-    createdAt: '2025-01-01T00:00:00.000Z',
-    updatedAt: '2025-01-05T00:00:00.000Z',
-    wells: [{ _id: 'well1', name: 'چاه شماره ۱' }],
-  },
-}
-
 const Land = () => {
-  const { landId } = useParams()
-  const [isShowModal, setIsShowModal] = useState(false)
-  const [form] = Form.useForm()
-  const useMock = true
+	const [isShowModal, setIsShowModal] = useState(false)
+	const [landData, setLandData] = useState(null)
+	const { landId } = useParams()
+	const [form] = Form.useForm()
+	const { openNotification } = useNotification()
 
-  const landApi = useAPI()
-  if (!useMock) landApi.init(`lands/${landId}`)
-  const { data, isLoading } = landApi
+	const landApi = useAPI()
 
-  const landData = useMock ? mockLand : data
-  const { land } = landData
+	useEffect(() => {
+		const fetchLand = async () => {
+			try {
+				const response = await landApi.get(`lands/${landId}`)
+				if (response?.land) {
+					setLandData(response.land)
+				}
+			} catch (error) {
+				openNotification('error', 'خطا در دریافت اطلاعات زمین')
+				console.error('خطا در دریافت اطلاعات زمین:', error)
+			}
+		}
 
-  const handleOpenModal = () => {
-    setIsShowModal(true)
-    form.setFieldsValue(userInfo)
-  }
+		if (landId) {
+			fetchLand()
+		}
+	}, [landId])
 
-  const handleCloseModal = () => {
-    setIsShowModal(false)
-    form.resetFields()
-  }
-  const onFinish = async values => {
-    try {
-      const endpoint = userId ? `users/${userId}` : 'me'
-      const res = await contactInfoApi.patch(endpoint, values)
+	console.log(landData)
 
-      if (!res?.error) {
-        if (res?.user) {
-          setUserInfo(res.user)
-          setUser(res.user)
-        }
-        setIsShowModal(false)
-      }
-    } catch (error) {
-      console.error('Operation failed:', error)
-    }
-  }
+	const handleOpenModal = () => {
+		if (landData) {
+			form.setFieldsValue({
+				name: landData.name,
+				owner: landData.owner?.id,
+				area: landData.area,
+				kFactor: landData.kFactor,
+				location: landData.location,
+				irrigationType: landData.irrigationType,
+			})
+		}
+		setIsShowModal(true)
+	}
 
-  if (!land || isLoading) return <Loading />
+	const handleCloseModal = () => {
+		setIsShowModal(false)
+		form.resetFields()
+	}
 
-  const landInfoList = [
-    { label: 'نام زمین', value: land.name },
-    { label: 'مالک', value: land.owner?.name },
-    { label: 'متراژ', value: `${land.area} متر مربع` },
-    { label: 'ضریب k', value: land.kFactor },
-    { label: 'موقعیت', value: land.location || '-' },
-    { label: 'نوع آبیاری', value: land.irrigationType },
-    { label: 'تعداد چاه‌ها', value: `${land.wells?.length || 0}` },
-  ]
+	const onFinish = async values => {
+		try {
+			const response = await landApi.patch(`lands/${landId}`, values)
+			if (!response?.error) {
+				setIsShowModal(false)
+				setLandData(response.land)
+			}
+		} catch (error) {
+			console.error('Operation failed:', error)
+		}
+	}
 
-  const LandFormFields = [
-    {
-      name: 'name',
-      label: 'نام',
-      col: 12,
-      rules: [{ required: true, message: 'این فیلد الزامی است' }],
-    },
-    {
-      name: 'owner',
-      label: 'مالک',
-      col: 12,
-      rules: [{ required: true, message: 'این فیلد الزامی است' }],
-    },
-    {
-      name: 'area',
-      label: 'مساحت',
-      rules: [
-        {
-          required: true,
-          message: 'این فیلد الزامی است',
-        },
-      ],
-    },
-    {
-      name: 'kFactor',
-      label: 'ضریب K',
-      rules: [
-        {
-          required: true,
-          message: 'این فیلد الزامی است',
-        },
-      ],
-    },
-    {
-      name: 'location',
-      label: 'موقعیت',
-      rules: [
-        {
-          required: true,
-          message: 'این فیلد الزامی است',
-        },
-      ],
-    },
-    {
-      name: 'irrigationType',
-      label: 'نوع آبیاری',
-      rules: [
-        {
-          required: true,
-          message: 'این فیلد الزامی است',
-        },
-      ],
-    },
-  ]
+	if (landApi.isLoading || !landData) return <Loading />
 
-  return (
-    <>
-      <Card className={styles.card}>
-        <Flex align='center' justify='space-between'>
-          <Title level={2} className='text-h2'>
-            مشخصات زمین
-          </Title>
-          <Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
-            <span>ویرایش</span>
-          </Button>
-        </Flex>
+	const landInfoList = [
+		{ label: 'نام زمین', value: landData.name },
+		{ label: 'مالک', value: `${landData.owner?.firstName || ''} ${landData.owner?.lastName || ''}` },
+		{ label: 'متراژ', value: `${landData.area} متر مربع` },
+		{ label: 'ضریب k', value: landData.kFactor },
+		{ label: 'موقعیت', value: landData.location || '-' },
+		{ label: 'نوع آبیاری', value: landData.irrigationType },
+		{ label: 'تعداد چاه‌ها', value: `${landData.wells?.length || 0}` },
+	]
 
-        <div className={styles.infoWrapper}>
-          <Row gutter={[0, 8]}>
-            {landInfoList.map((item, index) => (
-              <Col key={index} xs={24} md={20} lg={18} className={styles.line}>
-                <Row>
-                  <Col xs={10}>
-                    <Text className='text-label'>{item.label}</Text>
-                  </Col>
-                  <Col xs={14}>
-                    <Text className='text-label'>{item.value}</Text>
-                  </Col>
-                </Row>
-              </Col>
-            ))}
-          </Row>
-        </div>
-      </Card>
-      <DeleteCard title="زمین" api="lands" />
+	const LandFormFields = [
+		{
+			name: 'name',
+			label: 'نام',
+			col: 12,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'owner',
+			label: 'مالک',
+			col: 12,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'area',
+			label: 'مساحت',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'kFactor',
+			label: 'ضریب K',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'location',
+			label: 'موقعیت',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'irrigationType',
+			label: 'نوع آبیاری',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+	]
 
-      <Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
-        <Form form={form} onFinish={onFinish} layout='vertical' size='large'>
-          <FormFields fields={LandFormFields} />
+	return (
+		<>
+			<MetaTitle>ویرایش زمین</MetaTitle>
 
-          <Row justify='end' gutter={8}>
-            <Col>
-              <Button onClick={handleCloseModal}>انصراف</Button>
-            </Col>
-            <Col>
-              <Button type='primary' htmlType='submit' loading={isLoading}>
-                ذخیره
-              </Button>
-            </Col>
-          </Row>
-        </Form>
-      </Modal>
-    </>
-  )
+			<Flex vertical gap={10}>
+				<Title level={1} className='text-h1'>
+					زمین ها
+				</Title>
+
+				<Card className={styles.card}>
+					<Flex align='center' justify='space-between'>
+						<Title level={2} className='text-h2'>
+							مشخصات زمین
+						</Title>
+						<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
+							<span>ویرایش</span>
+						</Button>
+					</Flex>
+
+					<div className={styles.infoWrapper}>
+						<Row gutter={[0, 8]}>
+							{landInfoList.map((item, index) => (
+								<Col key={index} xs={24} md={20} lg={18} className={styles.line}>
+									<Row>
+										<Col xs={10}>
+											<Text className='text-label'>{item.label}</Text>
+										</Col>
+										<Col xs={14}>
+											<Text className='text-label'>{item.value}</Text>
+										</Col>
+									</Row>
+								</Col>
+							))}
+						</Row>
+					</div>
+				</Card>
+
+				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
+
+				<Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
+					<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
+						<FormFields fields={LandFormFields} />
+
+						<Row justify='end' gutter={8}>
+							<Col>
+								<Button onClick={handleCloseModal}>انصراف</Button>
+							</Col>
+							<Col>
+								<Button type='primary' htmlType='submit' loading={landApi.isLoading}>
+									ذخیره
+								</Button>
+							</Col>
+						</Row>
+					</Form>
+				</Modal>
+			</Flex>
+		</>
+	)
 }
 
 export default Land
