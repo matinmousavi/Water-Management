@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Card, Table } from 'antd'
 
 const columns = [
 	{
@@ -10,6 +10,7 @@ const columns = [
 		title: 'مالک',
 		dataIndex: 'owner',
 		key: 'owner',
+		render: (_, record) => `${record.owner.firstName} ${record.owner.lastName}`,
 	},
 	{
 		title: 'مساحت',
@@ -32,7 +33,11 @@ const columns = [
 		key: 'irrigationType',
 	},
 ]
-const LandsTable = ({ data }) => {
-	return <Table columns={columns} dataSource={data} />
+const LandsList = ({ landsData }) => {
+	return (
+		<Card>
+			<Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
+		</Card>
+	)
 }
-export default LandsTable
+export default LandsList

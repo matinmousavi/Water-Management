@@ -11,7 +11,17 @@ const componentMap = {
 const FormFields = ({ fields }) => {
 	return (
 		<Row gutter={[16, 16]}>
-			{fields.map(({ name, label, rules, col = 24, inputType = 'input', options = [], ...restProps }) => {
+			{fields.map(({ name, label, rules, col = 24, inputType = 'input', options = [], customComponent, ...restProps }) => {
+				if (customComponent) {
+					return (
+						<Col key={name} span={col}>
+							<Form.Item name={name} label={label} rules={rules}>
+								{customComponent}
+							</Form.Item>
+						</Col>
+					)
+				}
+
 				const Component = componentMap[inputType] || Input
 
 				return (
