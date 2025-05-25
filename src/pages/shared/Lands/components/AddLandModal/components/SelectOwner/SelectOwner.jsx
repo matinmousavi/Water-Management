@@ -1,27 +1,23 @@
 import { Select } from 'antd'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useEffect } from 'react'
-import { useUser } from '../../../../../../../contexts/UserContext'
 
 const SelectOwner = ({ value, onChange }) => {
 	const selectOwnerApi = useAPI()
-	const { isAdmin } = useUser()
 
 	useEffect(() => {
 		const getUsers = async () => {
 			try {
 				await selectOwnerApi.get('users', {
-					role: isAdmin ? 'admin' : null,
-					firstName: value?.firstName,
-					lastName: value?.lastName,
+					role: 'landOwner',
 				})
 			} catch (error) {
-				console.error('Error fetching users:', error.error.message)
+				console.error('Error fetching users:', error?.error?.message)
 			}
 		}
 
 		getUsers()
-	}, [isAdmin, value?.firstName, value?.lastName])
+	}, [selectOwnerApi])
 
 	const handleChange = selectedValue => {
 		const selectedUser = selectOwnerApi.data?.users?.find(user => user._id === selectedValue)
