@@ -35,6 +35,12 @@ const getColumnSearchProps = dataIndex => ({
 	onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
 })
 
+const roleLabels = {
+	admin: 'مدیر',
+	irrigator: 'آبیار',
+	landOwner: 'مالک زمین',
+}
+
 const columns = [
 	{
 		title: 'نام و نام خانوادگی',
@@ -47,6 +53,12 @@ const columns = [
 				</Link>
 			</Button>
 		),
+	},
+	{
+		title: 'نقش',
+		dataIndex: 'role',
+		key: 'role',
+		render: role => roleLabels[role] || role,
 	},
 	{
 		title: 'شماره همراه',

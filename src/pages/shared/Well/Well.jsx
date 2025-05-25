@@ -59,6 +59,7 @@ const Well = () => {
 		try {
 			const response = await wellApi.patch(`wells/${wellId}`, values)
 			if (!response?.error) {
+				console.log(response)
 				setIsShowModal(false)
 				setWellData(response.well)
 			}

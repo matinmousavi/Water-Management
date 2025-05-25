@@ -84,7 +84,7 @@ export const updateWell = async (req, res) => {
 
 		return res.status(200).json({
 			message: 'چاه با موفقیت ویرایش شد.',
-			updated,
+			well: updated,
 		})
 	} catch (err) {
 		console.error(err.message)
