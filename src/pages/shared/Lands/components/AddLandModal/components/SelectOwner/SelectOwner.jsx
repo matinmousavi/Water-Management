@@ -17,7 +17,7 @@ const SelectOwner = ({ value, onChange }) => {
 		}
 
 		getUsers()
-	}, [selectOwnerApi])
+	}, [])
 
 	const handleChange = selectedValue => {
 		const selectedUser = selectOwnerApi.data?.users?.find(user => user._id === selectedValue)
