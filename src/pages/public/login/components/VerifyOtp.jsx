@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Form, Input, Button, Flex, Typography } from 'antd'
+import { Form, Input, Button, Flex, Typography, ConfigProvider } from 'antd'
 import img from '../../../../assets/images/water.png'
 import useAPI from '../../../../hooks/useAPI'
 import useNotification from '../../../../hooks/useNotification'
@@ -93,8 +93,25 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 						ویرایش شماره موبایل
 					</Button>
 				</Flex>
-				<Form.Item className={styles.input} label='کد تایید ۶ رقمی ' name='otp' rules={[{ required: true, message: 'کد تأیید را وارد کنید!' }]}>
-					<Input.OTP autoFocus dir='rtl' value={otp} onChange={val => form.setFieldValue('otp', val)} />
+				<Form.Item
+					label='کد تایید ۶ رقمی'
+					name='otp'
+					rules={[
+						{ required: true, message: 'کد تأیید را وارد کنید!' },
+						{
+							pattern: /^\d{6}$/,
+							message: 'کد باید ۶ رقم باشد.',
+						},
+					]}
+					style={{ width: '100%' }}
+				>
+					<Input
+						autoFocus
+						maxLength={6}
+						inputMode='numeric'
+						style={{ direction: 'ltr', textAlign: 'center' }}
+						onChange={e => form.setFieldValue('otp', e.target.value)}
+					/>
 				</Form.Item>
 
 				<div className={styles.timer}>
