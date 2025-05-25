@@ -39,8 +39,6 @@ const Land = () => {
 		}
 	}, [landId])
 
-	console.log(landData)
-
 	const handleOpenModal = () => {
 		if (landData) {
 			form.setFieldsValue({
