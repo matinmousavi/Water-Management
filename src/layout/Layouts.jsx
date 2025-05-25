@@ -35,7 +35,7 @@ const Layouts = () => {
 					},
 					{
 						key: '/wells',
-						icon: <WomanOutlined />,
+						icon: <EnvironmentOutlined />,
 						label: <Link to='/wells'>لیست چاه‌ها</Link>,
 					},
 			  ]
@@ -51,7 +51,7 @@ const Layouts = () => {
 	const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
 
 	return (
-		<Layout>
+		<Layout className={style.layout}>
 			<Header>
 				<Flex align='center' justify='space-between'>
 					<Flex align='center' gap={6}>

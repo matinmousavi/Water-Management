@@ -1,4 +1,4 @@
-import { Card, Col, Row, Typography, Button, Flex, Modal, Form } from 'antd'
+import { Card, Col, Row, Typography, Button, Flex, Modal, Form, Radio } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './ContactInfoCard.module.css'
 import { useState } from 'react'
@@ -8,6 +8,12 @@ import { useUser } from '../../../../../contexts/UserContext'
 import FormFields from '../../../../../components/FormFields/FormFields'
 
 const { Text, Title } = Typography
+
+const ROLES = [
+	{ key: 'admin', label: 'مدیر' },
+	{ key: 'irrigator', label: 'میراب' },
+	{ key: 'landOwner', label: 'مالک زمین' },
+]
 
 const ContactInfoCard = ({ userData }) => {
 	const { setUser } = useUser()
@@ -46,6 +52,8 @@ const ContactInfoCard = ({ userData }) => {
 		}
 	}
 
+	const getRoleLabel = key => ROLES.find(r => r.key === key)?.label || '-'
+
 	const contactInfo = [
 		{
 			label: 'نام و نام خانوادگی:',
@@ -53,6 +61,7 @@ const ContactInfoCard = ({ userData }) => {
 		},
 		{ label: 'ایمیل:', value: userInfo?.email || '-' },
 		{ label: 'موبایل:', value: userInfo?.mobile || '-' },
+		{ label: 'نقش:', value: getRoleLabel(userInfo?.role) },
 	]
 
 	const contactFormFields = [
@@ -67,6 +76,21 @@ const ContactInfoCard = ({ userData }) => {
 			label: 'نام خانوادگی',
 			col: 12,
 			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'role',
+			label: 'نقش',
+			col: 24,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+			customComponent: (
+				<Radio.Group>
+					{ROLES.map(role => (
+						<Radio key={role.key} value={role.key}>
+							{role.label}
+						</Radio>
+					))}
+				</Radio.Group>
+			),
 		},
 		{
 			name: 'email',
@@ -124,7 +148,6 @@ const ContactInfoCard = ({ userData }) => {
 			<Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
 				<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
 					<FormFields fields={contactFormFields} />
-
 					<Row justify='end' gutter={8}>
 						<Col>
 							<Button onClick={handleCloseModal}>انصراف</Button>

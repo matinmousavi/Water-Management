@@ -49,11 +49,6 @@ const columns = [
 		dataIndex: 'cycleDays',
 		key: 'cycleDays',
 	},
-	{
-		title: '  آبیار',
-		dataIndex: 'irrigator',
-		key: 'irrigator',
-	},
 ]
 
 const WellsTable = ({ data }) => {
