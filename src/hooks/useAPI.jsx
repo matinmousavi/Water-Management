@@ -25,7 +25,10 @@ export default function useAPI() {
 		let querystring = ''
 		switch (method) {
 			case 'GET':
-				if (params && typeof params === 'string' && params.startsWith('?')) {
+				if (params && typeof params === 'object') {
+					const query = new URLSearchParams(params).toString()
+					querystring = query ? `?${query}` : ''
+				} else if (typeof params === 'string' && params.startsWith('?')) {
 					querystring = params
 				}
 				break
