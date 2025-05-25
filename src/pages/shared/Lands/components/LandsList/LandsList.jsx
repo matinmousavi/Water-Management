@@ -25,7 +25,7 @@ const columns = [
 		key: 'location',
 	},
 	{
-		title: 'ضریب K',
+		title: 'K-Factor',
 		dataIndex: 'kFactor',
 		key: 'kFactor',
 	},
