@@ -73,8 +73,8 @@ const columns = [
 	},
 ]
 
-const UsersTable = ({ data }) => {
-	return <Table scroll={{ x: 'calc(90vh + 10%)', y: 50 * 7 }} pagination={false} columns={columns} dataSource={data} rowKey={record => record._id} />
+const UsersTable = ({ usersData }) => {
+	return <Table scroll={{ x: 'calc(90vh + 10%)', y: 50 * 7 }} pagination={false} columns={columns} dataSource={usersData} rowKey={record => record._id} />
 }
 
 export default UsersTable

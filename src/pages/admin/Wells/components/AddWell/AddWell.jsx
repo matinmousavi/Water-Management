@@ -1,6 +1,6 @@
 import { Form, Input, Modal } from 'antd'
-import useAPI from '../../../../hooks/useAPI'
-import useNotification from '../../../../hooks/useNotification'
+import useAPI from '../../../../../hooks/useAPI'
+import useNotification from '../../../../../hooks/useNotification'
 
 const AddWell = ({ isOpen, setIsOpen, setIsRenderList }) => {
 	const { openNotification } = useNotification()
