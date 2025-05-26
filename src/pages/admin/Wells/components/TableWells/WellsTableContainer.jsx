@@ -1,11 +1,9 @@
-import { Button, Card, Flex, Typography } from 'antd'
+import { Button, Flex } from 'antd'
 import { useEffect, useState } from 'react'
 import AddWell from '../AddWell/AddWell'
 import useAPI from '../../../../../hooks/useAPI'
 import WellsTable from './WellsTable'
 import Loading from '../../../../../components/Loading/Loading'
-
-const { Title } = Typography
 
 const WellsTableContainer = () => {
 	const wellApi = useAPI()
@@ -27,17 +25,15 @@ const WellsTableContainer = () => {
 	return (
 		<Flex vertical>
 			<Flex justify='space-between' style={{ marginBottom: '10px' }}>
-				<Title level={1} className='text-h1'>
-					لیست چاه ها
-				</Title>
+				<h1>لیست چاه ها ({wellApi?.data?.wells?.length})</h1>
 				<Button onClick={showModal} type='primary'>
 					افزودن چاه
 				</Button>
 			</Flex>
-			<Card>
+			<div>
 				<WellsTable data={wellApi?.data?.wells} />
 				<AddWell setIsRenderList={setIsRenderList} isOpen={isModalOpenFormUser} setIsOpen={setIsModalOpenFormUser} />
-			</Card>
+			</div>
 		</Flex>
 	)
 }

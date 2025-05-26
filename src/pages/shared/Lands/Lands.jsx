@@ -1,4 +1,4 @@
-import { Flex, Typography } from 'antd'
+import { Flex } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import LandsList from './components/LandsList/LandsList'
 import AddLandModal from './components/AddLandModal/AddLandModal'
@@ -8,7 +8,6 @@ import PageHeading from '../../../components/PageHeading/PageHeading'
 
 const Lands = () => {
 	const [landsData, setLandsData] = useState()
-	const { Title } = Typography
 	const landsApi = useAPI()
 
 	useEffect(() => {
@@ -30,9 +29,7 @@ const Lands = () => {
 		<PageHeading>
 			<Flex vertical gap={10}>
 				<Flex align='center' justify='space-between'>
-					<Title level={1} className='text-h1'>
-						زمین ها
-					</Title>
+					<h1>زمین ها ({landsData.length})</h1>
 					<AddLandModal setLandsData={setLandsData} />
 				</Flex>
 				<LandsList landsData={landsData} />

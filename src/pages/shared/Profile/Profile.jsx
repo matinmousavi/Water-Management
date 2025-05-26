@@ -28,7 +28,7 @@ const Profile = () => {
 	if (userId && (isLoading || !data)) return <Loading />
 
 	return (
-		<PageHeading>
+		<PageHeading id={userId}>
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between' gap={15}>

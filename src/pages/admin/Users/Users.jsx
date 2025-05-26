@@ -31,6 +31,7 @@ const Users = () => {
 		<PageHeading>
 			<Flex vertical gap={10}>
 				<Flex align='center' justify='space-between'>
+					<h1>لیست کاربران ({users.length})</h1>
 					<UserFormModal type='add' setUsersData={setUsers} />
 				</Flex>
 				<UsersTable usersData={users} />

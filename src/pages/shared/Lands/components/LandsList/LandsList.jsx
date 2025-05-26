@@ -37,9 +37,9 @@ const columns = [
 ]
 const LandsList = ({ landsData }) => {
 	return (
-		<Card>
+		<div>
 			<Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
-		</Card>
+		</div>
 	)
 }
 export default LandsList
