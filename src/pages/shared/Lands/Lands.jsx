@@ -23,9 +23,7 @@ const Lands = () => {
 		fetchData()
 	}, [])
 
-	if (landsApi.isLoading || !landsApi.data) {
-		return <Loading />
-	}
+	if (landsApi.isLoading || !landsApi.data) return <Loading />
 
 	return (
 		<Flex vertical gap={10}>

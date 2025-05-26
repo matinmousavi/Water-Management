@@ -1,9 +1,9 @@
 import { Button, Card, Flex, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import AddWell from '../AddWell/AddWell'
-import useAPI from '../../../../hooks/useAPI'
+import useAPI from '../../../../../hooks/useAPI'
 import WellsTable from './WellsTable'
-import Loading from '../../../../components/Loading/Loading'
+import Loading from '../../../../../components/Loading/Loading'
 
 const { Title } = Typography
 

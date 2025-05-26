@@ -1,6 +1,6 @@
 import { App, Button, Card, Flex, Typography, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import useAPI from '../../../../hooks/useAPI'
+import useAPI from '../../hooks/useAPI'
 import style from './DeleteCard.module.css'
 
 const { Title } = Typography
