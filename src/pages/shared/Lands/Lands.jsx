@@ -4,6 +4,7 @@ import LandsList from './components/LandsList/LandsList'
 import AddLandModal from './components/AddLandModal/AddLandModal'
 import { useEffect, useState } from 'react'
 import Loading from '../../../components/Loading/Loading'
+import PageHeading from '../../../components/PageHeading/PageHeading'
 
 const Lands = () => {
 	const [landsData, setLandsData] = useState()
@@ -26,15 +27,17 @@ const Lands = () => {
 	if (landsApi.isLoading || !landsApi.data) return <Loading />
 
 	return (
-		<Flex vertical gap={10}>
-			<Flex align='center' justify='space-between'>
-				<Title level={1} className='text-h1'>
-					زمین ها
-				</Title>
-				<AddLandModal setLandsData={setLandsData} />
+		<PageHeading>
+			<Flex vertical gap={10}>
+				<Flex align='center' justify='space-between'>
+					<Title level={1} className='text-h1'>
+						زمین ها
+					</Title>
+					<AddLandModal setLandsData={setLandsData} />
+				</Flex>
+				<LandsList landsData={landsData} />
 			</Flex>
-			<LandsList landsData={landsData} />
-		</Flex>
+		</PageHeading>
 	)
 }
 export default Lands

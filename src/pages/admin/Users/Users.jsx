@@ -5,6 +5,7 @@ import UsersTable from './components/UsersTable/UsersTable'
 import UserFormModal from './components/UserFormModal/UserFormModal'
 import Loading from '../../../components/Loading/Loading'
 import { Flex } from 'antd'
+import PageHeading from '../../../components/PageHeading/PageHeading'
 
 const Users = () => {
 	const userApi = useAPI()
@@ -27,12 +28,14 @@ const Users = () => {
 	if (userApi.isLoading || !userApi.data) return <Loading />
 
 	return (
-		<Flex vertical gap={10}>
-			<Flex align='center' justify='space-between'>
-				<UserFormModal type='add' setUsersData={setUsers} />
+		<PageHeading>
+			<Flex vertical gap={10}>
+				<Flex align='center' justify='space-between'>
+					<UserFormModal type='add' setUsersData={setUsers} />
+				</Flex>
+				<UsersTable usersData={users} />
 			</Flex>
-			<UsersTable usersData={users} />
-		</Flex>
+		</PageHeading>
 	)
 }
 

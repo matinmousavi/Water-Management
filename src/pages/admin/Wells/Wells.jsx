@@ -1,12 +1,15 @@
 import { Flex } from 'antd'
 import styles from './Wells.module.css'
 import WellsTableContainer from './components/TableWells/WellsTableContainer'
+import PageHeading from '../../../components/PageHeading/PageHeading'
 
 const Wells = () => {
 	return (
-		<Flex vertical justify='space-between' className={styles.container}>
-			<WellsTableContainer />
-		</Flex>
+		<PageHeading>
+			<Flex vertical justify='space-between' className={styles.container}>
+				<WellsTableContainer />
+			</Flex>
+		</PageHeading>
 	)
 }
 
