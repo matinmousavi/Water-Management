@@ -4,7 +4,7 @@ import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
-
+import PageHeading from '../../../components/PageHeading/PageHeading'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
 
@@ -28,7 +28,7 @@ const Profile = () => {
 	if (userId && (isLoading || !data)) return <Loading />
 
 	return (
-		<>
+		<PageHeading>
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between' gap={15}>
@@ -36,7 +36,7 @@ const Profile = () => {
 				<ProfileImageCard initialSrc={userData.profilePicture?.url} />
 				<ContactInfoCard userData={userData} />
 			</Flex>
-		</>
+		</PageHeading>
 	)
 }
 

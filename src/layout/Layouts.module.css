@@ -12,7 +12,6 @@
 
 .content {
 	flex: 1;
-	padding: 24px;
 	overflow: auto;
 	background: #f0f2f5;
 }
