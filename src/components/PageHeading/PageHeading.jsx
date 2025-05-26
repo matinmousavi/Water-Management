@@ -1,7 +1,8 @@
-import { Flex, Button, Card, Breadcrumb } from 'antd'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { Flex, Breadcrumb } from 'antd'
+import { useLocation, Link } from 'react-router-dom'
 import { useEffect, useState, useMemo } from 'react'
 import useAPI from '../../hooks/useAPI'
+import { ArrowRightOutlined } from '@ant-design/icons'
 import styles from './PageHeading.module.css'
 
 const generateBreadcrumbItems = (path, data) => {
@@ -28,37 +29,13 @@ const PageHeading = ({ children, id }) => {
 	const [idData, setIdData] = useState(null)
 	const api = useAPI()
 
-	const pageData = {
-		'/users': {
-			title: 'لیست کاربران',
-			buttonLink: '/users/add-user',
-			buttonText: 'افزودن کاربر',
-		},
-		'/wells': {
-			title: 'لیست چاه ها',
-			buttonLink: '/wells/add-well',
-			buttonText: 'افزودن چاه',
-		},
-		'/lands': {
-			title: 'لیست زمین ها',
-			buttonLink: '/lands/add-land',
-			buttonText: 'افزودن زمین',
-		},
-	}
-
-	const current = pageData[location.pathname] || {
-		title: '',
-		buttonLink: '',
-		buttonText: ' ',
-	}
-	const { title, buttonLink, buttonText } = current
-
 	const isWellDetail = location.pathname.startsWith('/wells/')
 	const isLandDetail = location.pathname.startsWith('/lands/')
 	const isUserDetail = location.pathname.startsWith('/users/')
 	const isWells = location.pathname.includes('/wells')
 	const isLands = location.pathname.includes('/lands')
 	const isUsers = location.pathname.includes('/users')
+	const isDashboard = location.pathname.includes('/')
 
 	if (isUserDetail) {
 		api.init(`users/${id}`)
@@ -69,6 +46,26 @@ const PageHeading = ({ children, id }) => {
 	}
 	const { data } = api
 
+	const pageData = {
+		[`/users/${id}`]: {
+			title: `${data?.user?.firstName} ${data?.user?.lastName}`,
+			backLink: '/users',
+		},
+		[`/wells/${id}`]: {
+			title: `${data?.well?.title}`,
+			backLink: '/wells',
+		},
+		[`/lands/${id}`]: {
+			title: `${data?.land?.title}`,
+			backLink: '/lands',
+		},
+	}
+	const current = pageData[location.pathname] || {
+		title: '',
+		backLink: '',
+	}
+	const { title, backLink } = current
+
 	useEffect(() => {
 		if (isUserDetail && data?.user && !idData) {
 			setIdData(data?.user)
@@ -77,7 +74,7 @@ const PageHeading = ({ children, id }) => {
 		} else if (isWellDetail && data?.well && !idData) {
 			setIdData(data?.well)
 		}
-	}, [isUserDetail, isWellDetail, isLandDetail, data.user, idData])
+	}, [isUserDetail, isWellDetail, isLandDetail, data.user, data.well, data.land, idData])
 
 	const breadcrumbItems = useMemo(() => generateBreadcrumbItems(location.pathname, idData), [location.pathname, idData])
 
@@ -87,18 +84,25 @@ const PageHeading = ({ children, id }) => {
 			{breadcrumbItems && breadcrumbItems.map((item, index) => <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>)}
 		</Breadcrumb>
 	)
+
 	if (isLandDetail || isUserDetail || isWellDetail) {
 		return (
-			<Flex vertical gap={20}>
+			<Flex vertical gap={20} className={styles.container}>
 				{breadcrumb}
-				<Flex gap={36} vertical>
+				<Flex gap={16} vertical>
+					<Link to={backLink}>
+						<Flex align='center' gap={16}>
+							<ArrowRightOutlined />
+							<h1>{title}</h1>
+						</Flex>
+					</Link>
 					{children}
 				</Flex>
 			</Flex>
 		)
-	} else if (isLands || isUsers || isWells) {
+	} else if (isLands || isUsers || isWells || isDashboard) {
 		return (
-			<Flex vertical gap={20} className={styles.container}>
+			<Flex vertical gap={20} className={styles.containerCard}>
 				{breadcrumb}
 				<Flex gap={36} vertical>
 					{children}

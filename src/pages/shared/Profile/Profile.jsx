@@ -22,8 +22,6 @@ const Profile = () => {
 	const userData = userId ? data?.user : user
 
 	const { firstName = '', lastName = '' } = userData || {}
-	const fullName = `${firstName} ${lastName}`
-	const pageTitle = fullName ? `پروفایل - ${fullName}` : 'پروفایل'
 
 	if (userId && (isLoading || !data)) return <Loading />
 
@@ -32,7 +30,6 @@ const Profile = () => {
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between' gap={15}>
-				<Title className='text-h1'>{pageTitle}</Title>
 				<ProfileImageCard initialSrc={userData.profilePicture?.url} />
 				<ContactInfoCard userData={userData} />
 			</Flex>
