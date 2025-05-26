@@ -60,3 +60,7 @@ h1 {
 	font-size: 0.875rem !important;
 	color: #374151;
 }
+
+.ant-layout-header {
+	padding: 0 !important;
+}
