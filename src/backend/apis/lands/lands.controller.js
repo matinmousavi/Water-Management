@@ -63,9 +63,11 @@ export const getLand = async (req, res) => {
 
 export const createLand = async (req, res) => {
 	try {
-		const { name, owner, area, kFactor, location, irrigationType } = req.body
+		const { name, owner, area, kFactor, location, irrigationType, note } = req.body
+		const userId = req.user._id
 
-		const newLand = await Land.create({ name, owner, area, kFactor, location, irrigationType })
+		const initialNote = note ? [{ user: userId, text: note }] : []
+		const newLand = await Land.create({ name, owner, area, kFactor, location, irrigationType, notes: initialNote })
 
 		const populatedLand = await newLand.populate('owner')
 
@@ -136,5 +138,38 @@ export const deleteLand = async (req, res) => {
 	} catch (err) {
 		console.error('خطا در حذف زمین:', err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
+	}
+}
+
+export const addNoteToLand = async (req, res) => {
+	try {
+		const { landId } = req.params
+		const { text } = req.body
+		const userId = req.user._id
+
+		const land = await Land.findById(landId)
+
+		if (!land) {
+			return res.status(404).json({ message: 'زمین پیدا نشد.' })
+		}
+
+		if (!Array.isArray(land.notes)) {
+			land.notes = []
+		}
+
+		land.notes.push({ userId, text })
+
+		await land.save()
+
+		const lastNote = land.notes[land.notes.length - 1]
+		await land.populate({ path: 'notes.user', match: { _id: userId } })
+
+		return res.status(200).json({
+			message: 'یادداشت با موفقیت اضافه شد.',
+			note: lastNote,
+		})
+	} catch (err) {
+		console.error(err.message)
+		return res.status(500).json({ message: 'خطا در افزودن یادداشت.' })
 	}
 }
