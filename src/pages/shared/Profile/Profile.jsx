@@ -4,7 +4,6 @@ import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
-import PageHeading from '../../../components/PageHeading/PageHeading'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
 
@@ -12,7 +11,7 @@ const Profile = () => {
 	const { user } = useUser()
 	const { userId } = useParams()
 	const profileApi = useAPI()
-	const { Title } = Typography
+
 	if (userId) {
 		profileApi.init(`users/${userId}`)
 	}
@@ -21,19 +20,17 @@ const Profile = () => {
 
 	const userData = userId ? data?.user : user
 
-	const { firstName = '', lastName = '' } = userData || {}
-
 	if (userId && (isLoading || !data)) return <Loading />
 
 	return (
-		<PageHeading id={userId} data={userData}>
+		<>
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between' gap={15}>
 				<ProfileImageCard initialSrc={userData.profilePicture?.url} />
 				<ContactInfoCard userData={userData} />
 			</Flex>
-		</PageHeading>
+		</>
 	)
 }
 

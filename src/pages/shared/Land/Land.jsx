@@ -9,7 +9,6 @@ import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
-import PageHeading from '../../../components/PageHeading/PageHeading'
 
 const { Text, Title } = Typography
 
@@ -119,7 +118,7 @@ const Land = () => {
 	]
 
 	return (
-		<PageHeading id={landId} data={landData}>
+		<>
 			<MetaTitle>ویرایش زمین</MetaTitle>
 
 			<Flex vertical gap={10}>
@@ -174,7 +173,7 @@ const Land = () => {
 					</Form>
 				</Modal>
 			</Flex>
-		</PageHeading>
+		</>
 	)
 }
 
