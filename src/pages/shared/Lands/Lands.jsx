@@ -1,37 +1,43 @@
-import { Flex } from 'antd'
-import useAPI from '../../../hooks/useAPI'
-import LandsList from './components/LandsList/LandsList'
-import AddLandModal from './components/AddLandModal/AddLandModal'
 import { useEffect, useState } from 'react'
+import { Flex, Button } from 'antd'
+import useAPI from '../../../hooks/useAPI'
+import LandsList from './LandsList'
+import LandModal from '../../../components/Land/LandModal/LandModal'
 import Loading from '../../../components/Loading/Loading'
 
 const Lands = () => {
-	const [landsData, setLandsData] = useState()
-	const landsApi = useAPI()
+	const [lands, setLands] = useState([])
+	const [isModalOpen, setIsModalOpen] = useState(false)
+	const api = useAPI()
 
 	useEffect(() => {
-		const fetchData = async () => {
+		const fetchLands = async () => {
 			try {
-				const data = await landsApi.get('lands')
-				setLandsData(data?.lands)
-			} catch (error) {
-				console.error('Error fetching lands data:', error)
+				const res = await api.get('lands')
+				setLands(res?.lands || [])
+			} catch (err) {
+				console.error('Error loading lands:', err)
 			}
 		}
-
-		fetchData()
+		fetchLands()
 	}, [])
 
-	if (landsApi.isLoading || !landsApi.data) return <Loading />
+	if (api.isLoading) return <Loading />
 
 	return (
 		<Flex vertical gap={10}>
-			<Flex align='center' justify='space-between'>
-				<h1>زمین ها ({landsData.length})</h1>
-				<AddLandModal setLandsData={setLandsData} />
+			<Flex justify='space-between' align='center'>
+				<h1>زمین‌ها ({lands.length})</h1>
+				<Button type='primary' onClick={() => setIsModalOpen(true)}>
+					افزودن زمین
+				</Button>
 			</Flex>
-			<LandsList landsData={landsData} />
+
+			<LandsList landsData={lands} />
+
+			<LandModal open={isModalOpen} onClose={() => setIsModalOpen(false)} setLandsData={setLands} />
 		</Flex>
 	)
 }
+
 export default Lands

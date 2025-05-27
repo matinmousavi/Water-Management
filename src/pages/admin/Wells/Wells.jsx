@@ -1,11 +1,44 @@
-import { Flex } from 'antd'
-import styles from './Wells.module.css'
-import WellsTableContainer from './components/TableWells/WellsTableContainer'
+import { useEffect, useState } from 'react'
+import { Button, Flex } from 'antd'
+import useAPI from '../../../../../hooks/useAPI'
+import useNotification from '../../../../../hooks/useNotification'
+import WellsTable from './WellsTable'
+import Loading from '../../../../../components/Loading/Loading'
+import WellModal from '../../../../../components/Well/WellModal'
 
 const Wells = () => {
+	const wellApi = useAPI()
+	const { openNotification } = useNotification()
+	const [wells, setWells] = useState([])
+	const [isModalOpen, setIsModalOpen] = useState(false)
+
+	const fetchWells = async () => {
+		const res = await wellApi.get('wells')
+		if (res.error) {
+			openNotification('error', 'خطا', res.message)
+		} else {
+			setWells(res.wells || [])
+		}
+	}
+
+	useEffect(() => {
+		fetchWells()
+	}, [])
+
+	if (wellApi.isLoading) return <Loading />
+
 	return (
-		<Flex vertical justify='space-between' className={styles.container}>
-			<WellsTableContainer />
+		<Flex vertical>
+			<Flex justify='space-between' style={{ marginBottom: 10 }}>
+				<h1>لیست چاه‌ها ({wells.length})</h1>
+				<Button type='primary' onClick={() => setIsModalOpen(true)}>
+					افزودن چاه
+				</Button>
+			</Flex>
+
+			<WellsTable data={wells} />
+
+			<WellModal type='add' isOpen={isModalOpen} setIsOpen={setIsModalOpen} setWellsData={setWells} />
 		</Flex>
 	)
 }

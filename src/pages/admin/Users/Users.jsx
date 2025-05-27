@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import UsersTable from './components/UsersTable/UsersTable'
-import UserFormModal from '../../../components/UserFormModal/UserFormModal'
+import UserModal from '../../../components/UserModal/UserModal'
 import Loading from '../../../components/Loading/Loading'
-import { Flex } from 'antd'
+import { Button, Flex } from 'antd'
 
 const Users = () => {
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
 	const [users, setUsers] = useState([])
+	const [isModalOpen, setIsModalOpen] = useState(false)
 
 	const fetchUsers = async () => {
 		const res = await userApi.get('/users')
@@ -30,9 +31,14 @@ const Users = () => {
 		<Flex vertical gap={10}>
 			<Flex align='center' justify='space-between'>
 				<h1>لیست کاربران ({users.length})</h1>
-				<UserFormModal type='add' setUsersData={setUsers} />
+				<Button type='primary' onClick={() => setIsModalOpen(true)}>
+					افزودن کاربر
+				</Button>
 			</Flex>
+
 			<UsersTable usersData={users} />
+
+			<UserModal type='add' isOpen={isModalOpen} setIsOpen={setIsModalOpen} setUsersData={setUsers} />
 		</Flex>
 	)
 }

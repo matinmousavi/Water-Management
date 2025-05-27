@@ -9,7 +9,7 @@ const { Header, Content } = Layout
 const { useBreakpoint } = Grid
 
 const Layouts = () => {
-	const { isAdmin, user } = useUser()
+	const { isAdmin } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
 	const screens = useBreakpoint()
