@@ -1,5 +1,5 @@
 import { Select } from 'antd'
-import useAPI from '../../../hooks/useAPI'
+import useAPI from '../../hooks/useAPI'
 import { useEffect } from 'react'
 
 const SelectOwner = ({ value, onChange }) => {

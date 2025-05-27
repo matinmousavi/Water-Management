@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Flex, Button } from 'antd'
 import useAPI from '../../../hooks/useAPI'
-import LandsList from './LandsList'
+import LandsTable from './components/LandsTable/LandsTable'
 import LandModal from '../../../components/Land/LandModal/LandModal'
 import Loading from '../../../components/Loading/Loading'
 
@@ -33,7 +33,7 @@ const Lands = () => {
 				</Button>
 			</Flex>
 
-			<LandsList landsData={lands} />
+			<LandsTable landsData={lands} />
 
 			<LandModal open={isModalOpen} onClose={() => setIsModalOpen(false)} setLandsData={setLands} />
 		</Flex>

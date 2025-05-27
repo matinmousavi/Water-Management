@@ -1,5 +1,5 @@
 import { Form, Input, Select, Row, Col } from 'antd'
-import SelectOwner from './SelectOwner'
+import SelectOwner from '../../SelectOwner/SelectOwner'
 
 const irrigationOptions = [
 	{ value: 'قطره‌ای', label: 'قطره‌ای' },
