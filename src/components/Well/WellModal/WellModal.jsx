@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Modal, Form } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
-import WellForm from './WellForm'
+import WellForm from '../WellForm/WellForm'
 
 const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, setWellsData }) => {
 	const [form] = Form.useForm()

@@ -2,7 +2,7 @@ import { Modal, Form } from 'antd'
 import { useEffect } from 'react'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
-import LandForm from './LandForm'
+import LandForm from '../LandForm/LandForm'
 
 const LandModal = ({ open, onClose, setLandsData }) => {
 	const [form] = Form.useForm()
