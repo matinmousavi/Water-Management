@@ -29,6 +29,24 @@ const landSchema = new mongoose.Schema(
 			enum: ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر'],
 			required: true,
 		},
+		notes: [
+			{
+				user: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'User',
+					required: true,
+				},
+				text: {
+					type: String,
+					required: true,
+					trim: true,
+				},
+				createdAt: {
+					type: Date,
+					default: Date.now,
+				},
+			},
+		],
 	},
 	{
 		timestamps: true,
