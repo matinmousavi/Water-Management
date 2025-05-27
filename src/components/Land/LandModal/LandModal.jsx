@@ -10,8 +10,10 @@ const LandModal = ({ open, onClose, setLandsData }) => {
 	const { openNotification } = useNotification()
 
 	useEffect(() => {
-		if (!open) form.resetFields()
-	}, [open])
+		if (!open) {
+			form.resetFields()
+		}
+	}, [open, form])
 
 	const handleSubmit = async () => {
 		try {
@@ -31,7 +33,15 @@ const LandModal = ({ open, onClose, setLandsData }) => {
 	}
 
 	return (
-		<Modal title='فرم افزودن زمین' open={open} onOk={handleSubmit} onCancel={onClose} okText='ذخیره' cancelText='انصراف'>
+		<Modal
+			title="فرم افزودن زمین"
+			open={open}
+			onOk={handleSubmit}
+			onCancel={onClose}
+			okText="ذخیره"
+			cancelText="انصراف"
+			destroyOnHidden={true}
+		>
 			<LandForm form={form} />
 		</Modal>
 	)
