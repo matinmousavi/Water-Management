@@ -119,7 +119,7 @@ const Land = () => {
 	]
 
 	return (
-		<PageHeading id={landId}>
+		<PageHeading id={landId} data={landData}>
 			<MetaTitle>ویرایش زمین</MetaTitle>
 
 			<Flex vertical gap={10}>

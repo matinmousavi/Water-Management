@@ -97,7 +97,7 @@ const Well = () => {
 	]
 
 	return (
-		<PageHeading id={wellId}>
+		<PageHeading id={wellId} data={wellData}>
 			<MetaTitle>ویرایش چاه</MetaTitle>
 
 			<Flex vertical gap={10}>
