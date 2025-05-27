@@ -35,11 +35,7 @@ const columns = [
 		key: 'irrigationType',
 	},
 ]
-const LandsList = ({ landsData }) => {
-	return (
-		<div>
-			<Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
-		</div>
-	)
+const LandsTable = ({ landsData }) => {
+	return <Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
 }
-export default LandsList
+export default LandsTable

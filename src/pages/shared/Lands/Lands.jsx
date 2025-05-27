@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Flex, Button } from 'antd'
+import { Flex, Button, Typography, Breadcrumb } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import LandModal from '../../../components/Land/LandModal/LandModal'
 import Loading from '../../../components/Loading/Loading'
-import LandsList from './components/LandsList/LandsList'
+import LandsTable from './components/LandsTable/LandsTable'
+import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
+
+const { Title } = Typography
 
 const Lands = () => {
 	const [lands, setLands] = useState([])
@@ -25,15 +28,18 @@ const Lands = () => {
 	if (api.isLoading) return <Loading />
 
 	return (
-		<Flex vertical gap={10}>
+		<Flex vertical className='main-container'>
+			<Breadcrumbs />
 			<Flex justify='space-between' align='center'>
-				<h1>زمین‌ها ({lands.length})</h1>
+				<Title level={1} className='text-page-title'>
+					زمین‌ها ({lands.length}){' '}
+				</Title>
 				<Button type='primary' onClick={() => setIsModalOpen(true)}>
 					افزودن زمین
 				</Button>
 			</Flex>
 
-			<LandsList landsData={lands} />
+			<LandsTable landsData={lands} />
 
 			<LandModal open={isModalOpen} onClose={() => setIsModalOpen(false)} setLandsData={setLands} />
 		</Flex>

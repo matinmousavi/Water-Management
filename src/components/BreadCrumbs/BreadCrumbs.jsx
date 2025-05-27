@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Breadcrumb } from 'antd'
 import { useLocation } from 'react-router-dom'
+import styles from './BreadCrumbs.module.css'
 
 const routesConfig = [
 	{ path: '/', breadcrumb: 'خانه' },
@@ -70,7 +71,7 @@ const Breadcrumbs = ({ data }) => {
 	const breadcrumbItems = useMemo(() => findBreadcrumbs(location.pathname, data), [location.pathname, data])
 
 	return (
-		<Breadcrumb>
+		<Breadcrumb className={styles.breadcrumb}>
 			{breadcrumbItems.map((item, index) => (
 				<Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>
 			))}

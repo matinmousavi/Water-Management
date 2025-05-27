@@ -14,15 +14,9 @@
 }
 
 .text-page-title {
-	font-size: 1rem;
+	font-size: 1rem !important;
 	font-weight: 500;
 	color: #1f2937;
-}
-
-h1 {
-	font-size: 16px;
-	font-weight: 400;
-	color: #000000;
 }
 
 .text-h2 {
@@ -63,4 +57,8 @@ h1 {
 
 .ant-layout-header {
 	padding: 0 !important;
+}
+
+.main-container {
+	gap: 16px;
 }
