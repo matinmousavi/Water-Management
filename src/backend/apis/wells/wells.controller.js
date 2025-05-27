@@ -1,3 +1,4 @@
+import mongoose from '../../config/database.js'
 import Well from '../../models/Well.model.js'
 
 const fieldTranslations = {
@@ -9,7 +10,21 @@ const fieldTranslations = {
 
 export const getWells = async (req, res) => {
 	try {
-		const wells = await Well.find().populate('irrigator').populate('lands').lean()
+		const filter = {}
+
+		const allowedFields = ['title', 'licenseCode', 'irrigator']
+
+		allowedFields.forEach(field => {
+			if (req.query[field]) {
+				if (field === 'irrigator') {
+					filter[field] = req.query[field]
+				} else {
+					filter[field] = { $regex: `^${req.query[field]}$`, $options: 'i' }
+				}
+			}
+		})
+
+		const wells = await Well.find(filter).populate('irrigator').populate('lands').lean()
 		return res.status(200).json({ wells })
 	} catch (err) {
 		console.error(err.message)
@@ -22,12 +37,65 @@ export const getWells = async (req, res) => {
 export const getWell = async (req, res) => {
 	try {
 		const { wellId } = req.params
-		const well = await Well.findById(wellId).populate('irrigator').populate('lands')
 
-		if (!well) {
+		if (!mongoose.isValidObjectId(wellId)) {
+			return res.status(400).json({ message: 'شناسه چاه معتبر نیست.' })
+		}
+
+		const result = await Well.aggregate([
+			{
+				$match: { _id: new mongoose.Types.ObjectId(wellId) },
+			},
+			{
+				$lookup: {
+					from: 'lands',
+					localField: 'lands',
+					foreignField: '_id',
+					as: 'lands',
+				},
+			},
+			{
+				$unwind: {
+					path: '$lands',
+					preserveNullAndEmptyArrays: true,
+				},
+			},
+			{
+				$lookup: {
+					from: 'irrigationlogs',
+					let: { landId: '$lands._id' },
+					pipeline: [
+						{
+							$match: {
+								$expr: { $eq: ['$land', '$$landId'] },
+							},
+						},
+					],
+					as: 'logs',
+				},
+			},
+			{
+				$addFields: {
+					'lands.logs': '$logs',
+				},
+			},
+			{
+				$group: {
+					_id: '$_id',
+					title: { $first: '$title' },
+					licenseCode: { $first: '$licenseCode' },
+					cycleDays: { $first: '$cycleDays' },
+					irrigator: { $first: '$irrigator' },
+					lands: { $push: '$lands' },
+				},
+			},
+		])
+
+		if (!result.length) {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
 		}
-		return res.status(200).json({ well })
+
+		return res.status(200).json({ well: result[0] })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({

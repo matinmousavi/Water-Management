@@ -1,5 +1,7 @@
+import mongoose from '../../config/database.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
+import Irrigation from '../../models/Irrigation.model.js'
 
 const fieldTranslations = {
 	name: 'نام زمین',
@@ -32,13 +34,27 @@ export const getLand = async (req, res) => {
 	try {
 		const { landId } = req.params
 
+		if (!mongoose.isValidObjectId(landId)) {
+			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
+		}
+
 		const land = await Land.findById(landId).populate('owner').lean()
 
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
 		}
-		const landWithWells = await attachWells(land)
-		return res.status(200).json({ land: landWithWells })
+
+		const wells = await Well.find({ lands: land._id }).select('title licenseCode cycleDays irrigator').lean()
+
+		const logs = await Irrigation.find({ land: land._id }).sort({ date: -1 }).lean()
+
+		const landData = {
+			...land,
+			wells,
+			logs,
+		}
+
+		return res.status(200).json({ land: landData })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
