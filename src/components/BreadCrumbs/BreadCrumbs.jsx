@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Breadcrumb } from 'antd'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import styles from './BreadCrumbs.module.css'
 
 const routesConfig = [
@@ -8,9 +8,8 @@ const routesConfig = [
   { path: '/users', breadcrumb: 'کاربران' },
   {
     path: '/users/:id',
-    breadcrumb: data => {
-      return data?.firstName && data?.lastName ? `${data.firstName} ${data.lastName}` : 'کاربر'
-    },
+    breadcrumb: data =>
+      data?.firstName && data?.lastName ? `${data.firstName} ${data.lastName}` : 'کاربر',
   },
   { path: '/wells', breadcrumb: 'چاه ها' },
   { path: '/wells/:id', breadcrumb: data => data?.title || 'چاه' },
@@ -46,20 +45,29 @@ function findBreadcrumbs(pathname, data) {
   let currentPath = ''
   const breadcrumbs = []
 
+  const rootRoute = routesConfig.find(route => route.path === '/')
+  if (rootRoute) {
+    breadcrumbs.push({
+      title: <Link to="/">{rootRoute.breadcrumb}</Link>,
+    })
+  }
+
   for (let i = 0; i < segments.length; i++) {
     currentPath += '/' + segments[i]
 
-    const route = routesConfig.find(routeConfigItem => matchPath(routeConfigItem.path, currentPath))
+    const route = routesConfig.find(routeConfigItem =>
+      matchPath(routeConfigItem.path, currentPath)
+    )
 
     if (route) {
-      const label = typeof route.breadcrumb === 'function' ? route.breadcrumb(data) : route.breadcrumb
-      breadcrumbs.push({ title: label })  // اینجا آبجکت ساختیم
-    }
-  }
+      const label = typeof route.breadcrumb === 'function'
+        ? route.breadcrumb(data)
+        : route.breadcrumb
 
-  if (pathname === '/' && !breadcrumbs.length) {
-    const rootRoute = routesConfig.find(route => route.path === '/')
-    if (rootRoute) breadcrumbs.push({ title: rootRoute.breadcrumb })
+      breadcrumbs.push({
+        title: <Link to={currentPath}>{label}</Link>,
+      })
+    }
   }
 
   return breadcrumbs
@@ -68,10 +76,16 @@ function findBreadcrumbs(pathname, data) {
 const Breadcrumbs = ({ data }) => {
   const location = useLocation()
 
-  const breadcrumbItems = useMemo(() => findBreadcrumbs(location.pathname, data), [location.pathname, data])
+  const breadcrumbItems = useMemo(
+    () => findBreadcrumbs(location.pathname, data),
+    [location.pathname, data]
+  )
 
   return (
-    <Breadcrumb className={styles.breadcrumb} items={breadcrumbItems} />
+    <Breadcrumb
+      className={styles.breadcrumb}
+      items={breadcrumbItems}
+    />
   )
 }
 

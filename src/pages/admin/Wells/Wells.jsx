@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Button, Flex } from 'antd'
+import { Button, Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import Loading from '../../../components/Loading/Loading'
 import WellsTable from './components/TableWells/WellsTable'
 import WellModal from '../../../components/Well/WellModal/WellModal'
+import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
+
+const { Title } = Typography
 
 const Wells = () => {
 	const wellApi = useAPI()
@@ -28,9 +31,12 @@ const Wells = () => {
 	if (wellApi.isLoading) return <Loading />
 
 	return (
-		<Flex vertical>
+		<Flex vertical className='main-container'>
+			<Breadcrumbs />
 			<Flex justify='space-between' style={{ marginBottom: 10 }}>
-				<h1>لیست چاه‌ها ({wells.length})</h1>
+				<Title level={1} className='text-page-title'>
+					لیست چاه‌ها ({wells.length})
+				</Title>
 				<Button type='primary' onClick={() => setIsModalOpen(true)}>
 					افزودن چاه
 				</Button>
