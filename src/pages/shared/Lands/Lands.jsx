@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Flex, Button } from 'antd'
 import useAPI from '../../../hooks/useAPI'
-import LandsTable from './components/LandsTable/LandsTable'
 import LandModal from '../../../components/Land/LandModal/LandModal'
 import Loading from '../../../components/Loading/Loading'
+import LandsList from './components/LandsList/LandsList'
 
 const Lands = () => {
 	const [lands, setLands] = useState([])

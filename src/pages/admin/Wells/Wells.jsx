@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Button, Flex } from 'antd'
-import useAPI from '../../../../../hooks/useAPI'
-import useNotification from '../../../../../hooks/useNotification'
-import WellsTable from './WellsTable'
-import Loading from '../../../../../components/Loading/Loading'
-import WellModal from '../../../../../components/Well/WellModal'
+import useAPI from '../../../hooks/useAPI'
+import useNotification from '../../../hooks/useNotification'
+import Loading from '../../../components/Loading/Loading'
+import WellsTable from './components/TableWells/WellsTable'
+import WellModal from '../../../components/Well/WellModal/WellModal'
 
 const Wells = () => {
 	const wellApi = useAPI()

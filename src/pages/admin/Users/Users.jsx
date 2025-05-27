@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import UsersTable from './components/UsersTable/UsersTable'
-import UserModal from '../../../components/UserModal/UserModal'
 import Loading from '../../../components/Loading/Loading'
 import { Button, Flex } from 'antd'
+import UserModal from '../../../components/User/UserModal/UserModal'
 
 const Users = () => {
 	const userApi = useAPI()

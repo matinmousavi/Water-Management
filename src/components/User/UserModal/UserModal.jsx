@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { Form, Modal } from 'antd'
-import UserForm from './UserForm'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
+import UserForm from '../UserForm/UserForm'
 
 const UserModal = ({ type = 'add', userData = null, setUsersData, isOpen, setIsOpen }) => {
 	const [form] = Form.useForm()
