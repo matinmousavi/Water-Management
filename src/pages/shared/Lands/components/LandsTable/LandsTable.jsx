@@ -36,10 +36,6 @@ const columns = [
 	},
 ]
 const LandsTable = ({ landsData }) => {
-	return (
-		<Card>
-			<Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
-		</Card>
-	)
+	return <Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
 }
 export default LandsTable

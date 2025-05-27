@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Modal, Form } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import LandForm from '../LandForm/LandForm'
 
-const LandModal = ({ type = 'add', landData = null, setLandsData }) => {
-	const [isOpen, setIsOpen] = useState(false)
+const LandModal = ({ type = 'add', landData = null, setLandsData, open, onClose }) => {
 	const [form] = Form.useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
@@ -13,12 +12,14 @@ const LandModal = ({ type = 'add', landData = null, setLandsData }) => {
 	useEffect(() => {
 		if (type === 'edit' && landData) {
 			form.setFieldsValue(landData)
+		} else {
+			form.resetFields()
 		}
 	}, [type, landData, form])
 
 	const handleCancel = () => {
 		form.resetFields()
-		setIsOpen(false)
+		onClose()
 	}
 
 	const handleSubmit = async () => {
@@ -47,11 +48,12 @@ const LandModal = ({ type = 'add', landData = null, setLandsData }) => {
 	return (
 		<Modal
 			title={type === 'add' ? 'فرم افزودن زمین' : 'فرم ویرایش زمین'}
-			open={isOpen}
+			open={open}
 			onOk={handleSubmit}
 			onCancel={handleCancel}
 			okText='ذخیره'
 			cancelText='انصراف'
+			confirmLoading={api.isLoading}
 		>
 			<LandForm form={form} />
 		</Modal>

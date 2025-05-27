@@ -14,4 +14,5 @@
 	flex: 1;
 	overflow: auto;
 	background: #f0f2f5;
+	padding-inline: 60px;
 }
