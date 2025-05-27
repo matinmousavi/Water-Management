@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import UsersTable from './components/UsersTable/UsersTable'
-import UserFormModal from './components/UserFormModal/UserFormModal'
+import UserFormModal from '../../../components/UserFormModal/UserFormModal'
 import Loading from '../../../components/Loading/Loading'
 import { Flex } from 'antd'
 

@@ -1,11 +1,14 @@
-import { Flex } from 'antd'
-import style from './Dashboard.module.css'
+import { Card, Typography } from 'antd'
+
+const { Title } = Typography
 
 const Dashboard = () => {
 	return (
-		<Flex className={style.card}>
-			<h1 className={style.title}>خانه</h1>
-		</Flex>
+		<Card>
+			<Title level={1} className='text-h1'>
+				داشبورد
+			</Title>
+		</Card>
 	)
 }
 

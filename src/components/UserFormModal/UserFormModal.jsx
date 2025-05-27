@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Button, Form, Modal, Radio } from 'antd'
-import useAPI from '../../../../../hooks/useAPI'
-import useNotification from '../../../../../hooks/useNotification'
-import FormFields from '../../../../../components/FormFields/FormFields'
+import useAPI from '../../hooks/useAPI'
+import useNotification from '../../hooks/useNotification'
+import FormFields from '../FormFields/FormFields'
 
 const ROLES = [
 	{ key: 'admin', label: 'مدیر' },
