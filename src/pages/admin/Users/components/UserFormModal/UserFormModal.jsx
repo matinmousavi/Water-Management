@@ -33,16 +33,15 @@ const UserFormModal = ({ type = 'add', userData = null, setUsersData }) => {
 
 			let response
 			if (type === 'add') {
-				response = await userApi.post('/users', values)
+				response = await userApi.post('users', values)
 			} else if (type === 'edit' && userData?.id) {
-				response = await userApi.put(`/users/${userData.id}`, values)
+				response = await userApi.put(`users/${userData.id}`, values)
 			}
 
 			if (response.error) {
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', `کاربر با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد.`)
-
 				if (setUsersData) {
 					setUsersData(prev => {
 						if (type === 'add') {
