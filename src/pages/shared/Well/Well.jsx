@@ -9,6 +9,7 @@ import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
+import WellAssociatedLands from './components/WellAssociatedLands/WellAssociatedLands'
 
 const { Text, Title } = Typography
 
@@ -146,6 +147,7 @@ const Well = () => {
 						</Row>
 					</Form>
 				</Modal>
+				<WellAssociatedLands id={wellId} />
 			</Flex>
 		</>
 	)
