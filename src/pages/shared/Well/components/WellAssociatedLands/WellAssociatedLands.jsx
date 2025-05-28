@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Modal, Table, Typography } from 'antd'
+import { Button, Card, Col, Flex, Form, Input, Modal, Row, Table, Typography } from 'antd'
 import { DeleteTwoTone } from '@ant-design/icons'
 import useAPI from '../../../../../hooks/useAPI'
 import { useState } from 'react'
@@ -67,7 +67,27 @@ const WellAssociatedLands = ({ id }) => {
 			</Flex>
 			<Table columns={columns} />
 
-			<Modal title='افزودن زمین به چاه' centered open={isShowModal} onCancel={handleCancelModal} footer={null}></Modal>
+			<Modal title='افزودن زمین به چاه' centered open={isShowModal} onCancel={handleCancelModal} footer={null}>
+				<Form>
+					<Row gutter={16}>
+						<Col span={12}>
+							<Form.Item name='name' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+								<Input />
+							</Form.Item>
+						</Col>
+						<Col span={12}>
+							<Form.Item name='owner' label='مالک' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+								<Input />
+							</Form.Item>
+						</Col>
+					</Row>
+					<Col>
+						<Form.Item name='name' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+							<Input />
+						</Form.Item>
+					</Col>
+				</Form>
+			</Modal>
 		</Card>
 	)
 }
