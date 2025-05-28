@@ -2,7 +2,7 @@ import { Button, Input, Table } from 'antd'
 import { Link } from 'react-router'
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 
-const handleSearch = (selectedKeys, confirm) => {
+const handleSearch = (confirm) => {
 	confirm()
 }
 
@@ -61,20 +61,25 @@ const columns = [
 		render: role => roleLabels[role] || role,
 	},
 	{
-		title: 'شماره همراه',
+		title: 'شماره تماس',
 		dataIndex: 'mobile',
 		key: 'mobile',
 		...getColumnSearchProps('mobile'),
 	},
 	{
-		title: 'ایمیل',
+		title: 'آدرس ایمیل',
 		dataIndex: 'email',
 		key: 'email',
+	},
+	{
+		title: 'کد حسابداری',
+		dataIndex: 'accounting',
+		key: 'accounting',
 	},
 ]
 
 const UsersTable = ({ usersData }) => {
-	return <Table scroll={{ x: 'calc(90vh + 10%)', y: 50 * 7 }} pagination={false} columns={columns} dataSource={usersData} rowKey={record => record._id} />
+	return <Table pagination={{ position: ['bottomCenter'], total: usersData.length, pageSize: 6 }} columns={columns} dataSource={usersData} rowKey={record => record._id} />
 }
 
 export default UsersTable

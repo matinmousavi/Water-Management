@@ -18,29 +18,29 @@ const Layouts = () => {
 	const mainMenuItems = useMemo(() => {
 		return isAdmin
 			? [
-					{
-						key: '/',
-						label: <Link to='/'>داشبورد</Link>,
-					},
-					{
-						key: '/users',
-						label: <Link to='/users'>کاربران</Link>,
-					},
-					{
-						key: '/lands',
-						label: <Link to='/lands'>زمین‌ها</Link>,
-					},
-					{
-						key: '/wells',
-						label: <Link to='/wells'>لیست چاه‌ها</Link>,
-					},
-			  ]
+				{
+					key: '/',
+					label: <Link to='/'>داشبورد</Link>,
+				},
+				{
+					key: '/wells',
+					label: <Link to='/wells'>چاه ها</Link>,
+				},
+				{
+					key: '/lands',
+					label: <Link to='/lands'>زمین ها</Link>,
+				},
+				{
+					key: '/users',
+					label: <Link to='/users'>کاربران</Link>,
+				},
+			]
 			: [
-					{
-						key: '/',
-						label: <Link to='/'>داشبورد</Link>,
-					},
-			  ]
+				{
+					key: '/',
+					label: <Link to='/'>داشبورد</Link>,
+				},
+			]
 	}, [isAdmin])
 
 	const profileMenuItems = [

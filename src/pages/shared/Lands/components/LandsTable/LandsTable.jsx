@@ -36,6 +36,6 @@ const columns = [
 	},
 ]
 const LandsTable = ({ landsData }) => {
-	return <Table scroll={{ y: '80vh' }} pagination={false} columns={columns} rowKey='_id' dataSource={landsData} />
+	return <Table columns={columns} rowKey='_id' dataSource={landsData} pagination={{ position: ['bottomCenter'], total: landsData.length, pageSize: 6 }} />
 }
 export default LandsTable
