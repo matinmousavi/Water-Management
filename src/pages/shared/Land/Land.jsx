@@ -9,6 +9,7 @@ import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
+import SelectOwner from '../../../components/SelectOwner/SelectOwner'
 
 const { Text, Title } = Typography
 
@@ -93,6 +94,7 @@ const Land = () => {
 			name: 'owner',
 			label: 'مالک',
 			col: 12,
+			customComponent: <SelectOwner />,
 			rules: [{ required: true, message: 'این فیلد الزامی است' }],
 		},
 		{
