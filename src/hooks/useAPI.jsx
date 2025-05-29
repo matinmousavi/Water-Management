@@ -6,28 +6,26 @@ const apiUrl = '/api'
 const APIContext = createContext({})
 
 export function APIProvider({ config = { cache: false }, requests, cache = {}, children }) {
-	return (
-		<APIContext.Provider value={{ config, requests, cache }} config={config}>
-			{children}
-		</APIContext.Provider>
-	)
+	return <APIContext.Provider value={{ config, requests, cache }}>{children}</APIContext.Provider>
 }
+
 export default function useAPI() {
 	const [data, setData] = useState(false)
 	const [isLoading, setLoading] = useState(false)
 	const [error, setError] = useState(false)
-	const { openNotification } = useNotification()
+	const [request, setRequest] = useState(null)
+	const lastRequestRef = useRef({})
 	const callsRef = useRef(0)
+	const { openNotification } = useNotification()
 
 	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve, reject } = {}) {
 		const requestInit = { method, headers: {}, credentials: 'include', signal }
-
 		let querystring = ''
+
 		switch (method) {
 			case 'GET':
 				if (params && typeof params === 'object') {
-					const query = new URLSearchParams(params).toString()
-					querystring = query ? `?${query}` : ''
+					querystring = '?' + new URLSearchParams(params).toString()
 				} else if (typeof params === 'string' && params.startsWith('?')) {
 					querystring = params
 				}
@@ -94,22 +92,28 @@ export default function useAPI() {
 		}
 	}
 
+	useEffect(() => {
+		if (!request) return
+		const { requestUrl, params, forceRefresh } = request
+		const controller = new AbortController()
+		getAPI({ requestUrl, params, signal: controller.signal, forceRefresh }).catch(() => {})
+		return () => controller.abort()
+	}, [request])
+
 	return {
-		init: (requestUrl, params) => {
-			const promise = new Promise((resolve, reject) => {
-				useEffect(() => {
-					const abortController = new AbortController()
-					getAPI({ requestUrl, params, signal: abortController.signal, resolve, reject })
-					return () => abortController.abort()
-				}, [])
-			})
-			return promise
+		init: (requestUrl, params = false, forceRefresh = false) => {
+			const last = lastRequestRef.current
+			if (last.requestUrl === requestUrl && JSON.stringify(last.params) === JSON.stringify(params) && last.forceRefresh === forceRefresh) return
+
+			lastRequestRef.current = { requestUrl, params, forceRefresh }
+			setRequest({ requestUrl, params, forceRefresh })
 		},
 		get: (requestUrl, params) => getAPI({ requestUrl, params }),
 		post: (requestUrl, params) => getAPI({ requestUrl, method: 'POST', params, setState: false }),
 		put: (requestUrl, params) => getAPI({ requestUrl, method: 'PUT', params, setState: false }),
 		delete: (requestUrl, params) => getAPI({ requestUrl, method: 'DELETE', params, setState: false }),
 		patch: (requestUrl, params) => getAPI({ requestUrl, method: 'PATCH', params, setState: false }),
+		setData,
 		data,
 		isLoading,
 		error,
