@@ -22,7 +22,7 @@ const MobileNumberForm = ({ setStep, setMobile, setExpireDate }) => {
 				openNotification('success', 'کد تأیید ارسال شد!')
 			}
 		} catch (error) {
-			openNotification('error', 'کاربری با این شماره موبایل یافت نشد')
+			openNotification('error', error)
 		}
 	}
 

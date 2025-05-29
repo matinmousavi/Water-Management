@@ -17,8 +17,14 @@ const beforeUpload = file => {
 	return isJpgOrPng && isLt2M
 }
 
-const ProfileImageCard = ({ initialSrc }) => {
+const ProfileImageCard = () => {
+	const api = useAPI()
 	const { userId } = useParams()
+
+	userId ? api.init(`users/${userId}`) : api.init(`me`)
+
+	const initialSrc = null
+
 	const [fileList, setFileList] = useState(initialSrc ? [{ uid: '-1', name: 'avatar', status: 'done', url: initialSrc }] : [])
 	const { Title } = Typography
 	const [previewVisible, setPreviewVisible] = useState(false)

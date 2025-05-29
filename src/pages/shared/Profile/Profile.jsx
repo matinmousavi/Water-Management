@@ -8,24 +8,24 @@ import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
 
+const { Title } = Typography
+
 const Profile = () => {
 	const { user } = useUser()
 	const { userId } = useParams()
 	const profileApi = useAPI()
-	const { Title } = Typography
+
 	if (userId) {
 		profileApi.init(`users/${userId}`)
 	}
 
-	const { data, isLoading } = profileApi
-
-	const userData = userId ? data?.user : user
+	const userData = userId ? profileApi.data?.user : user
 
 	const { firstName = '', lastName = '' } = userData || {}
 	const fullName = `${firstName} ${lastName}`
 	const pageTitle = fullName ? `پروفایل - ${fullName}` : 'پروفایل'
 
-	if (userId && (isLoading || !data)) return <Loading />
+	if (userId && (profileApi.isLoading || !profileApi.data)) return <Loading />
 
 	return (
 		<>
