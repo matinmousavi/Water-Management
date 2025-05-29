@@ -33,7 +33,7 @@ const Profile = () => {
 
 			<Flex vertical justify='space-between' gap={15}>
 				<Title className='text-h1'>{pageTitle}</Title>
-				<ProfileImageCard initialSrc={userData.profilePicture?.url} />
+				<ProfileImageCard pictureUrl={userData.profilePicture?.url} />
 				<ContactInfoCard userData={userData} />
 			</Flex>
 		</>
