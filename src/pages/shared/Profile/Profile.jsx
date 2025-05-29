@@ -4,7 +4,6 @@ import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
-
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
 

@@ -1,42 +1,49 @@
-import { Flex, Typography } from 'antd'
-import useAPI from '../../../hooks/useAPI'
-import LandsList from './components/LandsList/LandsList'
-import AddLandModal from './components/AddLandModal/AddLandModal'
 import { useEffect, useState } from 'react'
+import { Flex, Button, Typography, Breadcrumb } from 'antd'
+import useAPI from '../../../hooks/useAPI'
+import LandModal from '../../../components/Land/LandModal/LandModal'
 import Loading from '../../../components/Loading/Loading'
+import LandsTable from './components/LandsTable/LandsTable'
+import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
+
+const { Title } = Typography
 
 const Lands = () => {
-	const [landsData, setLandsData] = useState()
-	const { Title } = Typography
-	const landsApi = useAPI()
+	const [lands, setLands] = useState([])
+	const [isModalOpen, setIsModalOpen] = useState(false)
+	const api = useAPI()
 
 	useEffect(() => {
-		const fetchData = async () => {
+		const fetchLands = async () => {
 			try {
-				const data = await landsApi.get('lands')
-				setLandsData(data?.lands)
-			} catch (error) {
-				console.error('Error fetching lands data:', error)
+				const res = await api.get('lands')
+				setLands(res?.lands || [])
+			} catch (err) {
+				console.error('Error loading lands:', err)
 			}
 		}
-
-		fetchData()
+		fetchLands()
 	}, [])
 
-	if (landsApi.isLoading || !landsApi.data) {
-		return <Loading />
-	}
+	if (api.isLoading) return <Loading />
 
 	return (
-		<Flex vertical gap={10}>
-			<Flex align='center' justify='space-between'>
-				<Title level={1} className='text-h1'>
-					زمین ها
+		<Flex vertical className='main-container'>
+			<Breadcrumbs />
+			<Flex justify='space-between' align='center'>
+				<Title level={1} className='text-page-title'>
+					زمین‌ها ({lands.length}){' '}
 				</Title>
-				<AddLandModal setLandsData={setLandsData} />
+				<Button type='primary' onClick={() => setIsModalOpen(true)}>
+					افزودن زمین
+				</Button>
 			</Flex>
-			<LandsList landsData={landsData} />
+
+			<LandsTable landsData={lands} />
+
+			<LandModal open={isModalOpen} onClose={() => setIsModalOpen(false)} setLandsData={setLands} />
 		</Flex>
 	)
 }
+
 export default Lands

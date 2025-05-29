@@ -14,16 +14,9 @@
 }
 
 .text-page-title {
-	font-size: 1rem;
+	font-size: 1rem !important;
 	font-weight: 500;
 	color: #1f2937;
-}
-
-.text-h1 {
-	font-size: 1.25rem !important;
-	font-weight: 700;
-	color: #1f2937;
-	line-height: 1.2;
 }
 
 .text-h2 {
@@ -60,4 +53,12 @@
 .text-label {
 	font-size: 0.875rem !important;
 	color: #374151;
+}
+
+.ant-layout-header {
+	padding: 0 !important;
+}
+
+.main-container {
+	gap: 16px;
 }

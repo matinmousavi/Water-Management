@@ -3,12 +3,12 @@ import { EditOutlined } from '@ant-design/icons'
 import styles from './Land.module.css'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
-import DeleteCard from '../../admin/components/DeleteCard/DeleteCard'
 import FormFields from '../../../components/FormFields/FormFields'
 import { useEffect, useState } from 'react'
 import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
+import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 
 const { Text, Title } = Typography
 
@@ -126,13 +126,13 @@ const Land = () => {
 					زمین ها
 				</Title>
 
-				<Card className={styles.card}>
+				<Card>
 					<Flex align='center' justify='space-between'>
 						<Title level={2} className='text-h2'>
 							مشخصات زمین
 						</Title>
 						<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
-							<span>ویرایش</span>
+							ویرایش
 						</Button>
 					</Flex>
 
