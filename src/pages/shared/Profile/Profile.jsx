@@ -6,6 +6,7 @@ import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
+import { useEffect } from 'react'
 
 const { Title } = Typography
 
@@ -14,9 +15,9 @@ const Profile = () => {
 	const { userId } = useParams()
 	const api = useAPI()
 
-	if (userId) {
-		api.init(`users/${userId}`)
-	}
+	useEffect(() => {
+		if (userId) api.init(`users/${userId}`)
+	}, [userId])
 
 	const userData = userId ? api.data?.user : user
 
