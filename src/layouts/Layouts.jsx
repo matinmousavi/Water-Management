@@ -47,7 +47,7 @@ const Layouts = () => {
 		{
 			key: '/profile',
 			icon: <UserOutlined />,
-			label: '',
+			label:  <Link to='/profile'></Link>,
 		},
 		{
 			key: '/notifications',
