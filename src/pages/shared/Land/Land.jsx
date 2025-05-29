@@ -1,5 +1,5 @@
 import { Button, Card, Col, Flex, Form, Modal, Row, Typography } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
+import { EditOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import styles from './Land.module.css'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
@@ -152,6 +152,16 @@ const Land = () => {
 							))}
 						</Row>
 					</div>
+				</Card>
+				<Card>
+					<Flex align='center' justify='space-between'>
+						<Title level={2} className='text-h2'>
+							یادداشت زمین
+						</Title>
+						<Button type='default' shape='round' icon={<PlusCircleOutlined />} size='middle'>
+							افزودن یادداشت
+						</Button>
+					</Flex>
 				</Card>
 
 				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
