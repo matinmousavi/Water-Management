@@ -1,22 +1,22 @@
-import { Modal, Form } from 'antd'
+import { Modal } from 'antd'
 import ContactInfoForm from '../ContactInfoForm/ContactInfoForm'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useUser } from '../../../../../../../contexts/UserContext'
 import { useParams } from 'react-router'
 
-const ContactInfoModal = ({ open, onClose, form }) => {
-	const api = useAPI()
+const ContactInfoModal = ({ open, onClose, api, form }) => {
 	const { setUser } = useUser()
 	const { userId } = useParams()
+	const patchApi = useAPI()
 
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
 			const endpoint = userId ? `users/${userId}` : 'me'
-			const res = await api.patch(endpoint, values)
+			const response = await patchApi.patch(endpoint, values)
 
-			if (!res?.error) {
-				userId ? api.setData(res.user) : setUser(res.user)
+			if (!response?.error) {
+				userId ? api.setData(response) : setUser(response)
 				onClose()
 			}
 		} catch (err) {
@@ -33,7 +33,7 @@ const ContactInfoModal = ({ open, onClose, form }) => {
 			onOk={handleSubmit}
 			okText='ذخیره'
 			cancelText='انصراف'
-			confirmLoading={api.isLoading}
+			confirmLoading={patchApi.isLoading}
 		>
 			<ContactInfoForm form={form} />
 		</Modal>

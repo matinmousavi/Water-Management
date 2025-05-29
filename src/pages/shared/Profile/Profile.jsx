@@ -12,28 +12,28 @@ const { Title } = Typography
 const Profile = () => {
 	const { user } = useUser()
 	const { userId } = useParams()
-	const profileApi = useAPI()
+	const api = useAPI()
 
 	if (userId) {
-		profileApi.init(`users/${userId}`)
+		api.init(`users/${userId}`)
 	}
 
-	const userData = userId ? profileApi.data?.user : user
+	const userData = userId ? api.data?.user : user
 
 	const { firstName = '', lastName = '' } = userData || {}
 	const fullName = `${firstName} ${lastName}`
 	const pageTitle = fullName ? `پروفایل - ${fullName}` : 'پروفایل'
 
-	if (userId && (profileApi.isLoading || !profileApi.data)) return <Loading />
+	if (userId && (api.isLoading || !api.data)) return <Loading />
 
 	return (
 		<>
 			<MetaTitle>پروفایل</MetaTitle>
 
-			<Flex vertical justify='space-between' gap={15}>
+			<Flex vertical justify='space-between'>
 				<Title className='text-h1'>{pageTitle}</Title>
-				<ProfileImageCard pictureUrl={userData.profilePicture?.url} />
-				<ContactInfoCard userData={userData} />
+				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />
+				<ContactInfoCard api={api} />
 			</Flex>
 		</>
 	)

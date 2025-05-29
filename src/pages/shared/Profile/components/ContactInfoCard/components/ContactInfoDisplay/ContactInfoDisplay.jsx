@@ -1,6 +1,4 @@
 import { Row, Col, Typography } from 'antd'
-import { useParams } from 'react-router'
-import useAPI from '../../../../../../../hooks/useAPI'
 
 const { Text } = Typography
 
