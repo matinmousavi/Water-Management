@@ -9,15 +9,16 @@ const { Header, Content } = Layout
 const { useBreakpoint } = Grid
 
 const Layouts = () => {
-	const { isAdmin, user } = useUser()
+	const { isAdmin, user, isIrrigator } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
 	const screens = useBreakpoint()
 	const isMobile = !screens.md
 
 	const mainMenuItems = useMemo(() => {
-		return isAdmin
-			? [
+		{
+			if (isAdmin) {
+				return [
 					{
 						key: '/',
 						icon: <DashboardOutlined />,
@@ -38,15 +39,31 @@ const Layouts = () => {
 						icon: <EnvironmentOutlined />,
 						label: <Link to='/wells'>لیست چاه‌ها</Link>,
 					},
-			  ]
-			: [
+				]
+			} else if (isIrrigator) {
+				return [
 					{
 						key: '/',
 						icon: <DashboardOutlined />,
 						label: <Link to='/'>داشبورد</Link>,
 					},
-			  ]
-	}, [isAdmin])
+					{
+						key: '/wells',
+						icon: <EnvironmentOutlined />,
+						label: <Link to='/wells'>لیست چاه‌ها</Link>,
+					},
+				]
+			} else {
+				return [
+					{
+						key: '/',
+						icon: <DashboardOutlined />,
+						label: <Link to='/'>داشبورد</Link>,
+					},
+				]
+			}
+		}
+	}, [isAdmin, isIrrigator])
 
 	const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
 

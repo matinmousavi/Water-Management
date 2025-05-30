@@ -9,9 +9,10 @@ import Land from '../pages/shared/Land/Land'
 import Lands from '../pages/shared/Lands/Lands'
 import Wells from '../pages/admin/Wells/Wells'
 import Well from '../pages/shared/Well/Well'
+import WellsIrrigator from '../pages/shared/WellsIrrigator/WellsIrrigator'
 
 const LayoutRoutes = () => {
-	const { isLogin, isAdmin } = useUser()
+	const { isLogin, isAdmin, isIrrigator } = useUser()
 
 	return (
 		<Routes>
@@ -30,6 +31,11 @@ const LayoutRoutes = () => {
 							<Route path='/wells/:wellId' element={<Well />} />
 							<Route path='/lands' element={<Lands />} />
 							<Route path='/lands/:landId' element={<Land />} />
+						</>
+					)}
+					{isIrrigator && (
+						<>
+							<Route path='/wells' element={<WellsIrrigator />} />
 						</>
 					)}
 				</Route>
