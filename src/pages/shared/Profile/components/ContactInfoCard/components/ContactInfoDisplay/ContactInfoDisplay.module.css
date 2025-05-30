@@ -1,0 +1,11 @@
+.row {
+    margin: 2rem 0;
+}
+.value span {
+    font-weight: 500;
+    color: #000;
+}
+.label span {
+    font-weight: 400;
+    color: #00000080;
+}
