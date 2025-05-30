@@ -44,6 +44,6 @@ router.use('/me', isLogin, me)
 router.use('/users', isAdmin, users)
 router.use('/upload', isLogin, upload)
 router.use('/wells', isAdmin, wells)
-router.use('/lands', isAdmin, lands)
+router.use('/lands', isLogin, lands)
 
 export default router

@@ -9,6 +9,8 @@ import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
+import BackButton from '../../../components/BackButton/BackButton'
+import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 
 const { Text, Title } = Typography
 
@@ -122,9 +124,13 @@ const Land = () => {
 			<MetaTitle>ویرایش زمین</MetaTitle>
 
 			<Flex vertical gap={10}>
-				<Title level={1} className='text-h1'>
-					زمین ها
-				</Title>
+				<Breadcrumbs data={landData} />
+				<Flex>
+					<BackButton backTo={'wells'} />
+					<Title level={1} className='text-h3'>
+						{landData.name}
+					</Title>
+				</Flex>
 
 				<Card>
 					<Flex align='center' justify='space-between'>

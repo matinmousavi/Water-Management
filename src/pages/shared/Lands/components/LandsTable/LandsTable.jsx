@@ -1,4 +1,4 @@
-import { Card, Table } from 'antd'
+import { Table } from 'antd'
 import { Link } from 'react-router'
 
 const columns = [
@@ -36,6 +36,6 @@ const columns = [
 	},
 ]
 const LandsTable = ({ landsData }) => {
-	return <Table columns={columns} rowKey='_id' dataSource={landsData} pagination={{ position: ['bottomCenter'], total: landsData.length, pageSize: 6 }} />
+	return <Table columns={columns} rowKey='_id' dataSource={landsData} pagination={{ position: ['bottomCenter'], total: landsData?.length, pageSize: 6 }} />
 }
 export default LandsTable

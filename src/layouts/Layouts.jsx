@@ -16,31 +16,39 @@ const Layouts = () => {
 	const isMobile = !screens.md
 
 	const mainMenuItems = useMemo(() => {
-		return isAdmin
-			? [
-				{
-					key: '/',
-					label: <Link to='/'>داشبورد</Link>,
-				},
-				{
-					key: '/wells',
-					label: <Link to='/wells'>چاه ها</Link>,
-				},
-				{
-					key: '/lands',
-					label: <Link to='/lands'>زمین ها</Link>,
-				},
-				{
-					key: '/users',
-					label: <Link to='/users'>کاربران</Link>,
-				},
-			]
-			: [
-				{
-					key: '/',
-					label: <Link to='/'>داشبورد</Link>,
-				},
-			]
+		{
+			if (isAdmin) {
+				return [
+					{
+						key: '/',
+						label: <Link to='/'>داشبورد</Link>,
+					},
+					{
+						key: '/wells',
+						label: <Link to='/wells'>چاه ها</Link>,
+					},
+					{
+						key: '/lands',
+						label: <Link to='/lands'>زمین ها</Link>,
+					},
+					{
+						key: '/users',
+						label: <Link to='/users'>کاربران</Link>,
+					},
+				]
+			} else {
+				return [
+					{
+						key: '/',
+						label: <Link to='/'>داشبورد</Link>,
+					},
+					{
+						key: '/lands',
+						label: <Link to='/lands'>زمین ها</Link>,
+					},
+				]
+			}
+		}
 	}, [isAdmin])
 
 	const profileMenuItems = [
@@ -65,49 +73,19 @@ const Layouts = () => {
 							<Image width={30} src='../assets/images/water.png' preview={false} />
 						</Link>
 						<h2 className={style.title}>مدیریت آب</h2>
-						<Menu
-							theme='dark'
-							mode={isMobile ? 'vertical' : 'horizontal'}
-							selectedKeys={[location.pathname]}
-							items={mainMenuItems}
-						/>
+						<Menu theme='dark' mode={isMobile ? 'vertical' : 'horizontal'} selectedKeys={[location.pathname]} items={mainMenuItems} />
 					</Flex>
 					{!isMobile ? (
-						<Menu
-							theme='dark'
-							mode='horizontal'
-							selectedKeys={[location.pathname]}
-							items={profileMenuItems}
-						/>
+						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
 					) : (
-						<Button
-							className={style.button}
-							type='text'
-							icon={<MenuOutlined />}
-							onClick={() => setDrawerVisible(true)}
-						/>
+						<Button className={style.button} type='text' icon={<MenuOutlined />} onClick={() => setDrawerVisible(true)} />
 					)}
 				</Flex>
 			</Header>
 
-			<Drawer
-				title='منو'
-				placement='right'
-				onClose={() => setDrawerVisible(false)}
-				open={drawerVisible}
-				className={style.mobileDrawer}
-			>
-				<Menu
-					mode='vertical'
-					selectedKeys={[location.pathname]}
-					items={mainMenuItems}
-					onClick={() => setDrawerVisible(false)}
-				/>
-				<Menu
-					mode='vertical'
-					selectedKeys={[location.pathname]}
-					items={profileMenuItems}
-				/>
+			<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible} className={style.mobileDrawer}>
+				<Menu mode='vertical' selectedKeys={[location.pathname]} items={mainMenuItems} onClick={() => setDrawerVisible(false)} />
+				<Menu mode='vertical' selectedKeys={[location.pathname]} items={profileMenuItems} />
 			</Drawer>
 
 			<Content className={style.content}>
