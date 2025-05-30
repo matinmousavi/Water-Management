@@ -25,7 +25,7 @@ createRoot(document.getElementById('root')).render(
 						contentFontSizeLG: 14,
 						primaryShadow: 'none',
 						controlHeightLG: 40,
-						colorPrimary: '#3ABEF9',
+						colorPrimary: '#0066EE',
 						defaultBorderColor: 'rgba(217, 217, 217, 1)',
 						colorLink: 'rgba(59, 143, 243, 1)',
 						paddingInlineLG: 40,

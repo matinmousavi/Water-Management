@@ -126,13 +126,13 @@ const Land = () => {
 					زمین ها
 				</Title>
 
-				<Card className={styles.card}>
+				<Card>
 					<Flex align='center' justify='space-between'>
 						<Title level={2} className='text-h2'>
 							مشخصات زمین
 						</Title>
 						<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
-							<span>ویرایش</span>
+							ویرایش
 						</Button>
 					</Flex>
 

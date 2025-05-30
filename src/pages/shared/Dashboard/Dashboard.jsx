@@ -1,14 +1,14 @@
 import { Card, Typography } from 'antd'
-import style from './Dashboard.module.css'
+
+const { Title } = Typography
 
 const Dashboard = () => {
-	const { Title } = Typography
 	return (
-		<div>
-			<Card className={style.card}>
-				<Title className='text-h1'>داشبورد</Title>
-			</Card>
-		</div>
+		<Card>
+			<Title level={1} className='text-h1'>
+				داشبورد
+			</Title>
+		</Card>
 	)
 }
 

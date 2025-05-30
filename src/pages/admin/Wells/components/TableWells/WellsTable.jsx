@@ -52,7 +52,7 @@ const columns = [
 ]
 
 const WellsTable = ({ data }) => {
-	return <Table scroll={{ x: 'max-content' }} pagination={false} columns={columns} dataSource={data} rowKey={record => record._id} />
+	return <Table pagination={{ position: ['bottomCenter'], total: data.length, pageSize: 6 }} columns={columns} dataSource={data} rowKey={record => record._id} />
 }
 
 export default WellsTable
