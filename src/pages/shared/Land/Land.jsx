@@ -26,21 +26,22 @@ const Land = () => {
 	const cardRef = useRef(null)
 
 	const landApi = useAPI()
+	const notesApi = useAPI()
+
+	const fetchLand = async () => {
+		try {
+			const response = await landApi.get(`lands/${landId}`)
+			if (response?.land) {
+				setLandData(response.land)
+				setNotesData(response.land.notes)
+			}
+		} catch (error) {
+			openNotification('error', 'خطا در دریافت اطلاعات زمین')
+			console.error('خطا در دریافت اطلاعات زمین:', error)
+		}
+	}
 
 	useEffect(() => {
-		const fetchLand = async () => {
-			try {
-				const response = await landApi.get(`lands/${landId}`)
-				if (response?.land) {
-					setLandData(response.land)
-					setNotesData(response.land.notes)
-				}
-			} catch (error) {
-				openNotification('error', 'خطا در دریافت اطلاعات زمین')
-				console.error('خطا در دریافت اطلاعات زمین:', error)
-			}
-		}
-
 		if (landId) {
 			fetchLand()
 		}
@@ -66,11 +67,12 @@ const Land = () => {
 	}
 
 	const handleAddNote = async values => {
-		console.log(values)
 		try {
-			const response = await landApi.post(`lands/${landId}/notes`, values)
+			const response = await notesApi.post(`lands/${landId}/notes`, values)
 			if (!response?.error) {
+				form.resetFields()
 				setIsShowModalNote(false)
+				fetchLand()
 			}
 		} catch (error) {
 			console.error('Operation failed:', error)
@@ -207,10 +209,10 @@ const Land = () => {
 												<Button type='link' icon={<EditOutlined />} />
 												<Popconfirm
 													placement='topRight'
-													title='Are you sure?'
+													title='آیا مطمئنید؟'
 													getPopupContainer={trigger => trigger.parentElement}
-													okText='Yes'
-													cancelText='No'
+													okText='بله'
+													cancelText='خیر'
 													onConfirm={() => handleDelete(note._id)}
 												>
 													<Button type='link' icon={<DeleteOutlined />} danger />
@@ -255,7 +257,7 @@ const Land = () => {
 								<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
 							</Col>
 							<Col>
-								<Button type='primary' htmlType='submit' loading={landApi.isLoading}>
+								<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
 									ذخیره
 								</Button>
 							</Col>
