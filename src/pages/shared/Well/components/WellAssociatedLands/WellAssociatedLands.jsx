@@ -65,7 +65,7 @@ const WellAssociatedLands = ({ id }) => {
 			dataIndex: 'owner',
 			key: 'owner',
 			render: ownerId => {
-				return `${owner?.firstName || 'نام'} ${owner?.lastName || ''}`.trim()
+				return 'name owner'
 			},
 		},
 		{
