@@ -6,10 +6,14 @@ const SelectOwner = ({ value, onChange }) => {
 	const api = useAPI()
 
 	useEffect(() => {
-		api.get('users', { role: 'landOwner' })
+		api.get('users')
 	}, [])
 
 	const handleChange = selectedId => {
+		if (!selectedId) {
+			onChange(null)
+			return
+		}
 		const selected = api.data?.users?.find(user => user._id === selectedId)
 		onChange?.({
 			_id: selectedId,
@@ -25,6 +29,8 @@ const SelectOwner = ({ value, onChange }) => {
 			loading={api.isLoading}
 			value={value?._id}
 			onChange={handleChange}
+			allowClear
+			style={{ width: '100%' }}
 			filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 			options={api.data?.users?.map(user => ({
 				value: user._id,
