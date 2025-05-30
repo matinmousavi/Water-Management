@@ -24,16 +24,16 @@ const Layouts = () => {
 						label: <Link to='/'>داشبورد</Link>,
 					},
 					{
-						key: '/users',
-						label: <Link to='/users'>کاربران</Link>,
+						key: '/wells',
+						label: <Link to='/wells'>چاه ها</Link>,
 					},
 					{
 						key: '/lands',
-						label: <Link to='/lands'>زمین‌ها</Link>,
+						label: <Link to='/lands'>زمین ها</Link>,
 					},
 					{
-						key: '/wells',
-						label: <Link to='/wells'>لیست چاه‌ها</Link>,
+						key: '/users',
+						label: <Link to='/users'>کاربران</Link>,
 					},
 				]
 			} else if (isIrrigator) {
@@ -44,7 +44,7 @@ const Layouts = () => {
 					},
 					{
 						key: '/wells',
-						label: <Link to='/wells'>لیست چاه‌ها</Link>,
+						label: <Link to='/wells'>چاه ها</Link>,
 					},
 				]
 			} else {
@@ -56,7 +56,7 @@ const Layouts = () => {
 				]
 			}
 		}
-	}, [isAdmin, isIrrigator])
+	}, [isAdmin])
 
 	const profileMenuItems = [
 		{
