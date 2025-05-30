@@ -32,6 +32,7 @@ const WellAssociatedLands = ({ id }) => {
 				setIsShowModal(false)
 				form.resetFields()
 				openNotification('success', 'زمین به چاه اضافه شد')
+				await wellApi.get(`wells/${id}`)
 			}
 		} catch (error) {
 			console.log('Error:', error)
