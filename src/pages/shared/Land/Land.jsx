@@ -71,10 +71,12 @@ const Land = () => {
 			const response = await notesApi.post(`lands/${landId}/notes`, values)
 			if (!response?.error) {
 				form.resetFields()
+				openNotification('success', 'یادداشت با موفقیت افزوده شد')
 				setIsShowModalNote(false)
 				fetchLand()
 			}
 		} catch (error) {
+			openNotification('error', 'خطا در افزودن یادداشت')
 			console.error('Operation failed:', error)
 		}
 	}
