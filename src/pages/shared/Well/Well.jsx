@@ -1,9 +1,8 @@
-import { Button, Card, Col, Flex, Form, Modal, Row, Typography } from 'antd'
+import { Button, Card, Col, Flex, Form, Row, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import styles from './Well.module.css'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
-import FormFields from '../../../components/FormFields/FormFields'
 import { useEffect, useState } from 'react'
 import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
@@ -11,6 +10,8 @@ import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import WellAssociatedLands from './components/WellAssociatedLands/WellAssociatedLands'
 import WellModal from '../../../components/Well/WellModal/WellModal'
+import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
+import BackButton from '../../../components/BackButton/BackButton'
 
 const { Text, Title } = Typography
 
@@ -53,13 +54,17 @@ const Well = () => {
 		{ label: 'تعداد روزهای چرخه', value: `${wellData.cycleDays} روز` },
 		{ label: 'نام میراب', value: wellApi.irrigator || 'آیدی میراب' },
 	]
-	console.log(wellApi?.data?.well)
 
 	return (
 		<>
 			<MetaTitle>ویرایش چاه</MetaTitle>
 
 			<Flex vertical gap={10}>
+				<Breadcrumbs />
+				<Flex align='center'>
+					<BackButton />
+					<Title className='text-h3'>چاه {wellData.title}</Title>
+				</Flex>
 				<Card className={styles.card}>
 					<Flex align='center' justify='space-between'>
 						<Title level={2} className='text-h2'>
