@@ -6,7 +6,7 @@ const SelectLands = ({ value, onChange, defalutValues }) => {
 	const api = useAPI()
 
 	useEffect(() => {
-		api.get('lands', { role: 'admin' })
+		api.get('lands')
 	}, [])
 
 	const handleChange = selectedIds => {

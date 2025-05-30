@@ -1,5 +1,4 @@
 import { Button, Card, Col, Flex, Form, Row, Typography } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
 import styles from './Well.module.css'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
@@ -12,8 +11,9 @@ import WellAssociatedLands from './components/WellAssociatedLands/WellAssociated
 import WellModal from '../../../components/Well/WellModal/WellModal'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
+import WellInfoCard from './components/WellInfoCard/WellInfoCard'
 
-const { Text, Title } = Typography
+const { Title } = Typography
 
 const Well = () => {
 	const [isShowModal, setIsShowModal] = useState(false)
@@ -42,10 +42,6 @@ const Well = () => {
 		}
 	}, [wellId])
 
-	const handleOpenModal = () => {
-		setIsShowModal(true)
-	}
-
 	if (wellApi.isLoading || !wellData) return <Loading />
 
 	const wellInfoList = [
@@ -62,36 +58,10 @@ const Well = () => {
 			<Flex vertical gap={10}>
 				<Breadcrumbs />
 				<Flex align='center'>
-					<BackButton />
+					<BackButton backTo='/wells' />
 					<Title className='text-h3'>چاه {wellData.title}</Title>
 				</Flex>
-				<Card className={styles.card}>
-					<Flex align='center' justify='space-between'>
-						<Title level={2} className='text-h2'>
-							مشخصات چاه
-						</Title>
-						<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
-							<span>ویرایش</span>
-						</Button>
-					</Flex>
-
-					<div className={styles.infoWrapper}>
-						<Row gutter={[0, 8]}>
-							{wellInfoList.map((item, index) => (
-								<Col key={index} xs={24} md={20} lg={18} className={styles.line}>
-									<Row>
-										<Col xs={10}>
-											<Text className='text-label'>{item.label}</Text>
-										</Col>
-										<Col xs={14}>
-											<Text className='text-label'>{item.value}</Text>
-										</Col>
-									</Row>
-								</Col>
-							))}
-						</Row>
-					</div>
-				</Card>
+				<WellInfoCard wellData={wellData} />
 				<WellAssociatedLands id={wellId} />
 				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
 				<WellModal wellData={wellApi?.data?.well} type='edit' setIsOpen={setIsShowModal} isOpen={isShowModal} />
