@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-import Layouts from '../layout/Layouts'
+import Layouts from '../layouts/Layouts'
 import Dashboard from '../pages/shared/Dashboard/Dashboard'
 import Login from '../pages/public/login/Login'
 import { useUser } from '../contexts/UserContext'

@@ -5,6 +5,8 @@ import ImgCrop from 'antd-img-crop'
 import useAPI from '../../../../../hooks/useAPI'
 import { useParams } from 'react-router'
 
+const { Title } = Typography
+
 const beforeUpload = file => {
 	const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
 	if (!isJpgOrPng) {
@@ -17,13 +19,13 @@ const beforeUpload = file => {
 	return isJpgOrPng && isLt2M
 }
 
-const ProfileImageCard = ({ initialSrc }) => {
-	const { userId } = useParams()
-	const [fileList, setFileList] = useState(initialSrc ? [{ uid: '-1', name: 'avatar', status: 'done', url: initialSrc }] : [])
-	const { Title } = Typography
+const ProfileImageCard = ({ pictureUrl }) => {
+	const [fileList, setFileList] = useState(pictureUrl ? [{ uid: '-1', name: 'avatar', status: 'done', url: pictureUrl }] : [])
 	const [previewVisible, setPreviewVisible] = useState(false)
 	const [previewImage, setPreviewImage] = useState('')
+
 	const uploadApi = useAPI()
+	const { userId } = useParams()
 
 	const handleChange = ({ fileList: newList }) => {
 		setFileList(newList)

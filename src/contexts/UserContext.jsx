@@ -1,20 +1,19 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext } from 'react'
+import { use, useState, useEffect } from 'react'
 import { Spin, Flex } from 'antd'
 import useAPI from '../hooks/useAPI'
 import Errors from '../pages/public/errors/Errors'
 
-const UserContext = createContext({})
+const UserContext = createContext()
 
 export default function UserProvider({ children }) {
 	const [user, setUser] = useState(false)
 	const [initLoading, setInitLoading] = useState(true)
 	const api = useAPI()
 	const apiSilent = useAPI()
-
 	const isAdmin = user?.role === 'admin'
 	const isIrrigator = user?.role === 'irrigator'
 	const isLandOwner = user?.role === 'landOwner'
-
 	const isLogin = !!user
 
 	const getMe = async () => {
@@ -22,7 +21,7 @@ export default function UserProvider({ children }) {
 			const me = await apiSilent.get('me')
 			setUser(me.user)
 		} catch (err) {
-			console.log(err)
+			console.error(err)
 			setUser(false)
 		} finally {
 			setInitLoading(false)
@@ -38,39 +37,36 @@ export default function UserProvider({ children }) {
 			await apiSilent.get('me/logout')
 			location.replace('/')
 		} catch (err) {
-			console.log(err)
+			console.error(err)
 		}
-		setUser(null)
 	}
 
-	const showLoading = initLoading || api.isLoading
+	if (initLoading) {
+		return (
+			<Flex style={{ height: '100vh' }} justify='center' align='center'>
+				<Spin size='large' />
+			</Flex>
+		)
+	}
 
-	return (
-		<UserContext.Provider
-			value={{
-				user,
-				setUser,
-				isAdmin,
-				isIrrigator,
-				isLandOwner,
-				isLogin,
-				getMe,
-				logout,
-			}}
-		>
-			{showLoading && (
-				<Flex style={{ height: '100vh' }} justify='center' align='center'>
-					<Spin size='large' />
-				</Flex>
-			)}
-			{api.error && !showLoading && api.error.error?.status !== 403 && (
-				<Errors message='خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.' onClick={getMe} />
-			)}
-			{!showLoading && !api.error && children}
-		</UserContext.Provider>
-	)
+	if (api?.error && api.error?.status !== 403) {
+		return <Errors message='خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.' onClick={getMe} />
+	}
+
+	const contextValue = {
+		user,
+		setUser,
+		isAdmin,
+		isIrrigator,
+		isLandOwner,
+		isLogin,
+		getMe,
+		logout,
+	}
+
+	return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
 }
 
 export function useUser() {
-	return useContext(UserContext)
+	return use(UserContext)
 }

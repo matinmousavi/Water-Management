@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import UsersTable from './components/UsersTable/UsersTable'
-import UserFormModal from './components/UserFormModal/UserFormModal'
 import Loading from '../../../components/Loading/Loading'
-import { Flex } from 'antd'
+import { Button, Flex, Typography } from 'antd'
+import UserModal from '../../../components/User/UserModal/UserModal'
+import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
+
+const { Title } = Typography
 
 const Users = () => {
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
 	const [users, setUsers] = useState([])
+	const [isModalOpen, setIsModalOpen] = useState(false)
 
 	const fetchUsers = async () => {
 		const res = await userApi.get('/users')
@@ -27,11 +31,20 @@ const Users = () => {
 	if (userApi.isLoading || !userApi.data) return <Loading />
 
 	return (
-		<Flex vertical gap={10}>
+		<Flex vertical className='main-container'>
+			<Breadcrumbs />
 			<Flex align='center' justify='space-between'>
-				<UserFormModal type='add' setUsersData={setUsers} />
+				<Title level={1} className='text-page-title'>
+					لیست کاربران ({users.length}){' '}
+				</Title>
+				<Button type='primary' onClick={() => setIsModalOpen(true)}>
+					افزودن کاربر
+				</Button>
 			</Flex>
+
 			<UsersTable usersData={users} />
+
+			<UserModal type='add' isOpen={isModalOpen} setIsOpen={setIsModalOpen} setUsersData={setUsers} />
 		</Flex>
 	)
 }

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createLand, deleteLand, getLand, getLands, updateLand } from './lands.controller.js'
+import { addNoteToLand, createLand, deleteLand, getLand, getLands, updateLand } from './lands.controller.js'
 
 const router = Router()
 
@@ -9,6 +9,8 @@ router.post('/', createLand)
 router.get('/:landId', getLand)
 router.patch('/:landId', updateLand)
 router.delete('/:landId', deleteLand)
+
+router.post('/:landId/notes', addNoteToLand)
 
 router.all(/.*/, (req, res) => {
 	return res.status(405).send({ error: 'Method Not Allowed' })
