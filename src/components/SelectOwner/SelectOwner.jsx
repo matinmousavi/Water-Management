@@ -6,7 +6,7 @@ const SelectOwner = ({ value, onChange }) => {
 	const api = useAPI()
 
 	useEffect(() => {
-		api.get('users')
+		api.get('users', { role: 'landOwner' })
 	}, [])
 
 	const handleChange = selectedId => {
