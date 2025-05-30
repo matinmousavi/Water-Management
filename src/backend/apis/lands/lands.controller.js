@@ -157,7 +157,7 @@ export const addNoteToLand = async (req, res) => {
 			land.notes = []
 		}
 
-		land.notes.push({ userId, text })
+		land.notes.push({ user: userId, text })
 
 		await land.save()
 

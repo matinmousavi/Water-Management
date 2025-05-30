@@ -1,10 +1,10 @@
-import { Button, Card, Col, Flex, Form, Modal, Row, Typography } from 'antd'
-import { EditOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { Button, Card, Col, Flex, Form, Modal, Row, Typography, Input, Space, Popconfirm } from 'antd'
+import { EditOutlined, PlusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import styles from './Land.module.css'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import FormFields from '../../../components/FormFields/FormFields'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
@@ -13,13 +13,17 @@ import BackButton from '../../../components/BackButton/BackButton'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 
 const { Text, Title } = Typography
+const { TextArea } = Input
 
 const Land = () => {
-	const [isShowModal, setIsShowModal] = useState(false)
+	const [isShowModalEdit, setIsShowModalEdit] = useState(false)
+	const [isShowModalNote, setIsShowModalNote] = useState(false)
 	const [landData, setLandData] = useState(null)
+	const [notesData, setNotesData] = useState(null)
 	const { landId } = useParams()
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
+	const cardRef = useRef(null)
 
 	const landApi = useAPI()
 
@@ -29,6 +33,7 @@ const Land = () => {
 				const response = await landApi.get(`lands/${landId}`)
 				if (response?.land) {
 					setLandData(response.land)
+					setNotesData(response.land.notes)
 				}
 			} catch (error) {
 				openNotification('error', 'خطا در دریافت اطلاعات زمین')
@@ -52,19 +57,31 @@ const Land = () => {
 				irrigationType: landData.irrigationType,
 			})
 		}
-		setIsShowModal(true)
+		setIsShowModalEdit(true)
 	}
 
 	const handleCloseModal = () => {
-		setIsShowModal(false)
+		setIsShowModalEdit(false)
 		form.resetFields()
+	}
+
+	const handleAddNote = async values => {
+		console.log(values)
+		try {
+			const response = await landApi.post(`lands/${landId}/notes`, values)
+			if (!response?.error) {
+				setIsShowModalNote(false)
+			}
+		} catch (error) {
+			console.error('Operation failed:', error)
+		}
 	}
 
 	const onFinish = async values => {
 		try {
 			const response = await landApi.patch(`lands/${landId}`, values)
 			if (!response?.error) {
-				setIsShowModal(false)
+				setIsShowModalEdit(false)
 				setLandData(response.land)
 			}
 		} catch (error) {
@@ -159,26 +176,83 @@ const Land = () => {
 						</Row>
 					</div>
 				</Card>
-				<Card>
-					<Flex align='center' justify='space-between'>
-						<Title level={2} className='text-h2'>
-							یادداشت زمین
-						</Title>
-						<Button type='default' shape='round' icon={<PlusCircleOutlined />} size='middle'>
-							افزودن یادداشت
-						</Button>
-					</Flex>
-				</Card>
+				<div ref={cardRef} className={styles.commentContainer}>
+					<Card className={styles.card}>
+						<Flex align='center' justify='space-between'>
+							<Title level={2} className='text-h2'>
+								یادداشت زمین
+							</Title>
+							<Button type='default' shape='round' icon={<PlusCircleOutlined />} size='middle' onClick={() => setIsShowModalNote(true)}>
+								افزودن یادداشت
+							</Button>
+						</Flex>
+
+						<Flex vertical gap={8} className={styles.wrapper}>
+							{notesData.map(note => (
+								<div key={note._id} className={styles.fakePopoverBox}>
+									<div className={styles.arrowLeft}></div>
+									<Flex gap={8} vertical>
+										<Flex align='center' justify='space-between'>
+											<Flex align='center' gap={20}>
+												<h4>{note?.user || 'Unknown User'}</h4>
+												<span className={styles.date}>
+													{new Date(note.createdAt).toLocaleDateString('fa-IR', {
+														year: 'numeric',
+														month: 'long',
+														day: 'numeric',
+													})}
+												</span>
+											</Flex>
+											<Space size={8} className={styles.btns}>
+												<Button type='link' icon={<EditOutlined />} />
+												<Popconfirm
+													placement='topRight'
+													title='Are you sure?'
+													getPopupContainer={trigger => trigger.parentElement}
+													okText='Yes'
+													cancelText='No'
+													onConfirm={() => handleDelete(note._id)}
+												>
+													<Button type='link' icon={<DeleteOutlined />} danger />
+												</Popconfirm>
+											</Space>
+										</Flex>
+										<p className={styles.commentText}>{note.text}</p>
+									</Flex>
+								</div>
+							))}
+						</Flex>
+					</Card>
+				</div>
 
 				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
 
-				<Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
+				<Modal title='ویرایش اطلاعات' centered open={isShowModalEdit} onCancel={handleCloseModal} footer={null}>
 					<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
 						<FormFields fields={LandFormFields} />
 
 						<Row justify='end' gutter={8}>
 							<Col>
 								<Button onClick={handleCloseModal}>انصراف</Button>
+							</Col>
+							<Col>
+								<Button type='primary' htmlType='submit' loading={landApi.isLoading}>
+									ذخیره
+								</Button>
+							</Col>
+						</Row>
+					</Form>
+				</Modal>
+
+				<Modal title='اضافه کردن یادداشت ' centered open={isShowModalNote} onCancel={() => setIsShowModalNote(false)} footer={null}>
+					<Form form={form} onFinish={handleAddNote} layout='vertical' size='large'>
+						<Form.Item name='text'>
+							<TextArea rows={4} placeholder='یادداشت خود را وارد کنید...' />
+						</Form.Item>
+
+						<Row justify='end' gutter={8}>
+							<Col>
+								<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
 							</Col>
 							<Col>
 								<Button type='primary' htmlType='submit' loading={landApi.isLoading}>
