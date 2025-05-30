@@ -1,4 +1,4 @@
-import { Button, Card, Col, Flex, Form, Input, Modal, Popconfirm, Row, Space, Table, Typography } from 'antd'
+import { Button, Card, Col, Flex, Form, Modal, Popconfirm, Space, Table, Typography } from 'antd'
 import useAPI from '../../../../../hooks/useAPI'
 import { useState } from 'react'
 import { DeleteTwoTone } from '@ant-design/icons'
@@ -22,12 +22,10 @@ const WellAssociatedLands = ({ id }) => {
 	const handleOpenModal = () => {
 		setIsShowModal(true)
 	}
-	console.log(wellApi?.data?.well)
 
 	const onFinish = async () => {
 		try {
 			const values = await form.validateFields()
-			console.log(values)
 			const newResponse = { ...wellApi?.data?.well, lands: values?.lands }
 			const response = await wellApi.patch(`wells/${id}`, newResponse)
 			if (!response?.error) {
@@ -44,13 +42,23 @@ const WellAssociatedLands = ({ id }) => {
 			}
 		}
 	}
-	const handleDelete = async id => {
-		const response = await wellApi.patch(`wells/${id}`)
-		if (response.error) {
-			openNotification('error', response.error.message)
-		} else {
-			openNotification('success', 'زمین مورد نظر از چاه حذف شد.')
-			wellApi.get(`wells/${id}`)
+	const handleDelete = async landId => {
+		try {
+			const currentWell = { ...wellApi.data?.well }
+
+			const updatedLands = currentWell.lands.filter(item => item._id !== landId)
+
+			const updatedWell = { ...currentWell, lands: updatedLands }
+
+			const response = await wellApi.patch(`wells/${id}`, updatedWell)
+
+			if (!response?.error) {
+				openNotification('success', 'زمین از چاه حذف شد')
+				await wellApi.get(`wells/${id}`)
+			}
+		} catch (error) {
+			console.error('Error:', error)
+			openNotification('error', error?.error?.message || 'خطا در حذف زمین')
 		}
 	}
 	const columns = [
@@ -65,7 +73,7 @@ const WellAssociatedLands = ({ id }) => {
 			dataIndex: 'owner',
 			key: 'owner',
 			render: ownerId => {
-				return 'name owner'
+				return 'owner name'
 			},
 		},
 		{
@@ -118,7 +126,7 @@ const WellAssociatedLands = ({ id }) => {
 				<Form form={form} layout='vertical' size='large'>
 					<Flex align='center' justify='center'>
 						<Col span={16}>
-							<Form.Item name='lands' label='زمین ها' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+							<Form.Item name='lands' label='زمین ها'>
 								<SelectLands defalutValues={wellApi.data?.well?.lands.map(item => item.name) || []} />
 							</Form.Item>
 						</Col>
