@@ -1,18 +1,18 @@
-import { Button, Card, Col, DatePicker, Flex, Form, Input, Modal, Popconfirm, Row, Space, Table, Typography } from 'antd'
-import { DeleteTwoTone } from '@ant-design/icons'
+import { Button, Card, Col, Flex, Form, Input, Modal, Popconfirm, Row, Space, Table, Typography } from 'antd'
 import useAPI from '../../../../../hooks/useAPI'
 import { useState } from 'react'
-import SelectOwner from '../../../../../components/SelectOwner/SelectOwner'
+import { DeleteTwoTone } from '@ant-design/icons'
+
 import useNotification from '../../../../../hooks/useNotification'
+import SelectLands from '../SelectLands/SelectLands'
+import { Link } from 'react-router'
 
 const WellAssociatedLands = ({ id }) => {
 	const { Title } = Typography
 	const wellApi = useAPI()
-	const ownerApi = useAPI()
 	const [isShowModal, setIsShowModal] = useState(false)
-	const [landsData, setLandsData] = useState([])
 	const { openNotification } = useNotification()
-	wellApi.init(`wells/${id}`)
+	wellApi.init(`wells/${id}`, { well: { lands: [] } })
 	const [form] = Form.useForm()
 
 	const handleCancelModal = () => {
@@ -22,26 +22,16 @@ const WellAssociatedLands = ({ id }) => {
 	const handleOpenModal = () => {
 		setIsShowModal(true)
 	}
-	console.log('main data well:', wellApi.data.well)
+	console.log(wellApi?.data?.well)
 
 	const onFinish = async () => {
 		try {
 			const values = await form.validateFields()
-			const responseOwner = await ownerApi.get(`users/${values.owner._id}`)
-			const newLands = {
-				...values,
-				mobile: responseOwner?.owner?.mobile,
-				name: responseOwner?.owner?.name,
-			}
-			const currentWell = wellApi.data?.well || []
-			const currentLands = wellApi.data?.well?.lands
-			const param = { ...currentWell, lands: [...currentLands, newLands] }
-			console.log('new data for send land to well: ', param)
-
-			const response = await wellApi.patch(`wells/${id}`, param)
+			console.log(values)
+			const newResponse = { ...wellApi?.data?.well, lands: values?.lands }
+			const response = await wellApi.patch(`wells/${id}`, newResponse)
 			if (!response?.error) {
 				setIsShowModal(false)
-				setLandsData(response)
 				form.resetFields()
 				openNotification('success', 'زمین به چاه اضافه شد')
 			}
@@ -74,7 +64,9 @@ const WellAssociatedLands = ({ id }) => {
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: record => `${record.owner.firstName} ${record.owner.lastName}`,
+			render: ownerId => {
+				return `${owner?.firstName || 'نام'} ${owner?.lastName || ''}`.trim()
+			},
 		},
 		{
 			title: 'شماره تماس',
@@ -98,46 +90,39 @@ const WellAssociatedLands = ({ id }) => {
 			render: (_, record) => {
 				return (
 					<Space>
-						<Popconfirm title='آیا اظمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}></Popconfirm>
+						<Popconfirm title='آیا اظمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
+							<DeleteTwoTone twoToneColor='#ff0000' />
+						</Popconfirm>
 					</Space>
 				)
 			},
 		},
 	]
+
 	return (
 		<Card>
 			<Flex vertical gap={10}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
 						لیست زمین ها {'('}
-						{landsData.length}
+						{wellApi.data?.well?.lands.length}
 						{')'}
 					</Title>
 					<Button onClick={handleOpenModal} type='dashed'>
 						افزودن زمین
 					</Button>
 				</Flex>
-				<Table dataSource={landsData} columns={columns} />
+				<Table dataSource={wellApi.data?.well?.lands || []} columns={columns} />
 			</Flex>
 			<Modal onOk={onFinish} okText='ذخیره' cancelText='انصراف' title='افزودن زمین به چاه' open={isShowModal} onCancel={handleCancelModal}>
 				<Form form={form} layout='vertical' size='large'>
-					<Row gutter={16}>
-						<Col span={12}>
-							<Form.Item name='owner' label='مالک' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-								<SelectOwner />
+					<Flex align='center' justify='center'>
+						<Col span={16}>
+							<Form.Item name='lands' label='زمین ها' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+								<SelectLands defalutValues={wellApi.data?.well?.lands.map(item => item.name) || []} />
 							</Form.Item>
 						</Col>
-						<Col span={12}>
-							<Form.Item name='lastDateIrrigation' label='آخرین زمان آبیاری'>
-								<DatePicker />
-							</Form.Item>
-						</Col>
-						<Col span={12}>
-							<Form.Item name='nextDateIrrigation' label='زمان آبیاری بعدی'>
-								<DatePicker />
-							</Form.Item>
-						</Col>
-					</Row>
+					</Flex>
 				</Form>
 			</Modal>
 		</Card>
