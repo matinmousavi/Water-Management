@@ -1,6 +1,7 @@
 import { Card, Typography, Button, Flex, Form } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { useState } from 'react'
+import styles from './ContactInfoCard.module.css'
 
 import ContactInfoDisplay from './components/ContactInfoDisplay/ContactInfoDisplay'
 import ContactInfoModal from './components/ContactInfoModal/ContactInfoModal'
@@ -23,12 +24,12 @@ const ContactInfoCard = ({ api }) => {
 
 	return (
 		<>
-			<Card>
+			<Card className={styles.card}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
-						اطلاعات شخصی
+						مشخصات کاربر{' '}
 					</Title>
-					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal} disabled={api.isLoading}>
+					<Button type='default' color='primary' icon={<EditOutlined />} size='middle' onClick={handleOpenModal} disabled={api.isLoading}>
 						ویرایش
 					</Button>
 				</Flex>

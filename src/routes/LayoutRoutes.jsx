@@ -11,8 +11,7 @@ import Wells from '../pages/admin/Wells/Wells'
 import Well from '../pages/shared/Well/Well'
 
 const LayoutRoutes = () => {
-	const { isLogin, isAdmin } = useUser()
-
+	const { isLogin, isAdmin, isIrrigator } = useUser()
 	return (
 		<Routes>
 			{!isLogin ? (

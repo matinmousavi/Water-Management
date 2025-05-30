@@ -1,4 +1,6 @@
 import { Row, Col, Typography } from 'antd'
+import styles from './ContactInfoDisplay.module.css'
+import english2persian from '../../../../../../../utils/english2persian'
 
 const { Text } = Typography
 
@@ -11,28 +13,39 @@ const ContactInfoDisplay = ({ user }) => {
 	const getRoleLabel = key => ROLES.find(r => r.key === key)?.label || '-'
 
 	const contactInfo = [
-		{
-			label: 'نام و نام خانوادگی:',
-			value: user?.firstName || user?.lastName ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim() : '-',
-		},
-		{ label: 'ایمیل:', value: user?.email || '-' },
-		{ label: 'موبایل:', value: user?.mobile || '-' },
 		{ label: 'نقش:', value: getRoleLabel(user?.role) },
+		{ label: 'شماره تماس:', value: english2persian(user?.mobile) || '-' },
+		{ label: 'آدرس:', value: '-' },
+		{ label: 'کد حسابداری:', value: user?.accountingCode || '-' },
+		{ label: 'آدرس ایمیل:', value: user?.email || '-' },
+		{ label: 'تاریخ ثبت کاربر:', value: user?.createdAt || '-' },
 	]
 	return (
-		<Row gutter={[0, 8]}>
-			{contactInfo.map((item, index) => (
-				<Col key={index} xs={24} md={20} lg={18}>
-					<Row>
-						<Col xs={10}>
+		<Row gutter={[0, 8]} className={styles.wrapper}>
+			<Col xs={24} md={20} lg={12}>
+				{contactInfo.slice(0, 3).map((item, index) => (
+					<Row key={index} className={styles.row}>
+						<Col xs={6} className={styles.label}>
 							<Text className='text-label'>{item.label}</Text>
 						</Col>
-						<Col xs={14}>
+						<Col xs={18} className={styles.value}>
 							<Text className='text-label'>{item.value}</Text>
 						</Col>
 					</Row>
-				</Col>
-			))}
+				))}
+			</Col>
+			<Col xs={24} md={20} lg={12}>
+				{contactInfo.slice(3, 6).map((item, index) => (
+					<Row key={index} className={styles.row}>
+						<Col xs={6} className={styles.label}>
+							<Text className='text-label'>{item.label}</Text>
+						</Col>
+						<Col xs={18} className={styles.value}>
+							<Text className='text-label'>{item.value}</Text>
+						</Col>
+					</Row>
+				))}
+			</Col>
 		</Row>
 	)
 }
