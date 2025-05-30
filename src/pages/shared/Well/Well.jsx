@@ -10,6 +10,7 @@ import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import WellAssociatedLands from './components/WellAssociatedLands/WellAssociatedLands'
+import WellModal from '../../../components/Well/WellModal/WellModal'
 
 const { Text, Title } = Typography
 
@@ -41,31 +42,7 @@ const Well = () => {
 	}, [wellId])
 
 	const handleOpenModal = () => {
-		if (wellData) {
-			form.setFieldsValue({
-				licenseCode: wellData.licenseCode,
-				owner: wellData.title,
-				cycleDays: wellData.cycleDays,
-			})
-		}
 		setIsShowModal(true)
-	}
-
-	const handleCloseModal = () => {
-		setIsShowModal(false)
-		form.resetFields()
-	}
-
-	const onFinish = async values => {
-		try {
-			const response = await wellApi.patch(`wells/${wellId}`, values)
-			if (!response?.error) {
-				setIsShowModal(false)
-				setWellData(response.well)
-			}
-		} catch (error) {
-			console.error('Operation failed:', error)
-		}
 	}
 
 	if (wellApi.isLoading || !wellData) return <Loading />
@@ -74,27 +51,9 @@ const Well = () => {
 		{ label: 'کد پروانه', value: wellData.licenseCode },
 		{ label: 'عنوان', value: `${wellData.title || ''}` },
 		{ label: 'تعداد روزهای چرخه', value: `${wellData.cycleDays} روز` },
+		{ label: 'نام میراب', value: wellApi.irrigator || 'آیدی میراب' },
 	]
-
-	const WellFormFields = [
-		{
-			name: 'licenseCode',
-			label: 'کد پروانه',
-			col: 12,
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-		{
-			name: 'owner',
-			label: 'عنوان',
-			col: 12,
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-		{
-			name: 'cycleDays',
-			label: 'تعداد روزهای چرخه',
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-	]
+	console.log(wellApi?.data?.well)
 
 	return (
 		<>
@@ -128,26 +87,9 @@ const Well = () => {
 						</Row>
 					</div>
 				</Card>
-
-				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
-
-				<Modal title='ویرایش اطلاعات' centered open={isShowModal} onCancel={handleCloseModal} footer={null}>
-					<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
-						<FormFields fields={WellFormFields} />
-
-						<Row justify='end' gutter={8}>
-							<Col>
-								<Button onClick={handleCloseModal}>انصراف</Button>
-							</Col>
-							<Col>
-								<Button type='primary' htmlType='submit' loading={wellApi.isLoading}>
-									ذخیره
-								</Button>
-							</Col>
-						</Row>
-					</Form>
-				</Modal>
 				<WellAssociatedLands id={wellId} />
+				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
+				<WellModal wellData={wellApi?.data?.well} type='edit' setIsOpen={setIsShowModal} isOpen={isShowModal} />
 			</Flex>
 		</>
 	)

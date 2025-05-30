@@ -1,4 +1,5 @@
 import { Form, Input, Row, Col } from 'antd'
+import SelectIrrigator from '../../SelectIrrigator/SelectIrrigator'
 
 const WellForm = ({ form }) => {
 	return (
@@ -12,6 +13,11 @@ const WellForm = ({ form }) => {
 				<Col span={12}>
 					<Form.Item name='title' label='عنوان' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 						<Input />
+					</Form.Item>
+				</Col>
+				<Col span={12}>
+					<Form.Item name='irrigator' label='نام میراب' rules={[{ message: 'این فیلد الزامی است' }]}>
+						<SelectIrrigator />
 					</Form.Item>
 				</Col>
 				<Col span={24}>
