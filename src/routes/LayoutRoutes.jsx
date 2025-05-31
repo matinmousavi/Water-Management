@@ -22,20 +22,20 @@ const LayoutRoutes = () => {
 				<Route element={<Layouts />}>
 					<Route index element={<Dashboard />} />
 					<Route path='/profile' element={<Profile />} />
+
 					{isAdmin && (
 						<>
 							<Route path='/users' element={<Users />} />
 							<Route path='/users/:userId' element={<Profile />} />
-
-							<Route path='/wells' element={<Wells />} />
 							<Route path='/wells/:wellId' element={<Well />} />
 							<Route path='/lands' element={<Lands />} />
 							<Route path='/lands/:landId' element={<Land />} />
 						</>
 					)}
-					{isIrrigator && (
+
+					{(isIrrigator || isAdmin) && (
 						<>
-							<Route path='/wells' element={<WellsIrrigator />} />
+							<Route path='/wells' element={<Wells />} />
 						</>
 					)}
 				</Route>

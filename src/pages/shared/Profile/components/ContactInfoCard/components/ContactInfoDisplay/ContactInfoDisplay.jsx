@@ -1,3 +1,4 @@
+import React from 'react'
 import { Row, Col, Typography } from 'antd'
 
 const { Text } = Typography
@@ -7,18 +8,19 @@ const ROLES = [
 	{ key: 'irrigator', label: 'میراب' },
 	{ key: 'landOwner', label: 'مالک زمین' },
 ]
-const ContactInfoDisplay = ({ user }) => {
+const ContactInfoDisplay = ({ userData }) => {
 	const getRoleLabel = key => ROLES.find(r => r.key === key)?.label || '-'
 
 	const contactInfo = [
 		{
 			label: 'نام و نام خانوادگی:',
-			value: user?.firstName || user?.lastName ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim() : '-',
+			value: userData?.firstName || userData?.lastName ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() : '-',
 		},
-		{ label: 'ایمیل:', value: user?.email || '-' },
-		{ label: 'موبایل:', value: user?.mobile || '-' },
-		{ label: 'نقش:', value: getRoleLabel(user?.role) },
+		{ label: 'ایمیل:', value: userData?.email || '-' },
+		{ label: 'موبایل:', value: userData?.mobile || '-' },
+		{ label: 'نقش:', value: getRoleLabel(userData?.role) },
 	]
+
 	return (
 		<Row gutter={[0, 8]}>
 			{contactInfo.map((item, index) => (
@@ -37,4 +39,4 @@ const ContactInfoDisplay = ({ user }) => {
 	)
 }
 
-export default ContactInfoDisplay
+export default React.memo(ContactInfoDisplay)

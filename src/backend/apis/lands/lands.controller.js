@@ -38,7 +38,13 @@ export const getLand = async (req, res) => {
 			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
 		}
 
-		const land = await Land.findById(landId).populate('owner').lean()
+		const land = await Land.findById(landId)
+			.populate('owner')
+			.populate({
+				path: 'notes.user',
+				select: '_id firstName lastName',
+			})
+			.lean()
 
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
@@ -157,7 +163,7 @@ export const addNoteToLand = async (req, res) => {
 			land.notes = []
 		}
 
-		land.notes.push({ userId, text })
+		land.notes.push({ user: userId, text })
 
 		await land.save()
 
@@ -171,5 +177,74 @@ export const addNoteToLand = async (req, res) => {
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در افزودن یادداشت.' })
+	}
+}
+
+export const updateNoteOnLand = async (req, res) => {
+	try {
+		const { landId, noteId } = req.params
+		const { text } = req.body
+		const userId = req.user._id
+		const isAdmin = req.isAdmin
+
+		const land = await Land.findById(landId)
+
+		if (!land) {
+			return res.status(404).json({ message: 'زمین پیدا نشد.' })
+		}
+
+		const note = land.notes.id(noteId)
+
+		if (!note) {
+			return res.status(404).json({ message: 'یادداشت پیدا نشد.' })
+		}
+
+		if (!note.user.equals(userId) && !isAdmin) {
+			return res.status(403).json({ message: 'دسترسی غیرمجاز به یادداشت.' })
+		}
+
+		note.text = text
+		await land.save()
+
+		await land.populate({ path: 'notes.user', match: { _id: note.user } })
+
+		return res.status(200).json({ message: 'یادداشت به‌روزرسانی شد.', note })
+	} catch (err) {
+		console.error(err.message)
+		return res.status(500).json({ message: 'خطا در ویرایش یادداشت.' })
+	}
+}
+
+export const deleteNoteFromLand = async (req, res) => {
+	try {
+		const { landId, noteId } = req.params
+		const userId = req.user._id
+		const isAdmin = req.isAdmin
+
+		const land = await Land.findById(landId).populate('notes.user', '_id firstName lastName')
+
+		if (!land) {
+			return res.status(404).json({ message: 'زمین پیدا نشد.' })
+		}
+
+		const note = land.notes.id(noteId)
+
+		if (!note) {
+			return res.status(404).json({ message: 'یادداشت پیدا نشد.' })
+		}
+
+		if (!note.user.equals(userId) && !isAdmin) {
+			return res.status(403).json({ message: 'شما اجازه حذف این یادداشت را ندارید.' })
+		}
+
+		land.notes.pull(noteId)
+		await land.save()
+
+		await land.populate('notes.user', '_id firstName lastName')
+
+		return res.status(200).json({ message: 'یادداشت با موفقیت حذف شد.', notes: land.notes })
+	} catch (err) {
+		console.error(err.message)
+		return res.status(500).json({ message: 'خطا در حذف یادداشت.' })
 	}
 }
