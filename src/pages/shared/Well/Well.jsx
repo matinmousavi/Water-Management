@@ -1,5 +1,4 @@
-import { Button, Card, Col, Flex, Form, Row, Typography } from 'antd'
-import styles from './Well.module.css'
+import { Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import { useEffect, useState } from 'react'
@@ -19,7 +18,6 @@ const Well = () => {
 	const [isShowModal, setIsShowModal] = useState(false)
 	const [wellData, setWellData] = useState(null)
 	const { wellId } = useParams()
-	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
 
 	const wellApi = useAPI()
