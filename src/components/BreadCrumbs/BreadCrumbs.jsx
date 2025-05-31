@@ -13,7 +13,7 @@ const routesConfig = [
 	{ path: '/wells', breadcrumb: 'چاه ها' },
 	{ path: '/wells/:id', breadcrumb: data => data?.title || 'چاه' },
 	{ path: '/lands', breadcrumb: 'زمین ها' },
-	{ path: '/lands/:id', breadcrumb: data => data?.name || 'زمین' },
+	{ path: '/lands/:id', breadcrumb: data => data?.title || 'زمین' },
 ]
 
 function matchPath(pattern, pathname) {

@@ -9,53 +9,48 @@ const { Header, Content } = Layout
 const { useBreakpoint } = Grid
 
 const Layouts = () => {
-	const { isAdmin } = useUser()
+	const { isAdmin, isIrrigator } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
 	const screens = useBreakpoint()
 	const isMobile = !screens.md
 
 	const mainMenuItems = useMemo(() => {
-		{
-			if (isAdmin) {
-				return [
-					{
-						key: '/',
-						label: <Link to='/'>داشبورد</Link>,
-					},
-					{
-						key: '/wells',
-						label: <Link to='/wells'>چاه ها</Link>,
-					},
-					{
-						key: '/lands',
-						label: <Link to='/lands'>زمین ها</Link>,
-					},
-					{
-						key: '/users',
-						label: <Link to='/users'>کاربران</Link>,
-					},
-				]
-			} else {
-				return [
-					{
-						key: '/',
-						label: <Link to='/'>داشبورد</Link>,
-					},
-					{
-						key: '/lands',
-						label: <Link to='/lands'>زمین ها</Link>,
-					},
-				]
-			}
+		const items = [
+			{
+				key: '/',
+				label: <Link to='/'>داشبورد</Link>,
+			},
+		]
+
+		if (isAdmin || isIrrigator) {
+			items.push({
+				key: '/wells',
+				label: <Link to='/wells'>چاه ها</Link>,
+			})
 		}
-	}, [isAdmin])
+
+		if (isAdmin) {
+			items.push(
+				{
+					key: '/lands',
+					label: <Link to='/lands'>زمین ها</Link>,
+				},
+				{
+					key: '/users',
+					label: <Link to='/users'>کاربران</Link>,
+				}
+			)
+		}
+
+		return items
+	}, [isAdmin, isIrrigator])
 
 	const profileMenuItems = [
 		{
 			key: '/profile',
 			icon: <UserOutlined />,
-			label: '',
+			label: <Link to='/profile'></Link>,
 		},
 		{
 			key: '/notifications',
