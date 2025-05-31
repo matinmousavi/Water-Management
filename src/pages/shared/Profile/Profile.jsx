@@ -19,9 +19,9 @@ const Profile = () => {
 		if (userId) api.init(`users/${userId}`)
 	}, [userId])
 
-	const userData = userId ? api.data?.user : user
+	const initialUserData = userId ? api.data?.user : user
 
-	const { firstName = '', lastName = '' } = userData || {}
+	const { firstName = '', lastName = '' } = initialUserData || {}
 	const fullName = `${firstName} ${lastName}`
 	const pageTitle = fullName ? `پروفایل - ${fullName}` : 'پروفایل'
 
@@ -33,8 +33,8 @@ const Profile = () => {
 
 			<Flex vertical justify='space-between'>
 				<Title className='text-h1'>{pageTitle}</Title>
-				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />
-				<ContactInfoCard api={api} />
+				<ProfileImageCard initialPictureUrl={initialUserData?.profilePicture?.url} />
+				<ContactInfoCard initialUserData={initialUserData} />
 			</Flex>
 		</>
 	)
