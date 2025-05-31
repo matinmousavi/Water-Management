@@ -18,14 +18,14 @@ const { TextArea } = Input
 const Land = () => {
 	const [isShowModalEdit, setIsShowModalEdit] = useState(false)
 	const [isShowModalNote, setIsShowModalNote] = useState(false)
-	const [isShowModalEditNote, setIsShowModalEditNote] = useState(false)
+	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
 	const [selectedNote, setSelectedNote] = useState(null)
 
 	const [landData, setLandData] = useState(null)
 	const [notesData, setNotesData] = useState(null)
 	const { landId } = useParams()
 	const [form] = Form.useForm()
-	const [editNoteForm] = Form.useForm()
+	const [noteForm] = Form.useForm()
 	const { openNotification } = useNotification()
 	const cardRef = useRef(null)
 
@@ -70,37 +70,35 @@ const Land = () => {
 		form.resetFields()
 	}
 
-	const handleAddNote = async values => {
-		try {
-			const response = await notesApi.post(`lands/${landId}/notes`, values)
-			if (!response?.error) {
-				form.resetFields()
-				openNotification('success', 'یادداشت با موفقیت افزوده شد')
-				setIsShowModalNote(false)
-				fetchLand()
-			}
-		} catch (error) {
-			openNotification('error', 'خطا در افزودن یادداشت')
-			console.error('Operation failed:', error)
-		}
+	const handleOpenAddNoteModal = () => {
+		setIsNoteEditMode(false)
+		noteForm.resetFields()
+		setIsShowModalNote(true)
 	}
 
 	const handleEditNote = note => {
+		setIsNoteEditMode(true)
 		setSelectedNote(note)
-		editNoteForm.setFieldsValue({ text: note.text })
-		setIsShowModalEditNote(true)
+		noteForm.setFieldsValue({ text: note.text })
+		setIsShowModalNote(true)
 	}
 
-	const handleUpdateNote = async values => {
+	const handleSubmitNote = async values => {
 		try {
-			await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
-			openNotification('success', 'یادداشت با موفقیت ویرایش شد')
-			setIsShowModalEditNote(false)
+			if (isNoteEditMode) {
+				await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
+				openNotification('success', 'یادداشت با موفقیت ویرایش شد')
+			} else {
+				await notesApi.post(`lands/${landId}/notes`, values)
+				openNotification('success', 'یادداشت با موفقیت افزوده شد')
+			}
+			setIsShowModalNote(false)
 			setSelectedNote(null)
+			noteForm.resetFields()
 			fetchLand()
 		} catch (error) {
-			openNotification('error', 'خطا در ویرایش یادداشت')
-			console.error('Error updating note:', error)
+			openNotification('error', `خطا در ${isNoteEditMode ? 'ویرایش' : 'افزودن'} یادداشت`)
+			console.error(error)
 		}
 	}
 
@@ -195,7 +193,7 @@ const Land = () => {
 							<Title level={2} className='text-h2'>
 								یادداشت زمین
 							</Title>
-							<Button type='default' shape='round' icon={<PlusCircleOutlined />} onClick={() => setIsShowModalNote(true)}>
+							<Button type='default' shape='round' icon={<PlusCircleOutlined />} onClick={handleOpenAddNoteModal}>
 								افزودن یادداشت
 							</Button>
 						</Flex>
@@ -209,11 +207,7 @@ const Land = () => {
 											<Flex align='center' gap={20}>
 												<h4>{note?.user ? `${note.user.firstName} ${note.user.lastName}` : 'کاربر ناشناس'}</h4>
 												<span className={styles.date}>
-													{new Date(note.createdAt).toLocaleDateString('fa-IR', {
-														year: 'numeric',
-														month: 'long',
-														day: 'numeric',
-													})}
+													{new Date(note.createdAt).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })}
 												</span>
 											</Flex>
 											<Space size={8} className={styles.btns}>
@@ -240,7 +234,6 @@ const Land = () => {
 
 				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
 
-				{/* مودال ویرایش زمین */}
 				<Modal title='ویرایش اطلاعات' centered open={isShowModalEdit} onCancel={handleCloseModal} footer={null}>
 					<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
 						<FormFields fields={LandFormFields} />
@@ -257,11 +250,20 @@ const Land = () => {
 					</Form>
 				</Modal>
 
-				{/* مودال افزودن یادداشت */}
-				<Modal title='اضافه کردن یادداشت' centered open={isShowModalNote} onCancel={() => setIsShowModalNote(false)} footer={null}>
-					<Form form={form} onFinish={handleAddNote} layout='vertical' size='large'>
+				<Modal
+					title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
+					centered
+					open={isShowModalNote}
+					onCancel={() => {
+						setIsShowModalNote(false)
+						noteForm.resetFields()
+						setSelectedNote(null)
+					}}
+					footer={null}
+				>
+					<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
 						<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-							<TextArea rows={4} placeholder='یادداشت خود را وارد کنید...' />
+							<TextArea rows={4} placeholder='متن یادداشت را وارد کنید...' />
 						</Form.Item>
 						<Row justify='end' gutter={8}>
 							<Col>
@@ -269,26 +271,7 @@ const Land = () => {
 							</Col>
 							<Col>
 								<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
-									ذخیره
-								</Button>
-							</Col>
-						</Row>
-					</Form>
-				</Modal>
-
-				{/* مودال ویرایش یادداشت */}
-				<Modal title='ویرایش یادداشت' centered open={isShowModalEditNote} onCancel={() => setIsShowModalEditNote(false)} footer={null}>
-					<Form form={editNoteForm} onFinish={handleUpdateNote} layout='vertical' size='large'>
-						<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-							<TextArea rows={4} placeholder='متن جدید یادداشت...' />
-						</Form.Item>
-						<Row justify='end' gutter={8}>
-							<Col>
-								<Button onClick={() => setIsShowModalEditNote(false)}>انصراف</Button>
-							</Col>
-							<Col>
-								<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
-									ذخیره تغییرات
+									{isNoteEditMode ? 'ذخیره تغییرات' : 'ذخیره'}
 								</Button>
 							</Col>
 						</Row>
