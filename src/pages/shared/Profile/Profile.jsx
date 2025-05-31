@@ -41,9 +41,6 @@ const Profile = () => {
 					<Title level={1} className='text-page-title'>
 						{pageTitle}
 					</Title>
-					<Tag icon={<CheckCircleOutlined />} color='success' className='custom-tag'>
-						فعال
-					</Tag>
 				</Flex>
 				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />
 				<ContactInfoCard api={api} />
