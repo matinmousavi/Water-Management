@@ -44,13 +44,6 @@ const Well = () => {
 
 	if (wellApi.isLoading || !wellData) return <Loading />
 
-	const wellInfoList = [
-		{ label: 'کد پروانه', value: wellData.licenseCode },
-		{ label: 'عنوان', value: `${wellData.title || ''}` },
-		{ label: 'تعداد روزهای چرخه', value: `${wellData.cycleDays} روز` },
-		{ label: 'نام میراب', value: wellApi.irrigator || 'آیدی میراب' },
-	]
-
 	return (
 		<>
 			<MetaTitle>ویرایش چاه</MetaTitle>

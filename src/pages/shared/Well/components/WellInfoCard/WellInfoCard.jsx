@@ -4,11 +4,12 @@ import { EditOutlined } from '@ant-design/icons'
 
 const WellInfoCard = ({ wellData, setIsShowModal }) => {
 	const wellInfoList = [
-		{ label: 'کد پروانه', value: wellData.licenseCode },
-		{ label: 'عنوان', value: `${wellData.title || ''}` },
-		{ label: 'تعداد روزهای چرخه', value: `${wellData.cycleDays} روز` },
-		{ label: 'نام میراب', value: wellData.irrigator || 'آیدی میراب' },
+		{ label: 'کد پروانه', value: wellData?.licenseCode || '--' },
+		{ label: 'عنوان', value: wellData?.title || '--' },
+		{ label: 'تعداد روزهای چرخه', value: wellData?.cycleDays ? `${wellData.cycleDays} روز` : '--' },
+		{ label: 'نام میراب', value: wellData?.irrigator || '--' },
 	]
+
 	const { Text, Title } = Typography
 	const handleOpenModal = () => {
 		setIsShowModal(true)
