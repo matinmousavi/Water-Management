@@ -2,11 +2,11 @@ import { Select } from 'antd'
 import { useEffect } from 'react'
 import useAPI from '../../hooks/useAPI'
 
-const SelectOwner = ({ value, onChange }) => {
+const SelectIrrigator = ({ value, onChange, defaultOpen }) => {
 	const api = useAPI()
 
 	useEffect(() => {
-		api.get('users', { role: 'landOwner' })
+		api.get('users', { role: 'irrigator' })
 	}, [])
 
 	const handleChange = selectedId => {
@@ -25,11 +25,12 @@ const SelectOwner = ({ value, onChange }) => {
 	return (
 		<Select
 			showSearch
-			placeholder='مالک را انتخاب کنید'
+			placeholder='میراب را انتخاب کنید'
 			loading={api.isLoading}
 			value={value?._id}
 			onChange={handleChange}
 			allowClear
+			defaultOpen={defaultOpen}
 			style={{ width: '100%' }}
 			filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 			options={api.data?.users?.map(user => ({
@@ -40,4 +41,4 @@ const SelectOwner = ({ value, onChange }) => {
 	)
 }
 
-export default SelectOwner
+export default SelectIrrigator

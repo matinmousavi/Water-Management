@@ -1,0 +1,17 @@
+.card {
+	margin: 10px 0;
+}
+
+.card h2 {
+	font-size: 16px;
+	font-weight: 900;
+}
+
+.infoWrapper {
+	margin-top: 20px;
+	padding: 0;
+}
+
+/* ------------- tablet ------------- */
+@media (min-width: 768px) {
+}

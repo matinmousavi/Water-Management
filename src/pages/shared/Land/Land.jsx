@@ -9,8 +9,11 @@ import Loading from '../../../components/Loading/Loading'
 import useNotification from '../../../hooks/useNotification'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
+
+import SelectOwner from '../../../components/SelectOwner/SelectOwner'
 import BackButton from '../../../components/BackButton/BackButton'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
+
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -138,12 +141,39 @@ const Land = () => {
 	]
 
 	const LandFormFields = [
-		{ name: 'name', label: 'نام', col: 12, rules: [{ required: true, message: 'این فیلد الزامی است' }] },
-		{ name: 'owner', label: 'مالک', col: 12, rules: [{ required: true, message: 'این فیلد الزامی است' }] },
-		{ name: 'area', label: 'مساحت', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
-		{ name: 'kFactor', label: 'ضریب K', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
-		{ name: 'location', label: 'موقعیت', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
-		{ name: 'irrigationType', label: 'نوع آبیاری', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
+		{
+			name: 'name',
+			label: 'نام',
+			col: 12,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'owner',
+			label: 'مالک',
+			col: 12,
+			customComponent: <SelectOwner />,
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'area',
+			label: 'مساحت',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'kFactor',
+			label: 'ضریب K',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'location',
+			label: 'موقعیت',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
+		{
+			name: 'irrigationType',
+			label: 'نوع آبیاری',
+			rules: [{ required: true, message: 'این فیلد الزامی است' }],
+		},
 	]
 
 	return (
