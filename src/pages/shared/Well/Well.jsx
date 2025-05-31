@@ -61,7 +61,7 @@ const Well = () => {
 					<BackButton backTo='/wells' />
 					<Title className='text-h3'>چاه {wellData.title}</Title>
 				</Flex>
-				<WellInfoCard wellData={wellData} />
+				<WellInfoCard setIsShowModal={setIsShowModal} wellData={wellData} />
 				<WellAssociatedLands id={wellId} />
 				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
 				<WellModal wellData={wellApi?.data?.well} type='edit' setIsOpen={setIsShowModal} isOpen={isShowModal} />

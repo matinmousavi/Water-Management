@@ -2,7 +2,7 @@ import { Button, Card, Col, Flex, Row, Typography } from 'antd'
 import styles from './WellInfoCard.module.css'
 import { EditOutlined } from '@ant-design/icons'
 
-const WellInfoCard = ({ wellData }) => {
+const WellInfoCard = ({ wellData, setIsShowModal }) => {
 	const wellInfoList = [
 		{ label: 'کد پروانه', value: wellData.licenseCode },
 		{ label: 'عنوان', value: `${wellData.title || ''}` },
