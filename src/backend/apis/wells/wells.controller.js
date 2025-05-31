@@ -62,6 +62,34 @@ export const getWell = async (req, res) => {
 			},
 			{
 				$lookup: {
+					from: 'users',
+					let: { ownerId: '$lands.owner' },
+					pipeline: [
+						{
+							$match: {
+								$expr: { $eq: ['$_id', '$$ownerId'] },
+							},
+						},
+						{
+							$project: {
+								firstName: 1,
+								lastName: 1,
+								mobile: 1,
+								_id: 1,
+							},
+						},
+					],
+					as: 'lands.owner',
+				},
+			},
+			{
+				$unwind: {
+					path: '$lands.owner',
+					preserveNullAndEmptyArrays: true,
+				},
+			},
+			{
+				$lookup: {
 					from: 'irrigationlogs',
 					let: { landId: '$lands._id' },
 					pipeline: [
@@ -77,6 +105,33 @@ export const getWell = async (req, res) => {
 			{
 				$addFields: {
 					'lands.logs': '$logs',
+				},
+			},
+			{
+				$lookup: {
+					from: 'users',
+					let: { irrigatorId: '$irrigator' },
+					pipeline: [
+						{
+							$match: {
+								$expr: { $eq: ['$_id', '$$irrigatorId'] },
+							},
+						},
+						{
+							$project: {
+								firstName: 1,
+								lastName: 1,
+								_id: 1,
+							},
+						},
+					],
+					as: 'irrigator',
+				},
+			},
+			{
+				$unwind: {
+					path: '$irrigator',
+					preserveNullAndEmptyArrays: true,
 				},
 			},
 			{
