@@ -1,3 +1,4 @@
+import React from 'react'
 import { Row, Col, Typography } from 'antd'
 import styles from './ContactInfoDisplay.module.css'
 import english2persian from '../../../../../../../utils/english2persian'
@@ -9,17 +10,19 @@ const ROLES = [
 	{ key: 'irrigator', label: 'میراب' },
 	{ key: 'landOwner', label: 'مالک زمین' },
 ]
-const ContactInfoDisplay = ({ user }) => {
+const ContactInfoDisplay = ({ userData }) => {
 	const getRoleLabel = key => ROLES.find(r => r.key === key)?.label || '-'
 
 	const contactInfo = [
-		{ label: 'نقش:', value: getRoleLabel(user?.role) },
-		{ label: 'شماره تماس:', value: english2persian(user?.mobile) || '-' },
-		{ label: 'آدرس:', value: '-' },
-		{ label: 'کد حسابداری:', value: user?.accountingCode || '-' },
-		{ label: 'آدرس ایمیل:', value: user?.email || '-' },
-		{ label: 'تاریخ ثبت کاربر:', value: user?.createdAt || '-' },
+		{
+			label: 'نام و نام خانوادگی:',
+			value: userData?.firstName || userData?.lastName ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() : '-',
+		},
+		{ label: 'ایمیل:', value: userData?.email || '-' },
+		{ label: 'موبایل:', value: userData?.mobile || '-' },
+		{ label: 'نقش:', value: getRoleLabel(userData?.role) },
 	]
+
 	return (
 		<Row gutter={[0, 8]} className={styles.wrapper}>
 			<Col xs={24} md={20} lg={12}>
@@ -50,4 +53,4 @@ const ContactInfoDisplay = ({ user }) => {
 	)
 }
 
-export default ContactInfoDisplay
+export default React.memo(ContactInfoDisplay)

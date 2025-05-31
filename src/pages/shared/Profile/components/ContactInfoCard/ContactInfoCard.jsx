@@ -1,26 +1,28 @@
 import { Card, Typography, Button, Flex, Form } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
-import { useState } from 'react'
-import styles from './ContactInfoCard.module.css'
+import { useCallback, useState } from 'react'
 
 import ContactInfoDisplay from './components/ContactInfoDisplay/ContactInfoDisplay'
 import ContactInfoModal from './components/ContactInfoModal/ContactInfoModal'
+import useAPI from '../../../../../hooks/useAPI'
 
 const { Title } = Typography
 
-const ContactInfoCard = ({ api }) => {
+const ContactInfoCard = ({ initialUserData }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
+
 	const [form] = Form.useForm()
+	const api = useAPI()
 
-	const handleOpenModal = () => {
+	const handleOpenModal = useCallback(() => {
 		setIsShowModal(true)
-		form.setFieldsValue(api.data.user)
-	}
+		form.setFieldsValue(api.data.user || initialUserData)
+	}, [api.data, initialUserData])
 
-	const handleCloseModal = () => {
+	const handleCloseModal = useCallback(() => {
 		setIsShowModal(false)
 		form.resetFields()
-	}
+	}, [])
 
 	return (
 		<>
@@ -34,10 +36,9 @@ const ContactInfoCard = ({ api }) => {
 					</Button>
 				</Flex>
 
-				<ContactInfoDisplay user={api.data.user} />
+				<ContactInfoDisplay userData={api.data.user || initialUserData} />
 			</Card>
-
-			<ContactInfoModal open={isShowModal} onClose={handleCloseModal} api={api} form={form} />
+			{isShowModal && <ContactInfoModal open={isShowModal} onClose={handleCloseModal} api={api} form={form} />}
 		</>
 	)
 }

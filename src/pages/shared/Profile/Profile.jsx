@@ -22,9 +22,9 @@ const Profile = () => {
 		if (userId) api.init(`users/${userId}`)
 	}, [userId, api])
 
-	const userData = userId ? api.data?.user : user
+	const initialUserData = userId ? api.data?.user : user
 
-	const { firstName = '', lastName = '' } = userData || {}
+	const { firstName = '', lastName = '' } = initialUserData || {}
 	const fullName = `${firstName} ${lastName}`
 	const pageTitle = fullName || 'پروفایل'
 
