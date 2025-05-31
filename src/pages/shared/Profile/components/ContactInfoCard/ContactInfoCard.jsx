@@ -3,8 +3,8 @@ import { EditOutlined } from '@ant-design/icons'
 import { useCallback, useState } from 'react'
 
 import ContactInfoDisplay from './components/ContactInfoDisplay/ContactInfoDisplay'
-import ContactInfoModal from './components/ContactInfoModal/ContactInfoModal'
 import useAPI from '../../../../../hooks/useAPI'
+import UserModal from '../../../../../components/User/UserModal/UserModal'
 
 const { Title } = Typography
 
@@ -38,7 +38,7 @@ const ContactInfoCard = ({ initialUserData }) => {
 
 				<ContactInfoDisplay userData={api.data.user || initialUserData} />
 			</Card>
-			{isShowModal && <ContactInfoModal open={isShowModal} onClose={handleCloseModal} api={api} form={form} />}
+			{isShowModal && <UserModal type='edit' open={isShowModal} onClose={handleCloseModal} api={api} form={form} />}
 		</>
 	)
 }

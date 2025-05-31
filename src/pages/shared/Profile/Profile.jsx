@@ -43,7 +43,7 @@ const Profile = () => {
 					</Title>
 				</Flex>
 				<ProfileImageCard pictureUrl={initialUserData?.profilePicture?.url} />
-				<ContactInfoCard api={api} />
+				<ContactInfoCard initialUserData={initialUserData} />
 			</Flex>
 		</>
 	)

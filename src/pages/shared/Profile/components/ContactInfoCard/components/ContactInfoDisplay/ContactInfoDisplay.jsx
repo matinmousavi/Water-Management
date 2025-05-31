@@ -10,45 +10,35 @@ const ROLES = [
 	{ key: 'irrigator', label: 'میراب' },
 	{ key: 'landOwner', label: 'مالک زمین' },
 ]
+
 const ContactInfoDisplay = ({ userData }) => {
 	const getRoleLabel = key => ROLES.find(r => r.key === key)?.label || '-'
 
+	console.log(userData)
+
 	const contactInfo = [
-		{
-			label: 'نام و نام خانوادگی:',
-			value: userData?.firstName || userData?.lastName ? `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() : '-',
-		},
-		{ label: 'ایمیل:', value: userData?.email || '-' },
-		{ label: 'موبایل:', value: userData?.mobile || '-' },
 		{ label: 'نقش:', value: getRoleLabel(userData?.role) },
+		{ label: 'کد حسابداری:', value: userData?.accountingCode ? english2persian(userData.accountingCode) : '-' },
+		{ label: 'شماره تماس:', value: userData?.mobile ? english2persian(userData.mobile) : '-' },
+		{ label: 'آدرس ایمیل', value: userData?.email || '-' },
+		{ label: 'آدرس:', value: userData?.address || '-' },
+		{ label: 'تاریخ ثبت کاربر:', value: userData?.updatedAt || '-' },
 	]
 
 	return (
-		<Row gutter={[0, 8]} className={styles.wrapper}>
-			<Col xs={24} md={20} lg={12}>
-				{contactInfo.slice(0, 3).map((item, index) => (
-					<Row key={index} className={styles.row}>
-						<Col xs={6} className={styles.label}>
+		<Row gutter={[0, 30]}>
+			{contactInfo.map((item, index) => (
+				<Col xs={24} md={12} key={index}>
+					<Row className={styles.row}>
+						<Col xs={8} className={styles.label}>
 							<Text className='text-label'>{item.label}</Text>
 						</Col>
-						<Col xs={18} className={styles.value}>
+						<Col xs={16} className={styles.value}>
 							<Text className='text-label'>{item.value}</Text>
 						</Col>
 					</Row>
-				))}
-			</Col>
-			<Col xs={24} md={20} lg={12}>
-				{contactInfo.slice(3, 6).map((item, index) => (
-					<Row key={index} className={styles.row}>
-						<Col xs={6} className={styles.label}>
-							<Text className='text-label'>{item.label}</Text>
-						</Col>
-						<Col xs={18} className={styles.value}>
-							<Text className='text-label'>{item.value}</Text>
-						</Col>
-					</Row>
-				))}
-			</Col>
+				</Col>
+			))}
 		</Row>
 	)
 }

@@ -1,24 +1,15 @@
-import { useEffect } from 'react'
-import { Form, Modal } from 'antd'
+import { Modal } from 'antd'
+import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
+import { useUser } from '../../../contexts/UserContext'
 import UserForm from '../UserForm/UserForm'
 
-const UserModal = ({ type = 'add', userData = null, setUsersData, isOpen, setIsOpen }) => {
-	const [form] = Form.useForm()
+const UserModal = ({ type = 'add', open, onClose, api, form }) => {
+	const { userId } = useParams()
+	const { setUser } = useUser()
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
-
-	useEffect(() => {
-		if (type === 'edit' && userData) {
-			form.setFieldsValue(userData)
-		}
-	}, [userData, type, form])
-
-	const handleCancel = () => {
-		form.resetFields()
-		setIsOpen(false)
-	}
 
 	const handleSubmit = async () => {
 		try {
@@ -27,39 +18,42 @@ const UserModal = ({ type = 'add', userData = null, setUsersData, isOpen, setIsO
 			let response
 			if (type === 'add') {
 				response = await userApi.post('users', values)
-			} else if (type === 'edit' && userData?._id) {
-				response = await userApi.put(`users/${userData._id}`, values)
+			} else {
+				const endpoint = userId ? `users/${userId}` : 'me'
+				response = await userApi.patch(endpoint, values)
 			}
 
-			if (response.error) {
-				openNotification('error', 'خطا', response.message)
-			} else {
+			if (!response?.error) {
 				openNotification('success', 'عملیات موفق', `کاربر با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد.`)
-				if (setUsersData) {
-					setUsersData(prev => {
-						if (type === 'add') {
-							return [...prev, response.user]
-						}
-						return prev.map(user => (user._id === response.user._id ? response.user : user))
-					})
+				if (type === 'add') {
+					api.setData(prev => ({
+						...prev,
+						users: [...(prev?.users || []), response.user],
+					}))
+				} else {
+					userId ? api.setData(response) : setUser(response)
 				}
 
 				form.resetFields()
-				handleCancel()
+				onClose()
+			} else {
+				openNotification('error', 'خطا', response.message)
 			}
-		} catch (error) {
-			openNotification('error', 'خطا', error?.error?.message || 'خطایی رخ داد')
+		} catch (err) {
+			openNotification('error', 'خطا', err?.error?.message || 'خطایی رخ داد')
 		}
 	}
 
 	return (
 		<Modal
-			title={type === 'add' ? 'فرم افزودن کاربر' : 'فرم ویرایش کاربر'}
-			open={isOpen}
+			title={type === 'add' ? 'افزودن کاربر' : 'ویرایش کاربر'}
+			centered
+			open={open}
+			onCancel={onClose}
 			onOk={handleSubmit}
-			onCancel={handleCancel}
 			okText='ذخیره'
 			cancelText='انصراف'
+			confirmLoading={userApi.isLoading}
 		>
 			<UserForm form={form} />
 		</Modal>
