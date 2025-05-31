@@ -3,8 +3,8 @@ import { EditOutlined } from '@ant-design/icons'
 import { useCallback, useState } from 'react'
 
 import ContactInfoDisplay from './components/ContactInfoDisplay/ContactInfoDisplay'
-import ContactInfoModal from './components/ContactInfoModal/ContactInfoModal'
 import useAPI from '../../../../../hooks/useAPI'
+import UserModal from '../../../../../components/User/UserModal/UserModal'
 
 const { Title } = Typography
 
@@ -29,16 +29,16 @@ const ContactInfoCard = ({ initialUserData }) => {
 			<Card>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
-						اطلاعات شخصی
+						مشخصات کاربر{' '}
 					</Title>
-					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal} disabled={api.isLoading}>
+					<Button type='default' color='primary' icon={<EditOutlined />} size='middle' onClick={handleOpenModal} disabled={api.isLoading}>
 						ویرایش
 					</Button>
 				</Flex>
 
 				<ContactInfoDisplay userData={api.data.user || initialUserData} />
 			</Card>
-			{isShowModal && <ContactInfoModal open={isShowModal} onClose={handleCloseModal} api={api} form={form} />}
+			{isShowModal && <UserModal type='edit' open={isShowModal} onClose={handleCloseModal} api={api} form={form} />}
 		</>
 	)
 }

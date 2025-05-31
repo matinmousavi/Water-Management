@@ -35,7 +35,7 @@ const WellAssociatedLands = ({ id }) => {
 				await wellApi.get(`wells/${id}`)
 			}
 		} catch (error) {
-			console.log('Error:', error)
+			console.error('Error:', error)
 			if (error.errorFields) {
 				openNotification('error', error.errorFields[0]?.errors[0])
 			} else {

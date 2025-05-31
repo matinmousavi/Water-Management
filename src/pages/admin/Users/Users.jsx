@@ -1,50 +1,48 @@
-import { useEffect, useState } from 'react'
+import { useState, useCallback } from 'react'
 import useAPI from '../../../hooks/useAPI'
-import useNotification from '../../../hooks/useNotification'
 import UsersTable from './components/UsersTable/UsersTable'
 import Loading from '../../../components/Loading/Loading'
-import { Button, Flex, Typography } from 'antd'
+import { Button, Flex, Typography, Form } from 'antd'
 import UserModal from '../../../components/User/UserModal/UserModal'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 
 const { Title } = Typography
 
 const Users = () => {
-	const userApi = useAPI()
-	const { openNotification } = useNotification()
-	const [users, setUsers] = useState([])
+	const api = useAPI()
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
-	const fetchUsers = async () => {
-		const res = await userApi.get('/users')
-		if (res.error) {
-			openNotification('error', 'خطا در دریافت کاربران', res.message)
-		} else {
-			setUsers(res.users || [])
-		}
-	}
+	const [form] = Form.useForm()
 
-	useEffect(() => {
-		fetchUsers()
+	api.init('users')
+
+	const handleOpenModal = useCallback(() => {
+		setIsModalOpen(true)
+		form.resetFields()
 	}, [])
 
-	if (userApi.isLoading || !userApi.data) return <Loading />
+	const handleCloseModal = useCallback(() => {
+		setIsModalOpen(false)
+		form.resetFields()
+	}, [])
+
+	if (api.isLoading || !api.data) return <Loading />
 
 	return (
 		<Flex vertical className='main-container'>
 			<Breadcrumbs />
 			<Flex align='center' justify='space-between'>
 				<Title level={1} className='text-page-title'>
-					لیست کاربران ({users.length}){' '}
+					لیست کاربران ({api.data.users.length})
 				</Title>
-				<Button type='primary' onClick={() => setIsModalOpen(true)}>
+				<Button type='primary' onClick={handleOpenModal}>
 					افزودن کاربر
 				</Button>
 			</Flex>
 
-			<UsersTable usersData={users} />
+			<UsersTable usersData={api.data.users} />
 
-			<UserModal type='add' isOpen={isModalOpen} setIsOpen={setIsModalOpen} setUsersData={setUsers} />
+			{isModalOpen && <UserModal type='add' open={isModalOpen} onClose={handleCloseModal} api={api} form={form} />}
 		</Flex>
 	)
 }
