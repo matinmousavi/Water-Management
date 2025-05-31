@@ -73,13 +73,13 @@ const WellAssociatedLands = ({ id }) => {
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: ownerId => {
-				return 'owner name'
+			render: owner => {
+				return `${owner.firstName} ${owner.lastName}`
 			},
 		},
 		{
 			title: 'شماره تماس',
-			dataIndex: 'mobile',
+			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
 		},
 		{
