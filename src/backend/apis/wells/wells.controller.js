@@ -80,6 +80,33 @@ export const getWell = async (req, res) => {
 				},
 			},
 			{
+				$lookup: {
+					from: 'users',
+					let: { irrigatorId: '$irrigator' },
+					pipeline: [
+						{
+							$match: {
+								$expr: { $eq: ['$_id', '$$irrigatorId'] },
+							},
+						},
+						{
+							$project: {
+								firstName: 1,
+								lastName: 1,
+								_id: 1,
+							},
+						},
+					],
+					as: 'irrigator',
+				},
+			},
+			{
+				$unwind: {
+					path: '$irrigator',
+					preserveNullAndEmptyArrays: true,
+				},
+			},
+			{
 				$group: {
 					_id: '$_id',
 					title: { $first: '$title' },
