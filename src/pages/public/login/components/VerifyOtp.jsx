@@ -71,7 +71,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 			}
 		} catch (error) {
 			openNotification('error', '  کد اشتباه یا منقضی شده است.    ')
-			console.log(error)
+			console.error(error)
 		}
 	}
 

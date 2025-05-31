@@ -16,8 +16,6 @@ const Users = () => {
 
 	api.init('users')
 
-	console.log(api.data)
-
 	const handleOpenModal = useCallback(() => {
 		setIsModalOpen(true)
 		form.resetFields()
