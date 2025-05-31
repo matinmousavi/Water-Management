@@ -19,12 +19,11 @@ const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, setWellsD
 		form.resetFields()
 		setIsOpen(false)
 	}
-
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-
 			let response
+
 			if (type === 'add') {
 				response = await wellApi.post('wells', values)
 			} else {
@@ -37,7 +36,7 @@ const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, setWellsD
 				openNotification('success', 'عملیات موفق', `چاه با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد.`)
 
 				if (setWellsData) {
-					setWellsData(prev => (type === 'add' ? [...prev, response.well] : prev.map(w => (w._id === response.well._id ? response.well : w))))
+					setWellsData(response.well)
 				}
 
 				form.resetFields()
@@ -56,6 +55,7 @@ const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, setWellsD
 			onCancel={handleCancel}
 			okText='ذخیره'
 			cancelText='انصراف'
+			forceRender
 		>
 			<WellForm form={form} />
 		</Modal>
