@@ -9,7 +9,6 @@ import Land from '../pages/shared/Land/Land'
 import Lands from '../pages/shared/Lands/Lands'
 import Wells from '../pages/admin/Wells/Wells'
 import Well from '../pages/shared/Well/Well'
-import WellsIrrigator from '../pages/shared/WellsIrrigator/WellsIrrigator'
 
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin, isIrrigator } = useUser()
