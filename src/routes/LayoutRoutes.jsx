@@ -12,7 +12,6 @@ import Well from '../pages/shared/Well/Well'
 
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin, isIrrigator } = useUser()
-	console.log(isIrrigator || isAdmin)
 
 	return (
 		<Routes>
