@@ -35,14 +35,14 @@ const Profile = () => {
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between'>
-				<Breadcrumbs data={userData} />
+				<Breadcrumbs data={initialUserData} />
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/users' />
 					<Title level={1} className='text-page-title'>
 						{pageTitle}
 					</Title>
 				</Flex>
-				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />
+				<ProfileImageCard pictureUrl={initialUserData?.profilePicture?.url} />
 				<ContactInfoCard api={api} />
 			</Flex>
 		</>

@@ -26,7 +26,7 @@ const ContactInfoCard = ({ initialUserData }) => {
 
 	return (
 		<>
-			<Card className={styles.card}>
+			<Card>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
 						مشخصات کاربر{' '}
