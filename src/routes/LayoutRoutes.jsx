@@ -9,6 +9,7 @@ import Land from '../pages/shared/Land/Land'
 import Lands from '../pages/shared/Lands/Lands'
 import Wells from '../pages/admin/Wells/Wells'
 import Well from '../pages/shared/Well/Well'
+import WellsIrrigator from '../pages/shared/WellsIrrigator/WellsIrrigator'
 
 const LayoutRoutes = () => {
 	const { isLogin, isAdmin, isIrrigator } = useUser()
@@ -26,15 +27,16 @@ const LayoutRoutes = () => {
 						<>
 							<Route path='/users' element={<Users />} />
 							<Route path='/users/:userId' element={<Profile />} />
+							<Route path='/wells' element={<Wells />} />
 							<Route path='/wells/:wellId' element={<Well />} />
 							<Route path='/lands' element={<Lands />} />
 							<Route path='/lands/:landId' element={<Land />} />
 						</>
 					)}
 
-					{(isIrrigator || isAdmin) && (
+					{isIrrigator && (
 						<>
-							<Route path='/wells' element={<Wells />} />
+							<Route path='/wells' element={<WellsIrrigator />} />
 						</>
 					)}
 				</Route>

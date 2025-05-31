@@ -22,16 +22,16 @@ const getColumnSearchProps = dataIndex => ({
 	onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
 })
 
-export const TableWells = () => {
+export const TableWellsIrrigator = ({ wellsData }) => {
 	const columns = [
 		{
 			title: 'کد پروانه',
 			dataIndex: 'licenseCode',
 			key: 'licenseCode',
 			...getColumnSearchProps('licenseCode'),
-			render: () => (
+			render: (text, record) => (
 				<Button type='link'>
-					<span>4444</span>
+					<span>{record.licenseCode}</span>
 				</Button>
 			),
 		},
@@ -46,5 +46,13 @@ export const TableWells = () => {
 			key: 'cycleDays',
 		},
 	]
-	return <Table scroll={{ x: 'max-content' }} pagination={false} columns={columns} />
+	return (
+		<Table
+			scroll={{ x: 'max-content' }}
+			rowKey='_id'
+			columns={columns}
+			pagination={{ position: ['bottomCenter'], total: wellsData?.length, pageSize: 6 }}
+			dataSource={wellsData}
+		/>
+	)
 }
