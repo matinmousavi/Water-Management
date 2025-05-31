@@ -16,7 +16,7 @@ const WellForm = ({ form }) => {
 					</Form.Item>
 				</Col>
 				<Col span={12}>
-					<Form.Item name='irrigator' label='نام میراب' rules={[{ message: 'این فیلد الزامی است' }]}>
+					<Form.Item name='irrigator' label='نام میراب'>
 						<SelectIrrigator />
 					</Form.Item>
 				</Col>
