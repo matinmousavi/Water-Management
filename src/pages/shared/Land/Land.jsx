@@ -18,10 +18,14 @@ const { TextArea } = Input
 const Land = () => {
 	const [isShowModalEdit, setIsShowModalEdit] = useState(false)
 	const [isShowModalNote, setIsShowModalNote] = useState(false)
+	const [isShowModalEditNote, setIsShowModalEditNote] = useState(false)
+	const [selectedNote, setSelectedNote] = useState(null)
+
 	const [landData, setLandData] = useState(null)
 	const [notesData, setNotesData] = useState(null)
 	const { landId } = useParams()
 	const [form] = Form.useForm()
+	const [editNoteForm] = Form.useForm()
 	const { openNotification } = useNotification()
 	const cardRef = useRef(null)
 
@@ -81,6 +85,36 @@ const Land = () => {
 		}
 	}
 
+	const handleEditNote = note => {
+		setSelectedNote(note)
+		editNoteForm.setFieldsValue({ text: note.text })
+		setIsShowModalEditNote(true)
+	}
+
+	const handleUpdateNote = async values => {
+		try {
+			await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
+			openNotification('success', 'یادداشت با موفقیت ویرایش شد')
+			setIsShowModalEditNote(false)
+			setSelectedNote(null)
+			fetchLand()
+		} catch (error) {
+			openNotification('error', 'خطا در ویرایش یادداشت')
+			console.error('Error updating note:', error)
+		}
+	}
+
+	const handleDelete = async noteId => {
+		try {
+			await notesApi.delete(`lands/${landId}/notes/${noteId}`)
+			openNotification('success', 'یادداشت با موفقیت حذف شد')
+			fetchLand()
+		} catch (error) {
+			openNotification('error', 'خطا در حذف یادداشت')
+			console.error('Error deleting note:', error)
+		}
+	}
+
 	const onFinish = async values => {
 		try {
 			const response = await landApi.patch(`lands/${landId}`, values)
@@ -106,38 +140,12 @@ const Land = () => {
 	]
 
 	const LandFormFields = [
-		{
-			name: 'name',
-			label: 'نام',
-			col: 12,
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-		{
-			name: 'owner',
-			label: 'مالک',
-			col: 12,
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-		{
-			name: 'area',
-			label: 'مساحت',
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-		{
-			name: 'kFactor',
-			label: 'ضریب K',
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-		{
-			name: 'location',
-			label: 'موقعیت',
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
-		{
-			name: 'irrigationType',
-			label: 'نوع آبیاری',
-			rules: [{ required: true, message: 'این فیلد الزامی است' }],
-		},
+		{ name: 'name', label: 'نام', col: 12, rules: [{ required: true, message: 'این فیلد الزامی است' }] },
+		{ name: 'owner', label: 'مالک', col: 12, rules: [{ required: true, message: 'این فیلد الزامی است' }] },
+		{ name: 'area', label: 'مساحت', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
+		{ name: 'kFactor', label: 'ضریب K', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
+		{ name: 'location', label: 'موقعیت', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
+		{ name: 'irrigationType', label: 'نوع آبیاری', rules: [{ required: true, message: 'این فیلد الزامی است' }] },
 	]
 
 	return (
@@ -158,7 +166,7 @@ const Land = () => {
 						<Title level={2} className='text-h2'>
 							مشخصات زمین
 						</Title>
-						<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
+						<Button type='default' shape='round' icon={<EditOutlined />} onClick={handleOpenModal}>
 							ویرایش
 						</Button>
 					</Flex>
@@ -180,25 +188,26 @@ const Land = () => {
 						</Row>
 					</div>
 				</Card>
+
 				<div ref={cardRef} className={styles.commentContainer}>
 					<Card className={styles.card}>
 						<Flex align='center' justify='space-between'>
 							<Title level={2} className='text-h2'>
 								یادداشت زمین
 							</Title>
-							<Button type='default' shape='round' icon={<PlusCircleOutlined />} size='middle' onClick={() => setIsShowModalNote(true)}>
+							<Button type='default' shape='round' icon={<PlusCircleOutlined />} onClick={() => setIsShowModalNote(true)}>
 								افزودن یادداشت
 							</Button>
 						</Flex>
 
 						<Flex vertical gap={8} className={styles.wrapper}>
-							{notesData.map(note => (
+							{notesData?.map(note => (
 								<div key={note._id} className={styles.fakePopoverBox}>
 									<div className={styles.arrowLeft}></div>
 									<Flex gap={8} vertical>
 										<Flex align='center' justify='space-between'>
 											<Flex align='center' gap={20}>
-												<h4>{note?.user || 'Unknown User'}</h4>
+												<h4>{note?.user ? `${note.user.firstName} ${note.user.lastName}` : 'کاربر ناشناس'}</h4>
 												<span className={styles.date}>
 													{new Date(note.createdAt).toLocaleDateString('fa-IR', {
 														year: 'numeric',
@@ -208,7 +217,7 @@ const Land = () => {
 												</span>
 											</Flex>
 											<Space size={8} className={styles.btns}>
-												<Button type='link' icon={<EditOutlined />} />
+												<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
 												<Popconfirm
 													placement='topRight'
 													title='آیا مطمئنید؟'
@@ -231,10 +240,10 @@ const Land = () => {
 
 				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
 
+				{/* مودال ویرایش زمین */}
 				<Modal title='ویرایش اطلاعات' centered open={isShowModalEdit} onCancel={handleCloseModal} footer={null}>
 					<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
 						<FormFields fields={LandFormFields} />
-
 						<Row justify='end' gutter={8}>
 							<Col>
 								<Button onClick={handleCloseModal}>انصراف</Button>
@@ -248,12 +257,12 @@ const Land = () => {
 					</Form>
 				</Modal>
 
-				<Modal title='اضافه کردن یادداشت ' centered open={isShowModalNote} onCancel={() => setIsShowModalNote(false)} footer={null}>
+				{/* مودال افزودن یادداشت */}
+				<Modal title='اضافه کردن یادداشت' centered open={isShowModalNote} onCancel={() => setIsShowModalNote(false)} footer={null}>
 					<Form form={form} onFinish={handleAddNote} layout='vertical' size='large'>
-						<Form.Item name='text'>
+						<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 							<TextArea rows={4} placeholder='یادداشت خود را وارد کنید...' />
 						</Form.Item>
-
 						<Row justify='end' gutter={8}>
 							<Col>
 								<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
@@ -261,6 +270,25 @@ const Land = () => {
 							<Col>
 								<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
 									ذخیره
+								</Button>
+							</Col>
+						</Row>
+					</Form>
+				</Modal>
+
+				{/* مودال ویرایش یادداشت */}
+				<Modal title='ویرایش یادداشت' centered open={isShowModalEditNote} onCancel={() => setIsShowModalEditNote(false)} footer={null}>
+					<Form form={editNoteForm} onFinish={handleUpdateNote} layout='vertical' size='large'>
+						<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+							<TextArea rows={4} placeholder='متن جدید یادداشت...' />
+						</Form.Item>
+						<Row justify='end' gutter={8}>
+							<Col>
+								<Button onClick={() => setIsShowModalEditNote(false)}>انصراف</Button>
+							</Col>
+							<Col>
+								<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
+									ذخیره تغییرات
 								</Button>
 							</Col>
 						</Row>
