@@ -1,5 +1,6 @@
 import { Button, Input, Table } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
+import { Link } from 'react-router'
 
 const handleSearch = (confirm) => {
 	confirm()
