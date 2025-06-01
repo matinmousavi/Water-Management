@@ -42,9 +42,13 @@
 	font-size: 0.875rem !important;
 	color: #9ca3af;
 }
-.text-label {
-	font-size: 0.875rem !important;
-	color: #374151;
+.label .text {
+	font-weight: 400;
+	color: #00000080;
+}
+.value .text {
+	font-weight: 500;
+	color: #000;
 }
 .ant-layout-header {
 	padding: 0 !important;
