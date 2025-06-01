@@ -73,8 +73,8 @@ const columns = [
 	},
 	{
 		title: 'کد حسابداری',
-		dataIndex: 'accounting',
-		key: 'accounting',
+		dataIndex: 'accountingCode',
+		key: 'accountingCode',
 	},
 ]
 
