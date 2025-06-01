@@ -64,7 +64,7 @@ const columns = [
 		title: 'شماره تماس',
 		dataIndex: 'mobile',
 		key: 'mobile',
-		...getColumnSearchProps('mobile'),
+			
 	},
 	{
 		title: 'آدرس ایمیل',

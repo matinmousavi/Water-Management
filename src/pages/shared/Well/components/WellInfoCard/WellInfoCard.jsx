@@ -6,7 +6,7 @@ const WellInfoCard = ({ wellData, setIsShowModal }) => {
 		{ label: 'کد پروانه', value: wellData?.licenseCode || '--' },
 		{ label: 'عنوان', value: wellData?.title || '--' },
 		{ label: 'تعداد روزهای چرخه', value: wellData?.cycleDays ? `${wellData.cycleDays} روز` : '--' },
-		{ label: 'نام میراب', value: wellData.irrigator ? `${wellData.irrigator.firstName} ${wellData.irrigator.firstName}` : '--' },
+		{ label: 'نام میراب', value: wellData.irrigator ? `${wellData.irrigator.firstName} ${wellData.irrigator.lastName}` : '--' },
 	]
 
 	const { Text, Title } = Typography

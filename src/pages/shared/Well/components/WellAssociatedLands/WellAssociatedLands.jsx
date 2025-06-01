@@ -6,6 +6,7 @@ import { DeleteTwoTone } from '@ant-design/icons'
 import useNotification from '../../../../../hooks/useNotification'
 import { Link } from 'react-router'
 import WellModalLands from '../WellModalLands/WellModalLands'
+import english2persian from '../../../../../utils/english2persian'
 
 const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 	const { Title } = Typography
@@ -75,6 +76,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			title: 'شماره تماس',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
+			render: mobile => english2persian(mobile) || '--',
 		},
 		{
 			title: 'آخرین زمان آبیاری',
