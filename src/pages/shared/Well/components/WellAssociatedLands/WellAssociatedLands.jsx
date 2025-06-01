@@ -27,10 +27,10 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			const values = await form.validateFields()
 			const response = await wellApi.patch(`wells/${id}`, { lands: values?.lands })
 			if (!response?.error) {
+				setWellData(response)
 				setIsShowModal(false)
 				form.resetFields()
 				openNotification('success', 'زمین به چاه اضافه شد')
-				setWellData(response)
 			}
 		} catch (error) {
 			console.error('Error:', error)
@@ -41,7 +41,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			}
 		}
 	}
-
+	
 	const handleDelete = async landId => {
 		try {
 			const updatedLands = wellData.lands.filter(item => item._id !== landId)
@@ -93,7 +93,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			render: (_, record) => {
 				return (
 					<Space>
-						<Popconfirm title='آیا اظمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
+						<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
 							<DeleteTwoTone twoToneColor='#ff0000' />
 						</Popconfirm>
 					</Space>
@@ -115,7 +115,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 						افزودن زمین
 					</Button>
 				</Flex>
-				<Table dataSource={wellData?.lands} columns={columns} />
+				<Table dataSource={wellData?.lands} columns={columns} rowKey={record => record._id} />
 			</Flex>
 			<WellModalLands handleSubmit={onSubmitLands} api={wellApi} form={form} onClose={handleCancelModal} open={isShowModal} />
 		</Card>

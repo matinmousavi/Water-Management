@@ -29,11 +29,11 @@ const Well = () => {
 	return (
 		<>
 			<MetaTitle>ویرایش چاه</MetaTitle>
-			<Flex vertical gap={10}>
-				<Breadcrumbs />
-				<Flex align='center'>
+			<Flex vertical>
+				<Breadcrumbs data={well} />
+				<Flex align='center' gap={16}>
 					<BackButton backTo='/wells' />
-					<Title className='text-h3'>چاه {well.title}</Title>
+					<Title className='text-page-title'>{well.title}</Title>
 				</Flex>
 				<WellInfoCard setIsShowModal={setIsShowModal} wellData={well} />
 				<WellAssociatedLands wellData={well} id={wellId} setWellData={wellApi.setData} />

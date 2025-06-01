@@ -1,5 +1,4 @@
 import { Button, Card, Col, Flex, Row, Typography } from 'antd'
-import styles from './WellInfoCard.module.css'
 import { EditOutlined } from '@ant-design/icons'
 
 const WellInfoCard = ({ wellData, setIsShowModal }) => {
@@ -16,7 +15,7 @@ const WellInfoCard = ({ wellData, setIsShowModal }) => {
 	}
 	return (
 		<>
-			<Card className={styles.card}>
+			<Card>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
 						مشخصات چاه
@@ -26,10 +25,10 @@ const WellInfoCard = ({ wellData, setIsShowModal }) => {
 					</Button>
 				</Flex>
 
-				<div className={styles.infoWrapper}>
+				<div>
 					<Row gutter={[0, 8]}>
 						{wellInfoList.map((item, index) => (
-							<Col key={index} xs={24} md={20} lg={18} className={styles.line}>
+							<Col key={index} xs={24} md={20} lg={18}>
 								<Row>
 									<Col xs={10}>
 										<Text className='text-label'>{item.label}</Text>
