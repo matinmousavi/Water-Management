@@ -2,12 +2,12 @@ import { Button, Input, Table } from 'antd'
 import { Link } from 'react-router'
 import { SearchOutlined } from '@ant-design/icons'
 
-const handleSearch = (selectedKeys, confirm) => {
+const handleSearch = confirm => {
 	confirm()
 }
 
 const getColumnSearchProps = dataIndex => ({
-	filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+	filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
 		<div style={{ padding: 8 }}>
 			<Input
 				placeholder={`جستجوی ${dataIndex}`}
@@ -52,7 +52,9 @@ const columns = [
 ]
 
 const WellsTable = ({ data }) => {
-	return <Table pagination={{ position: ['bottomCenter'], total: data.length, pageSize: 6 }} columns={columns} dataSource={data} rowKey={record => record._id} />
+	return (
+		<Table pagination={{ position: ['bottomCenter'], total: data.length, pageSize: 6 }} columns={columns} dataSource={data} rowKey={record => record._id} />
+	)
 }
 
 export default WellsTable
