@@ -13,8 +13,6 @@ const ROLES = [
 
 const ContactInfoDisplay = ({ userData }) => {
 	const getRoleLabel = key => ROLES.find(r => r.key === key)?.label || '-'
-	console.log(userData);
-	
 
 	const contactInfo = [
 		{ label: 'نقش:', value: getRoleLabel(userData?.role) },
