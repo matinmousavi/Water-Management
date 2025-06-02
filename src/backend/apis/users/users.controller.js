@@ -20,7 +20,8 @@ export const getUsers = async (req, res) => {
 			}
 		})
 
-		const users = await User.find(filter).lean()
+		const users = await User.find(filter).populate('profilePicture').lean()
+
 		return res.status(200).json({ users })
 	} catch (err) {
 		console.error(err.message)
