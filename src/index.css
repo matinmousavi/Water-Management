@@ -69,3 +69,9 @@
 	flex-direction: column !important;
 	gap: 30px !important;
 }
+.avatar {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	object-fit: cover;
+}

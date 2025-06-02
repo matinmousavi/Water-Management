@@ -24,9 +24,14 @@ const WellForm = ({ form }) => {
 						</Form.Item>
 					</Col>
 				)}
-				<Col span={24}>
+				<Col span={12}>
 					<Form.Item name='cycleDays' label='تعداد روزهای چرخه' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 						<Input type='number' />
+					</Form.Item>
+				</Col>
+				<Col span={24}>
+					<Form.Item name='location' label='مکان چاه' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+						<Input />
 					</Form.Item>
 				</Col>
 			</Row>

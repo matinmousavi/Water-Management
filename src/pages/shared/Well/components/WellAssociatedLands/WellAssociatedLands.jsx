@@ -62,31 +62,31 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			title: 'عنوان زمین',
 			dataIndex: 'name',
 			key: 'name',
-			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
+			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.name}</Link>,
 		},
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: owner => {
-				return `${owner?.firstName} ${owner?.lastName}`
-			},
+			render: (_, record) => `${record?.owner?.firstName} ${record?.owner?.lastName}`,
 		},
 		{
 			title: 'شماره تماس',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
-			render: mobile => english2persian(mobile) || '--',
+			render: (_, record) => record?.owner?.mobile ? english2persian(record?.owner?.mobile) : '--',
 		},
 		{
 			title: 'آخرین زمان آبیاری',
 			dataIndex: 'lastDateIrrigation',
 			key: 'lastDateIrrigation',
+			render: (_, record) => record?.logs || '--',
 		},
 		{
 			title: 'زمان آبیاری بعدی',
 			dataIndex: 'nextDateIrrigation',
 			key: 'nextDateIrrigation',
+			render: (_, record) => record?.logs || '--',
 		},
 		{
 			title: 'عملیات',
@@ -103,7 +103,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			},
 		},
 	]
-
+	
 	return (
 		<Card>
 			<Flex vertical gap={(0, 40)}>
@@ -117,7 +117,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 						افزودن زمین
 					</Button>
 				</Flex>
-				<Table dataSource={wellData?.lands} columns={columns} rowKey={record => record._id} pagination={false} />
+				<Table dataSource={wellData?.lands} columns={columns} rowKey='_id' pagination={false} />
 			</Flex>
 			<WellModalLands handleSubmit={onSubmitLands} api={wellApi} form={form} onClose={handleCancelModal} open={isShowModal} />
 		</Card>

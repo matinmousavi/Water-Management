@@ -10,6 +10,7 @@ import WellModal from '../../../components/Well/WellModal/WellModal'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
 import WellInfoCard from './components/WellInfoCard/WellInfoCard'
+import WaterDistributionLog from './components/WaterDistributionLog/WaterDistributionLog'
 
 const { Title } = Typography
 
@@ -37,6 +38,7 @@ const Well = () => {
 				</Flex>
 				<WellInfoCard setIsShowModal={setIsShowModal} wellData={well} />
 				<WellAssociatedLands wellData={well} id={wellId} setWellData={wellApi.setData} />
+				<WaterDistributionLog />
 				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
 				<WellModal api={wellApi} wellData={well} setWellsData={wellApi.setData} type='edit' setIsOpen={setIsShowModal} isOpen={isShowModal} />
 			</Flex>

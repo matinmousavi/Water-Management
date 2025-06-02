@@ -51,6 +51,7 @@ const columns = [
 	},
 ]
 
+
 const WellsTable = ({ data }) => {
 	return (
 		<Table pagination={{ position: ['bottomCenter'], total: data.length, pageSize: 6 }} columns={columns} dataSource={data} rowKey={record => record._id} />
