@@ -50,7 +50,7 @@ const columns = [
 			return record?.profilePicture ? (
 				<img src={record.profilePicture?.url} alt={record.firstName} className='avatar' />
 			) : (
-				<img src='../assets/images/blank-profile-picture.jpg' alt={record.firstName} className='avatar' />
+				<img src='../assets/images/blank-profile-picture.jpg' alt="پروفایل ناشناس" className='avatar' />
 			)
 		},
 	},
