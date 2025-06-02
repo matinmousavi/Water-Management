@@ -4,7 +4,6 @@ import { Link } from 'react-router'
 import english2persian from '../../../../../utils/english2persian';
 
 const WellInfoCard = ({ wellData, setIsShowModal }) => {
-	console.log(wellData);
 	
 	const wellInfoList = [
 		{ label: 'نام میراب', value: wellData.irrigator ? <Link to={`/users/${wellData.irrigator._id}`}>{`${wellData.irrigator.firstName} ${wellData.irrigator.lastName}`}</Link> : '--' },
