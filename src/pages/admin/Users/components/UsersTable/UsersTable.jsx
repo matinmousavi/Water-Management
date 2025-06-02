@@ -2,7 +2,7 @@ import { Button, Input, Table } from 'antd'
 import { Link } from 'react-router'
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 
-const handleSearch = (confirm) => {
+const handleSearch = confirm => {
 	confirm()
 }
 
@@ -79,7 +79,14 @@ const columns = [
 ]
 
 const UsersTable = ({ usersData }) => {
-	return <Table pagination={{ position: ['bottomCenter'], total: usersData.length, pageSize: 6 }} columns={columns} dataSource={usersData} rowKey={record => record._id} />
+	return (
+		<Table
+			pagination={{ position: ['bottomCenter'], total: usersData.length, pageSize: 6 }}
+			columns={columns}
+			dataSource={usersData}
+			rowKey={record => record._id}
+		/>
+	)
 }
 
 export default UsersTable

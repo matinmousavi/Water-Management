@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Layouts from '../layouts/Layouts'
 import Dashboard from '../pages/shared/Dashboard/Dashboard'
-import Login from '../pages/public/login/Login'
 import { useUser } from '../contexts/UserContext'
 import Users from '../pages/admin/Users/Users'
 import Profile from '../pages/shared/Profile/Profile'
@@ -25,15 +24,15 @@ const LayoutRoutes = () => {
 						<Route path='/users' element={<Users />} />
 						<Route path='/users/:userId' element={<Profile />} />
 						<Route path='/wells' element={<Wells />} />
-						<Route path='/wells/:wellId' element={<Well />} />
 						<Route path='/lands' element={<Lands />} />
 						<Route path='/lands/:landId' element={<Land />} />
 					</>
 				)}
 
-				{isIrrigator && (
+				{(isIrrigator || isAdmin) && (
 					<>
 						<Route path='/wells' element={<WellsIrrigator />} />
+						<Route path='/wells/:wellId' element={<Well />} />
 					</>
 				)}
 			</Route>

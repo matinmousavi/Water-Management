@@ -1,4 +1,4 @@
-import { Button, Card, Col, Flex, Form, Modal, Popconfirm, Space, Table, Typography } from 'antd'
+import { Button, Card, Flex, Form, Popconfirm, Space, Table, Typography } from 'antd'
 import useAPI from '../../../../../hooks/useAPI'
 import { useState } from 'react'
 import { DeleteTwoTone } from '@ant-design/icons'
@@ -6,6 +6,7 @@ import { DeleteTwoTone } from '@ant-design/icons'
 import useNotification from '../../../../../hooks/useNotification'
 import { Link } from 'react-router'
 import WellModalLands from '../WellModalLands/WellModalLands'
+import english2persian from '../../../../../utils/english2persian'
 
 const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 	const { Title } = Typography
@@ -41,7 +42,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			}
 		}
 	}
-	
+
 	const handleDelete = async landId => {
 		try {
 			const updatedLands = wellData.lands.filter(item => item._id !== landId)
@@ -75,6 +76,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			title: 'شماره تماس',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
+			render: mobile => english2persian(mobile) || '--',
 		},
 		{
 			title: 'آخرین زمان آبیاری',
@@ -104,7 +106,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 
 	return (
 		<Card>
-			<Flex vertical gap={10}>
+			<Flex vertical gap={(0, 40)}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
 						لیست زمین ها {'('}
@@ -115,7 +117,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 						افزودن زمین
 					</Button>
 				</Flex>
-				<Table dataSource={wellData?.lands} columns={columns} rowKey={record => record._id} />
+				<Table dataSource={wellData?.lands} columns={columns} rowKey={record => record._id} pagination={false} />
 			</Flex>
 			<WellModalLands handleSubmit={onSubmitLands} api={wellApi} form={form} onClose={handleCancelModal} open={isShowModal} />
 		</Card>

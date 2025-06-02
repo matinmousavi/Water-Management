@@ -1,8 +1,13 @@
 import { Button, Input, Table } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
+import { Link } from 'react-router'
+
+const handleSearch = (confirm) => {
+	confirm()
+}
 
 const getColumnSearchProps = dataIndex => ({
-	filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+	filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
 		<div style={{ padding: 8 }}>
 			<Input
 				placeholder={`جستجوی ${dataIndex}`}
@@ -29,9 +34,9 @@ export const TableWellsIrrigator = ({ wellsData }) => {
 			dataIndex: 'licenseCode',
 			key: 'licenseCode',
 			...getColumnSearchProps('licenseCode'),
-			render: (text, record) => (
+			render: (_, record) => (
 				<Button type='link'>
-					<span>{record.licenseCode}</span>
+					<Link to={record._id}>{record.licenseCode}</Link>
 				</Button>
 			),
 		},
