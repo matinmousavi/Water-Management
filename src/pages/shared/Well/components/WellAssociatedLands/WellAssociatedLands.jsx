@@ -103,7 +103,6 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			},
 		},
 	]
-	console.log(wellData?.lands);
 	
 	return (
 		<Card>
