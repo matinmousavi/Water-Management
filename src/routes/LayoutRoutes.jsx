@@ -28,10 +28,14 @@ const LayoutRoutes = () => {
 						<Route path='/lands/:landId' element={<Land />} />
 					</>
 				)}
+				{isIrrigator && (
+					<>
+						<Route path='/wells' element={<WellsIrrigator />} />
+					</>
+				)}
 
 				{(isIrrigator || isAdmin) && (
 					<>
-						<Route path='/wells' element={<WellsIrrigator />} />
 						<Route path='/wells/:wellId' element={<Well />} />
 					</>
 				)}

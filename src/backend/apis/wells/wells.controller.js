@@ -33,7 +33,6 @@ export const getWells = async (req, res) => {
 		})
 	}
 }
-
 export const getWell = async (req, res) => {
 	try {
 		const { wellId } = req.params
@@ -49,62 +48,57 @@ export const getWell = async (req, res) => {
 			{
 				$lookup: {
 					from: 'lands',
-					localField: 'lands',
-					foreignField: '_id',
+					let: { landIds: '$lands' },
+					pipeline: [
+						{
+							$match: {
+								$expr: { $in: ['$_id', '$$landIds'] },
+							},
+						},
+						{
+							$lookup: {
+								from: 'users',
+								let: { ownerId: '$owner' },
+								pipeline: [
+									{
+										$match: {
+											$expr: { $eq: ['$_id', '$$ownerId'] },
+										},
+									},
+									{
+										$project: {
+											firstName: 1,
+											lastName: 1,
+											mobile: 1,
+											_id: 1,
+										},
+									},
+								],
+								as: 'owner',
+							},
+						},
+						{
+							$unwind: {
+								path: '$owner',
+								preserveNullAndEmptyArrays: true,
+							},
+						},
+						{
+							$lookup: {
+								from: 'irrigationlogs',
+								let: { landId: '$_id' },
+								pipeline: [
+									{
+										$match: {
+											$expr: { $eq: ['$land', '$$landId'] },
+										},
+									},
+								],
+								as: 'logs',
+							},
+						},
+					],
 					as: 'lands',
-				},
-			},
-			{
-				$unwind: {
-					path: '$lands',
-					preserveNullAndEmptyArrays: true,
-				},
-			},
-			{
-				$lookup: {
-					from: 'users',
-					let: { ownerId: '$lands.owner' },
-					pipeline: [
-						{
-							$match: {
-								$expr: { $eq: ['$_id', '$$ownerId'] },
-							},
-						},
-						{
-							$project: {
-								firstName: 1,
-								lastName: 1,
-								mobile: 1,
-								_id: 1,
-							},
-						},
-					],
-					as: 'lands.owner',
-				},
-			},
-			{
-				$unwind: {
-					path: '$lands.owner',
-					preserveNullAndEmptyArrays: true,
-				},
-			},
-			{
-				$lookup: {
-					from: 'irrigationlogs',
-					let: { landId: '$lands._id' },
-					pipeline: [
-						{
-							$match: {
-								$expr: { $eq: ['$land', '$$landId'] },
-							},
-						},
-					],
-					as: 'logs',
-				},
-			},
-			{
-				$addFields: {
-					'lands.logs': '$logs',
 				},
 			},
 			{
@@ -136,13 +130,13 @@ export const getWell = async (req, res) => {
 				},
 			},
 			{
-				$group: {
-					_id: '$_id',
-					title: { $first: '$title' },
-					licenseCode: { $first: '$licenseCode' },
-					cycleDays: { $first: '$cycleDays' },
-					irrigator: { $first: '$irrigator' },
-					lands: { $push: '$lands' },
+				$project: {
+					title: 1,
+					licenseCode: 1,
+					cycleDays: 1,
+					location: 1,
+					irrigator: 1,
+					lands: 1,
 				},
 			},
 		])
@@ -160,10 +154,12 @@ export const getWell = async (req, res) => {
 	}
 }
 
+
+
 export const createWell = async (req, res) => {
 	try {
-		const { title, licenseCode, cycleDays, irrigator, lands } = req.body
-		const newWell = await Well.create({ title, licenseCode, cycleDays, irrigator, lands })
+		const { title, licenseCode, cycleDays, irrigator, lands , location } = req.body
+		const newWell = await Well.create({ title, licenseCode, cycleDays, irrigator, lands , location })
 
 		return res.status(201).json({
 			message: 'چاه با موفقیت ایجاد شد.',
