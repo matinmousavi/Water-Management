@@ -114,7 +114,6 @@ export const getWell = async (req, res) => {
 					preserveNullAndEmptyArrays: true,
 				},
 			},
-			// جمع آوری لاگ‌های مربوط به زمین‌های این چاه
 			{
 				$group: {
 					_id: '$_id',
@@ -123,6 +122,7 @@ export const getWell = async (req, res) => {
 							title: '$title',
 							licenseCode: '$licenseCode',
 							cycleDays: '$cycleDays',
+							location: '$location',
 							irrigator: '$irrigator',
 						},
 					},
@@ -160,12 +160,10 @@ export const getWell = async (req, res) => {
 	}
 }
 
-
-
 export const createWell = async (req, res) => {
 	try {
-		const { title, licenseCode, cycleDays, irrigator, lands , location } = req.body
-		const newWell = await Well.create({ title, licenseCode, cycleDays, irrigator, lands , location })
+		const { title, licenseCode, cycleDays, location, irrigator, lands } = req.body
+		const newWell = await Well.create({ title, licenseCode, cycleDays, location, irrigator, lands })
 
 		return res.status(201).json({
 			message: 'چاه با موفقیت ایجاد شد.',
