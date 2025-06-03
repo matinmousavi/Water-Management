@@ -11,6 +11,7 @@ import users from './users/users.routes.js'
 import upload from './upload/upload.routes.js'
 import wells from './wells/wells.routes.js'
 import lands from './lands/lands.routes.js'
+import irrigations from './irrigations/irrigations.routes.js'
 
 const isProd = import.meta.env?.PROD
 const router = Router()
@@ -45,5 +46,6 @@ router.use('/users', isAdmin, users)
 router.use('/upload', isLogin, upload)
 router.use('/wells', isLogin, wells)
 router.use('/lands', isLogin, lands)
+router.use('/irrigations', isLogin, irrigations)
 
 export default router

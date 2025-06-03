@@ -1,5 +1,5 @@
 import mongoose from '../../config/database.js'
-import Irrigation from '../../models/Irrigation.js'
+import Irrigation from '../../models/Irrigation.model.js'
 
 const fieldTranslations = {
 	land: 'زمین',
@@ -54,9 +54,22 @@ export const getIrrigation = async (req, res) => {
 
 export const createIrrigation = async (req, res) => {
 	try {
-		const { land, well, startTime, endTime, durationMinutes, notes, createdBy } = req.body
+		let { land, well, startTime, endTime, notes, isStart } = req.body
+		const userId = req.user_id
 
-		const irrigation = await Irrigation.create({ land, well, startTime, endTime, durationMinutes, notes, createdBy })
+		if (isStart) {
+			startTime = new Date()
+			endTime = null
+		}
+
+		const irrigation = await Irrigation.create({
+			land,
+			well,
+			startTime,
+			endTime,
+			notes,
+			createdBy: userId,
+		})
 
 		return res.status(201).json({
 			message: 'آبیاری با موفقیت ثبت شد.',
