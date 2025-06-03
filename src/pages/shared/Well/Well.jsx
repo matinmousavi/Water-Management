@@ -25,7 +25,6 @@ const Well = () => {
 
 	const well = wellApi.data?.well
 	
-
 	if (wellApi.isLoading || !well) return <Loading />
 
 	return (
@@ -39,7 +38,7 @@ const Well = () => {
 				</Flex>
 				<WellInfoCard setIsShowModal={setIsShowModal} wellData={well?.info} />
 				<WellAssociatedLands wellData={well?.lands} id={wellId} setWellData={wellApi.setData} />
-				<WaterDistributionLog data={well?.logs}/>
+				<WaterDistributionLog data={well?.lands} wellId={wellId} />
 				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
 				<WellModal api={wellApi} wellData={well} setWellsData={wellApi.setData} type='edit' setIsOpen={setIsShowModal} isOpen={isShowModal} />
 			</Flex>

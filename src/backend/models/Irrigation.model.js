@@ -18,12 +18,12 @@ const irrigationSchema = new mongoose.Schema(
 		},
 		endTime: {
 			type: Date,
-			validate: {
-				validator: function (value) {
-					return value > this.startTime
-				},
-				message: 'endTime باید بعد از startTime باشد.',
-			},
+			// validate: {
+			// 	validator: function (value) {
+			// 		return value > this.startTime
+			// 	},
+			// 	message: 'endTime باید بعد از startTime باشد.',
+			// },
 		},
 
 		durationMinutes: {

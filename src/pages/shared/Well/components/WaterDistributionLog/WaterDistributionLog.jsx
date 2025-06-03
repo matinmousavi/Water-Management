@@ -4,7 +4,7 @@ import { useState } from 'react'
 import english2persian from '../../../../../utils/english2persian'
 const { Title } = Typography
 
-const WaterDistributionLog = ({ data }) => {
+const WaterDistributionLog = ({ data , wellId }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
 
 	return (
@@ -21,7 +21,7 @@ const WaterDistributionLog = ({ data }) => {
 					</Flex>
 				</Flex>
 			</Card>
-			<WaterDistributionLogModal isOpen={isShowModal} setIsOpen={setIsShowModal} lands={data} />
+			<WaterDistributionLogModal isOpen={isShowModal} setIsOpen={setIsShowModal} lands={data} wellId={wellId} />
 		</>
 	)
 }

@@ -1,33 +1,32 @@
-import { Checkbox, Col, Form, Input, Row } from 'antd'
-import SelectLands from '../SelectLands/SelectLands'
-
-const options = [
-	{ label: 'شروع آبرسانی', value: 'start' },
-	{ label: 'پایان آبرسانی', value: 'end' },
-]
+import { Col, Form, Input, Radio, Row, Select } from 'antd'
 const WaterDistributionLogForm = ({ form, lands }) => {
-	const changeCheckbox = checkedValues => {
-		console.log('checked = ', checkedValues)
-	}
-
 	return (
 		<Form form={form} layout='horizontal'>
 			<Row gutter={16}>
 				<Col span={24}>
 					<Form.Item name='lands' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<SelectLands defaultValues={lands?.map(item => item.name) || []} />
+						<Select placeholder='انتخاب زمین'>
+							{lands.map(land => (
+								<Select.Option key={land._id} value={land._id}>
+									{land.name}
+								</Select.Option>
+							))}
+						</Select>
 					</Form.Item>
 				</Col>
-        <Col span={24}>
-					<Form.Item name='time' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Checkbox.Group options={options} onChange={changeCheckbox} />
+				<Col span={24}>
+					<Form.Item name='time' label='نوع عملیات' rules={[{ required: true, message: 'نوع عملیات الزامی است' }]}>
+						<Radio.Group>
+							<Radio value='startTime'>شروع آبرسانی</Radio>
+							<Radio value='endTime'>پایان آبرسانی</Radio>
+						</Radio.Group>
 					</Form.Item>
-        </Col>
-        <Col span={24}>
-						<Form.Item name='description' label='توضیحات'>
-							<Input.TextArea rows={4} />
+				</Col>
+				<Col span={24}>
+					<Form.Item name='notes' label='توضیحات'>
+						<Input.TextArea rows={4} />
 					</Form.Item>
-        </Col>
+				</Col>
 			</Row>
 		</Form>
 	)

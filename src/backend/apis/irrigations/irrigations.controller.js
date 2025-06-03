@@ -55,7 +55,7 @@ export const getIrrigation = async (req, res) => {
 export const createIrrigation = async (req, res) => {
 	try {
 		let { land, well, startTime, endTime, notes, isStart } = req.body
-		const userId = req.user_id
+		const userId = req.user._id
 
 		if (isStart) {
 			startTime = new Date()
