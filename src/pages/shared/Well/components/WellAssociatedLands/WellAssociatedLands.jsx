@@ -45,7 +45,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 
 	const handleDelete = async landId => {
 		try {
-			const updatedLands = wellData.lands.filter(item => item._id !== landId)
+			const updatedLands = wellData?.filter(item => item._id !== landId)
 			const response = await wellApi.patch(`wells/${id}`, { lands: updatedLands })
 
 			if (!response?.error) {
@@ -109,15 +109,13 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			<Flex vertical gap={(0, 40)}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
-						لیست زمین ها {'('}
-						{wellData?.lands?.length}
-						{')'}
+						لیست زمین ها {`(${english2persian(String(wellData?.length))})`}
 					</Title>
 					<Button onClick={handleOpenModal} type='dashed'>
 						افزودن زمین
 					</Button>
 				</Flex>
-				<Table dataSource={wellData?.lands} columns={columns} rowKey='_id' pagination={false} />
+				<Table dataSource={wellData} columns={columns} rowKey={record => record._id} pagination={false} />
 			</Flex>
 			<WellModalLands handleSubmit={onSubmitLands} api={wellApi} form={form} onClose={handleCancelModal} open={isShowModal} />
 		</Card>
