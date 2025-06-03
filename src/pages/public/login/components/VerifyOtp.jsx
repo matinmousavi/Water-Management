@@ -77,7 +77,7 @@ const VerifyOtp = ({ mobile, expireDate: initExpireDate, onBack }) => {
 
 	return (
 		<div className={styles.formWrapper}>
-			<Form form={form} onFinish={handleOtpSubmit} layout='vertical' className={styles.form}>
+			<Form form={form} onFinish={handleOtpSubmit} layout='horizontal' className={styles.form}>
 				<div className={styles.header}>
 					<div className={styles.logo}>
 						<img src={img} alt='water logo' />

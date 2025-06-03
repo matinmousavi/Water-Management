@@ -28,7 +28,7 @@ const MobileNumberForm = ({ setStep, setMobile, setExpireDate }) => {
 
 	return (
 		<div className={styles.formWrapper}>
-			<Form form={form} onFinish={handleMobileSubmit} layout='vertical' className={styles.form}>
+			<Form form={form} onFinish={handleMobileSubmit} layout='horizontal' className={styles.form}>
 				<div className={styles.header}>
 					<div className={styles.logo}>
 						<img src={img} alt='water logo' />

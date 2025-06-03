@@ -14,7 +14,6 @@ import SelectOwner from '../../../components/SelectOwner/SelectOwner'
 import BackButton from '../../../components/BackButton/BackButton'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 
-
 const { Text, Title } = Typography
 const { TextArea } = Input
 
@@ -265,7 +264,7 @@ const Land = () => {
 				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
 
 				<Modal title='ویرایش اطلاعات' centered open={isShowModalEdit} onCancel={handleCloseModal} footer={null}>
-					<Form form={form} onFinish={onFinish} layout='vertical' size='large'>
+					<Form form={form} onFinish={onFinish} layout='horizontal' size='large'>
 						<FormFields fields={LandFormFields} />
 						<Row justify='end' gutter={8}>
 							<Col>
@@ -291,7 +290,7 @@ const Land = () => {
 					}}
 					footer={null}
 				>
-					<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
+					<Form form={noteForm} onFinish={handleSubmitNote} layout='horizontal' size='large'>
 						<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 							<TextArea rows={4} placeholder='متن یادداشت را وارد کنید...' />
 						</Form.Item>

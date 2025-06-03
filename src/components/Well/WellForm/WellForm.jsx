@@ -1,11 +1,11 @@
 import { Form, Input, Row, Col } from 'antd'
 import SelectIrrigator from '../../SelectIrrigator/SelectIrrigator'
-import { useUser } from '../../../contexts/UserContext';
+import { useUser } from '../../../contexts/UserContext'
 
 const WellForm = ({ form }) => {
-	const {isAdmin} = useUser();
+	const { isAdmin } = useUser()
 	return (
-		<Form form={form} layout='vertical'>
+		<Form form={form} layout='horizontal'>
 			<Row gutter={16}>
 				<Col span={12}>
 					<Form.Item name='licenseCode' label='کد پروانه' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
