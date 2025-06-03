@@ -28,7 +28,6 @@ const irrigationSchema = new mongoose.Schema(
 
 		durationMinutes: {
 			type: Number,
-			required: true,
 			min: 1,
 		},
 		notes: {
