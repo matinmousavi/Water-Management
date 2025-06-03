@@ -36,10 +36,10 @@ export const getWells = async (req, res) => {
 
 export const getWell = async (req, res) => {
 	try {
-		const { wellId } = req.params
+		const { wellId } = req.params;
 
 		if (!mongoose.isValidObjectId(wellId)) {
-			return res.status(400).json({ message: 'شناسه چاه معتبر نیست.' })
+			return res.status(400).json({ message: 'شناسه چاه معتبر نیست.' });
 		}
 
 		const result = await Well.aggregate([
@@ -89,25 +89,6 @@ export const getWell = async (req, res) => {
 			},
 			{
 				$lookup: {
-					from: 'irrigationlogs',
-					let: { landId: '$lands._id' },
-					pipeline: [
-						{
-							$match: {
-								$expr: { $eq: ['$land', '$$landId'] },
-							},
-						},
-					],
-					as: 'logs',
-				},
-			},
-			{
-				$addFields: {
-					'lands.logs': '$logs',
-				},
-			},
-			{
-				$lookup: {
 					from: 'users',
 					let: { irrigatorId: '$irrigator' },
 					pipeline: [
@@ -133,30 +114,52 @@ export const getWell = async (req, res) => {
 					preserveNullAndEmptyArrays: true,
 				},
 			},
+			// جمع آوری لاگ‌های مربوط به زمین‌های این چاه
 			{
 				$group: {
 					_id: '$_id',
-					title: { $first: '$title' },
-					licenseCode: { $first: '$licenseCode' },
-					cycleDays: { $first: '$cycleDays' },
-					irrigator: { $first: '$irrigator' },
+					info: {
+						$first: {
+							title: '$title',
+							licenseCode: '$licenseCode',
+							cycleDays: '$cycleDays',
+							irrigator: '$irrigator',
+						},
+					},
 					lands: { $push: '$lands' },
 				},
 			},
-		])
+			{
+				$lookup: {
+					from: 'irrigationlogs',
+					let: { landIds: '$lands._id' },
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$in: ['$land', '$$landIds'],
+								},
+							},
+						},
+					],
+					as: 'logs',
+				},
+			},
+		]);
 
 		if (!result.length) {
-			return res.status(404).json({ message: 'چاه پیدا نشد.' })
+			return res.status(404).json({ message: 'چاه پیدا نشد.' });
 		}
 
-		return res.status(200).json({ well: result[0] })
+		return res.status(200).json({ well: result[0] });
 	} catch (err) {
-		console.error(err.message)
+		console.error(err.message);
 		return res.status(500).json({
 			message: 'خطای داخلی سرور.',
-		})
+		});
 	}
-}
+};
+
 
 export const createWell = async (req, res) => {
 	try {
