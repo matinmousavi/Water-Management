@@ -8,7 +8,7 @@ const ROLES = [
 
 const UserForm = ({ form }) => {
 	return (
-		<Form form={form} layout='vertical'>
+		<Form form={form} layout='horizontal'>
 			<Row gutter={16}>
 				<Col span={12}>
 					<Form.Item name='firstName' label='نام' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>

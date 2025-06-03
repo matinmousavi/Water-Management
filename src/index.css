@@ -33,15 +33,6 @@
 	font-weight: 500;
 	color: #4b5563;
 }
-.text-paragraph {
-	font-size: 1rem !important;
-	line-height: 1.75;
-	color: #6b7280;
-}
-.text-caption {
-	font-size: 0.875rem !important;
-	color: #9ca3af;
-}
 .label .text {
 	font-weight: 400;
 	color: #00000080;
@@ -56,14 +47,6 @@
 .ant-flex {
 	gap: 16px;
 }
-.custom-tag {
-	display: inline-flex;
-	align-items: center;
-	flex-direction: row-reverse;
-	gap: 6px;
-	padding: 2px 12px;
-	font-size: 14px;
-}
 .ant-card .ant-card-body {
 	display: flex !important;
 	flex-direction: column !important;
@@ -74,4 +57,7 @@
 	height: 50px;
 	border-radius: 50%;
 	object-fit: cover;
+}
+.ant-form {
+	margin-top: 30px;
 }
