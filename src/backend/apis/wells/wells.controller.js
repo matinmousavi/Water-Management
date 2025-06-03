@@ -33,7 +33,6 @@ export const getWells = async (req, res) => {
 		})
 	}
 }
-
 export const getWell = async (req, res) => {
 	try {
 		const { wellId } = req.params
@@ -101,6 +100,7 @@ export const getWell = async (req, res) => {
 							$project: {
 								firstName: 1,
 								lastName: 1,
+								mobile: 1,
 								_id: 1,
 							},
 						},
@@ -160,10 +160,12 @@ export const getWell = async (req, res) => {
 	}
 }
 
+
+
 export const createWell = async (req, res) => {
 	try {
-		const { title, licenseCode, cycleDays, irrigator, lands } = req.body
-		const newWell = await Well.create({ title, licenseCode, cycleDays, irrigator, lands })
+		const { title, licenseCode, cycleDays, irrigator, lands , location } = req.body
+		const newWell = await Well.create({ title, licenseCode, cycleDays, irrigator, lands , location })
 
 		return res.status(201).json({
 			message: 'چاه با موفقیت ایجاد شد.',

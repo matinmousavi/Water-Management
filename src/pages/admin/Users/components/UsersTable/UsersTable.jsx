@@ -2,7 +2,7 @@ import { Button, Input, Table } from 'antd'
 import { Link } from 'react-router'
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
 
-const handleSearch = (confirm) => {
+const handleSearch = confirm => {
 	confirm()
 }
 
@@ -43,6 +43,18 @@ const roleLabels = {
 
 const columns = [
 	{
+		title: 'عکس پروفایل',
+		dataIndex: 'profilePicture',
+		key: 'profilePicture',
+		render: (_, record) => {
+			return record?.profilePicture ? (
+				<img src={record.profilePicture?.url} alt={record.firstName} className='avatar' />
+			) : (
+				<img src='../assets/images/blank-profile-picture.jpg' alt="پروفایل ناشناس" className='avatar' />
+			)
+		},
+	},
+	{
 		title: 'نام و نام خانوادگی',
 		dataIndex: 'firstName',
 		key: 'firstName',
@@ -73,13 +85,20 @@ const columns = [
 	},
 	{
 		title: 'کد حسابداری',
-		dataIndex: 'accounting',
-		key: 'accounting',
+		dataIndex: 'accountingCode',
+		key: 'accountingCode',
 	},
 ]
 
 const UsersTable = ({ usersData }) => {
-	return <Table pagination={{ position: ['bottomCenter'], total: usersData.length, pageSize: 6 }} columns={columns} dataSource={usersData} rowKey={record => record._id} />
+	return (
+		<Table
+			pagination={{ position: ['bottomCenter'], total: usersData.length, pageSize: 6 }}
+			columns={columns}
+			dataSource={usersData}
+			rowKey={record => record._id}
+		/>
+	)
 }
 
 export default UsersTable

@@ -1,13 +1,16 @@
 import { Button, Card, Col, Flex, Row, Typography } from 'antd'
-import styles from './WellInfoCard.module.css'
 import { EditOutlined } from '@ant-design/icons'
+import { Link } from 'react-router'
+import english2persian from '../../../../../utils/english2persian';
 
 const WellInfoCard = ({ wellData, setIsShowModal }) => {
+	
 	const wellInfoList = [
-		{ label: 'کد پروانه', value: wellData?.licenseCode || '--' },
-		{ label: 'عنوان', value: wellData?.title || '--' },
-		{ label: 'تعداد روزهای چرخه', value: wellData?.cycleDays ? `${wellData.cycleDays} روز` : '--' },
-		{ label: 'نام میراب', value: wellData?.irrigator || '--' },
+		{ label: 'نام میراب', value: wellData.irrigator ? <Link to={`/users/${wellData.irrigator._id}`}>{`${wellData.irrigator.firstName} ${wellData.irrigator.lastName}`}</Link> : '--' },
+		{ label: 'شماره تماس میرآب', value: english2persian(wellData?.irrigator?.mobile) || '--' },
+		{ label: 'License Code', value: wellData?.licenseCode || '--' },
+		{ label: 'Cycle Days', value: wellData?.cycleDays ? `${wellData.cycleDays} روز` : '--' },
+		{ label: 'مکان', value: wellData?.location || '--' },
 	]
 
 	const { Text, Title } = Typography
@@ -16,7 +19,7 @@ const WellInfoCard = ({ wellData, setIsShowModal }) => {
 	}
 	return (
 		<>
-			<Card className={styles.card}>
+			<Card>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
 						مشخصات چاه
@@ -26,16 +29,16 @@ const WellInfoCard = ({ wellData, setIsShowModal }) => {
 					</Button>
 				</Flex>
 
-				<div className={styles.infoWrapper}>
-					<Row gutter={[0, 8]}>
+				<div>
+					<Row gutter={[0, 30]}>
 						{wellInfoList.map((item, index) => (
-							<Col key={index} xs={24} md={20} lg={18} className={styles.line}>
+							<Col xs={24} md={12} key={index}>
 								<Row>
-									<Col xs={10}>
-										<Text className='text-label'>{item.label}</Text>
+									<Col xs={6} className='label'>
+										<Text className='text'>{item.label}</Text>
 									</Col>
-									<Col xs={14}>
-										<Text className='text-label'>{item.value}</Text>
+									<Col xs={18} className='value'>
+										<Text className='text'>{item.value}</Text>
 									</Col>
 								</Row>
 							</Col>

@@ -1,19 +1,26 @@
 import { UserOutlined, BellOutlined, MenuOutlined } from '@ant-design/icons'
-import { Drawer, Flex, Image, Layout, Menu, Button, Grid } from 'antd'
+import { Drawer, Flex, Image, Layout, Menu, Button } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import style from './Layouts.module.css'
 
 const { Header, Content } = Layout
-const { useBreakpoint } = Grid
 
 const Layouts = () => {
 	const { isAdmin, isIrrigator } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
-	const screens = useBreakpoint()
-	const isMobile = !screens.md
+	const [isMobile, setIsMobile] = useState(false)
+
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 576)
+		}
+		handleResize()
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	const mainMenuItems = useMemo(() => {
 		const items = [
@@ -68,20 +75,26 @@ const Layouts = () => {
 							<Image width={30} src='../assets/images/water.png' preview={false} />
 						</Link>
 						<h2 className={style.title}>مدیریت آب</h2>
-						<Menu theme='dark' mode={isMobile ? 'vertical' : 'horizontal'} selectedKeys={[location.pathname]} items={mainMenuItems} />
+
+						{!isMobile && (
+							<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} overflowedIndicator={false} />
+						)}
 					</Flex>
+
 					{!isMobile ? (
-						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
+						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} overflowedIndicator={false} />
 					) : (
 						<Button className={style.button} type='text' icon={<MenuOutlined />} onClick={() => setDrawerVisible(true)} />
 					)}
 				</Flex>
 			</Header>
 
-			<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible} className={style.mobileDrawer}>
-				<Menu mode='vertical' selectedKeys={[location.pathname]} items={mainMenuItems} onClick={() => setDrawerVisible(false)} />
-				<Menu mode='vertical' selectedKeys={[location.pathname]} items={profileMenuItems} />
-			</Drawer>
+			{drawerVisible && (
+				<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible} className={style.mobileDrawer}>
+					<Menu mode='vertical' selectedKeys={[location.pathname]} items={mainMenuItems} onClick={() => setDrawerVisible(false)} />
+					<Menu mode='vertical' selectedKeys={[location.pathname]} items={profileMenuItems} />
+				</Drawer>
+			)}
 
 			<Content className={style.content}>
 				<Outlet />

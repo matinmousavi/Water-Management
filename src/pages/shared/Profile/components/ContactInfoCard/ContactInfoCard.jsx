@@ -1,42 +1,44 @@
 import { Card, Typography, Button, Flex, Form } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import ContactInfoDisplay from './components/ContactInfoDisplay/ContactInfoDisplay'
-import ContactInfoModal from './components/ContactInfoModal/ContactInfoModal'
+import useAPI from '../../../../../hooks/useAPI'
+import UserModal from '../../../../../components/User/UserModal/UserModal'
 
 const { Title } = Typography
 
-const ContactInfoCard = ({ api }) => {
+const ContactInfoCard = ({ initialUserData }) => {
 	const [isShowModal, setIsShowModal] = useState(false)
+
 	const [form] = Form.useForm()
+	const api = useAPI()
 
-	const handleOpenModal = () => {
+	const handleOpenModal = useCallback(() => {
 		setIsShowModal(true)
-		form.setFieldsValue(api.data.user)
-	}
+		form.setFieldsValue(api.data.user || initialUserData)
+	}, [api.data, initialUserData])
 
-	const handleCloseModal = () => {
+	const handleCloseModal = useCallback(() => {
 		setIsShowModal(false)
 		form.resetFields()
-	}
+	}, [])
 
 	return (
 		<>
 			<Card>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
-						اطلاعات شخصی
+						مشخصات کاربر{' '}
 					</Title>
-					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal} disabled={api.isLoading}>
+					<Button type='default' color='primary' icon={<EditOutlined />} size='middle' onClick={handleOpenModal} disabled={api.isLoading}>
 						ویرایش
 					</Button>
 				</Flex>
 
-				<ContactInfoDisplay user={api.data.user} />
+				<ContactInfoDisplay userData={api.data.user || initialUserData} />
 			</Card>
-
-			<ContactInfoModal open={isShowModal} onClose={handleCloseModal} api={api} form={form} />
+			{isShowModal && <UserModal type='edit' open={isShowModal} onClose={handleCloseModal} api={api} form={form} />}
 		</>
 	)
 }

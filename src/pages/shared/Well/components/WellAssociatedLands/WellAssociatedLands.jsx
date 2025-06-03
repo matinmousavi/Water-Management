@@ -1,41 +1,40 @@
-import { Button, Card, Col, Flex, Form, Modal, Popconfirm, Space, Table, Typography } from 'antd'
+import { Button, Card, Flex, Form, Popconfirm, Space, Table, Typography } from 'antd'
 import useAPI from '../../../../../hooks/useAPI'
 import { useState } from 'react'
 import { DeleteTwoTone } from '@ant-design/icons'
 
 import useNotification from '../../../../../hooks/useNotification'
-import SelectLands from '../SelectLands/SelectLands'
 import { Link } from 'react-router'
+import WellModalLands from '../WellModalLands/WellModalLands'
+import english2persian from '../../../../../utils/english2persian'
 
-const WellAssociatedLands = ({ id }) => {
+const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 	const { Title } = Typography
 	const wellApi = useAPI()
 	const [isShowModal, setIsShowModal] = useState(false)
 	const { openNotification } = useNotification()
-	wellApi.init(`wells/${id}`, { well: { lands: [] } })
 	const [form] = Form.useForm()
 
 	const handleCancelModal = () => {
 		setIsShowModal(false)
-		form.resetFields()
 	}
+
 	const handleOpenModal = () => {
 		setIsShowModal(true)
 	}
 
-	const onFinish = async () => {
+	const onSubmitLands = async () => {
 		try {
 			const values = await form.validateFields()
-			const newResponse = { ...wellApi?.data?.well, lands: values?.lands }
-			const response = await wellApi.patch(`wells/${id}`, newResponse)
+			const response = await wellApi.patch(`wells/${id}`, { lands: values?.lands })
 			if (!response?.error) {
+				setWellData(response)
 				setIsShowModal(false)
 				form.resetFields()
 				openNotification('success', 'زمین به چاه اضافه شد')
-				await wellApi.get(`wells/${id}`)
 			}
 		} catch (error) {
-			console.log('Error:', error)
+			console.error('Error:', error)
 			if (error.errorFields) {
 				openNotification('error', error.errorFields[0]?.errors[0])
 			} else {
@@ -43,19 +42,15 @@ const WellAssociatedLands = ({ id }) => {
 			}
 		}
 	}
+
 	const handleDelete = async landId => {
 		try {
-			const currentWell = { ...wellApi.data?.well }
-
-			const updatedLands = currentWell.lands.filter(item => item._id !== landId)
-
-			const updatedWell = { ...currentWell, lands: updatedLands }
-
-			const response = await wellApi.patch(`wells/${id}`, updatedWell)
+			const updatedLands = wellData.lands.filter(item => item._id !== landId)
+			const response = await wellApi.patch(`wells/${id}`, { lands: updatedLands })
 
 			if (!response?.error) {
 				openNotification('success', 'زمین از چاه حذف شد')
-				await wellApi.get(`wells/${id}`)
+				setWellData(response)
 			}
 		} catch (error) {
 			console.error('Error:', error)
@@ -67,30 +62,31 @@ const WellAssociatedLands = ({ id }) => {
 			title: 'عنوان زمین',
 			dataIndex: 'name',
 			key: 'name',
-			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
+			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.name}</Link>,
 		},
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: ownerId => {
-				return 'owner name'
-			},
+			render: (_, record) => `${record?.owner?.firstName} ${record?.owner?.lastName}`,
 		},
 		{
 			title: 'شماره تماس',
-			dataIndex: 'mobile',
+			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
+			render: (_, record) => record?.owner?.mobile ? english2persian(record?.owner?.mobile) : '--',
 		},
 		{
 			title: 'آخرین زمان آبیاری',
 			dataIndex: 'lastDateIrrigation',
 			key: 'lastDateIrrigation',
+			render: (_, record) => record?.logs || '--',
 		},
 		{
 			title: 'زمان آبیاری بعدی',
 			dataIndex: 'nextDateIrrigation',
 			key: 'nextDateIrrigation',
+			render: (_, record) => record?.logs || '--',
 		},
 		{
 			title: 'عملیات',
@@ -99,7 +95,7 @@ const WellAssociatedLands = ({ id }) => {
 			render: (_, record) => {
 				return (
 					<Space>
-						<Popconfirm title='آیا اظمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
+						<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
 							<DeleteTwoTone twoToneColor='#ff0000' />
 						</Popconfirm>
 					</Space>
@@ -107,33 +103,23 @@ const WellAssociatedLands = ({ id }) => {
 			},
 		},
 	]
-
+	
 	return (
 		<Card>
-			<Flex vertical gap={10}>
+			<Flex vertical gap={(0, 40)}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
 						لیست زمین ها {'('}
-						{wellApi.data?.well?.lands.length}
+						{wellData?.lands?.length}
 						{')'}
 					</Title>
 					<Button onClick={handleOpenModal} type='dashed'>
 						افزودن زمین
 					</Button>
 				</Flex>
-				<Table dataSource={wellApi.data?.well?.lands || []} columns={columns} />
+				<Table dataSource={wellData?.lands} columns={columns} rowKey='_id' pagination={false} />
 			</Flex>
-			<Modal onOk={onFinish} okText='ذخیره' cancelText='انصراف' title='افزودن زمین به چاه' open={isShowModal} onCancel={handleCancelModal}>
-				<Form form={form} layout='vertical' size='large'>
-					<Flex align='center' justify='center'>
-						<Col span={16}>
-							<Form.Item name='lands' label='زمین ها'>
-								<SelectLands defalutValues={wellApi.data?.well?.lands.map(item => item.name) || []} />
-							</Form.Item>
-						</Col>
-					</Flex>
-				</Form>
-			</Modal>
+			<WellModalLands handleSubmit={onSubmitLands} api={wellApi} form={form} onClose={handleCancelModal} open={isShowModal} />
 		</Card>
 	)
 }

@@ -60,6 +60,18 @@ const UserForm = ({ form }) => {
 						<Input maxLength={11} inputMode='numeric' />
 					</Form.Item>
 				</Col>
+
+				<Col span={12}>
+					<Form.Item name='accountingCode' label='کد حسابداری' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+						<Input />
+					</Form.Item>
+				</Col>
+
+				<Col span={12}>
+					<Form.Item name='address' label='آدرس' rules={[{ required: true, message: 'آدرس الزامی است' }]}>
+						<Input.TextArea rows={1} />
+					</Form.Item>
+				</Col>
 			</Row>
 		</Form>
 	)

@@ -60,7 +60,13 @@ function findBreadcrumbs(pathname, data) {
 			const label = typeof route.breadcrumb === 'function' ? route.breadcrumb(data) : route.breadcrumb
 
 			breadcrumbs.push({
-				title: <Link to={currentPath}>{label}</Link>,
+				title:
+					i === segments.length - 1 ? (
+						<span className={styles.active}>{label}</span>
+					) : (
+						<Link to={currentPath}>{label}</Link>
+					),
+				key: currentPath,
 			})
 		}
 	}

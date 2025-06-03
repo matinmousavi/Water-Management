@@ -18,6 +18,11 @@ const wellSchema = new mongoose.Schema(
 			required: true,
 			min: 1,
 		},
+		location: {
+			type: String,
+			trim: true,
+			default: '',
+		},
 		irrigator: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',

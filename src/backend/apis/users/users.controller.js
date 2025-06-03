@@ -20,7 +20,8 @@ export const getUsers = async (req, res) => {
 			}
 		})
 
-		const users = await User.find(filter).lean()
+		const users = await User.find(filter).populate('profilePicture').lean()
+
 		return res.status(200).json({ users })
 	} catch (err) {
 		console.error(err.message)
@@ -44,9 +45,9 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
 	try {
-		const { role, firstName, lastName, mobile, email, accountingCode } = req.body
+		const { role, firstName, lastName, mobile, email, accountingCode, address } = req.body
 
-		const user = await User.create({ role, firstName, lastName, mobile, email, accountingCode })
+		const user = await User.create({ role, firstName, lastName, mobile, email, accountingCode, address })
 
 		return res.status(201).json({ message: 'کاربر با موفقیت ایجاد شد.', user })
 	} catch (err) {
