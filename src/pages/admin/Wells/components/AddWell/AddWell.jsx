@@ -33,7 +33,7 @@ const AddWell = ({ isOpen, setIsOpen, setIsRenderList }) => {
 
 	return (
 		<Modal title=' افزودن چاه' closable={{ 'aria-label': 'Custom Close Button' }} open={isOpen} onOk={handleSubmit} onCancel={() => setIsOpen(false)}>
-			<Form form={form} layout='vertical'>
+			<Form form={form} layout='horizontal'>
 				<Form.Item name='licenseCode' label='کد پروانه' rules={[{ required: true, message: 'لطفاً کد پروانه را وارد کنید!' }]}>
 					<Input />
 				</Form.Item>

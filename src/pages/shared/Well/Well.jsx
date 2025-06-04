@@ -24,7 +24,7 @@ const Well = () => {
 	}, [wellId])
 
 	const well = wellApi.data?.well
-
+	
 	if (wellApi.isLoading || !well) return <Loading />
 
 	return (
@@ -36,9 +36,9 @@ const Well = () => {
 					<BackButton backTo='/wells' />
 					<Title className='text-page-title'>{well.title}</Title>
 				</Flex>
-				<WellInfoCard setIsShowModal={setIsShowModal} wellData={well} />
-				<WellAssociatedLands wellData={well} id={wellId} setWellData={wellApi.setData} />
-				<WaterDistributionLog />
+				<WellInfoCard setIsShowModal={setIsShowModal} wellData={well?.info} />
+				<WellAssociatedLands wellData={well?.lands} id={wellId} setWellData={wellApi.setData} />
+				<WaterDistributionLog data={well?.lands} wellId={wellId} />
 				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
 				<WellModal api={wellApi} wellData={well} setWellsData={wellApi.setData} type='edit' setIsOpen={setIsShowModal} isOpen={isShowModal} />
 			</Flex>

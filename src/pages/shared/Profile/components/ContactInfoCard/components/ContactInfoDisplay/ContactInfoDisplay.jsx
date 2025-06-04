@@ -1,6 +1,5 @@
 import React from 'react'
 import { Row, Col, Typography } from 'antd'
-import english2persian from '../../../../../../../utils/english2persian'
 
 const { Text } = Typography
 
@@ -15,8 +14,8 @@ const ContactInfoDisplay = ({ userData }) => {
 
 	const contactInfo = [
 		{ label: 'نقش:', value: getRoleLabel(userData?.role) },
-		{ label: 'کد حسابداری:', value: userData?.accountingCode ? english2persian(userData.accountingCode) : '-' },
-		{ label: 'شماره تماس:', value: userData?.mobile ? english2persian(userData.mobile) : '-' },
+		{ label: 'کد حسابداری:', value: userData?.accountingCode ? userData.accountingCode : '-' },
+		{ label: 'شماره تماس:', value: userData?.mobile ? userData.mobile : '-' },
 		{ label: 'آدرس ایمیل', value: userData?.email || '-' },
 		{ label: 'آدرس:', value: userData?.address || '-' },
 		{ label: 'تاریخ ثبت کاربر:', value: userData?.updatedAt || '-' },
@@ -27,10 +26,10 @@ const ContactInfoDisplay = ({ userData }) => {
 			{contactInfo.map((item, index) => (
 				<Col xs={24} md={12} key={index}>
 					<Row>
-						<Col xs={6} className="label">
+						<Col xs={6} className='label'>
 							<Text className='text'>{item.label}</Text>
 						</Col>
-						<Col xs={18} className="value">
+						<Col xs={18} className='value'>
 							<Text className='text'>{item.value}</Text>
 						</Col>
 					</Row>

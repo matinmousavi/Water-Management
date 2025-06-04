@@ -1,6 +1,8 @@
-import { Button, Input, Table } from 'antd'
+import { Avatar, Button, Input, Table } from 'antd'
 import { Link } from 'react-router'
-import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
+import { SearchOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons'
+import React from 'react'
+import useTableHeight from '../../../../../hooks/useTableHeight'
 
 const handleSearch = confirm => {
 	confirm()
@@ -22,16 +24,16 @@ const getColumnSearchProps = dataIndex => ({
 				style={{ marginBottom: 8, display: 'block' }}
 			/>
 			<div style={{ display: 'flex', gap: 8 }}>
-				<Button type='primary' onClick={() => handleSearch(selectedKeys, confirm)} icon={<SearchOutlined />} size='small' style={{ width: 90 }}>
+				<Button type='primary' onClick={() => handleSearch(selectedKeys, confirm)} icon={<SearchOutlined />} size='small'>
 					جستجو
 				</Button>
-				<Button onClick={() => handleReset(clearFilters, confirm)} size='small' style={{ width: 90 }} icon={<CloseOutlined />}>
+				<Button onClick={() => handleReset(clearFilters, confirm)} size='small' icon={<CloseOutlined />}>
 					حذف فیلتر
 				</Button>
 			</div>
 		</div>
 	),
-	filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+	filterIcon: <SearchOutlined />,
 	onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
 })
 
@@ -43,14 +45,15 @@ const roleLabels = {
 
 const columns = [
 	{
-		title: 'عکس پروفایل',
+		title: <Avatar size={35} icon={<UserOutlined />} style={{ visibility: 'hidden' }} />,
 		dataIndex: 'profilePicture',
 		key: 'profilePicture',
+		width: 40,
 		render: (_, record) => {
-			return record?.profilePicture ? (
-				<img src={record.profilePicture?.url} alt={record.firstName} className='avatar' />
+			return record?.profilePicture?.url ? (
+				<Avatar src={record.profilePicture?.url} size={35} icon={<UserOutlined />} />
 			) : (
-				<img src='../assets/images/blank-profile-picture.jpg' alt="پروفایل ناشناس" className='avatar' />
+				<Avatar size={35} icon={<UserOutlined />} />
 			)
 		},
 	},
@@ -59,11 +62,9 @@ const columns = [
 		dataIndex: 'firstName',
 		key: 'firstName',
 		render: (_, record) => (
-			<Button type='link'>
-				<Link to={record._id}>
-					{record?.firstName} {record?.lastName}
-				</Link>
-			</Button>
+			<Link to={record._id}>
+				{record?.firstName} {record?.lastName}
+			</Link>
 		),
 	},
 	{
@@ -91,14 +92,21 @@ const columns = [
 ]
 
 const UsersTable = ({ usersData }) => {
+	const { pageSize } = useTableHeight()
+
 	return (
 		<Table
-			pagination={{ position: ['bottomCenter'], total: usersData.length, pageSize: 6 }}
+			pagination={{
+				position: ['bottomCenter'],
+				total: usersData.length,
+				pageSize,
+			}}
 			columns={columns}
 			dataSource={usersData}
 			rowKey={record => record._id}
+			bordered
 		/>
 	)
 }
 
-export default UsersTable
+export default React.memo(UsersTable)

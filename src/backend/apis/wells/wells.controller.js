@@ -73,6 +73,7 @@ export const getWell = async (req, res) => {
 							$project: {
 								firstName: 1,
 								lastName: 1,
+								mobile: 1,
 								_id: 1,
 							},
 						},
