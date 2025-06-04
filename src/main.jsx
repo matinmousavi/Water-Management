@@ -15,11 +15,17 @@ createRoot(document.getElementById('root')).render(
 			locale={faIR}
 			theme={{
 				token: {
-					fontFamily: 'Vazirmatn',
+					fontFamily: 'VazirmatnFD',
 					colorPrimary: '#3372EF',
 					borderRadius: 8,
 				},
 				components: {
+					Layout: {
+						headerPadding: '0 20px',
+					},
+					Menu: {
+						itemMarginInline: 20,
+					},
 					Button: {
 						borderRadiusLG: 8,
 						contentFontSizeLG: 14,
@@ -28,12 +34,22 @@ createRoot(document.getElementById('root')).render(
 						colorPrimary: '#0066EE',
 						defaultBorderColor: '#0066EE',
 						colorLink: 'rgba(59, 143, 243, 1)',
-						colorText:'#0066EE',
+						colorText: '#0066EE',
 						paddingInlineLG: 40,
 					},
 					Input: {
 						borderRadius: 4,
 						activeShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
+					},
+					Card: {
+						bodyPadding: 36,
+						borderRadiusLG: 8,
+					},
+					Typography: {
+						titleMarginBottom: 0,
+					},
+					Form: {
+						itemMarginBottom: 0,
 					},
 				},
 			}}

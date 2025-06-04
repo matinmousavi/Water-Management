@@ -1,5 +1,4 @@
-import { Flex, Tag, Typography } from 'antd'
-import { ArrowRightOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { Flex, Typography } from 'antd'
 import { useParams } from 'react-router-dom'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
