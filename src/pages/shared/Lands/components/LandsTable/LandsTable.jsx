@@ -36,6 +36,14 @@ const columns = [
 	},
 ]
 const LandsTable = ({ landsData }) => {
-	return <Table columns={columns} rowKey='_id' dataSource={landsData} pagination={{ position: ['bottomCenter'], total: landsData?.length, pageSize: 6 }} />
+	return (
+		<Table
+			columns={columns}
+			rowKey='_id'
+			dataSource={landsData}
+			pagination={{ position: ['bottomCenter'], total: landsData?.length, pageSize: 6 }}
+			size='small'
+		/>
+	)
 }
 export default LandsTable

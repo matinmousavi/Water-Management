@@ -4,7 +4,7 @@ import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import WellForm from '../WellForm/WellForm'
 
-const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, setWellsData }) => {
+const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, api }) => {
 	const [form] = Form.useForm()
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
@@ -35,8 +35,13 @@ const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, setWellsD
 			} else {
 				openNotification('success', 'عملیات موفق', `چاه با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد.`)
 
-				if (setWellsData) {
-					setWellsData(response.well)
+				if (type === 'add') {
+					api.setData(prev => ({
+						...prev,
+						wells: [...(prev?.wells || []), response.well],
+					}))
+				} else {
+					api.setData(response)
 				}
 
 				form.resetFields()
@@ -53,9 +58,9 @@ const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, setWellsD
 			open={isOpen}
 			onOk={handleSubmit}
 			onCancel={handleCancel}
+			confirmLoading={wellApi.isLoading}
 			okText='ذخیره'
 			cancelText='انصراف'
-			forceRender
 		>
 			<WellForm form={form} />
 		</Modal>

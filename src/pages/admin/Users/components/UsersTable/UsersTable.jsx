@@ -4,6 +4,8 @@ import { SearchOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons'
 import React from 'react'
 import useTableHeight from '../../../../../hooks/useTableHeight'
 
+import styles from './UsersTable.module.css'
+
 const handleSearch = confirm => {
 	confirm()
 }
@@ -101,9 +103,11 @@ const UsersTable = ({ usersData }) => {
 				total: usersData.length,
 				pageSize,
 			}}
+			className={styles.table}
 			columns={columns}
 			dataSource={usersData}
 			rowKey={record => record._id}
+			size='small'
 			bordered
 		/>
 	)

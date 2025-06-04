@@ -1,0 +1,6 @@
+.table tr > td:first-child {
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	padding: 5px !important;
+}

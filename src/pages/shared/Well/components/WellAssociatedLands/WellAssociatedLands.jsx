@@ -6,7 +6,6 @@ import { DeleteTwoTone } from '@ant-design/icons'
 import useNotification from '../../../../../hooks/useNotification'
 import { Link } from 'react-router'
 import WellModalLands from '../WellModalLands/WellModalLands'
-import english2persian from '../../../../../utils/english2persian'
 
 const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 	const { Title } = Typography
@@ -74,7 +73,7 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			title: 'شماره تماس',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
-			render: (_, record) => record?.owner?.mobile ? english2persian(record?.owner?.mobile) : '--',
+			render: (_, record) => (record?.owner?.mobile ? record?.owner?.mobile : '--'),
 		},
 		{
 			title: 'آخرین زمان آبیاری',
@@ -103,13 +102,13 @@ const WellAssociatedLands = ({ id, wellData, setWellData }) => {
 			},
 		},
 	]
-	
+
 	return (
 		<Card>
 			<Flex vertical gap={(0, 40)}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>
-						لیست زمین ها {`(${english2persian(String(wellData?.length))})`}
+						لیست زمین ها {`(${String(wellData?.length)})`}
 					</Title>
 					<Button onClick={handleOpenModal} type='dashed'>
 						افزودن زمین
