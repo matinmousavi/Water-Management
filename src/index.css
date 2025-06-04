@@ -19,8 +19,18 @@
 /* --------------------------------------------
    2. Ant Design Class Overrides
 --------------------------------------------- */
+.ant-modal {
+	max-width: 420px;
+}
+
 .ant-flex {
 	gap: 16px;
+}
+
+@media (min-width: 1440px) {
+	.ant-modal {
+		max-width: 520px;
+	}
 }
 
 /* --------------------------------------------
@@ -68,11 +78,4 @@
 .value .text {
 	font-weight: 500;
 	color: #000;
-}
-
-.avatar {
-	width: 50px;
-	height: 50px;
-	border-radius: 50%;
-	object-fit: cover;
 }

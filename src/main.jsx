@@ -49,7 +49,10 @@ createRoot(document.getElementById('root')).render(
 						titleMarginBottom: 0,
 					},
 					Form: {
-						itemMarginBottom: 0,
+						itemMarginBottom: 20,
+					},
+					Table: {
+						cellPaddingBlock: 5,
 					},
 				},
 			}}

@@ -5,19 +5,23 @@ const userSchema = new mongoose.Schema(
 		role: {
 			type: String,
 			enum: ['admin', 'irrigator', 'landOwner'],
+			required: true,
 		},
 		firstName: {
 			type: String,
 			trim: true,
+			required: true,
 		},
 		lastName: {
 			type: String,
 			trim: true,
+			required: true,
 		},
 		mobile: {
 			type: String,
 			trim: true,
 			unique: true,
+			required: true,
 		},
 		email: {
 			type: String,

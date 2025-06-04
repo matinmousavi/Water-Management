@@ -18,7 +18,7 @@ export default function useAPI() {
 	const callsRef = useRef(0)
 	const { openNotification } = useNotification()
 
-	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve, reject } = {}) {
+	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve } = {}) {
 		const requestInit = { method, headers: {}, credentials: 'include', signal }
 		let querystring = ''
 

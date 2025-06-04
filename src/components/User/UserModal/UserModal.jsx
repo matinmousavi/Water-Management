@@ -1,15 +1,31 @@
-import { Modal } from 'antd'
+import { Form, Modal } from 'antd'
+import { useEffect } from 'react'
 import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import { useUser } from '../../../contexts/UserContext'
 import UserForm from '../UserForm/UserForm'
 
-const UserModal = ({ type = 'add', open, onClose, api, form }) => {
+const UserModal = ({ type = 'add', isOpen, setIsOpen, initialUserData, api }) => {
+	const [form] = Form.useForm()
 	const { userId } = useParams()
 	const { setUser } = useUser()
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
+
+	useEffect(() => {
+		if (isOpen) {
+			const userData = api.data?.user || initialUserData
+			if (userData) {
+				form.setFieldsValue(userData)
+			}
+		}
+	}, [isOpen, api.data?.user, initialUserData, form])
+
+	const handleClose = () => {
+		form.resetFields()
+		setIsOpen(false)
+	}
 
 	const handleSubmit = async () => {
 		try {
@@ -25,6 +41,7 @@ const UserModal = ({ type = 'add', open, onClose, api, form }) => {
 
 			if (!response?.error) {
 				openNotification('success', 'عملیات موفق', `کاربر با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد.`)
+
 				if (type === 'add') {
 					api.setData(prev => ({
 						...prev,
@@ -34,8 +51,7 @@ const UserModal = ({ type = 'add', open, onClose, api, form }) => {
 					userId ? api.setData(response) : setUser(response)
 				}
 
-				form.resetFields()
-				onClose()
+				handleClose()
 			} else {
 				openNotification('error', 'خطا', response.message)
 			}
@@ -48,8 +64,8 @@ const UserModal = ({ type = 'add', open, onClose, api, form }) => {
 		<Modal
 			title={type === 'add' ? 'افزودن کاربر' : 'ویرایش کاربر'}
 			centered
-			open={open}
-			onCancel={onClose}
+			open={isOpen}
+			onCancel={handleClose}
 			onOk={handleSubmit}
 			okText='ذخیره'
 			cancelText='انصراف'
