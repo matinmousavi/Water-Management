@@ -60,12 +60,7 @@ function findBreadcrumbs(pathname, data) {
 			const label = typeof route.breadcrumb === 'function' ? route.breadcrumb(data) : route.breadcrumb
 
 			breadcrumbs.push({
-				title:
-					i === segments.length - 1 ? (
-						<span className={styles.active}>{label}</span>
-					) : (
-						<Link to={currentPath}>{label}</Link>
-					),
+				title: i === segments.length - 1 ? <span className={styles.active}>{label}</span> : <Link to={currentPath}>{label}</Link>,
 				key: currentPath,
 			})
 		}
@@ -79,7 +74,7 @@ const Breadcrumbs = ({ data }) => {
 
 	const breadcrumbItems = useMemo(() => findBreadcrumbs(location.pathname, data), [location.pathname, data])
 
-	return <Breadcrumb className={styles.breadcrumb} items={breadcrumbItems} />
+	return <Breadcrumb items={breadcrumbItems} />
 }
 
 export default Breadcrumbs
