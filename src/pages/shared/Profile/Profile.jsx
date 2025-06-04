@@ -6,7 +6,6 @@ import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
-import { useEffect } from 'react'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
 
@@ -17,13 +16,12 @@ const Profile = () => {
 	const { userId } = useParams()
 	const api = useAPI()
 
-	useEffect(() => {
-		if (userId) api.init(`users/${userId}`)
-	}, [userId, api])
+	if (userId) api.init(`users/${userId}`)
 
 	const initialUserData = userId ? api.data?.user : user
 
-	const { firstName = '', lastName = '' } = initialUserData || {}
+	const { firstName = '', lastName = '', ...contactInfoData } = initialUserData || {}
+
 	const fullName = `${firstName} ${lastName}`
 	const pageTitle = fullName || 'پروفایل'
 
@@ -42,7 +40,7 @@ const Profile = () => {
 					</Title>
 				</Flex>
 				<ProfileImageCard pictureUrl={initialUserData?.profilePicture?.url} />
-				<ContactInfoCard initialUserData={initialUserData} />
+				<ContactInfoCard initialUserData={contactInfoData} api={api} />
 			</Flex>
 		</>
 	)

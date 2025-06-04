@@ -10,6 +10,7 @@ import UserModal from '../../../components/User/UserModal/UserModal'
 
 const Users = () => {
 	const api = useAPI()
+
 	api.init('users')
 
 	if (api.isLoading || !api.data) return <Loading />

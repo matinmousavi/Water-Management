@@ -13,7 +13,7 @@ const Login = () => {
 	return (
 		<Flex className={styles.container} justify='center' align='center'>
 			<Card className={styles.card}>
-				<Flex vertical gap={10}>
+				<Flex vertical gap={16}>
 					<Flex justify='center' align='center' gap={10}>
 						<img src={img} alt='Water Logo' width={55} />
 						<Typography.Title level={2}>مدیریت آب</Typography.Title>
