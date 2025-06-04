@@ -52,7 +52,8 @@ createRoot(document.getElementById('root')).render(
 						itemMarginBottom: 20,
 					},
 					Table: {
-						cellPaddingBlock: 5,
+						cellPaddingBlock: 8,
+						cellPaddingInline: 8,
 					},
 				},
 			}}

@@ -29,32 +29,54 @@ const getColumnSearchProps = dataIndex => ({
 
 const columns = [
 	{
-		title: 'کد پروانه',
-		dataIndex: 'licenseCode',
-		key: 'licenseCode',
-		...getColumnSearchProps('licenseCode'),
-		render: (_, record) => (
-			<Button type='link'>
-				<Link to={record._id}>{record?.licenseCode}</Link>
-			</Button>
-		),
-	},
-	{
-		title: 'عنوان ',
+		title: 'عنوان چاه',
 		dataIndex: 'title',
 		key: 'title',
 	},
 	{
-		title: 'تعداد روزهای چرخه',
+		title: 'میرآب',
+		dataIndex: 'irrigator',
+		key: 'irrigator',
+		render: irrigator =>
+			irrigator._id ? (
+				<Link to={`/users/${irrigator._id}`}>
+					{irrigator.firstName} {irrigator.lastName}
+				</Link>
+			) : (
+				<span>-</span>
+			),
+	},
+	{
+		title: 'تعداد زمین',
+		dataIndex: 'lands',
+		key: 'lands',
+		render: lands => (Array.isArray(lands) ? lands.length : 0),
+	},
+	{
+		title: 'کد پروانه',
+		dataIndex: 'licenseCode',
+		key: 'licenseCode',
+		...getColumnSearchProps('licenseCode'),
+		render: (_, record) => <Link to={record._id}>{record?.licenseCode}</Link>,
+	},
+	{
+		title: 'چرخه',
 		dataIndex: 'cycleDays',
 		key: 'cycleDays',
 	},
 ]
 
-
 const WellsTable = ({ data }) => {
+	console.log(data)
 	return (
-		<Table pagination={{ position: ['bottomCenter'], total: data.length, pageSize: 6 }} columns={columns} dataSource={data} rowKey={record => record._id} />
+		<Table
+			pagination={{ position: ['bottomCenter'], total: data.length, pageSize: 6 }}
+			columns={columns}
+			dataSource={data}
+			rowKey={record => record._id}
+			bordered
+			size='small'
+		/>
 	)
 }
 

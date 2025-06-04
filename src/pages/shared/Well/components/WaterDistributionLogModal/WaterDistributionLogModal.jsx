@@ -3,7 +3,7 @@ import useNotification from '../../../../../hooks/useNotification'
 import useAPI from '../../../../../hooks/useAPI'
 import WaterDistributionLogForm from '../WaterDistributionLogForm/WaterDistributionLogForm'
 
-const WaterDistributionLogModal = ({ isOpen, setIsOpen, lands , wellId }) => {
+const WaterDistributionLogModal = ({ isOpen, setIsOpen, lands, wellId }) => {
 	const [form] = Form.useForm()
 	const landsApi = useAPI()
 	const { openNotification } = useNotification()
@@ -17,7 +17,7 @@ const WaterDistributionLogModal = ({ isOpen, setIsOpen, lands , wellId }) => {
 		try {
 			const values = await form.validateFields()
 			const selectedLand = lands.find(land => land._id === values.lands)
-			
+
 			if (!selectedLand) {
 				openNotification('error', 'خطا', 'زمین انتخاب شده نامعتبر است.')
 				return
@@ -30,13 +30,11 @@ const WaterDistributionLogModal = ({ isOpen, setIsOpen, lands , wellId }) => {
 				well: wellId,
 				isStart,
 				notes: {
-					[isStart ? 'start' : 'end']: values.notes || ''
-				}
+					[isStart ? 'start' : 'end']: values.notes || '',
+				},
 			}
 
 			const response = await landsApi.post('irrigations', payload)
-			console.log(response);
-			
 
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
@@ -51,15 +49,7 @@ const WaterDistributionLogModal = ({ isOpen, setIsOpen, lands , wellId }) => {
 	}
 
 	return (
-		<Modal
-			title='افزودن لاگ توزیع'
-			open={isOpen}
-			onOk={handleSubmit}
-			onCancel={handleCancel}
-			okText='ذخیره'
-			cancelText='انصراف'
-			forceRender
-		>
+		<Modal title='افزودن لاگ توزیع' open={isOpen} onOk={handleSubmit} onCancel={handleCancel} okText='ذخیره' cancelText='انصراف' forceRender>
 			<WaterDistributionLogForm form={form} lands={lands} />
 		</Modal>
 	)

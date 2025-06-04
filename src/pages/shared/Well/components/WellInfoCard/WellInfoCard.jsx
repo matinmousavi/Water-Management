@@ -1,13 +1,18 @@
 import { Button, Card, Col, Flex, Row, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
-import english2persian from '../../../../../utils/english2persian';
 
 const WellInfoCard = ({ wellData, setIsShowModal }) => {
-	
 	const wellInfoList = [
-		{ label: 'نام میراب', value: wellData?.irrigator ? <Link to={`/users/${wellData.irrigator._id}`}>{`${wellData?.irrigator.firstName} ${wellData.irrigator.lastName}`}</Link> : '--' },
-		{ label: 'شماره تماس میرآب', value: english2persian(wellData?.irrigator?.mobile) || '--' },
+		{
+			label: 'نام میراب',
+			value: wellData?.irrigator ? (
+				<Link to={`/users/${wellData.irrigator._id}`}>{`${wellData?.irrigator.firstName} ${wellData.irrigator.lastName}`}</Link>
+			) : (
+				'--'
+			),
+		},
+		{ label: 'شماره تماس میرآب', value: wellData?.irrigator?.mobile || '--' },
 		{ label: 'License Code', value: wellData?.licenseCode || '--' },
 		{ label: 'Cycle Days', value: wellData?.cycleDays ? `${wellData.cycleDays} روز` : '--' },
 		{ label: 'مکان', value: wellData?.location || '--' },
