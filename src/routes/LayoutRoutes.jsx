@@ -1,14 +1,14 @@
 import { Routes, Route } from 'react-router-dom'
 import Layouts from '../layouts/Layouts'
-import Dashboard from '../pages/shared/Dashboard/Dashboard'
 import { useUser } from '../contexts/UserContext'
+
+import Dashboard from '../pages/shared/Dashboard/Dashboard'
 import Users from '../pages/admin/Users/Users'
 import Profile from '../pages/shared/Profile/Profile'
-import Land from '../pages/shared/Land/Land'
 import Lands from '../pages/shared/Lands/Lands'
-import Wells from '../pages/admin/Wells/Wells'
+import Land from '../pages/shared/Land/Land'
+import Wells from '../pages/shared/Wells/Wells'
 import Well from '../pages/shared/Well/Well'
-import WellsIrrigator from '../pages/shared/WellsIrrigator/WellsIrrigator'
 
 const LayoutRoutes = () => {
 	const { isAdmin, isIrrigator } = useUser()
@@ -23,19 +23,15 @@ const LayoutRoutes = () => {
 					<>
 						<Route path='/users' element={<Users />} />
 						<Route path='/users/:userId' element={<Profile />} />
-						<Route path='/wells' element={<Wells />} />
+
 						<Route path='/lands' element={<Lands />} />
 						<Route path='/lands/:landId' element={<Land />} />
-					</>
-				)}
-				{isIrrigator && (
-					<>
-						<Route path='/wells' element={<WellsIrrigator />} />
 					</>
 				)}
 
 				{(isIrrigator || isAdmin) && (
 					<>
+						<Route path='/wells' element={<Wells />} />
 						<Route path='/wells/:wellId' element={<Well />} />
 					</>
 				)}
