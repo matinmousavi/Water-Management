@@ -1,12 +1,17 @@
+import { useState } from 'react'
 import { Button, Popconfirm, Space, Table } from 'antd'
 import { DeleteTwoTone, EditOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
+import useModal from '../../../../../../../hooks/useModal'
+import WellEditLog from '../WellEditLog/WellEditLog'
 
-const WellLogsTable = ({ data, setLogs }) => {
+const WellLogsTable = ({ data, setLogs, wellId }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
+	const { open, close, isOpen } = useModal()
+	const [selectedLog, setSelectedLog] = useState(null)
 
 	const handleDelete = async irrigationsId => {
 		try {
@@ -20,8 +25,9 @@ const WellLogsTable = ({ data, setLogs }) => {
 		}
 	}
 
-	const handleEdit = async irrigationsId => {
-		// Implement edit functionality here
+	const handleEditClick = record => {
+		setSelectedLog(record)
+		open()
 	}
 
 	const columns = [
@@ -70,13 +76,29 @@ const WellLogsTable = ({ data, setLogs }) => {
 					<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
 						<DeleteTwoTone twoToneColor='#ff0000' />
 					</Popconfirm>
-					<Button type='link' icon={<EditOutlined />} onClick={handleEdit}></Button>
+					<Button type='link' icon={<EditOutlined />} onClick={() => handleEditClick(record)} />
 				</Space>
 			),
 		},
 	]
 
-	return <Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} />
+	return (
+		<>
+			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} />
+			{selectedLog && (
+				<WellEditLog
+					wellId={wellId}
+					initialValues={selectedLog}
+					setLogs={setLogs}
+					isOpen={isOpen}
+					close={() => {
+						setSelectedLog(null)
+						close()
+					}}
+				/>
+			)}
+		</>
+	)
 }
 
 export default WellLogsTable

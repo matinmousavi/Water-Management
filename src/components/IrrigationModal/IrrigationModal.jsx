@@ -29,8 +29,8 @@ const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData 
 				if (initialData.endTime) vals.endTime = dayjs(initialData.endTime)
 				vals.isOngoing = initialData.endTime == null
 			} else {
-				vals.isStart = initialData.isStart
-				vals.isEnd = !initialData.isStart
+				vals.isStart = !!initialData.startTime
+				vals.isEnd = !!initialData.endTime
 			}
 
 			form.setFieldsValue(vals)

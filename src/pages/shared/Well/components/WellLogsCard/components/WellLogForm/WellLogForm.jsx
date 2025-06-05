@@ -18,7 +18,7 @@ const WellLogForm = ({ form, lands, onFinish }) => {
     <Form form={form} layout='horizontal' labelAlign='left' labelCol={labelCol} wrapperCol={wrapperCol} onFinish={onFinish}>
       <Form.Item name='lands' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
         <Select showSearch placeholder='انتخاب زمین' optionFilterProp='children' filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())} allowClear>
-          {lands.map(l => (
+          {lands?.map(l => (
             <Select.Option key={l._id} value={l._id}>{l.name}</Select.Option>
           ))}
         </Select>
