@@ -1,33 +1,48 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Modal, Form } from 'antd'
+import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
-import WellForm from '../WellForm/WellForm'
 
-const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, api }) => {
+const WellModal = ({ type = 'add', editType = 'info', data = null, setData, setTitle, isOpen, setIsOpen, children }) => {
 	const [form] = Form.useForm()
-	const wellApi = useAPI()
+	const api = useAPI()
+	const selectApi = useAPI()
 	const { openNotification } = useNotification()
+	const { wellId } = useParams()
+
+	const well = api.data.well || data
+
+	if (isOpen) {
+		if (editType === 'info') {
+			selectApi.init('users', { role: 'irrigator' })
+		} else if (editType === 'lands') {
+			selectApi.init('lands')
+		}
+	}
 
 	useEffect(() => {
-		if (type === 'edit' && wellData) {
-			form.setFieldsValue(wellData)
+		if (isOpen && type === 'edit' && well) {
+			if (editType === 'info') {
+				form.setFieldsValue({ ...well, irrigator: well.irrigator?._id || null })
+			}
 		}
-	}, [type, wellData, form])
+	}, [isOpen, type, well, editType, form])
 
 	const handleCancel = () => {
 		form.resetFields()
 		setIsOpen(false)
 	}
+
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
 			let response
 
 			if (type === 'add') {
-				response = await wellApi.post('wells', values)
+				response = await api.post('wells', values)
 			} else {
-				response = await wellApi.patch(`wells/${wellData._id}`, values)
+				response = await api.patch(`wells/${wellId}`, values)
 			}
 
 			if (response?.error) {
@@ -35,22 +50,32 @@ const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, api }) =>
 			} else {
 				openNotification('success', 'عملیات موفق', `چاه با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد.`)
 
-				if (type === 'add') {
-					api.setData(prev => ({
-						...prev,
-						wells: [...(prev?.wells || []), response.well],
-					}))
-				} else {
-					api.setData(response)
+				if (typeof setData === 'function') {
+					setData(response)
+				}
+
+				if (type === 'edit' && typeof setTitle === 'function') {
+					setTitle(prev => (prev !== response.well.title ? response.well.title : prev))
 				}
 
 				form.resetFields()
 				handleCancel()
 			}
 		} catch (error) {
+			console.log(error)
 			openNotification('error', 'خطا', error?.error?.message || 'خطایی رخ داده است')
 		}
 	}
+
+	const childWithProps = React.isValidElement(children)
+		? React.cloneElement(children, {
+				form,
+				...(editType === 'info' && { irrigators: selectApi.data.users }),
+				...(editType === 'lands' && {
+					lands: selectApi.data?.lands?.filter(land => !(well?.lands || []).some(selected => selected._id === land._id)),
+				}),
+		  })
+		: children
 
 	return (
 		<Modal
@@ -58,11 +83,12 @@ const WellModal = ({ type = 'add', wellData = null, isOpen, setIsOpen, api }) =>
 			open={isOpen}
 			onOk={handleSubmit}
 			onCancel={handleCancel}
-			confirmLoading={wellApi.isLoading}
+			confirmLoading={api.isLoading}
+			loading={selectApi.isLoading}
 			okText='ذخیره'
 			cancelText='انصراف'
 		>
-			<WellForm form={form} />
+			{childWithProps}
 		</Modal>
 	)
 }

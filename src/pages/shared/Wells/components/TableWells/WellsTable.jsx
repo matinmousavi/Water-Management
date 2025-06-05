@@ -1,37 +1,12 @@
-import { Button, Input, Table } from 'antd'
+import { Table } from 'antd'
 import { Link } from 'react-router'
-import { SearchOutlined } from '@ant-design/icons'
-
-const handleSearch = confirm => {
-	confirm()
-}
-
-const getColumnSearchProps = dataIndex => ({
-	filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-		<div style={{ padding: 8 }}>
-			<Input
-				placeholder={`جستجوی ${dataIndex}`}
-				value={selectedKeys[0]}
-				onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-				onPressEnter={() => handleSearch(selectedKeys, confirm)}
-				style={{ marginBottom: 8, display: 'block' }}
-			/>
-			<div style={{ display: 'flex', gap: 8 }}>
-				<Button type='primary' onClick={() => handleSearch(selectedKeys, confirm)} icon={<SearchOutlined />} size='small' style={{ width: 90 }}>
-					جستجو
-				</Button>
-			</div>
-		</div>
-	),
-	filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-	onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-})
 
 const columns = [
 	{
 		title: 'عنوان چاه',
 		dataIndex: 'title',
 		key: 'title',
+		render: (text, record) => <Link to={`/wells/${record._id}`}>{text}</Link>,
 	},
 	{
 		title: 'میرآب',
@@ -56,8 +31,6 @@ const columns = [
 		title: 'کد پروانه',
 		dataIndex: 'licenseCode',
 		key: 'licenseCode',
-		...getColumnSearchProps('licenseCode'),
-		render: (_, record) => <Link to={record._id}>{record?.licenseCode}</Link>,
 	},
 	{
 		title: 'چرخه',
@@ -66,13 +39,12 @@ const columns = [
 	},
 ]
 
-const WellsTable = ({ data }) => {
-	console.log(data)
+const WellsTable = ({ WellsData }) => {
 	return (
 		<Table
-			pagination={{ position: ['bottomCenter'], total: data.length, pageSize: 6 }}
+			pagination={{ position: ['bottomCenter'], total: WellsData.length, pageSize: 6 }}
 			columns={columns}
-			dataSource={data}
+			dataSource={WellsData}
 			rowKey={record => record._id}
 			bordered
 			size='small'

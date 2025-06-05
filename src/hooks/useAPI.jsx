@@ -88,7 +88,7 @@ export default function useAPI() {
 			throw error
 		} finally {
 			callsRef.current--
-			if (callsRef.current <= 1) setLoading(false)
+			if (callsRef.current === 0) setLoading(false)
 		}
 	}
 

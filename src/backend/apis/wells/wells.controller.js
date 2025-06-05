@@ -1,11 +1,11 @@
-import mongoose from '../../config/database.js'
 import Well from '../../models/Well.model.js'
+import Irrigation from '../../models/Irrigation.model.js'
 
 const fieldTranslations = {
-	licenseCode: 'کد پروانه',
-	title: 'عنوان',
-	cycleDays: 'تعداد روزهای چرخه',
-	irrigator: 'آبیار',
+	licenseCode: 'لایسنس کد',
+	title: 'عنوان چاه',
+	cycleDays: 'روزهای چرخه',
+	irrigator: 'میرآب',
 }
 
 export const getWells = async (req, res) => {
@@ -33,138 +33,54 @@ export const getWells = async (req, res) => {
 		})
 	}
 }
+
 export const getWell = async (req, res) => {
 	try {
 		const { wellId } = req.params
 
-		if (!mongoose.isValidObjectId(wellId)) {
-			return res.status(400).json({ message: 'شناسه چاه معتبر نیست.' })
-		}
+		const well = await Well.findById(wellId)
+			.populate({
+				path: 'lands',
+				populate: {
+					path: 'owner',
+					select: 'firstName lastName mobile',
+				},
+			})
+			.populate({
+				path: 'irrigator',
+				select: 'firstName lastName mobile',
+			})
+			.lean()
 
-		const result = await Well.aggregate([
-			{
-				$match: { _id: new mongoose.Types.ObjectId(wellId) },
-			},
-			{
-				$lookup: {
-					from: 'lands',
-					localField: 'lands',
-					foreignField: '_id',
-					as: 'lands',
-				},
-			},
-			{
-				$unwind: {
-					path: '$lands',
-					preserveNullAndEmptyArrays: true,
-				},
-			},
-			{
-				$lookup: {
-					from: 'users',
-					let: { ownerId: '$lands.owner' },
-					pipeline: [
-						{
-							$match: {
-								$expr: { $eq: ['$_id', '$$ownerId'] },
-							},
-						},
-						{
-							$project: {
-								firstName: 1,
-								lastName: 1,
-								mobile: 1,
-								_id: 1,
-							},
-						},
-					],
-					as: 'lands.owner',
-				},
-			},
-			{
-				$unwind: {
-					path: '$lands.owner',
-					preserveNullAndEmptyArrays: true,
-				},
-			},
-			{
-				$lookup: {
-					from: 'users',
-					let: { irrigatorId: '$irrigator' },
-					pipeline: [
-						{
-							$match: {
-								$expr: { $eq: ['$_id', '$$irrigatorId'] },
-							},
-						},
-						{
-							$project: {
-								firstName: 1,
-								lastName: 1,
-								mobile: 1,
-								_id: 1,
-							},
-						},
-					],
-					as: 'irrigator',
-				},
-			},
-			{
-				$unwind: {
-					path: '$irrigator',
-					preserveNullAndEmptyArrays: true,
-				},
-			},
-			{
-				$group: {
-					_id: '$_id',
-					info: {
-						$first: {
-							title: '$title',
-							licenseCode: '$licenseCode',
-							cycleDays: '$cycleDays',
-							location: '$location',
-							irrigator: '$irrigator',
-						},
-					},
-					lands: { $push: '$lands' },
-				},
-			},
-			{
-				$lookup: {
-					from: 'irrigationlogs',
-					let: { landIds: '$lands._id' },
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$in: ['$land', '$$landIds'],
-								},
-							},
-						},
-					],
-					as: 'logs',
-				},
-			},
-		])
-
-		if (!result.length) {
+		if (!well) {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
 		}
 
-		return res.status(200).json({ well: result[0] })
+		const irrigations = await Irrigation.find({ well: wellId })
+			.populate({
+				path: 'land',
+				select: 'name area location',
+			})
+			.populate({
+				path: 'createdBy',
+				select: 'firstName lastName',
+			})
+			.sort({ startTime: -1 })
+			.lean()
+
+		return res.status(200).json({ well: { ...well, logs: irrigations } })
 	} catch (err) {
 		console.error(err.message)
-		return res.status(500).json({
-			message: 'خطای داخلی سرور.',
-		})
+		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
 }
 
 export const createWell = async (req, res) => {
 	try {
 		const { title, licenseCode, cycleDays, location, irrigator, lands } = req.body
-		const newWell = await Well.create({ title, licenseCode, cycleDays, location, irrigator, lands })
+		let newWell = await Well.create({ title, licenseCode, cycleDays, location, irrigator, lands })
+
+		newWell = await newWell.populate('irrigator')
 
 		return res.status(201).json({
 			message: 'چاه با موفقیت ایجاد شد.',
