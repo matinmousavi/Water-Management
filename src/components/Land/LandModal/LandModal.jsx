@@ -53,7 +53,7 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 			open={isOpen}
 			onOk={handleSubmit}
 			onCancel={handleCancel}
-			okText='ذخیره'
+			okText='ثبت'
 			cancelText='انصراف'
 			confirmLoading={api.isLoading}
 		>
