@@ -2,7 +2,7 @@ import { Table } from 'antd'
 import { Link } from 'react-router-dom'
 
 const LandsTable = ({ landsData = [] }) => {
-	const allIrrigators = Array.from(new Set(landsData.flatMap(land => land.wells.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`)))).map(
+	const allIrrigators = Array.from(new Set(landsData.flatMap(land => land.wells?.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`)))).map(
 		name => ({
 			text: name,
 			value: name,
@@ -49,12 +49,6 @@ const LandsTable = ({ landsData = [] }) => {
 			),
 		},
 		{
-			title: 'شماره تماس مالک',
-			dataIndex: 'mobile',
-			key: 'mobile',
-			render: (_, record) => record.owner.mobile,
-		},
-		{
 			title: 'شماره تماس مالک زمین',
 			dataIndex: 'mobile',
 			key: 'mobile',
@@ -65,7 +59,7 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'عنوان چاه‌ها',
 			key: 'wellTitles',
-			render: (_, record) => record.wells.map(well => well.title).join('-'),
+			render: (_, record) => record.wells?.map(well => well.title).join('-'),
 		},
 		{
 			title: 'میراب',
@@ -75,7 +69,7 @@ const LandsTable = ({ landsData = [] }) => {
 				return record.wells.some(well => `${well.irrigator.firstName} ${well.irrigator.lastName}` === value)
 			},
 			render: (_, record) => {
-				return record.wells.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`).join('-')
+				return record.wells?.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`).join('-')
 			},
 		},
 		{
