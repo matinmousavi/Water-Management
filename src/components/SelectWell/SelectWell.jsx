@@ -14,7 +14,7 @@ const SelectWell = ({ value, onChange }) => {
 			onChange(null)
 			return
 		}
-		const selected = api.data?.wells?.find(user => user._id === selectedId)
+		const selected = api.data?.wells?.find(well => well._id === selectedId)
 		onChange?.({
 			_id: selectedId,
 			title: selected?.title,
@@ -31,9 +31,9 @@ const SelectWell = ({ value, onChange }) => {
 			allowClear
 			style={{ width: '100%' }}
 			filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-			options={api.data?.wells?.map(user => ({
-				value: user._id,
-				label: user.title,
+			options={api.data?.wells?.map(well => ({
+				value: well._id,
+				label: well.title,
 			}))}
 		/>
 	)
