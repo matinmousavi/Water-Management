@@ -1,5 +1,6 @@
 import { Flex, Card, Typography, Input, Button, Row, Col } from 'antd'
 import BreadCrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
+import styles from './NotificationSettings.module.css'
 
 const { Title, Text } = Typography
 const { TextArea } = Input
@@ -27,7 +28,7 @@ const NotificationSettings = () => {
 							اطلاع رسانی آبرسانی
 						</Title>
 						<Text>پیامک حاوی اطلاعات آبرسانی به میرآب و مالک زمین ارسال می‌شود.</Text>
-						<Flex vertical justify='space-between'>
+						<Flex vertical gap={16}>
 							<Row gutter={16}>
 								<Col span={12}>
 									<Flex gap={8} vertical>
@@ -42,6 +43,12 @@ const NotificationSettings = () => {
 									</Flex>
 								</Col>
 							</Row>
+							<Flex justify='end'>
+								<Button type='primary'>ذخیره</Button>
+							</Flex>
+						</Flex>
+						<div className={styles.line}></div>
+						<Flex vertical gap={16}>
 							<Row gutter={16}>
 								<Col span={12}>
 									<Flex gap={8} vertical>
@@ -56,9 +63,9 @@ const NotificationSettings = () => {
 									</Flex>
 								</Col>
 							</Row>
-						</Flex>
-						<Flex justify='end'>
-							<Button type='primary'>ذخیره</Button>
+							<Flex justify='end'>
+								<Button type='primary'>ذخیره</Button>
+							</Flex>
 						</Flex>
 					</Flex>
 				</Card>
