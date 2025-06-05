@@ -13,43 +13,42 @@ import WellLogCard from './components/WellLogsCard/WellLogsCard'
 import { useUser } from '../../../contexts/UserContext'
 
 const Well = () => {
-	const { wellId } = useParams()
-	const api = useAPI()
-	const { isAdmin } = useUser()
+  const { wellId } = useParams()
+  const api = useAPI()
+  const { isAdmin } = useUser()
 
-	const [title, setTitle] = useState('')
+  const [title, setTitle] = useState('')
+  const [logs, setLogs] = useState([])
 
-	if (wellId) api.init(`wells/${wellId}`)
+  useEffect(() => {
+    if (wellId) api.init(`wells/${wellId}`)
+  }, [wellId])
 
-	useEffect(() => {
-		if (api.data?.well) {
-			setTitle(api.data.well.title)
-		}
-	}, [api.data?.well])
+  useEffect(() => {
+    if (api.data?.well) {
+      setTitle(api.data.well.title)
+      setLogs(api.data.well.logs || [])
+    }
+  }, [api.data?.well])
 
-	if (api.isLoading || !api.data?.well) return <Loading />
+  if (api.isLoading || !api.data?.well) return <Loading />
 
-	return (
-		<>
-			<MetaTitle>ویرایش چاه</MetaTitle>
-			<Flex vertical>
-				<Breadcrumbs data={api.data?.well} />
-
-				<Flex align='center' gap={16}>
-					<BackButton backTo='/wells' />
-					<Typography.Title className='text-page-title'>{title}</Typography.Title>
-				</Flex>
-
-				<WellInfoCard wellInfo={api.data?.well} setTitle={setTitle} />
-
-				<WellLandsCard wellLands={api.data?.well?.lands} />
-
-				<WellLogCard wellLogs={api.data?.well?.logs} />
-
-				{isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
-			</Flex>
-		</>
-	)
+  return (
+    <>
+      <MetaTitle>ویرایش چاه</MetaTitle>
+      <Flex vertical>
+        <Breadcrumbs data={api.data?.well} />
+        <Flex align='center' gap={16}>
+          <BackButton backTo='/wells' />
+          <Typography.Title className='text-page-title'>{title}</Typography.Title>
+        </Flex>
+        <WellInfoCard wellInfo={api.data?.well} setTitle={setTitle} />
+        <WellLandsCard wellLands={api.data?.well?.lands} />
+        <WellLogCard wellLogs={logs} setLogs={setLogs} />
+        {isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
+      </Flex>
+    </>
+  )
 }
 
 export default Well

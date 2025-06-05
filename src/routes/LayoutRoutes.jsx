@@ -25,7 +25,6 @@ const LayoutRoutes = () => {
 						<Route path='/users/:userId' element={<Profile />} />
 
 						<Route path='/lands' element={<Lands />} />
-						<Route path='/lands/:landId' element={<Land />} />
 					</>
 				)}
 
@@ -33,6 +32,7 @@ const LayoutRoutes = () => {
 					<>
 						<Route path='/wells' element={<Wells />} />
 						<Route path='/wells/:wellId' element={<Well />} />
+						<Route path='/lands/:landId' element={<Land />} />
 					</>
 				)}
 			</Route>
