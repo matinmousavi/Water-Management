@@ -1,4 +1,4 @@
-import { UserOutlined, BellOutlined, MenuOutlined } from '@ant-design/icons'
+import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined } from '@ant-design/icons'
 import { Drawer, Flex, Image, Layout, Menu, Button } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
@@ -60,9 +60,14 @@ const Layouts = () => {
 			label: <Link to='/profile'></Link>,
 		},
 		{
-			key: '/notifications',
+			key: '/',
 			icon: <BellOutlined />,
-			label: '',
+			label: <Link to='/'></Link>,
+		},
+		{
+			key: '/notification-settings',
+			icon: <SettingOutlined />,
+			label: <Link to='/notification-settings'></Link>,
 		},
 	]
 
