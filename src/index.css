@@ -31,6 +31,10 @@
 	gap: 8px !important;
 }
 
+.ant-input {
+	padding-top: 0.5rem;
+}
+
 @media (min-width: 1440px) {
 	.ant-modal {
 		max-width: 520px;
