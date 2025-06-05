@@ -7,6 +7,7 @@ import WellModal from '../../../components/Well/WellModal/WellModal'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import { useUser } from '../../../contexts/UserContext'
 import ModalController from '../../../components/ModalController/ModalController'
+import WellForm from '../../../components/Well/WellForm/WellForm'
 
 const { Title } = Typography
 
@@ -33,13 +34,15 @@ const Wells = () => {
 						</ModalController.Trigger>
 
 						<ModalController.Modal>
-							<WellModal type='add' api={api} />
+							<WellModal type='add' setWellData={api.setData}>
+								<WellForm />
+							</WellModal>
 						</ModalController.Modal>
 					</ModalController>
 				)}
 			</Flex>
 
-			<WellsTable data={api.data.wells} />
+			<WellsTable WellsData={api.data.wells} />
 		</Flex>
 	)
 }

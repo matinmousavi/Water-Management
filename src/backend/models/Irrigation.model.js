@@ -42,6 +42,10 @@ const irrigationSchema = new mongoose.Schema(
 				default: '',
 			},
 		},
+		isOngoing: {
+			type: Boolean,
+			default: false,
+		},
 		createdBy: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',
