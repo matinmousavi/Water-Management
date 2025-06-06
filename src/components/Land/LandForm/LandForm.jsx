@@ -61,10 +61,6 @@ const LandForm = ({ form, landOwners = [] }) => {
 				<Input />
 			</Form.Item>
 
-			<Form.Item name='product' label='محصول'>
-				<Input />
-			</Form.Item>
-
 			<Form.Item name='irrigationType' label='نوع آبیاری' rules={[{ required: true, message: 'لطفاً نوع آبیاری را انتخاب کنید' }]}>
 				<Select options={irrigationOptions} placeholder='انتخاب نوع آبیاری' allowClear />
 			</Form.Item>
