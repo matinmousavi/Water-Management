@@ -1,13 +1,13 @@
 import mongoose from 'mongoose'
 import User from '../models/User.model.js'
-import SMSTemplate from '../models/SMSTemplate.model.js'
+import MessageTemplate from '../models/messageTemplate.model.js'
 
 mongoose
 	.connect(`mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`)
 	.then(async () => {
 		console.log('Connected to MongoDB...')
 		await User.initializeAdmin()
-		await SMSTemplate.initializeTemplates()
+		await MessageTemplate.initializeTemplates()
 	})
 	.catch(err => {
 		console.error('Could not connect to MongoDB...', err)

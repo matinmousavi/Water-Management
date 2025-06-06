@@ -64,12 +64,15 @@ const Layouts = () => {
 			icon: <BellOutlined />,
 			label: <Link to='/'></Link>,
 		},
-		{
-			key: '/notification-settings',
-			icon: <SettingOutlined />,
-			label: <Link to='/notification-settings'></Link>,
-		},
 	]
+
+	if (isAdmin) {
+		profileMenuItems.push({
+			key: '/settings',
+			icon: <SettingOutlined />,
+			label: <Link to='/settings'></Link>,
+		})
+	}
 
 	return (
 		<Layout className={styles.layout}>

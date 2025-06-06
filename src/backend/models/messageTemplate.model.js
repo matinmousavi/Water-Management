@@ -19,13 +19,20 @@ const messageTemplateSchema = new mongoose.Schema(
 			trim: true,
 		},
 		placeholders: {
-			type: [String],
+			type: [
+				{
+					key: { type: String, required: true },
+					description: { type: String, default: '' },
+				},
+			],
 			default: [],
 		},
+		type: {
+			type: String,
+			default: 'sms',
+		},
 	},
-	{
-		timestamps: true,
-	}
+	{ timestamps: true }
 )
 
 messageTemplateSchema.statics.initializeTemplates = async function () {
@@ -34,19 +41,28 @@ messageTemplateSchema.statics.initializeTemplates = async function () {
 			key: 'otp',
 			text: 'کد تایید شما: {{code}}. لطفاً آن را به کسی ندهید.',
 			description: 'ارسال کد تایید یکبار مصرف (OTP) به کاربر',
-			placeholders: ['code'],
+			placeholders: [{ key: '{{code}}', description: 'کد تأیید ورود' }],
+			type: 'sms',
 		},
 		{
 			key: 'irrigation_start',
 			text: 'آبیاری زمین "{{landName}}" در ساعت {{time}} شروع شد.',
 			description: 'اطلاع‌رسانی شروع آبیاری زمین',
-			placeholders: ['landName', 'time'],
+			placeholders: [
+				{ key: '{{landName}}', description: 'نام زمین' },
+				{ key: '{{time}}', description: 'زمان شروع' },
+			],
+			type: 'sms',
 		},
 		{
 			key: 'irrigation_end',
 			text: 'آبیاری زمین "{{landName}}" به پایان رسید. مدت زمان: {{duration}} دقیقه.',
 			description: 'اطلاع‌رسانی پایان آبیاری زمین',
-			placeholders: ['landName', 'duration'],
+			placeholders: [
+				{ key: '{{landName}}', description: 'نام زمین' },
+				{ key: '{{duration}}', description: 'مدت زمان آبیاری (دقیقه)' },
+			],
+			type: 'sms',
 		},
 	]
 

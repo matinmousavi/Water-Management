@@ -9,7 +9,7 @@ import Lands from '../pages/shared/Lands/Lands'
 import Land from '../pages/shared/Land/Land'
 import Wells from '../pages/shared/Wells/Wells'
 import Well from '../pages/shared/Well/Well'
-import NotificationSettings from '../pages/admin/NotificationSettings/NotificationSettings'
+import Notifications from '../pages/admin/Settings/Notifications/Notifications'
 
 const LayoutRoutes = () => {
 	const { isAdmin, isIrrigator } = useUser()
@@ -27,7 +27,7 @@ const LayoutRoutes = () => {
 
 						<Route path='/lands' element={<Lands />} />
 						<Route path='/lands/:landId' element={<Land />} />
-						<Route path='/notification-settings' element={<NotificationSettings />} />
+						<Route path='/settings' element={<Notifications />} />
 					</>
 				)}
 
