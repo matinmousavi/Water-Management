@@ -8,7 +8,7 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 	const [form] = Form.useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
-
+	const selectApi=useAPI()
 	useEffect(() => {
 		if (type === 'edit' && landData) {
 			form.setFieldsValue(landData)
@@ -45,7 +45,7 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 		}
 	}
 
-	const childWithFormProp = React.isValidElement(children) ? React.cloneElement(children, { form }) : children
+	const childWithFormProp = React.isValidElement(children) ? React.cloneElement(children, { form , dataSelects: selectApi.data?.well }) : children
 
 	return (
 		<Modal
@@ -56,6 +56,7 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 			okText='ثبت'
 			cancelText='انصراف'
 			confirmLoading={api.isLoading}
+			loading={selectApi.isLoading}
 		>
 			{childWithFormProp}
 		</Modal>

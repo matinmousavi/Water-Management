@@ -13,7 +13,7 @@ const columns = [
 		dataIndex: 'irrigator',
 		key: 'irrigator',
 		render: irrigator =>
-			irrigator._id ? (
+			irrigator?._id ? (
 				<Link to={`/users/${irrigator._id}`}>
 					{irrigator.firstName} {irrigator.lastName}
 				</Link>

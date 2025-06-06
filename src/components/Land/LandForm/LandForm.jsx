@@ -14,7 +14,12 @@ const irrigationOptions = [
 
 const labelColSpan = 8
 const wrapperColSpan = 20
-const LandForm = ({ form }) => (
+const LandForm = ({ form , dataSelects }) => {
+		console.log(dataSelects);
+
+	
+	return(
+	
 	<Form form={form} layout='horizontal' name='landForm' labelCol={{ span: labelColSpan }} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
 		<Form.Item name='name' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 			<Input />
@@ -60,12 +65,12 @@ const LandForm = ({ form }) => (
 			<TextArea />
 		</Form.Item>
 		<Form.Item name='title' label='عنوان چاه'>
-			<SelectWell />
+			<Select/>
 		</Form.Item>
 		<Form.Item name='irrigation' label='نام میراب'>
 			<SelectIrrigator />
 		</Form.Item>
 	</Form>
-)
+)}
 
 export default LandForm
