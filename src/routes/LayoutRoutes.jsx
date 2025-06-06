@@ -9,6 +9,7 @@ import Lands from '../pages/shared/Lands/Lands'
 import Land from '../pages/shared/Land/Land'
 import Wells from '../pages/shared/Wells/Wells'
 import Well from '../pages/shared/Well/Well'
+import NotificationSettings from '../pages/admin/NotificationSettings/NotificationSettings'
 
 const LayoutRoutes = () => {
 	const { isAdmin, isIrrigator } = useUser()
