@@ -56,7 +56,7 @@ export const getIrrigation = async (req, res) => {
 
 export const createIrrigation = async (req, res) => {
 	try {
-		let { land: landId, well: wellId, startTime, endTime, notes, isOngoing, isStart } = req.body
+		let { landId, wellId, startTime, endTime, notes, isOngoing, isStart } = req.body
 		const userId = req.user._id
 
 		const now = new Date()
@@ -66,9 +66,22 @@ export const createIrrigation = async (req, res) => {
 			endTime = null
 		}
 
-		const irrigation = await Irrigation.create({
-			landId,
-			wellId,
+		const existingIrrigation = await Irrigation.findOne({
+			land: landId,
+			well: wellId,
+			isOngoing: true,
+			endTime: null,
+		})
+
+		if (existingIrrigation) {
+			return res.status(400).json({
+				message: 'این زمین هم‌اکنون در حال آبیاری با این چاه است و هنوز پایان نیافته.',
+			})
+		}
+
+		const createdIrrigation = await Irrigation.create({
+			land: landId,
+			well: wellId,
 			startTime,
 			endTime,
 			notes,
@@ -76,7 +89,9 @@ export const createIrrigation = async (req, res) => {
 			createdBy: userId,
 		})
 
-		const land = await Land.findById(land).populate('owner', 'mobile')
+		const irrigation = await Irrigation.findById(createdIrrigation._id).populate('createdBy', 'firstName lastName mobile').populate('land', 'name')
+
+		const land = await Land.findById(landId).populate('owner', 'mobile name')
 		if (land && land.owner && land.owner.mobile) {
 			const to = land.owner.mobile
 			const landName = land.name

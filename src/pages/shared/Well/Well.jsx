@@ -20,9 +20,7 @@ const Well = () => {
 	const [title, setPageTitle] = useState('')
 	const [logs, setLogs] = useState([])
 
-	useEffect(() => {
-		if (wellId) api.init(`wells/${wellId}`)
-	}, [wellId])
+	if (wellId) api.init(`wells/${wellId}`)
 
 	useEffect(() => {
 		if (api.data?.well) {
@@ -36,15 +34,21 @@ const Well = () => {
 	return (
 		<>
 			<MetaTitle>ویرایش چاه</MetaTitle>
+
 			<Flex vertical>
 				<Breadcrumbs data={api.data?.well} />
+
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/wells' />
 					<Typography.Title className='text-page-title'>{title}</Typography.Title>
 				</Flex>
+
 				<WellInfoCard wellInfo={api.data?.well} setPageTitle={setPageTitle} />
+
 				<WellLandsCard wellLands={api.data?.well?.lands} />
+
 				<WellLogCard wellLogs={logs} setLogs={setLogs} />
+
 				{isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
 			</Flex>
 		</>

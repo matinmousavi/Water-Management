@@ -85,15 +85,13 @@ const WellLogsTable = ({ data, setLogs, wellId }) => {
 	return (
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} />
-			{selectedLog && (
+			{selectedLog && isOpen && (
 				<WellEditLog
-					wellId={wellId}
-					initialValues={selectedLog}
+					logData={selectedLog}
 					setLogs={setLogs}
-					isOpen={isOpen}
-					close={() => {
-						setSelectedLog(null)
+					onClose={() => {
 						close()
+						setSelectedLog(null)
 					}}
 				/>
 			)}
