@@ -1,13 +1,9 @@
-import { Button, Flex, Typography } from 'antd'
+import { Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
-
 import Loading from '../../../components/Loading/Loading'
 import WellsTable from './components/TableWells/WellsTable'
-import WellModal from '../../../components/Well/WellModal/WellModal'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import { useUser } from '../../../contexts/UserContext'
-import ModalController from '../../../components/ModalController/ModalController'
-import WellForm from '../../../components/Well/WellForm/WellForm'
 import AddWell from './components/AddWell/AddWell'
 
 const { Title } = Typography

@@ -36,6 +36,11 @@ const LandsTable = ({ landsData = [] }) => {
 			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
 		},
 		{
+			title: 'محصول',
+			dataIndex: 'cropType',
+			key: 'cropType',
+		},
+		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',

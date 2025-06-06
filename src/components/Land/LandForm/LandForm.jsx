@@ -13,7 +13,7 @@ const irrigationOptions = [
 const labelColSpan = 8
 const wrapperColSpan = 20
 
-const LandForm = ({ form, landOwners = [] }) => {
+const LandForm = ({ form, landOwners = [], wells = [] }) => {
 	const { isAdmin } = useUser()
 
 	return (
@@ -61,7 +61,7 @@ const LandForm = ({ form, landOwners = [] }) => {
 				<Input />
 			</Form.Item>
 
-			<Form.Item name='product' label='محصول'>
+			<Form.Item name='cropType' label='نوع محصول' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>
 
@@ -78,6 +78,20 @@ const LandForm = ({ form, landOwners = [] }) => {
 				]}
 			>
 				<TextArea />
+			</Form.Item>
+			<Form.Item name='wellId' label='چاه'>
+				<Select
+					showSearch
+					placeholder='چاه را انتخاب کنید'
+					allowClear
+					style={{ width: '100%' }}
+					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+					options={wells.map(well => ({
+						value: well._id,
+						label: well.title,
+					}))}
+					fieldNames={{ value: 'value', label: 'label' }}
+				/>
 			</Form.Item>
 		</Form>
 	)

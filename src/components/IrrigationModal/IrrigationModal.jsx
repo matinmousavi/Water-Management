@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react'
 import { Modal, Form } from 'antd'
-import dayjs from 'dayjs'
 import useAPI from '../../hooks/useAPI'
 import useNotification from '../../hooks/useNotification'
 import { useUser } from '../../contexts/UserContext'
 
-const IrrigationModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = null, setData, wellId }) => {
+const IrrigationModal = ({ children, type = 'add', isOpen, setIsOpen, initialValue = null, setData, wellId }) => {
 	const [form] = Form.useForm()
 	const irrigationApi = useAPI()
 	const selectApi = useAPI()
@@ -17,25 +16,25 @@ const IrrigationModal = ({ children, type = 'add', isOpen, setIsOpen, initialDat
 	}
 
 	useEffect(() => {
-		if (isOpen && type === 'edit' && initialData) {
+		if (isOpen && type === 'edit' && initialValue) {
 			const vals = {
-				lands: initialData.land?._id,
-				startNotes: initialData.notes?.start || '',
-				endNotes: initialData.notes?.end || '',
+				lands: initialValue.land?._id,
+				startNotes: initialValue.notes?.start || '',
+				endNotes: initialValue.notes?.end || '',
 			}
 
 			if (isAdmin) {
-				if (initialData.startTime) vals.startTime = dayjs(initialData.startTime)
-				if (initialData.endTime) vals.endTime = dayjs(initialData.endTime)
-				vals.isOngoing = initialData.endTime == null
+				if (initialValue.startTime) vals.startTime = initialValue.startTime
+				if (initialValue.endTime) vals.endTime = initialValue.endTime
+				vals.isOngoing = initialValue.endTime == null
 			} else {
-				vals.isStart = !!initialData.startTime
-				vals.isEnd = !!initialData.endTime
+				vals.isStart = !!initialValue.startTime
+				vals.isEnd = !!initialValue.endTime
 			}
 
 			form.setFieldsValue(vals)
 		}
-	}, [isOpen, type, initialData, isAdmin, form])
+	}, [isOpen, type, initialValue, isAdmin, form])
 
 	const handleCancel = () => {
 		form.resetFields()
@@ -76,7 +75,7 @@ const IrrigationModal = ({ children, type = 'add', isOpen, setIsOpen, initialDat
 			if (type === 'add') {
 				response = await irrigationApi.post('irrigations', payload)
 			} else {
-				const irrigationId = initialData?._id
+				const irrigationId = initialValue?._id
 				if (!irrigationId) {
 					openNotification('error', 'خطا', 'شناسه لاگ نامشخص است.')
 					return

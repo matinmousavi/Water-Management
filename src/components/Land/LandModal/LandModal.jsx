@@ -3,29 +3,36 @@ import { Modal, Form } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 
-const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = null, setData, setPageTitle }) => {
+const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialValue = null, setData, setPageTitle }) => {
 	const [form] = Form.useForm()
 	const landApi = useAPI()
-	const selectApi = useAPI()
+	const userApi = useAPI()
+	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 
 	useEffect(() => {
-		if (type === 'edit' && initialData) {
-			form.setFieldsValue(initialData)
+		if (type === 'edit' && initialValue) {
+			const patchedInitialValue = {
+				...initialValue,
+				owner: initialValue.owner?._id,
+				wellId: initialValue.wells?.[0]?._id || undefined,
+			}
+			form.setFieldsValue(patchedInitialValue)
 		} else {
 			form.resetFields()
 		}
-	}, [type, initialData, form])
+	}, [type, initialValue, form])
+
+	if (isOpen) {
+		userApi.init('users', { role: 'landOwner' })
+		wellApi.init('wells')
+	}
 
 	const handleCancel = () => {
 		if (type === 'add') {
 			form.resetFields()
 		}
 		setIsOpen(false)
-	}
-
-	if (isOpen) {
-		selectApi.init('users', { role: 'landOwner' })
 	}
 
 	const handleSubmit = async () => {
@@ -35,8 +42,8 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 
 			if (type === 'add') {
 				response = await landApi.post('lands', values)
-			} else if (type === 'edit' && initialData?._id) {
-				response = await landApi.patch(`lands/${initialData._id}`, values)
+			} else if (type === 'edit' && initialValue?._id) {
+				response = await landApi.patch(`lands/${initialValue._id}`, values)
 			}
 
 			if (response?.error) {
@@ -51,12 +58,14 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 		}
 	}
 
-	const landOwners = selectApi.data?.users || []
+	const landOwners = userApi.data?.users || []
+	const wells = wellApi.data?.wells || []
 
 	const childWithProps = React.isValidElement(children)
 		? React.cloneElement(children, {
 				form,
 				landOwners,
+				wells,
 		  })
 		: children
 
@@ -69,7 +78,6 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 			okText='ثبت'
 			cancelText='انصراف'
 			confirmLoading={landApi.isLoading}
-			loading={selectApi.isLoading}
 		>
 			{childWithProps}
 		</Modal>

@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Form, Typography, Input, Space, Popconfirm } from 'antd'
+import { Button, Card, Flex, Form, Typography, Input, Space, Popconfirm, Modal } from 'antd'
 import { EditOutlined, PlusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import styles from './Land.module.css'
 import useAPI from '../../../hooks/useAPI'
@@ -25,6 +25,10 @@ const Land = () => {
 	const landApi = useAPI()
 	const notesApi = useAPI()
 
+	const [isShowModalNote, setIsShowModalNote] = useState(false)
+	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
+	const [selectedNote, setSelectedNote] = useState(null)
+
 	const fetchLand = async () => {
 		try {
 			const response = await landApi.get(`lands/${landId}`)
@@ -47,6 +51,7 @@ const Land = () => {
 	const handleOpenAddNoteModal = () => {
 		setIsNoteEditMode(false)
 		noteForm.resetFields()
+		setSelectedNote(null)
 		setIsShowModalNote(true)
 	}
 
@@ -65,6 +70,25 @@ const Land = () => {
 		} catch (error) {
 			openNotification('error', 'خطا در حذف یادداشت')
 			console.error('Error deleting note:', error)
+		}
+	}
+
+	const handleSubmitNote = async values => {
+		try {
+			if (isNoteEditMode && selectedNote?._id) {
+				await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
+				openNotification('success', 'یادداشت با موفقیت ویرایش شد')
+			} else {
+				await notesApi.post(`lands/${landId}/notes`, values)
+				openNotification('success', 'یادداشت با موفقیت افزوده شد')
+			}
+			setIsShowModalNote(false)
+			setSelectedNote(null)
+			noteForm.resetFields()
+			fetchLand()
+		} catch (error) {
+			openNotification('error', `خطا در ${isNoteEditMode ? 'ویرایش' : 'افزودن'} یادداشت`)
+			console.error(error)
 		}
 	}
 
@@ -91,8 +115,9 @@ const Land = () => {
 							<Title level={2} className='text-h2'>
 								یادداشت زمین
 							</Title>
-							<Button type='default' shape='round' icon={<PlusCircleOutlined />} onClick={handleOpenAddNoteModal}>
-								افزودن یادداشت
+							<Button type='default' onClick={handleOpenAddNoteModal}>
+								<PlusCircleOutlined />
+								<span>افزودن یادداشت</span>
 							</Button>
 						</Flex>
 
@@ -105,7 +130,11 @@ const Land = () => {
 											<Flex align='center' gap={20}>
 												<h4>{note?.user ? `${note.user.firstName} ${note.user.lastName}` : 'کاربر ناشناس'}</h4>
 												<span className={styles.date}>
-													{new Date(note.createdAt).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' })}
+													{new Date(note.createdAt).toLocaleDateString('fa-IR', {
+														year: 'numeric',
+														month: 'long',
+														day: 'numeric',
+													})}
 												</span>
 											</Flex>
 											<Space size={8} className={styles.btns}>
@@ -132,6 +161,30 @@ const Land = () => {
 
 				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
 			</Flex>
+
+			<Modal
+				title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
+				centered
+				open={isShowModalNote}
+				onCancel={() => {
+					setIsShowModalNote(false)
+					noteForm.resetFields()
+					setSelectedNote(null)
+				}}
+				footer={null}
+			>
+				<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
+					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+						<Input.TextArea rows={4} placeholder='متن یادداشت را وارد کنید...' />
+					</Form.Item>
+					<Flex justify='end' gap={8}>
+						<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
+						<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
+							{isNoteEditMode ? 'ذخیره تغییرات' : 'ذخیره'}
+						</Button>
+					</Flex>
+				</Form>
+			</Modal>
 		</>
 	)
 }

@@ -4,14 +4,14 @@ import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 
-const WellModal = ({ children, type = 'add', editSection = 'information', isOpen, setIsOpen, initialData = null, setData, setPageTitle }) => {
+const WellModal = ({ children, type = 'add', editSection = 'information', isOpen, setIsOpen, initialValue = null, setData, setPageTitle }) => {
 	const [form] = Form.useForm()
 	const wellApi = useAPI()
 	const selectApi = useAPI()
 	const { openNotification } = useNotification()
 	const { wellId } = useParams()
 
-	const well = wellApi.data.well || initialData
+	const well = wellApi.data.well || initialValue
 
 	if (isOpen) {
 		if (editSection === 'information') {
@@ -62,7 +62,7 @@ const WellModal = ({ children, type = 'add', editSection = 'information', isOpen
 				handleCancel()
 			}
 		} catch (error) {
-			console.log(error)
+			console.error(error)
 			openNotification('error', 'خطا', error?.error?.message || 'خطایی رخ داده است')
 		}
 	}

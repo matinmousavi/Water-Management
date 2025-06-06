@@ -12,8 +12,6 @@ const Lands = () => {
 	const api = useAPI()
 	api.init('lands')
 
-	console.log(api.data)
-
 	if (api.isLoading || !api.data) return <Loading />
 
 	return (

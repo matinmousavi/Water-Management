@@ -22,8 +22,6 @@ const ContactInfoDisplay = ({ userData }) => {
 		{ label: 'تاریخ ثبت کاربر:', value: moment(userData?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
 	]
 
-	console.log('log')
-
 	return (
 		<Row gutter={[0, 30]}>
 			{contactInfo.map((item, index) => (

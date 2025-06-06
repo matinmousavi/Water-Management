@@ -4,7 +4,7 @@ import useModal from '../../../../../../../hooks/useModal'
 import UserModal from '../../../../../../../components/User/UserModal/UserModal'
 import UserForm from '../../../../../../../components/User/UserForm/UserForm'
 
-const EditUser = ({ initialData, setData, setPageTitle }) => {
+const EditUser = ({ initialValue, setData, setPageTitle }) => {
 	const { isOpen, open, close } = useModal()
 
 	return (
@@ -20,7 +20,7 @@ const EditUser = ({ initialData, setData, setPageTitle }) => {
 				type='edit'
 				isOpen={isOpen}
 				setIsOpen={close}
-				initialData={initialData}
+				initialValue={initialValue}
 				setData={({ user }) =>
 					setData(prev => {
 						const { firstName: _, lastName: __, ...newRest } = user

@@ -4,17 +4,17 @@ import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 
-const UserModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = null, setData, setPageTitle }) => {
+const UserModal = ({ children, type = 'add', isOpen, setIsOpen, initialValue = null, setData, setPageTitle }) => {
 	const [form] = Form.useForm()
 	const { userId } = useParams()
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
 
 	useEffect(() => {
-		if (isOpen && initialData) {
-			form.setFieldsValue(initialData)
+		if (isOpen && initialValue) {
+			form.setFieldsValue(initialValue)
 		}
-	}, [isOpen, initialData, form])
+	}, [isOpen, initialValue, form])
 
 	const handleCancel = () => {
 		form.resetFields()

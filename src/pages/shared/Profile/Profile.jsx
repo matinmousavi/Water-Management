@@ -55,7 +55,7 @@ const Profile = () => {
 
 				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />
 
-				<ContactInfoCard initialData={userData} setPageTitle={setPageTitle} />
+				<ContactInfoCard initialValue={userData} setPageTitle={setPageTitle} />
 			</Flex>
 		</>
 	)

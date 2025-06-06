@@ -28,7 +28,7 @@ const WellEditLog = ({ wellId, initialValues, setLogs, isOpen, close }) => {
 	}
 
 	return (
-		<IrrigationModal type='edit' wellId={wellId} isOpen={isOpen} setIsOpen={close} loading={loading} initialData={initialValues}>
+		<IrrigationModal type='edit' wellId={wellId} isOpen={isOpen} setIsOpen={close} loading={loading} initialValue={initialValues}>
 			<WellLogForm form={form} onFinish={handleEdit} />
 		</IrrigationModal>
 	)

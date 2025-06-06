@@ -5,7 +5,7 @@ import LandForm from '../../../../../../../components/Land/LandForm/LandForm'
 import LandModal from '../../../../../../../components/Land/LandModal/LandModal'
 import useModal from '../../../../../../../hooks/useModal'
 
-const LandEdit = ({ landData, setLandData }) => {
+const LandEdit = ({ initialValue, setData }) => {
 	const { isOpen, open, close } = useModal()
 
 	return (
@@ -17,10 +17,19 @@ const LandEdit = ({ landData, setLandData }) => {
 				</Flex>
 			</Button>
 
-			<LandModal setLandsData={data => setLandData({ land: data.land })} type='edit' landData={landData} isOpen={isOpen} setIsOpen={close}>
+			<LandModal
+				type='edit'
+				initialValue={initialValue}
+				setData={data => {
+					setData({ land: data.updated })
+				}}
+				isOpen={isOpen}
+				setIsOpen={close}
+			>
 				<LandForm />
 			</LandModal>
 		</>
 	)
 }
+
 export default LandEdit

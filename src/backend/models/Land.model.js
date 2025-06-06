@@ -29,6 +29,10 @@ const landSchema = new mongoose.Schema(
 			enum: ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر'],
 			required: true,
 		},
+		cropType: {
+			type: String,
+			trim: true,
+		},
 		notes: [
 			{
 				user: {
