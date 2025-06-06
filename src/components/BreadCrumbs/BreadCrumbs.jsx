@@ -6,6 +6,7 @@ import styles from './BreadCrumbs.module.css'
 const routesConfig = [
 	{ path: '/', breadcrumb: 'خانه' },
 	{ path: '/users', breadcrumb: 'کاربران' },
+	{ path: '/notification-settings', breadcrumb: 'تنظیمات اطلاع رسانی' },
 	{
 		path: '/users/:id',
 		breadcrumb: data => (data?.firstName && data?.lastName ? `${data.firstName} ${data.lastName}` : 'کاربر'),

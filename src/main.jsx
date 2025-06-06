@@ -18,6 +18,7 @@ createRoot(document.getElementById('root')).render(
 					fontFamily: 'VazirmatnFD',
 					colorPrimary: '#3372EF',
 					borderRadius: 8,
+					fontSize: 16,
 				},
 				components: {
 					Layout: {
@@ -27,15 +28,12 @@ createRoot(document.getElementById('root')).render(
 						itemMarginInline: 20,
 					},
 					Button: {
-						borderRadiusLG: 8,
-						contentFontSizeLG: 14,
 						primaryShadow: 'none',
-						controlHeightLG: 40,
 						colorPrimary: '#0066EE',
 						defaultBorderColor: '#0066EE',
 						colorLink: 'rgba(59, 143, 243, 1)',
 						colorText: '#0066EE',
-						paddingInlineLG: 40,
+						controlHeight: 42,
 					},
 					Input: {
 						borderRadius: 4,
