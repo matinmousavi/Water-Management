@@ -12,6 +12,7 @@ import upload from './upload/upload.routes.js'
 import wells from './wells/wells.routes.js'
 import lands from './lands/lands.routes.js'
 import irrigations from './irrigations/irrigations.routes.js'
+import messageTemplates from './messageTemplates/messageTemplates.routes.js'
 
 const isProd = import.meta.env?.PROD
 const router = Router()
@@ -47,5 +48,6 @@ router.use('/upload', isLogin, upload)
 router.use('/wells', isLogin, wells)
 router.use('/lands', isLogin, lands)
 router.use('/irrigations', isLogin, irrigations)
+router.use('/messageTemplates', isAdmin, messageTemplates)
 
 export default router

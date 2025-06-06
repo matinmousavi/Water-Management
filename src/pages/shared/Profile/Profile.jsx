@@ -1,5 +1,7 @@
 import { Flex, Typography } from 'antd'
 import { useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
@@ -12,35 +14,48 @@ import BackButton from '../../../components/BackButton/BackButton'
 const { Title } = Typography
 
 const Profile = () => {
-	const { user } = useUser()
+	const [pageTitle, setPageTitle] = useState('')
+	const { user: currentUser } = useUser()
 	const { userId } = useParams()
-	const api = useAPI()
 
+	const api = useAPI()
 	if (userId) api.init(`users/${userId}`)
 
-	const initialUserData = userId ? api.data?.user : user
+	const rawUserData = userId ? api.data?.user : currentUser
 
-	const { firstName = '', lastName = '', ...contactInfoData } = initialUserData || {}
+	const userDataRef = useRef(null)
 
-	const fullName = `${firstName} ${lastName}`
-	const pageTitle = fullName || 'پروفایل'
+	useEffect(() => {
+		if (rawUserData && !userDataRef.current) {
+			userDataRef.current = rawUserData
+			const { firstName = '', lastName = '' } = rawUserData
+			const defaultTitle = firstName || lastName ? `${firstName} ${lastName}` : 'پروفایل'
+			setPageTitle(defaultTitle)
+		}
+	}, [rawUserData])
 
 	if (userId && (api.isLoading || !api.data)) return <Loading />
+
+	const userData = userDataRef.current || {}
 
 	return (
 		<>
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between'>
-				<Breadcrumbs data={initialUserData} />
+				<Breadcrumbs data={{ title: pageTitle }} />
+
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/users' />
+
 					<Title level={1} className='text-page-title'>
 						{pageTitle}
 					</Title>
 				</Flex>
-				<ProfileImageCard pictureUrl={initialUserData?.profilePicture?.url} />
-				<ContactInfoCard initialUserData={contactInfoData} api={api} />
+
+				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />
+
+				<ContactInfoCard initialValue={userData} setPageTitle={setPageTitle} />
 			</Flex>
 		</>
 	)

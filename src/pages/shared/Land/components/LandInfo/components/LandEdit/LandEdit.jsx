@@ -1,10 +1,11 @@
 import { Button, Flex } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
-import useModal from '../../../../../../../hooks/useModal'
-import WellModal from '../../../../../../../components/Well/WellModal/WellModal'
-import WellForm from '../../../../../../../components/Well/WellForm/WellForm'
 
-const EditWell = ({ initialValue, setData, setPageTitle }) => {
+import LandForm from '../../../../../../../components/Land/LandForm/LandForm'
+import LandModal from '../../../../../../../components/Land/LandModal/LandModal'
+import useModal from '../../../../../../../hooks/useModal'
+
+const LandEdit = ({ initialValue, setData }) => {
 	const { isOpen, open, close } = useModal()
 
 	return (
@@ -16,19 +17,19 @@ const EditWell = ({ initialValue, setData, setPageTitle }) => {
 				</Flex>
 			</Button>
 
-			<WellModal
+			<LandModal
 				type='edit'
-				editSection='information'
 				initialValue={initialValue}
-				setData={data => setData({ well: data.well })}
-				setPageTitle={setPageTitle}
+				setData={data => {
+					setData({ land: data.updated })
+				}}
 				isOpen={isOpen}
 				setIsOpen={close}
 			>
-				<WellForm />
-			</WellModal>
+				<LandForm />
+			</LandModal>
 		</>
 	)
 }
 
-export default EditWell
+export default LandEdit

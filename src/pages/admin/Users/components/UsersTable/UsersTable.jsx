@@ -41,7 +41,7 @@ const getColumnSearchProps = dataIndex => ({
 
 const roleLabels = {
 	admin: 'مدیر',
-	irrigator: 'آبیار',
+	irrigator: 'میراب',
 	landOwner: 'مالک زمین',
 }
 
