@@ -1,57 +1,33 @@
-import { Form, Input, Modal } from 'antd'
-import useAPI from '../../../../../hooks/useAPI'
-import useNotification from '../../../../../hooks/useNotification'
+import { Button, Flex } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
+import useModal from '../../../../../hooks/useModal'
+import WellModal from '../../../../../components/Well/WellModal/WellModal'
+import WellForm from '../../../../../components/Well/WellForm/WellForm'
 
-const AddWell = ({ isOpen, setIsOpen, setIsRenderList }) => {
-	const { openNotification } = useNotification()
-	const [form] = Form.useForm()
-	const wellApi = useAPI()
+const AddWell = ({ setData }) => {
+	const { isOpen, open, close } = useModal()
 
-	const handleCancel = () => {
-		form.resetFields()
-		setIsOpen(false)
-	}
-
-	const handleSubmit = async () => {
-		try {
-			const values = await form.validateFields()
-
-			const res = await wellApi.post('/wells', values)
-
-			if (res.error) {
-				openNotification('error', res.message)
-			} else {
-				openNotification('success', 'عملیات موفق', 'چاه با موفقیت اضافه شد.')
-				form.resetFields()
-				setIsRenderList(prev => !prev)
-				handleCancel()
-			}
-		} catch (error) {
-			openNotification('error', 'خطا', error.error.message)
-		}
+	const handleAddWell = ({ well }) => {
+		setData(prev => ({
+			...prev,
+			wells: [...(prev?.wells || []), well],
+		}))
 	}
 
 	return (
-		<Modal title=' افزودن چاه' closable={{ 'aria-label': 'Custom Close Button' }} open={isOpen} onOk={handleSubmit} onCancel={() => setIsOpen(false)}>
-			<Form form={form} layout='horizontal'>
-				<Form.Item name='licenseCode' label='کد پروانه' rules={[{ required: true, message: 'لطفاً کد پروانه را وارد کنید!' }]}>
-					<Input />
-				</Form.Item>
-				<Form.Item name='title' label=' عنوان' rules={[{ required: true, message: 'لطفاً عنوان را وارد کنید!' }]}>
-					<Input />
-				</Form.Item>
-				<Form.Item
-					name='cycleDays'
-					label='تعداد روزهای چرخه'
-					rules={[
-						{ required: true, message: 'لطفاً تعداد روزهای چرخه را وارد کنید!' },
-						{ type: 'text', message: 'تعداد روزهای چرخه معتبر نیست!' },
-					]}
-				>
-					<Input />
-				</Form.Item>
-			</Form>
-		</Modal>
+		<>
+			<Button type='primary' onClick={open}>
+				<Flex gap={5} align='center' justify='center'>
+					<PlusOutlined />
+					<span>افزودن چاه</span>
+				</Flex>
+			</Button>
+
+			<WellModal type='add' isOpen={isOpen} setIsOpen={close} setData={handleAddWell}>
+				<WellForm />
+			</WellModal>
+		</>
 	)
 }
+
 export default AddWell

@@ -1,7 +1,8 @@
 import React from 'react'
 import { Row, Col, Typography } from 'antd'
+import moment from 'moment-jalaali'
 
-const { Text } = Typography
+moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
 const ROLES = [
 	{ key: 'admin', label: 'مدیر' },
@@ -18,7 +19,7 @@ const ContactInfoDisplay = ({ userData }) => {
 		{ label: 'شماره تماس:', value: userData?.mobile ? userData.mobile : '-' },
 		{ label: 'آدرس ایمیل', value: userData?.email || '-' },
 		{ label: 'آدرس:', value: userData?.address || '-' },
-		{ label: 'تاریخ ثبت کاربر:', value: userData?.updatedAt || '-' },
+		{ label: 'تاریخ ثبت کاربر:', value: moment(userData?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
 	]
 
 	return (
@@ -27,10 +28,10 @@ const ContactInfoDisplay = ({ userData }) => {
 				<Col xs={24} md={12} key={index}>
 					<Row>
 						<Col xs={6} className='label'>
-							<Text className='text'>{item.label}</Text>
+							<Typography.Text className='text'>{item.label}</Typography.Text>
 						</Col>
 						<Col xs={18} className='value'>
-							<Text className='text'>{item.value}</Text>
+							<Typography.Text className='text'>{item.value}</Typography.Text>
 						</Col>
 					</Row>
 				</Col>

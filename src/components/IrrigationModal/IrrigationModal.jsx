@@ -1,41 +1,40 @@
 import React, { useEffect } from 'react'
 import { Modal, Form } from 'antd'
-import dayjs from 'dayjs'
 import useAPI from '../../hooks/useAPI'
 import useNotification from '../../hooks/useNotification'
 import { useUser } from '../../contexts/UserContext'
 
-const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData = null, children }) => {
+const IrrigationModal = ({ children, type = 'add', isOpen, setIsOpen, initialValue = null, setData, wellId }) => {
 	const [form] = Form.useForm()
-	const api = useAPI()
-	const landsApi = useAPI()
+	const irrigationApi = useAPI()
+	const selectApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
 
 	if (isOpen) {
-		landsApi.init('lands')
+		selectApi.init('lands')
 	}
 
 	useEffect(() => {
-		if (isOpen && type === 'edit' && initialData) {
+		if (isOpen && type === 'edit' && initialValue) {
 			const vals = {
-				lands: initialData.land?._id,
-				startNotes: initialData.notes?.start || '',
-				endNotes: initialData.notes?.end || '',
+				lands: initialValue.land?._id,
+				startNotes: initialValue.notes?.start || '',
+				endNotes: initialValue.notes?.end || '',
 			}
 
 			if (isAdmin) {
-				if (initialData.startTime) vals.startTime = dayjs(initialData.startTime)
-				if (initialData.endTime) vals.endTime = dayjs(initialData.endTime)
-				vals.isOngoing = initialData.endTime == null
+				if (initialValue.startTime) vals.startTime = initialValue.startTime
+				if (initialValue.endTime) vals.endTime = initialValue.endTime
+				vals.isOngoing = initialValue.endTime == null
 			} else {
-				vals.isStart = initialData.isStart
-				vals.isEnd = !initialData.isStart
+				vals.isStart = !!initialValue.startTime
+				vals.isEnd = !!initialValue.endTime
 			}
 
 			form.setFieldsValue(vals)
 		}
-	}, [isOpen, type, initialData, isAdmin, form])
+	}, [isOpen, type, initialValue, isAdmin, form])
 
 	const handleCancel = () => {
 		form.resetFields()
@@ -45,7 +44,7 @@ const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData 
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-			const selectedLand = landsApi.data.lands.find(l => l._id === values.lands)
+			const selectedLand = selectApi.data.lands.find(l => l._id === values.lands)
 			if (!selectedLand) {
 				openNotification('error', 'خطا', 'زمین انتخاب شده نامعتبر است.')
 				return
@@ -74,14 +73,14 @@ const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData 
 
 			let response
 			if (type === 'add') {
-				response = await api.post('irrigations', payload)
+				response = await irrigationApi.post('irrigations', payload)
 			} else {
-				const irrigationId = initialData?._id
+				const irrigationId = initialValue?._id
 				if (!irrigationId) {
 					openNotification('error', 'خطا', 'شناسه لاگ نامشخص است.')
 					return
 				}
-				response = await api.patch(`irrigations/${irrigationId}`, payload)
+				response = await irrigationApi.patch(`irrigations/${irrigationId}`, payload)
 			}
 
 			if (response?.error) {
@@ -104,14 +103,14 @@ const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData 
 			onCancel={handleCancel}
 			okText='ذخیره'
 			cancelText='انصراف'
-			confirmLoading={api.isLoading}
-			loading={landsApi.isLoading}
+			confirmLoading={irrigationApi.isLoading}
+			loading={selectApi.isLoading}
 			forceRender
 		>
 			{children &&
 				React.cloneElement(children, {
 					form,
-					lands: landsApi.data.lands || [],
+					lands: selectApi.data.lands || [],
 				})}
 		</Modal>
 	)
