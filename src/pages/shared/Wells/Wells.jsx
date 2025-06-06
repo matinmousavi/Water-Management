@@ -8,6 +8,7 @@ import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import { useUser } from '../../../contexts/UserContext'
 import ModalController from '../../../components/ModalController/ModalController'
 import WellForm from '../../../components/Well/WellForm/WellForm'
+import AddWell from './components/AddWell/AddWell'
 
 const { Title } = Typography
 
@@ -27,19 +28,7 @@ const Wells = () => {
 					لیست چاه‌ها ({api.data.wells.length})
 				</Title>
 
-				{isAdmin && (
-					<ModalController>
-						<ModalController.Trigger>
-							<Button type='primary'>افزودن چاه</Button>
-						</ModalController.Trigger>
-
-						<ModalController.Modal>
-							<WellModal type='add' setWellData={api.setData}>
-								<WellForm />
-							</WellModal>
-						</ModalController.Modal>
-					</ModalController>
-				)}
+				{isAdmin && <AddWell setData={api.setData} />}
 			</Flex>
 
 			<WellsTable WellsData={api.data.wells} />

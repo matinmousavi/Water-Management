@@ -1,5 +1,7 @@
 import mongoose from '../../config/database.js'
 import Irrigation from '../../models/Irrigation.model.js'
+import Land from '../../models/Land.model.js'
+import { sendTemplatedSMS } from '../../../utils/sendTemplatedSMS.js'
 
 const fieldTranslations = {
 	land: 'زمین',
@@ -54,23 +56,55 @@ export const getIrrigation = async (req, res) => {
 
 export const createIrrigation = async (req, res) => {
 	try {
-		let { land, well, startTime, endTime, notes, isOngoing, isStart } = req.body
+		let { land: landId, well: wellId, startTime, endTime, notes, isOngoing, isStart } = req.body
 		const userId = req.user._id
 
+		const now = new Date()
+
 		if (isStart) {
-			startTime = new Date()
+			startTime = now
 			endTime = null
 		}
 
 		const irrigation = await Irrigation.create({
-			land,
-			well,
+			landId,
+			wellId,
 			startTime,
 			endTime,
 			notes,
 			isOngoing,
 			createdBy: userId,
 		})
+
+		const land = await Land.findById(land).populate('owner', 'mobile')
+		if (land && land.owner && land.owner.mobile) {
+			const to = land.owner.mobile
+			const landName = land.name
+
+			if (isStart) {
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_start',
+					variables: {
+						landName,
+						time: now.toLocaleTimeString('fa-IR'),
+					},
+				})
+			}
+
+			if (!isOngoing && endTime) {
+				const durationMs = new Date(endTime) - new Date(startTime)
+				const durationMin = Math.round(durationMs / 60000)
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_end',
+					variables: {
+						landName,
+						duration: durationMin,
+					},
+				})
+			}
+		}
 
 		return res.status(201).json({
 			message: 'آبیاری با موفقیت ثبت شد.',
@@ -103,10 +137,44 @@ export const updateIrrigation = async (req, res) => {
 			return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
 		}
 
+		const prevOngoing = irrigation.isOngoing
+
 		Object.assign(irrigation, req.body)
 		await irrigation.save()
 
-		const updated = await Irrigation.findById(irrigationId).populate('land', 'name').populate('well', 'title').populate('createdBy', 'name')
+		const updated = await Irrigation.findById(irrigationId).populate('land', 'name').populate('well', 'title').populate('createdBy', 'firstName lastName')
+
+		const land = await Land.findById(updated.land._id).populate('owner', 'mobile')
+		if (land && land.owner && land.owner.mobile) {
+			const to = land.owner.mobile
+			const landName = land.name
+
+			if (req.body.isOngoing === true && !prevOngoing) {
+				const startTime = updated.startTime || new Date()
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_start',
+					variables: {
+						landName,
+						time: startTime.toLocaleTimeString('fa-IR'),
+					},
+				})
+			}
+
+			if ((req.body.isOngoing === false || req.body.endTime) && prevOngoing) {
+				const endTime = updated.endTime || new Date()
+				const durationMs = new Date(endTime) - new Date(updated.startTime)
+				const durationMin = Math.round(durationMs / 60000)
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_end',
+					variables: {
+						landName,
+						duration: durationMin,
+					},
+				})
+			}
+		}
 
 		return res.status(200).json({
 			message: 'آبیاری با موفقیت ویرایش شد.',

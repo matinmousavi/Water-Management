@@ -17,13 +17,17 @@ const Well = () => {
 	const api = useAPI()
 	const { isAdmin } = useUser()
 
-	const [title, setTitle] = useState('')
+	const [title, setPageTitle] = useState('')
+	const [logs, setLogs] = useState([])
 
-	if (wellId) api.init(`wells/${wellId}`)
+	useEffect(() => {
+		if (wellId) api.init(`wells/${wellId}`)
+	}, [wellId])
 
 	useEffect(() => {
 		if (api.data?.well) {
-			setTitle(api.data.well.title)
+			setPageTitle(api.data.well.title)
+			setLogs(api.data.well.logs || [])
 		}
 	}, [api.data?.well])
 
@@ -34,18 +38,13 @@ const Well = () => {
 			<MetaTitle>ویرایش چاه</MetaTitle>
 			<Flex vertical>
 				<Breadcrumbs data={api.data?.well} />
-
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/wells' />
 					<Typography.Title className='text-page-title'>{title}</Typography.Title>
 				</Flex>
-
-				<WellInfoCard wellInfo={api.data?.well} setTitle={setTitle} />
-
+				<WellInfoCard wellInfo={api.data?.well} setPageTitle={setPageTitle} />
 				<WellLandsCard wellLands={api.data?.well?.lands} />
-
-				<WellLogCard wellLogs={api.data?.well?.logs} />
-
+				<WellLogCard wellLogs={logs} setLogs={setLogs} />
 				{isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
 			</Flex>
 		</>

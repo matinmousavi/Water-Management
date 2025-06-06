@@ -4,7 +4,7 @@ import useModal from '../../../../../../../hooks/useModal'
 import WellModal from '../../../../../../../components/Well/WellModal/WellModal'
 import WellForm from '../../../../../../../components/Well/WellForm/WellForm'
 
-const EditWell = ({ wellData, setWellData, setTitle }) => {
+const EditWell = ({ initialData, setData, setPageTitle }) => {
 	const { isOpen, open, close } = useModal()
 
 	return (
@@ -18,10 +18,10 @@ const EditWell = ({ wellData, setWellData, setTitle }) => {
 
 			<WellModal
 				type='edit'
-				editType='info'
-				data={wellData}
-				setData={data => setWellData({ well: data.well })}
-				setTitle={setTitle}
+				editSection='information'
+				initialData={initialData}
+				setData={data => setData({ well: data.well })}
+				setPageTitle={setPageTitle}
 				isOpen={isOpen}
 				setIsOpen={close}
 			>

@@ -1,21 +1,20 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Modal, Form } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
-import React from 'react'
 
-const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsOpen, children }) => {
+const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = null, setData, setPageTitle }) => {
 	const [form] = Form.useForm()
-	const api = useAPI()
+	const landApi = useAPI()
 	const { openNotification } = useNotification()
 
 	useEffect(() => {
-		if (type === 'edit' && landData) {
-			form.setFieldsValue(landData)
+		if (type === 'edit' && initialData) {
+			form.setFieldsValue(initialData)
 		} else {
 			form.resetFields()
 		}
-	}, [type, landData, form])
+	}, [type, initialData, form])
 
 	const handleCancel = () => {
 		form.resetFields()
@@ -28,16 +27,16 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 			let response
 
 			if (type === 'add') {
-				response = await api.post('lands', values)
-			} else if (type === 'edit' && landData?._id) {
-				response = await api.patch(`lands/${landData._id}`, values)
+				response = await landApi.post('lands', values)
+			} else if (type === 'edit' && initialData?._id) {
+				response = await landApi.patch(`lands/${initialData._id}`, values)
 			}
 
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', `زمین با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد`)
-				setLandsData(prev => (type === 'add' ? [...prev, response.land] : prev.map(l => (l._id === response.land._id ? response.land : l))))
+				setData(prev => (type === 'add' ? [...prev, response.land] : prev.map(l => (l._id === response.land._id ? response.land : l))))
 				handleCancel()
 			}
 		} catch (err) {
@@ -45,19 +44,19 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 		}
 	}
 
-	const childWithFormProp = React.isValidElement(children) ? React.cloneElement(children, { form }) : children
+	const childWithProps = React.isValidElement(children) ? React.cloneElement(children, { form }) : children
 
 	return (
 		<Modal
-			title={type === 'add' ? 'فرم افزودن زمین' : 'فرم ویرایش زمین'}
+			title={type === 'add' ? 'افزودن زمین' : 'ویرایش زمین'}
 			open={isOpen}
 			onOk={handleSubmit}
 			onCancel={handleCancel}
 			okText='ثبت'
 			cancelText='انصراف'
-			confirmLoading={api.isLoading}
+			confirmLoading={landApi.isLoading}
 		>
-			{childWithFormProp}
+			{childWithProps}
 		</Modal>
 	)
 }
