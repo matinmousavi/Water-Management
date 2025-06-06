@@ -16,7 +16,14 @@ const WellAddLands = ({ lands, setLandsData }) => {
 				</Flex>
 			</Button>
 
-			<WellModal type='edit' editType='lands' data={lands} setData={data => setLandsData({ lands: data.well.lands })} isOpen={isOpen} setIsOpen={close}>
+			<WellModal
+				type='edit'
+				editSection='lands'
+				data={lands}
+				setData={data => setLandsData({ lands: data.well.lands })}
+				isOpen={isOpen}
+				setIsOpen={close}
+			>
 				<WellAddLandsForm />
 			</WellModal>
 		</>

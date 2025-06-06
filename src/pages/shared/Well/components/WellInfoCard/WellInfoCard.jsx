@@ -44,7 +44,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 					<Typography.Title level={2} className='text-card-title'>
 						مشخصات چاه
 					</Typography.Title>
-					{isAdmin && <EditWell wellData={well} setWellData={api.setData} setPageTitle={setPageTitle} />}
+					{isAdmin && <EditWell initialData={well} setData={api.setData} setPageTitle={setPageTitle} />}
 				</Flex>
 
 				<Row gutter={[0, 36]}>

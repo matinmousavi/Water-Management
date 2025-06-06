@@ -14,7 +14,7 @@ const WellModal = ({ children, type = 'add', editSection = 'information', isOpen
 	const well = wellApi.data.well || initialData
 
 	if (isOpen) {
-		if (editSection === 'info') {
+		if (editSection === 'information') {
 			selectApi.init('users', { role: 'irrigator' })
 		} else if (editSection === 'lands') {
 			selectApi.init('lands')
@@ -23,7 +23,7 @@ const WellModal = ({ children, type = 'add', editSection = 'information', isOpen
 
 	useEffect(() => {
 		if (isOpen && type === 'edit' && well) {
-			if (editSection === 'info') {
+			if (editSection === 'information') {
 				form.setFieldsValue({ ...well, irrigator: well.irrigator?._id || null })
 			}
 		}
@@ -55,13 +55,14 @@ const WellModal = ({ children, type = 'add', editSection = 'information', isOpen
 				}
 
 				if (type === 'edit' && typeof setPageTitle === 'function') {
-					setPageTitle(prev => (prev !== response.well.title ? response.well.title : prev))
+					setPageTitle(response.well.title)
 				}
 
 				form.resetFields()
 				handleCancel()
 			}
 		} catch (error) {
+			console.log(error)
 			openNotification('error', 'خطا', error?.error?.message || 'خطایی رخ داده است')
 		}
 	}
