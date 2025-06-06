@@ -8,18 +8,25 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 	const [form] = Form.useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
-	const selectApi=useAPI()
+	const land = api.data?.land || landData
+	const selectApi = useAPI()
 	useEffect(() => {
-		if (type === 'edit' && landData) {
-			form.setFieldsValue(landData)
+		if (type === 'edit' && land) {
+			form.setFieldsValue(land)
 		} else {
 			form.resetFields()
 		}
-	}, [type, landData, form])
+	}, [type, land, form])
 
 	const handleCancel = () => {
-		form.resetFields()
+		if (type === 'add') {
+			form.resetFields()
+		}
 		setIsOpen(false)
+	}
+
+	if (isOpen) {
+		selectApi.init('lands')
 	}
 
 	const handleSubmit = async () => {
@@ -29,8 +36,8 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 
 			if (type === 'add') {
 				response = await api.post('lands', values)
-			} else if (type === 'edit' && landData?._id) {
-				response = await api.patch(`lands/${landData._id}`, values)
+			} else if (type === 'edit' && land?._id) {
+				response = await api.patch(`lands/${land._id}`, values)
 			}
 
 			if (response?.error) {
@@ -45,7 +52,7 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsO
 		}
 	}
 
-	const childWithFormProp = React.isValidElement(children) ? React.cloneElement(children, { form , dataSelects: selectApi.data?.well }) : children
+	const childWithFormProp = React.isValidElement(children) ? React.cloneElement(children, { form, dataSelects: selectApi.data?.well }) : children
 
 	return (
 		<Modal

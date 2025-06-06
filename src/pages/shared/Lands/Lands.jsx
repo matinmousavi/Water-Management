@@ -6,13 +6,16 @@ import Loading from '../../../components/Loading/Loading'
 import LandsTable from './components/LandsTable/LandsTable'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import { useUser } from '../../../contexts/UserContext'
+import useModal from '../../../hooks/useModal'
+import LandForm from '../../../components/Land/LandForm/LandForm'
 
 const { Title } = Typography
 
 const Lands = () => {
 	const { isAdmin } = useUser()
 	const [lands, setLands] = useState([])
-	const [isModalOpen, setIsModalOpen] = useState(false)
+	const { isOpen, open, close } = useModal()
+
 	const api = useAPI()
 
 	useEffect(() => {
@@ -37,7 +40,7 @@ const Lands = () => {
 					زمین‌ها ({lands.length}){' '}
 				</Title>
 				{isAdmin && (
-					<Button type='primary' onClick={() => setIsModalOpen(true)}>
+					<Button type='primary' onClick={open}>
 						افزودن زمین
 					</Button>
 				)}
@@ -45,7 +48,9 @@ const Lands = () => {
 
 			<LandsTable landsData={lands} />
 
-			<LandModal open={isModalOpen} onClose={() => setIsModalOpen(false)} setLandsData={setLands} />
+			<LandModal type='add' isOpen={isOpen} setIsOpen={close} setLandsData={setLands}>
+				<LandForm />
+			</LandModal>
 		</Flex>
 	)
 }

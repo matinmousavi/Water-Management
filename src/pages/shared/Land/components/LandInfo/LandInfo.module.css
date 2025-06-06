@@ -1,0 +1,11 @@
+.infoWrapper {
+	margin-top: 20px;
+	padding: 0;
+}
+
+.line {
+	margin-top: 15px;
+}
+/* ------------- tablet ------------- */
+@media (min-width: 768px) {
+}
