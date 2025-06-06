@@ -13,7 +13,7 @@ const WellsTable = ({ WellsData }) => {
 			render: (text, record) => <Link to={`/wells/${record._id}`}>{text}</Link>,
 		},
 		{
-			title: 'میرآب',
+			title: 'میراب',
 			dataIndex: 'irrigator',
 			key: 'irrigator',
 			render: (irrigator, record) =>

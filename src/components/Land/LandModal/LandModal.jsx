@@ -6,9 +6,9 @@ import useNotification from '../../../hooks/useNotification'
 const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = null, setData, setPageTitle }) => {
 	const [form] = Form.useForm()
 	const landApi = useAPI()
-	const { openNotification } = useNotification()
-	const land = api.data?.land || landData
 	const selectApi = useAPI()
+	const { openNotification } = useNotification()
+
 	useEffect(() => {
 		if (type === 'edit' && initialData) {
 			form.setFieldsValue(initialData)
@@ -25,7 +25,7 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 	}
 
 	if (isOpen) {
-		selectApi.init('lands')
+		selectApi.init('users', { role: 'landOwner' })
 	}
 
 	const handleSubmit = async () => {
@@ -43,7 +43,7 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', `زمین با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد`)
-				setData(prev => (type === 'add' ? [...prev, response.land] : prev.map(l => (l._id === response.land._id ? response.land : l))))
+				setData(response)
 				handleCancel()
 			}
 		} catch (err) {
@@ -51,7 +51,14 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 		}
 	}
 
-	const childWithProps = React.isValidElement(children) ? React.cloneElement(children, { form }) : children
+	const landOwners = selectApi.data?.users || []
+
+	const childWithProps = React.isValidElement(children)
+		? React.cloneElement(children, {
+				form,
+				landOwners,
+		  })
+		: children
 
 	return (
 		<Modal
@@ -62,6 +69,7 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 			okText='ثبت'
 			cancelText='انصراف'
 			confirmLoading={landApi.isLoading}
+			loading={selectApi.isLoading}
 		>
 			{childWithProps}
 		</Modal>

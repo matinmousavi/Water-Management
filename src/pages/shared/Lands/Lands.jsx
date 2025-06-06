@@ -1,56 +1,32 @@
-import { useEffect, useState } from 'react'
-import { Flex, Button, Typography } from 'antd'
+import { Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
-import LandModal from '../../../components/Land/LandModal/LandModal'
 import Loading from '../../../components/Loading/Loading'
 import LandsTable from './components/LandsTable/LandsTable'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import { useUser } from '../../../contexts/UserContext'
-import useModal from '../../../hooks/useModal'
-import LandForm from '../../../components/Land/LandForm/LandForm'
-
-const { Title } = Typography
+import AddLand from './components/AddLand/AddLand'
 
 const Lands = () => {
 	const { isAdmin } = useUser()
-	const [lands, setLands] = useState([])
-	const { isOpen, open, close } = useModal()
 
 	const api = useAPI()
+	api.init('lands')
 
-	useEffect(() => {
-		const fetchLands = async () => {
-			try {
-				const res = await api.get('lands')
-				setLands(res?.lands || [])
-			} catch (err) {
-				console.error('Error loading lands:', err)
-			}
-		}
-		fetchLands()
-	}, [])
+	console.log(api.data)
 
-	if (api.isLoading) return <Loading />
+	if (api.isLoading || !api.data) return <Loading />
 
 	return (
 		<Flex vertical className='main-container'>
 			<Breadcrumbs />
 			<Flex justify='space-between' align='center'>
-				<Title level={1} className='text-page-title'>
-					زمین‌ها ({lands.length}){' '}
-				</Title>
-				{isAdmin && (
-					<Button type='primary' onClick={open}>
-						افزودن زمین
-					</Button>
-				)}
+				<Typography.Title level={1} className='text-page-title'>
+					زمین‌ها ({api.data.lands.length}){' '}
+				</Typography.Title>
+				{isAdmin && <AddLand setData={api.setData} />}
 			</Flex>
 
-			<LandsTable landsData={lands} />
-
-			<LandModal type='add' isOpen={isOpen} setIsOpen={close} setLandsData={setLands}>
-				<LandForm />
-			</LandModal>
+			<LandsTable landsData={api.data.lands} />
 		</Flex>
 	)
 }

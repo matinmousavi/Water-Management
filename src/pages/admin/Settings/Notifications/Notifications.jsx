@@ -102,7 +102,7 @@ const Notifications = () => {
 							<Typography.Title level={2} className='text-h2'>
 								اطلاع رسانی آبرسانی
 							</Typography.Title>
-							<Typography.Text>پیامک حاوی اطلاعات آبرسانی به میرآب و مالک زمین ارسال می‌شود.</Typography.Text>
+							<Typography.Text>پیامک حاوی اطلاعات آبرسانی به میراب و مالک زمین ارسال می‌شود.</Typography.Text>
 
 							<Row gutter={16}>
 								<Col span={12}>

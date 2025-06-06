@@ -1,5 +1,5 @@
-import { Form, Input, Select, Row, Col } from 'antd'
-import SelectOwner from '../../SelectOwner/SelectOwner'
+import { Form, Input, Select } from 'antd'
+import { useUser } from '../../../contexts/UserContext'
 import TextArea from 'antd/es/input/TextArea'
 
 const irrigationOptions = [
@@ -12,15 +12,32 @@ const irrigationOptions = [
 
 const labelColSpan = 8
 const wrapperColSpan = 20
-const LandForm = ({ form, dataSelects }) => {
+
+const LandForm = ({ form, landOwners = [] }) => {
+	const { isAdmin } = useUser()
+
 	return (
 		<Form form={form} layout='horizontal' name='landForm' labelCol={{ span: labelColSpan }} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
 			<Form.Item name='name' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>
-			<Form.Item name='owner' label='نام مالک' rules={[{ required: true, message: 'مالک را وارد کنید' }]}>
-				<SelectOwner />
-			</Form.Item>
+
+			{isAdmin && (
+				<Form.Item name='owner' label='مالک زمین' rules={[{ required: true, message: 'مالک را وارد کنید' }]}>
+					<Select
+						showSearch
+						placeholder='مالک را انتخاب کنید'
+						allowClear
+						style={{ width: '100%' }}
+						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+						options={landOwners.map(owner => ({
+							value: owner._id,
+							label: `${owner.firstName} ${owner.lastName}`,
+						}))}
+						fieldNames={{ value: 'value', label: 'label' }}
+					/>
+				</Form.Item>
+			)}
 
 			<Form.Item
 				name='area'
@@ -32,6 +49,7 @@ const LandForm = ({ form, dataSelects }) => {
 			>
 				<Input />
 			</Form.Item>
+
 			<Form.Item
 				name='kFactor'
 				label='K-Factor'
@@ -42,12 +60,15 @@ const LandForm = ({ form, dataSelects }) => {
 			>
 				<Input />
 			</Form.Item>
+
 			<Form.Item name='product' label='محصول'>
 				<Input />
 			</Form.Item>
+
 			<Form.Item name='irrigationType' label='نوع آبیاری' rules={[{ required: true, message: 'لطفاً نوع آبیاری را انتخاب کنید' }]}>
 				<Select options={irrigationOptions} placeholder='انتخاب نوع آبیاری' allowClear />
 			</Form.Item>
+
 			<Form.Item
 				name='location'
 				label='مکان'
@@ -57,12 +78,6 @@ const LandForm = ({ form, dataSelects }) => {
 				]}
 			>
 				<TextArea />
-			</Form.Item>
-			<Form.Item name='title' label='عنوان چاه'>
-				<Select />
-			</Form.Item>
-			<Form.Item name='irrigation' label='نام میراب'>
-				<Select />
 			</Form.Item>
 		</Form>
 	)
