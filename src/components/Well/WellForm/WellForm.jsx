@@ -1,40 +1,43 @@
-import { Form, Input, Row, Col } from 'antd'
-import SelectIrrigator from '../../SelectIrrigator/SelectIrrigator'
-import { useUser } from '../../../contexts/UserContext';
+import { Form, Input, Select } from 'antd'
+import { useUser } from '../../../contexts/UserContext'
 
-const WellForm = ({ form }) => {
-	const {isAdmin} = useUser();
+const WellForm = ({ form, irrigators = [] }) => {
+	const { isAdmin } = useUser()
+
 	return (
 		<Form form={form} layout='vertical'>
-			<Row gutter={16}>
-				<Col span={12}>
-					<Form.Item name='licenseCode' label='کد پروانه' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input />
-					</Form.Item>
-				</Col>
-				<Col span={12}>
-					<Form.Item name='title' label='عنوان' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input />
-					</Form.Item>
-				</Col>
-				{isAdmin && (
-					<Col span={12}>
-						<Form.Item name='irrigator' label='نام میراب'>
-							<SelectIrrigator />
-						</Form.Item>
-					</Col>
-				)}
-				<Col span={12}>
-					<Form.Item name='cycleDays' label='تعداد روزهای چرخه' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input type='number' />
-					</Form.Item>
-				</Col>
-				<Col span={24}>
-					<Form.Item name='location' label='مکان چاه' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input />
-					</Form.Item>
-				</Col>
-			</Row>
+			<Form.Item label='عنوان چاه' name='title' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Input />
+			</Form.Item>
+
+			{isAdmin && (
+				<Form.Item label='میراب' name='irrigator'>
+					<Select
+						showSearch
+						placeholder='میراب را انتخاب کنید'
+						allowClear
+						style={{ width: '100%' }}
+						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+						options={irrigators?.map(irrigator => ({
+							value: irrigator._id,
+							label: `${irrigator.firstName} ${irrigator.lastName}`,
+						}))}
+						fieldNames={{ value: 'value', label: 'label' }}
+					/>
+				</Form.Item>
+			)}
+
+			<Form.Item label='لایسنس کد' name='licenseCode' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Input />
+			</Form.Item>
+
+			<Form.Item label='روزهای چرخه' name='cycleDays' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Input type='number' />
+			</Form.Item>
+
+			<Form.Item label='مکان' name='location' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Input />
+			</Form.Item>
 		</Form>
 	)
 }

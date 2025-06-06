@@ -1,4 +1,4 @@
-import { Form, Input, Radio, Row, Col } from 'antd'
+import { Form, Input, Radio } from 'antd'
 
 const ROLES = [
 	{ key: 'admin', label: 'مدیر' },
@@ -6,73 +6,64 @@ const ROLES = [
 	{ key: 'landOwner', label: 'مالک زمین' },
 ]
 
+const labelColSpan = 6
+const wrapperColSpan = 18
+
 const UserForm = ({ form }) => {
 	return (
-		<Form form={form} layout='vertical'>
-			<Row gutter={16}>
-				<Col span={12}>
-					<Form.Item name='firstName' label='نام' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input />
-					</Form.Item>
-				</Col>
-				<Col span={12}>
-					<Form.Item name='lastName' label='نام خانوادگی' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input />
-					</Form.Item>
-				</Col>
-				<Col span={24}>
-					<Form.Item name='role' label='نقش' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Radio.Group>
-							{ROLES.map(role => (
-								<Radio key={role.key} value={role.key}>
-									{role.label}
-								</Radio>
-							))}
-						</Radio.Group>
-					</Form.Item>
-				</Col>
-				<Col span={12}>
-					<Form.Item
-						name='email'
-						label='ایمیل'
-						rules={[
-							{
-								pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-								message: 'فرمت ایمیل معتبر نیست',
-							},
-						]}
-					>
-						<Input />
-					</Form.Item>
-				</Col>
-				<Col span={12}>
-					<Form.Item
-						name='mobile'
-						label='شماره موبایل'
-						rules={[
-							{ required: true, message: 'شماره موبایل الزامی است' },
-							{
-								pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/,
-								message: 'شماره موبایل معتبر نیست!',
-							},
-						]}
-					>
-						<Input maxLength={11} inputMode='numeric' />
-					</Form.Item>
-				</Col>
+		<Form form={form} layout='horizontal' labelCol={{ span: labelColSpan }} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
+			<Form.Item label='نام' name='firstName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Input />
+			</Form.Item>
 
-				<Col span={12}>
-					<Form.Item name='accountingCode' label='کد حسابداری' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input />
-					</Form.Item>
-				</Col>
+			<Form.Item label='نام خانوادگی' name='lastName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Input />
+			</Form.Item>
 
-				<Col span={12}>
-					<Form.Item name='address' label='آدرس' rules={[{ required: true, message: 'آدرس الزامی است' }]}>
-						<Input.TextArea rows={1} />
-					</Form.Item>
-				</Col>
-			</Row>
+			<Form.Item label='نقش' name='role' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Radio.Group>
+					{ROLES.map(role => (
+						<Radio key={role.key} value={role.key}>
+							{role.label}
+						</Radio>
+					))}
+				</Radio.Group>
+			</Form.Item>
+
+			<Form.Item
+				label='شماره همراه'
+				name='mobile'
+				rules={[
+					{ required: true, message: 'شماره موبایل الزامی است' },
+					{
+						pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/,
+						message: 'شماره موبایل معتبر نیست!',
+					},
+				]}
+			>
+				<Input maxLength={11} inputMode='numeric' />
+			</Form.Item>
+
+			<Form.Item
+				label='ایمیل'
+				name='email'
+				rules={[
+					{
+						pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+						message: 'فرمت ایمیل معتبر نیست',
+					},
+				]}
+			>
+				<Input />
+			</Form.Item>
+
+			<Form.Item label='کد حسابداری' name='accountingCode'>
+				<Input />
+			</Form.Item>
+
+			<Form.Item label='آدرس' name='address'>
+				<Input.TextArea rows={1} />
+			</Form.Item>
 		</Form>
 	)
 }

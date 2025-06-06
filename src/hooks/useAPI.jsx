@@ -18,7 +18,7 @@ export default function useAPI() {
 	const callsRef = useRef(0)
 	const { openNotification } = useNotification()
 
-	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve, reject } = {}) {
+	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve } = {}) {
 		const requestInit = { method, headers: {}, credentials: 'include', signal }
 		let querystring = ''
 
@@ -88,7 +88,7 @@ export default function useAPI() {
 			throw error
 		} finally {
 			callsRef.current--
-			if (callsRef.current <= 1) setLoading(false)
+			if (callsRef.current === 0) setLoading(false)
 		}
 	}
 

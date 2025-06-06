@@ -10,7 +10,7 @@ const irrigationOptions = [
 ]
 
 const LandForm = ({ form }) => (
-	<Form form={form} layout='vertical' name='landForm'>
+	<Form form={form} layout='horizontal' name='landForm'>
 		<Row gutter={16}>
 			<Col span={12}>
 				<Form.Item name='name' label='نام' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>

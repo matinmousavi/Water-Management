@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Card, Upload, message, Modal, Flex, Typography } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import ImgCrop from 'antd-img-crop'
@@ -124,4 +124,4 @@ const ProfileImageCard = ({ pictureUrl }) => {
 	)
 }
 
-export default ProfileImageCard
+export default React.memo(ProfileImageCard)

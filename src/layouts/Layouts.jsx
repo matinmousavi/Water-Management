@@ -1,9 +1,9 @@
-import { UserOutlined, BellOutlined, MenuOutlined } from '@ant-design/icons'
+import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined } from '@ant-design/icons'
 import { Drawer, Flex, Image, Layout, Menu, Button } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState, useEffect } from 'react'
-import style from './Layouts.module.css'
+import styles from './Layouts.module.css'
 
 const { Header, Content } = Layout
 
@@ -60,43 +60,46 @@ const Layouts = () => {
 			label: <Link to='/profile'></Link>,
 		},
 		{
-			key: '/notifications',
+			key: '/',
 			icon: <BellOutlined />,
-			label: '',
+			label: <Link to='/'></Link>,
+		},
+		{
+			key: '/notification-settings',
+			icon: <SettingOutlined />,
+			label: <Link to='/notification-settings'></Link>,
 		},
 	]
 
 	return (
-		<Layout className={style.layout}>
+		<Layout className={styles.layout}>
 			<Header>
 				<Flex align='center' justify='space-between'>
-					<Flex align='center' gap={6}>
+					<Flex className={styles['w-full']} align='center' gap={10}>
 						<Link to='/'>
 							<Image width={30} src='../assets/images/water.png' preview={false} />
 						</Link>
-						<h2 className={style.title}>مدیریت آب</h2>
+						<h2 className={styles.title}>مدیریت آب</h2>
 
-						{!isMobile && (
-							<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} overflowedIndicator={false} />
-						)}
+						{!isMobile && <Menu className={styles.flex} theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} />}
 					</Flex>
 
 					{!isMobile ? (
-						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} overflowedIndicator={false} />
+						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
 					) : (
-						<Button className={style.button} type='text' icon={<MenuOutlined />} onClick={() => setDrawerVisible(true)} />
+						<Button className={styles.button} type='text' icon={<MenuOutlined />} onClick={() => setDrawerVisible(true)} />
 					)}
 				</Flex>
 			</Header>
 
 			{drawerVisible && (
-				<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible} className={style.mobileDrawer}>
+				<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible}>
 					<Menu mode='vertical' selectedKeys={[location.pathname]} items={mainMenuItems} onClick={() => setDrawerVisible(false)} />
 					<Menu mode='vertical' selectedKeys={[location.pathname]} items={profileMenuItems} />
 				</Drawer>
 			)}
 
-			<Content className={style.content}>
+			<Content className={styles.content}>
 				<Outlet />
 			</Content>
 		</Layout>

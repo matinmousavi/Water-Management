@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { Modal, Form } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
-import LandForm from '../LandForm/LandForm'
+import React from 'react'
 
-const LandModal = ({ type = 'add', landData = null, setLandsData, open, onClose }) => {
+const LandModal = ({ type = 'add', landData = null, setLandsData, isOpen, setIsOpen, children }) => {
 	const [form] = Form.useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
@@ -19,7 +19,7 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, open, onClose 
 
 	const handleCancel = () => {
 		form.resetFields()
-		onClose()
+		setIsOpen(false)
 	}
 
 	const handleSubmit = async () => {
@@ -45,17 +45,19 @@ const LandModal = ({ type = 'add', landData = null, setLandsData, open, onClose 
 		}
 	}
 
+	const childWithFormProp = React.isValidElement(children) ? React.cloneElement(children, { form }) : children
+
 	return (
 		<Modal
 			title={type === 'add' ? 'فرم افزودن زمین' : 'فرم ویرایش زمین'}
-			open={open}
+			open={isOpen}
 			onOk={handleSubmit}
 			onCancel={handleCancel}
 			okText='ذخیره'
 			cancelText='انصراف'
 			confirmLoading={api.isLoading}
 		>
-			<LandForm form={form} />
+			{childWithFormProp}
 		</Modal>
 	)
 }

@@ -1,52 +1,69 @@
-import { Button, Card, Col, Flex, Row, Typography } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
+import React, { useMemo } from 'react'
+import { Card, Col, Flex, Row, Typography } from 'antd'
 import { Link } from 'react-router'
-import english2persian from '../../../../../utils/english2persian';
+import useAPI from '../../../../../hooks/useAPI'
+import EditWell from './components/EditWell/EditWell'
+import { useUser } from '../../../../../contexts/UserContext'
 
-const WellInfoCard = ({ wellData, setIsShowModal }) => {
-	
-	const wellInfoList = [
-		{ label: 'نام میراب', value: wellData.irrigator ? <Link to={`/users/${wellData.irrigator._id}`}>{`${wellData.irrigator.firstName} ${wellData.irrigator.lastName}`}</Link> : '--' },
-		{ label: 'شماره تماس میرآب', value: english2persian(wellData?.irrigator?.mobile) || '--' },
-		{ label: 'License Code', value: wellData?.licenseCode || '--' },
-		{ label: 'Cycle Days', value: wellData?.cycleDays ? `${wellData.cycleDays} روز` : '--' },
-		{ label: 'مکان', value: wellData?.location || '--' },
-	]
+const WellInfoCard = ({ wellInfo, setTitle }) => {
+	const api = useAPI()
+	const well = api.data.well || wellInfo
+	const { isAdmin } = useUser()
 
-	const { Text, Title } = Typography
-	const handleOpenModal = () => {
-		setIsShowModal(true)
-	}
+	const wellInfoItems = useMemo(() => {
+		const irrigator = well?.irrigator
+
+		return [
+			{
+				label: 'نام میراب',
+				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.firstName} ${irrigator.lastName}`}</Link> : '--',
+			},
+			{
+				label: 'شماره تماس میرآب',
+				value: irrigator?.mobile || '--',
+			},
+			{
+				label: 'لایسنس کد',
+				value: well?.licenseCode || '--',
+			},
+			{
+				label: 'روزهای چرخه',
+				value: well?.cycleDays ? `${well.cycleDays} روز` : '--',
+			},
+			{
+				label: 'مکان',
+				value: well?.location || '--',
+			},
+		]
+	}, [well])
+
 	return (
-		<>
-			<Card>
+		<Card>
+			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
-					<Title level={2} className='text-h2'>
+					<Typography.Title level={2} className='text-card-title'>
 						مشخصات چاه
-					</Title>
-					<Button type='default' shape='round' icon={<EditOutlined />} size='middle' onClick={handleOpenModal}>
-						<span>ویرایش</span>
-					</Button>
+					</Typography.Title>
+					{isAdmin && <EditWell wellData={well} setWellData={api.setData} setTitle={setTitle} />}
 				</Flex>
 
-				<div>
-					<Row gutter={[0, 30]}>
-						{wellInfoList.map((item, index) => (
-							<Col xs={24} md={12} key={index}>
-								<Row>
-									<Col xs={6} className='label'>
-										<Text className='text'>{item.label}</Text>
-									</Col>
-									<Col xs={18} className='value'>
-										<Text className='text'>{item.value}</Text>
-									</Col>
-								</Row>
-							</Col>
-						))}
-					</Row>
-				</div>
-			</Card>
-		</>
+				<Row gutter={[0, 36]}>
+					{wellInfoItems.map((item, index) => (
+						<Col xs={24} md={12} key={index}>
+							<Row>
+								<Col xs={6} className='label'>
+									<Typography.Text className='text'>{item.label}</Typography.Text>
+								</Col>
+								<Col xs={18} className='value'>
+									<Typography.Text className='text'>{item.value}</Typography.Text>
+								</Col>
+							</Row>
+						</Col>
+					))}
+				</Row>
+			</Flex>
+		</Card>
 	)
 }
-export default WellInfoCard
+
+export default React.memo(WellInfoCard)

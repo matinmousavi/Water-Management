@@ -1,46 +1,52 @@
+import { useEffect, useState } from 'react'
 import { Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
-import { useEffect, useState } from 'react'
 import Loading from '../../../components/Loading/Loading'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
-import WellAssociatedLands from './components/WellAssociatedLands/WellAssociatedLands'
-import WellModal from '../../../components/Well/WellModal/WellModal'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
 import WellInfoCard from './components/WellInfoCard/WellInfoCard'
-import WaterDistributionLog from './components/WaterDistributionLog/WaterDistributionLog'
-
-const { Title } = Typography
+import WellLandsCard from './components/WellLandsCard/WellLandsCard'
+import WellLogCard from './components/WellLogsCard/WellLogsCard'
+import { useUser } from '../../../contexts/UserContext'
 
 const Well = () => {
-	const [isShowModal, setIsShowModal] = useState(false)
 	const { wellId } = useParams()
-	const wellApi = useAPI()
+	const api = useAPI()
+	const { isAdmin } = useUser()
+
+	const [title, setTitle] = useState('')
+
+	if (wellId) api.init(`wells/${wellId}`)
 
 	useEffect(() => {
-		if (wellId) wellApi.init(`wells/${wellId}`)
-	}, [wellId])
+		if (api.data?.well) {
+			setTitle(api.data.well.title)
+		}
+	}, [api.data?.well])
 
-	const well = wellApi.data?.well
-
-	if (wellApi.isLoading || !well) return <Loading />
+	if (api.isLoading || !api.data?.well) return <Loading />
 
 	return (
 		<>
 			<MetaTitle>ویرایش چاه</MetaTitle>
 			<Flex vertical>
-				<Breadcrumbs data={well} />
+				<Breadcrumbs data={api.data?.well} />
+
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/wells' />
-					<Title className='text-page-title'>{well.title}</Title>
+					<Typography.Title className='text-page-title'>{title}</Typography.Title>
 				</Flex>
-				<WellInfoCard setIsShowModal={setIsShowModal} wellData={well} />
-				<WellAssociatedLands wellData={well} id={wellId} setWellData={wellApi.setData} />
-				<WaterDistributionLog />
-				<DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />
-				<WellModal api={wellApi} wellData={well} setWellsData={wellApi.setData} type='edit' setIsOpen={setIsShowModal} isOpen={isShowModal} />
+
+				<WellInfoCard wellInfo={api.data?.well} setTitle={setTitle} />
+
+				<WellLandsCard wellLands={api.data?.well?.lands} />
+
+				<WellLogCard wellLogs={api.data?.well?.logs} />
+
+				{isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
 			</Flex>
 		</>
 	)

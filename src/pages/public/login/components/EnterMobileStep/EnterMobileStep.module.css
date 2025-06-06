@@ -1,0 +1,7 @@
+.no-star label::before {
+	display: none !important;
+}
+
+.text-center {
+	text-align: center;
+}
