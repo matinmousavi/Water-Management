@@ -4,7 +4,7 @@ import { useUser } from '../../../../../contexts/UserContext'
 
 const WellsTable = ({ WellsData }) => {
 	const { isIrrigator } = useUser()
-	
+
 	const columns = [
 		{
 			title: 'عنوان چاه',
@@ -16,15 +16,14 @@ const WellsTable = ({ WellsData }) => {
 			title: 'میرآب',
 			dataIndex: 'irrigator',
 			key: 'irrigator',
-			render: (irrigator , record) => (
+			render: (irrigator, record) =>
 				irrigator._id ? (
 					<Link to={isIrrigator ? `/wells/${record._id}` : `/users/${irrigator._id}`}>
 						{irrigator.firstName} {irrigator.lastName}
 					</Link>
 				) : (
 					<span>-</span>
-				)
-			),
+				),
 		},
 		{
 			title: 'تعداد زمین',

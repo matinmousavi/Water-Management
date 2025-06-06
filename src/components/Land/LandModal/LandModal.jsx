@@ -7,7 +7,8 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 	const [form] = Form.useForm()
 	const landApi = useAPI()
 	const { openNotification } = useNotification()
-
+	const land = api.data?.land || landData
+	const selectApi = useAPI()
 	useEffect(() => {
 		if (type === 'edit' && initialData) {
 			form.setFieldsValue(initialData)
@@ -17,8 +18,14 @@ const LandModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = nu
 	}, [type, initialData, form])
 
 	const handleCancel = () => {
-		form.resetFields()
+		if (type === 'add') {
+			form.resetFields()
+		}
 		setIsOpen(false)
+	}
+
+	if (isOpen) {
+		selectApi.init('lands')
 	}
 
 	const handleSubmit = async () => {
