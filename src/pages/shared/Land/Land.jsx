@@ -11,6 +11,7 @@ import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import BackButton from '../../../components/BackButton/BackButton'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import LandInfo from './components/LandInfo/LandInfo'
+import { useUser } from '../../../contexts/UserContext'
 
 const { Title } = Typography
 
@@ -21,6 +22,7 @@ const Land = () => {
 	const [noteForm] = Form.useForm()
 	const { openNotification } = useNotification()
 	const cardRef = useRef(null)
+	const { isAdmin } = useUser()
 
 	const landApi = useAPI()
 	const notesApi = useAPI()
@@ -158,8 +160,7 @@ const Land = () => {
 						</Flex>
 					</Card>
 				</div>
-
-				<DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />
+				{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 			</Flex>
 
 			<Modal

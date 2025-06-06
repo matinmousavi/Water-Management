@@ -1,36 +1,114 @@
 import { useState } from 'react'
-import { Form } from 'antd'
+import { Button, Modal, Form } from 'antd'
+import { useUser } from '../../../../../../../contexts/UserContext'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
-import IrrigationModal from '../../../../../../../components/IrrigationModal/IrrigationModal'
-import WellLogForm from '../WellLogForm/WellLogForm'
+import AdminWellLogForm from '../AdminWellLogForm/AdminWellLogForm'
+import IrrigatorWellLogForm from '../IrrigatorWellLogForm/IrrigatorWellLogForm'
 
-const WellEditLog = ({ wellId, initialValues, setLogs, isOpen, close }) => {
+const WellEditLog = ({ logData, setLogs, onClose }) => {
+	const [isOpen, setIsOpen] = useState(true)
 	const [form] = Form.useForm()
-	const [loading, setLoading] = useState(false)
+	const irrigationApi = useAPI()
+	const landsApi = useAPI()
 	const { openNotification } = useNotification()
-	const api = useAPI()
+	const { isAdmin } = useUser()
 
-	const handleEdit = async values => {
-		setLoading(true)
+	const close = () => {
+		setIsOpen(false)
+		onClose?.()
+	}
+
+	const handleCancel = () => {
+		form.resetFields()
+		close()
+	}
+
+	const handleSubmit = async () => {
 		try {
-			const response = await api.patch(`irrigations/${wellId}`, values)
-			if (!response?.error) {
-				openNotification('success', 'لاگ آبیاری با موفقیت ویرایش شد')
-				setLogs(prev => prev.map(item => (item._id === wellId ? { ...item, ...values } : item)))
+			const values = await form.validateFields()
+
+			const payload = { notes: {} }
+
+			if (isAdmin) {
+				payload.startTime = values.startTime
+				payload.isOngoing = values.isOngoing
+				payload.endTime = values.isOngoing ? null : values.endTime
+			} else {
+				if (values.isStart) {
+					payload.startTime = new Date()
+					payload.endTime = null
+					payload.isStart = true
+				}
+				if (values.isEnd) {
+					payload.endTime = new Date()
+					payload.isStart = false
+				}
+			}
+
+			if (values.startNotes) payload.notes.start = values.startNotes
+			if (values.endNotes) payload.notes.end = values.endNotes
+
+			const response = await irrigationApi.patch(`irrigations/${logData._id}`, payload)
+
+			if (response?.error) {
+				openNotification('error', 'خطا', response.message)
+			} else {
+				openNotification('success', 'ویرایش موفق', 'لاگ با موفقیت ویرایش شد.')
+				if (typeof setLogs === 'function') {
+					setLogs(prev => prev.map(item => (item._id === logData._id ? { ...item, ...response.irrigation } : item)))
+				}
+				form.resetFields()
 				close()
 			}
-		} catch (error) {
-			openNotification('error', error?.error?.message || 'خطا در ویرایش لاگ آبیاری')
-		} finally {
-			setLoading(false)
+		} catch (err) {
+			openNotification('error', 'خطا', err?.error?.message || 'خطایی رخ داده است')
 		}
 	}
 
+	const initialFormValues = () => {
+		const values = {
+			landId: logData.land?._id,
+			startNotes: logData.notes?.start || '',
+			endNotes: logData.notes?.end || '',
+		}
+
+		if (isAdmin) {
+			values.startTime = logData.startTime
+			values.endTime = logData.endTime
+			values.isOngoing = !logData.endTime
+		} else {
+			values.isStart = !!logData.startTime
+			values.isEnd = !!logData.endTime
+		}
+
+		form.setFieldsValue(values)
+	}
+
+	// Trigger init lands and set form values on mount
+	useState(() => {
+		landsApi.init('lands')
+		initialFormValues()
+	})
+
 	return (
-		<IrrigationModal type='edit' wellId={wellId} isOpen={isOpen} setIsOpen={close} loading={loading} initialValue={initialValues}>
-			<WellLogForm form={form} onFinish={handleEdit} />
-		</IrrigationModal>
+		<Modal
+			title='ویرایش لاگ توزیع'
+			open={isOpen}
+			onOk={handleSubmit}
+			onCancel={handleCancel}
+			okText='ذخیره'
+			cancelText='انصراف'
+			confirmLoading={irrigationApi.isLoading}
+			loading={landsApi.isLoading}
+			forceRender
+		>
+			{isAdmin ? (
+				<AdminWellLogForm form={form} lands={landsApi.data.lands} />
+			) : (
+				<IrrigatorWellLogForm type='edit' form={form} lands={landsApi.data.lands} />
+			)}
+		</Modal>
 	)
 }
 

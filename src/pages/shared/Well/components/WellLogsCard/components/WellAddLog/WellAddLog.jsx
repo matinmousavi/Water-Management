@@ -1,55 +1,104 @@
-import { Button, Flex } from 'antd'
-import { PlusCircleOutlined } from '@ant-design/icons'
-import useModal from '../../../../../../../hooks/useModal'
-import IrrigationModal from '../../../../../../../components/IrrigationModal/IrrigationModal'
-import WellLogForm from '../WellLogForm/WellLogForm'
 import { useState } from 'react'
+import { Button, Flex, Modal, Form } from 'antd'
+import { PlusCircleOutlined } from '@ant-design/icons'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
+import { useUser } from '../../../../../../../contexts/UserContext'
+import AdminWellLogForm from '../AdminWellLogForm/AdminWellLogForm'
+import IrrigatorWellLogForm from '../IrrigatorWellLogForm/IrrigatorWellLogForm'
+import { useParams } from 'react-router'
 
-const WellAddLog = ({ wellId, setLogs }) => {
-  const { isOpen, open, close } = useModal()
-  const [loading, setLoading] = useState(false)
-  const api = useAPI()
-  const { openNotification } = useNotification()
+const WellAddLog = ({ setLogs }) => {
+	const [isOpen, setIsOpen] = useState(false)
+	const [form] = Form.useForm()
+	const irrigationApi = useAPI()
+	const landsApi = useAPI()
+	const { openNotification } = useNotification()
+	const { isAdmin } = useUser()
+	const { wellId } = useParams()
 
-  const handleSubmit = async (formData) => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/irrigations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, wellId }),
-      })
-      const newLog = await response.json()
-      if (!response.ok) throw new Error(newLog.message || 'خطا در افزودن لاگ')
-      const updatedData = await api.get(`wells/${wellId}`)
-      if (updatedData?.well?.logs) {
-        setLogs(updatedData.well.logs)
-      }
-      openNotification('success', 'لاگ با موفقیت اضافه شد')
-      close()
-    } catch (error) {
-      console.error('Error in WellAddLog:', error)
-      openNotification('error', error.message || 'خطا در افزودن لاگ')
-    } finally {
-      setLoading(false)
-    }
-  }
+	if (isOpen) {
+		landsApi.init('lands')
+	}
 
-  return (
-    <>
-      <Button type='default' size='middle' onClick={open}>
-        <Flex gap={8}>
-          <PlusCircleOutlined />
-          <span>افزودن لاگ</span>
-        </Flex>
-      </Button>
-      <IrrigationModal type='add' wellId={wellId} isOpen={isOpen} setIsOpen={close} loading={loading}>
-        <WellLogForm onFinish={handleSubmit} />
-      </IrrigationModal>
-    </>
-  )
+	const open = () => setIsOpen(true)
+	const close = () => setIsOpen(false)
+
+	const handleCancel = () => {
+		form.resetFields()
+		close()
+	}
+
+	const handleSubmit = async () => {
+		try {
+			const values = await form.validateFields()
+
+			const payload = { landId: values.landId, wellId, notes: {} }
+
+			if (isAdmin) {
+				payload.startTime = values.startTime
+				payload.isOngoing = values.isOngoing
+				payload.endTime = values.isOngoing ? null : values.endTime
+			} else {
+				if (values.isStart) {
+					payload.startTime = new Date()
+					payload.endTime = null
+					payload.isStart = true
+				}
+				if (values.isEnd) {
+					payload.endTime = new Date()
+					payload.isStart = false
+				}
+			}
+
+			if (values.startNotes) payload.notes.start = values.startNotes
+			if (values.endNotes) payload.notes.end = values.endNotes
+
+			const response = await irrigationApi.post('irrigations', payload)
+
+			if (response?.error) {
+				openNotification('error', 'خطا', response.message)
+			} else {
+				openNotification('success', 'عملیات موفق', 'لاگ ایجاد شد.')
+				if (typeof setLogs === 'function') {
+					setLogs(prev => [...prev, response.irrigation])
+				}
+				form.resetFields()
+				handleCancel()
+			}
+		} catch (err) {
+			openNotification('error', 'خطا', err?.error?.message || 'خطایی رخ داده است')
+		}
+	}
+
+	return (
+		<>
+			<Button type='default' size='middle' onClick={open}>
+				<Flex gap={8}>
+					<PlusCircleOutlined />
+					<span>افزودن لاگ</span>
+				</Flex>
+			</Button>
+
+			<Modal
+				title='افزودن لاگ توزیع'
+				open={isOpen}
+				onOk={handleSubmit}
+				onCancel={handleCancel}
+				okText='ذخیره'
+				cancelText='انصراف'
+				confirmLoading={irrigationApi.isLoading}
+				loading={landsApi.isLoading}
+				forceRender
+			>
+				{isAdmin ? (
+					<AdminWellLogForm form={form} lands={landsApi.data.lands} />
+				) : (
+					<IrrigatorWellLogForm type='add' form={form} lands={landsApi.data.lands} />
+				)}
+			</Modal>
+		</>
+	)
 }
 
 export default WellAddLog
