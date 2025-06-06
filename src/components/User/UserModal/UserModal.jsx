@@ -1,28 +1,22 @@
-import { Form, Modal } from 'antd'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { Modal, Form } from 'antd'
 import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
-import { useUser } from '../../../contexts/UserContext'
-import UserForm from '../UserForm/UserForm'
 
-const UserModal = ({ type = 'add', isOpen, setIsOpen, initialUserData, api }) => {
+const UserModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = null, setData, setPageTitle }) => {
 	const [form] = Form.useForm()
 	const { userId } = useParams()
-	const { setUser } = useUser()
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
 
 	useEffect(() => {
-		if (isOpen) {
-			const userData = api.data?.user || initialUserData
-			if (userData) {
-				form.setFieldsValue(userData)
-			}
+		if (isOpen && initialData) {
+			form.setFieldsValue(initialData)
 		}
-	}, [isOpen, api.data?.user, initialUserData, form])
+	}, [isOpen, initialData, form])
 
-	const handleClose = () => {
+	const handleCancel = () => {
 		form.resetFields()
 		setIsOpen(false)
 	}
@@ -30,8 +24,8 @@ const UserModal = ({ type = 'add', isOpen, setIsOpen, initialUserData, api }) =>
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-
 			let response
+
 			if (type === 'add') {
 				response = await userApi.post('users', values)
 			} else {
@@ -39,39 +33,41 @@ const UserModal = ({ type = 'add', isOpen, setIsOpen, initialUserData, api }) =>
 				response = await userApi.patch(endpoint, values)
 			}
 
-			if (!response?.error) {
+			if (response?.error) {
+				openNotification('error', 'خطا', response.message)
+			} else {
 				openNotification('success', 'عملیات موفق', `کاربر با موفقیت ${type === 'add' ? 'افزوده' : 'ویرایش'} شد.`)
 
-				if (type === 'add') {
-					api.setData(prev => ({
-						...prev,
-						users: [...(prev?.users || []), response.user],
-					}))
-				} else {
-					userId ? api.setData(response) : setUser(response)
+				if (typeof setData === 'function') {
+					setData(response)
+					form.resetFields()
 				}
 
-				handleClose()
-			} else {
-				openNotification('error', 'خطا', response.message)
+				if (type === 'edit' && typeof setPageTitle === 'function') {
+					setPageTitle(`${response.user.firstName} ${response.user.lastName}`)
+					form.setFieldsValue(response.user)
+				}
+				handleCancel()
 			}
-		} catch (err) {
-			openNotification('error', 'خطا', err?.error?.message || 'خطایی رخ داد')
+		} catch (error) {
+			openNotification('error', 'خطا', error?.error?.message || 'خطایی رخ داده است')
 		}
 	}
+
+	const childWithProps = React.isValidElement(children) ? React.cloneElement(children, { form }) : children
 
 	return (
 		<Modal
 			title={type === 'add' ? 'افزودن کاربر' : 'ویرایش کاربر'}
 			centered
 			open={isOpen}
-			onCancel={handleClose}
 			onOk={handleSubmit}
+			onCancel={handleCancel}
 			okText='ذخیره'
 			cancelText='انصراف'
 			confirmLoading={userApi.isLoading}
 		>
-			<UserForm form={form} />
+			{childWithProps}
 		</Modal>
 	)
 }

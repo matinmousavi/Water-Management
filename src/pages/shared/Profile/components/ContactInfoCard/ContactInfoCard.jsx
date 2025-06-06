@@ -1,12 +1,15 @@
-import { Card, Typography, Button, Flex } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
+import { Card, Typography, Flex } from 'antd'
 
 import ContactInfoDisplay from './components/ContactInfoDisplay/ContactInfoDisplay'
-import UserModal from '../../../../../components/User/UserModal/UserModal'
-import ModalController from '../../../../../components/ModalController/ModalController'
 import React from 'react'
+import useAPI from '../../../../../hooks/useAPI'
+import EditUser from './components/EditUser/EditUser'
 
-const ContactInfoCard = ({ api, initialUserData }) => {
+const ContactInfoCard = ({ initialData, setPageTitle }) => {
+	const api = useAPI()
+
+	console.log(api.data.user)
+
 	return (
 		<Card>
 			<Flex align='center' justify='space-between'>
@@ -14,20 +17,10 @@ const ContactInfoCard = ({ api, initialUserData }) => {
 					مشخصات کاربر
 				</Typography.Title>
 
-				<ModalController>
-					<ModalController.Trigger>
-						<Button type='default' color='primary' icon={<EditOutlined />} size='middle' disabled={api.isLoading}>
-							ویرایش
-						</Button>
-					</ModalController.Trigger>
-
-					<ModalController.Modal>
-						<UserModal type='edit' initialUserData={initialUserData} api={api} />
-					</ModalController.Modal>
-				</ModalController>
+				<EditUser initialData={initialData} setData={api.setData} setPageTitle={setPageTitle} />
 			</Flex>
 
-			<ContactInfoDisplay userData={api.data.user || initialUserData} />
+			<ContactInfoDisplay userData={api.data.user || initialData} />
 		</Card>
 	)
 }

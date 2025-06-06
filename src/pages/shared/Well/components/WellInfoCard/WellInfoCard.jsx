@@ -5,7 +5,7 @@ import useAPI from '../../../../../hooks/useAPI'
 import EditWell from './components/EditWell/EditWell'
 import { useUser } from '../../../../../contexts/UserContext'
 
-const WellInfoCard = ({ wellInfo, setTitle }) => {
+const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 	const api = useAPI()
 	const well = api.data.well || wellInfo
 	const { isAdmin } = useUser()
@@ -44,7 +44,7 @@ const WellInfoCard = ({ wellInfo, setTitle }) => {
 					<Typography.Title level={2} className='text-card-title'>
 						مشخصات چاه
 					</Typography.Title>
-					{isAdmin && <EditWell wellData={well} setWellData={api.setData} setTitle={setTitle} />}
+					{isAdmin && <EditWell wellData={well} setWellData={api.setData} setPageTitle={setPageTitle} />}
 				</Flex>
 
 				<Row gutter={[0, 36]}>

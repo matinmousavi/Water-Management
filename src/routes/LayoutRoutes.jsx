@@ -12,7 +12,7 @@ import Well from '../pages/shared/Well/Well'
 import Notifications from '../pages/admin/Settings/Notifications/Notifications'
 
 const LayoutRoutes = () => {
-	const { isAdmin, isIrrigator } = useUser()
+	const { isAdmin, isIrrigator, isLandOwner } = useUser()
 
 	return (
 		<Routes>
@@ -27,7 +27,7 @@ const LayoutRoutes = () => {
 					<>
 						<Route path='/users' element={<Users />} />
 						<Route path='/users/:userId' element={<Profile />} />
-						<Route path='/lands' element={<Lands />} />
+
 						<Route path='/settings' element={<Notifications />} />
 					</>
 				)}
@@ -35,6 +35,12 @@ const LayoutRoutes = () => {
 				{(isIrrigator || isAdmin) && (
 					<>
 						<Route path='/wells' element={<Wells />} />
+					</>
+				)}
+
+				{(isLandOwner || isAdmin) && (
+					<>
+						<Route path='/lands' element={<Lands />} />
 					</>
 				)}
 			</Route>

@@ -5,15 +5,15 @@ import useAPI from '../../hooks/useAPI'
 import useNotification from '../../hooks/useNotification'
 import { useUser } from '../../contexts/UserContext'
 
-const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData = null, children }) => {
+const IrrigationModal = ({ children, type = 'add', isOpen, setIsOpen, initialData = null, setData, wellId }) => {
 	const [form] = Form.useForm()
-	const api = useAPI()
-	const landsApi = useAPI()
+	const irrigationApi = useAPI()
+	const selectApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
 
 	if (isOpen) {
-		landsApi.init('lands')
+		selectApi.init('lands')
 	}
 
 	useEffect(() => {
@@ -45,7 +45,7 @@ const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData 
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-			const selectedLand = landsApi.data.lands.find(l => l._id === values.lands)
+			const selectedLand = selectApi.data.lands.find(l => l._id === values.lands)
 			if (!selectedLand) {
 				openNotification('error', 'خطا', 'زمین انتخاب شده نامعتبر است.')
 				return
@@ -74,14 +74,14 @@ const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData 
 
 			let response
 			if (type === 'add') {
-				response = await api.post('irrigations', payload)
+				response = await irrigationApi.post('irrigations', payload)
 			} else {
 				const irrigationId = initialData?._id
 				if (!irrigationId) {
 					openNotification('error', 'خطا', 'شناسه لاگ نامشخص است.')
 					return
 				}
-				response = await api.patch(`irrigations/${irrigationId}`, payload)
+				response = await irrigationApi.patch(`irrigations/${irrigationId}`, payload)
 			}
 
 			if (response?.error) {
@@ -104,14 +104,14 @@ const IrrigationModal = ({ isOpen, setIsOpen, wellId, type = 'add', initialData 
 			onCancel={handleCancel}
 			okText='ذخیره'
 			cancelText='انصراف'
-			confirmLoading={api.isLoading}
-			loading={landsApi.isLoading}
+			confirmLoading={irrigationApi.isLoading}
+			loading={selectApi.isLoading}
 			forceRender
 		>
 			{children &&
 				React.cloneElement(children, {
 					form,
-					lands: landsApi.data.lands || [],
+					lands: selectApi.data.lands || [],
 				})}
 		</Modal>
 	)

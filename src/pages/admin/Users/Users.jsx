@@ -1,12 +1,9 @@
-import React from 'react'
+import { Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import UsersTable from './components/UsersTable/UsersTable'
 import Loading from '../../../components/Loading/Loading'
-import { Button, Flex, Typography } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
-import ModalController from '../../../components/ModalController/ModalController'
-import UserModal from '../../../components/User/UserModal/UserModal'
+import AddUser from './components/AddUser/AddUser'
 
 const Users = () => {
 	const api = useAPI()
@@ -24,20 +21,7 @@ const Users = () => {
 					لیست کاربران ({api.data.users.length})
 				</Typography.Title>
 
-				<ModalController>
-					<ModalController.Trigger>
-						<Button type='primary'>
-							<Flex gap={5} justify='center' align='center'>
-								<PlusOutlined />
-								<span> افزودن کاربر</span>
-							</Flex>
-						</Button>
-					</ModalController.Trigger>
-
-					<ModalController.Modal>
-						<UserModal type='add' api={api} />
-					</ModalController.Modal>
-				</ModalController>
+				<AddUser setUser={api.setData} />
 			</Flex>
 
 			<UsersTable usersData={api.data.users} />

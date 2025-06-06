@@ -9,7 +9,7 @@ const routesConfig = [
 	{ path: '/notification-settings', breadcrumb: 'تنظیمات اطلاع رسانی' },
 	{
 		path: '/users/:id',
-		breadcrumb: data => (data?.firstName && data?.lastName ? `${data.firstName} ${data.lastName}` : 'کاربر'),
+		breadcrumb: data => data?.title || 'کاربر',
 	},
 	{ path: '/wells', breadcrumb: 'چاه ها' },
 	{ path: '/wells/:id', breadcrumb: data => data?.title || 'چاه' },
