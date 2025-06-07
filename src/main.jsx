@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import UserProvider from './contexts/UserContext.jsx'
 import { ConfigProvider } from 'antd'
-import faIR from 'antd/locale/fa_IR'
+import fa_IR from 'antd/locale/fa_IR'
 
 import App from './App.jsx'
 import './index.css'
@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')).render(
 	<StrictMode>
 		<ConfigProvider
 			direction='rtl'
-			locale={faIR}
+			locale={fa_IR}
 			theme={{
 				token: {
 					fontFamily: 'VazirmatnFD',
