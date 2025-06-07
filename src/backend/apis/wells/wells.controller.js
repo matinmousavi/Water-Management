@@ -121,7 +121,12 @@ export const updateWell = async (req, res) => {
 		Object.assign(well, updates)
 		await well.save()
 
-		const updated = await Well.findById(wellId).populate('irrigator').populate('lands')
+		const updated = await Well.findById(wellId)
+			.populate('irrigator')
+			.populate({
+				path: 'lands',
+				populate: [{ path: 'owner' }],
+			})
 
 		return res.status(200).json({
 			message: 'چاه با موفقیت ویرایش شد.',

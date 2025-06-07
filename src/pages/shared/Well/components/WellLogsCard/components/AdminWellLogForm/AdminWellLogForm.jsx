@@ -1,5 +1,6 @@
-import { Form, Select, Checkbox, DatePicker, Input, Row, Col, TimePicker } from 'antd'
+import { Form, Select, Checkbox, Input, Row, Col, TimePicker } from 'antd'
 import { useEffect } from 'react'
+import FaDatePicker from '../../../../../../../components/FaDatePicker/FaDatePicker'
 
 const AdminWellLogForm = ({ form, lands }) => {
 	const labelCol = { span: 8 }
@@ -34,7 +35,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='startDate' noStyle rules={[{ required: true, message: 'تاریخ شروع الزامی است' }]}>
-							<DatePicker style={{ width: '100%' }} />
+							<FaDatePicker style={{ width: '100%' }} />
 						</Form.Item>
 					</Col>
 					<Col span={11}>
@@ -49,7 +50,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='endDate' noStyle>
-							<DatePicker style={{ width: '100%' }} disabled={isOngoing} />
+							<FaDatePicker style={{ width: '100%' }} disabled={isOngoing} />
 						</Form.Item>
 					</Col>
 					<Col span={11}>
