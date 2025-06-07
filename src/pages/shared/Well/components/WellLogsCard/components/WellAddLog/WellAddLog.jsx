@@ -32,8 +32,9 @@ const WellAddLog = ({ setLogs }) => {
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
+			console.log(values)
 
-			const payload = { landId: values.landId, wellId, notes: {} }
+			const payload = { landId: values.lands, wellId, notes: {} }
 
 			if (isAdmin) {
 				payload.startTime = values.startTime
