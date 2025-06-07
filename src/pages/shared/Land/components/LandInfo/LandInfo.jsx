@@ -5,7 +5,7 @@ import useAPI from '../../../../../hooks/useAPI'
 import { Link } from 'react-router'
 import { useUser } from '../../../../../contexts/UserContext'
 
-const LandInfo = ({ landData }) => {
+const LandInfo = ({ landData, setPageTitle }) => {
 	const api = useAPI()
 	const { isAdmin } = useUser()
 	const land = api.data?.land || landData
@@ -61,7 +61,7 @@ const LandInfo = ({ landData }) => {
 					<Title level={2} className='text-h2'>
 						مشخصات زمین
 					</Title>
-					<LandEdit initialValue={land} setData={api.setData} />
+					<LandEdit initialValue={land} setData={api.setData} setPageTitle={setPageTitle} />
 				</Flex>
 
 				<Row gutter={[36, 0]}>

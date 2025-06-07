@@ -84,8 +84,10 @@ export const createLand = async (req, res) => {
 			await well.save()
 		}
 
-		const populatedLand = await newLand.populate('owner')
-		return res.status(201).json({ message: 'زمین با موفقیت ایجاد شد.', land: populatedLand })
+		const populatedLand = await Land.findById(newLand._id).populate('owner').lean()
+		const landWithWells = await attachWells(populatedLand)
+
+		return res.status(201).json({ message: 'زمین با موفقیت ایجاد شد.', land: landWithWells })
 	} catch (err) {
 		console.error(err.message)
 		if (err.code === 11000) {
@@ -131,7 +133,7 @@ export const updateLand = async (req, res) => {
 		const populatedLand = await Land.findById(landId).populate('owner').lean()
 		const updated = await attachWells(populatedLand)
 
-		return res.status(200).json({ message: 'زمین با موفقیت ویرایش شد.', updated })
+		return res.status(200).json({ message: 'زمین با موفقیت ویرایش شد.', land: updated })
 	} catch (err) {
 		console.error(err.message)
 		if (err.code === 11000) {

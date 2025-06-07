@@ -1,7 +1,7 @@
 import mongoose from '../../config/database.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import Land from '../../models/Land.model.js'
-import { sendTemplatedSMS } from '../../../utils/sendTemplatedSMS.js'
+import { sendTemplatedSMS } from '../../utils/sendTemplatedSMS.js'
 
 const fieldTranslations = {
 	land: 'زمین',

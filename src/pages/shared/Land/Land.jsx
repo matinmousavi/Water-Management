@@ -31,6 +31,8 @@ const Land = () => {
 	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
 	const [selectedNote, setSelectedNote] = useState(null)
 
+	const [pageTitle, setPageTitle] = useState('')
+
 	const fetchLand = async () => {
 		try {
 			const response = await landApi.get(`lands/${landId}`)
@@ -49,6 +51,12 @@ const Land = () => {
 			fetchLand()
 		}
 	}, [landId])
+
+	useEffect(() => {
+		if (landData?.name) {
+			setPageTitle(landData.name)
+		}
+	}, [landData])
 
 	const handleOpenAddNoteModal = () => {
 		setIsNoteEditMode(false)
@@ -98,18 +106,18 @@ const Land = () => {
 
 	return (
 		<>
-			<MetaTitle>ویرایش زمین</MetaTitle>
+			<MetaTitle>{pageTitle || 'ویرایش زمین'}</MetaTitle>
 
 			<Flex vertical gap={10}>
-				<Breadcrumbs data={landData} />
+				<Breadcrumbs data={{ title: pageTitle }} />
 				<Flex>
 					<BackButton backTo={'wells'} />
 					<Title level={1} className='text-h3'>
-						{landData.name}
+						{pageTitle}
 					</Title>
 				</Flex>
 
-				<LandInfo landData={landData} />
+				<LandInfo landData={landData} setPageTitle={setPageTitle} />
 
 				<div ref={cardRef} className={styles.commentContainer}>
 					<Card className={styles.card}>

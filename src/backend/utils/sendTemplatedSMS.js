@@ -1,6 +1,6 @@
-import MessageTemplates from '../backend/models/messageTemplate.model.js'
-import { renderTemplate } from '../utils/renderTemplate.js'
-import sendSMS from '../services/sendSMS.js'
+import MessageTemplates from '../models/messageTemplate.model.js'
+import { renderTemplate } from './renderTemplate.js'
+import sendSMS from '../../services/sendSMS.js'
 
 export async function sendTemplatedSMS({ to, key, variables = {} }) {
 	const template = await MessageTemplates.findOne({ key })

@@ -1,31 +1,68 @@
-import { Button, Flex } from 'antd'
+import React, { useCallback } from 'react'
+import { Button, Flex, Modal, Form } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
-import UserModal from '../../../../../components/User/UserModal/UserModal'
-import UserForm from '../../../../../components/User/UserForm/UserForm'
 import useModal from '../../../../../hooks/useModal'
+import useAPI from '../../../../../hooks/useAPI'
+import useNotification from '../../../../../hooks/useNotification' // اینو اضافه کن
+import UserForm from '../../../../../components/User/UserForm/UserForm'
 
 const AddUser = ({ setUser }) => {
-	const { isOpen, open, close } = useModal()
+	const { isOpen, open, close, handleAfterChange } = useModal()
+	const [form] = Form.useForm()
+	const userApi = useAPI()
+	const { openNotification } = useNotification() // هوک رو صدا بزن
 
-	const handleSetUser = ({ user }) => {
-		setUser(prev => ({
-			...prev,
-			users: [...(prev?.users || []), user],
-		}))
+	const handleOpen = () => {
+		form.resetFields()
 	}
+
+	const handleCancel = () => {
+		close(() => form.resetFields(), 'after')
+	}
+
+	const handleSubmit = useCallback(async () => {
+		try {
+			const values = await form.validateFields()
+			const response = await userApi.post('users', values)
+
+			if (response?.error) {
+				openNotification('error', 'خطا', response.message)
+			} else {
+				openNotification('success', 'عملیات موفق', 'کاربر با موفقیت افزوده شد.')
+				setUser(prev => ({
+					...prev,
+					users: [...(prev?.users || []), response.user],
+				}))
+				close(() => form.resetFields(), 'after')
+			}
+		} catch (err) {
+			openNotification('error', 'خطا', err?.error?.message || 'خطایی رخ داده است')
+		}
+	}, [form, userApi, close, setUser, openNotification])
 
 	return (
 		<>
-			<Button type='primary' onClick={open}>
+			<Button type='primary' onClick={() => open(handleOpen, 'before')}>
 				<Flex gap={5} align='center' justify='center'>
 					<PlusOutlined />
 					<span>افزودن کاربر</span>
 				</Flex>
 			</Button>
 
-			<UserModal type='add' isOpen={isOpen} setIsOpen={close} setData={handleSetUser}>
-				<UserForm />
-			</UserModal>
+			<Modal
+				title='افزودن کاربر'
+				open={isOpen}
+				onOk={handleSubmit}
+				onCancel={handleCancel}
+				afterOpenChange={handleAfterChange}
+				confirmLoading={userApi.isLoading}
+				okText='ذخیره'
+				cancelText='انصراف'
+				forceRender
+				centered
+			>
+				<UserForm form={form} />
+			</Modal>
 		</>
 	)
 }

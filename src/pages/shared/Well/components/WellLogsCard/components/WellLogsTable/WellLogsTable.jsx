@@ -7,7 +7,7 @@ import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
 import WellEditLog from '../WellEditLog/WellEditLog'
 
-const WellLogsTable = ({ data, setLogs, wellId }) => {
+const WellLogsTable = ({ data, setLogs }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen } = useModal()
@@ -60,7 +60,7 @@ const WellLogsTable = ({ data, setLogs, wellId }) => {
 			title: 'عنوان زمین',
 			dataIndex: ['land', 'name'],
 			key: 'landName',
-			render: (text, record) => <Link to={`/lands/${record.land._id}`}>{text}</Link> || '--',
+			render: (text, record) => <Link to={`/lands/${record.land?._id}`}>{text}</Link> || '--',
 		},
 		{
 			title: 'نام ایجاد کننده لاگ',
@@ -81,6 +81,8 @@ const WellLogsTable = ({ data, setLogs, wellId }) => {
 			),
 		},
 	]
+
+	console.log(data)
 
 	return (
 		<>

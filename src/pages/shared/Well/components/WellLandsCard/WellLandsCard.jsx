@@ -2,9 +2,9 @@ import { Card, Flex, Typography } from 'antd'
 import useAPI from '../../../../../hooks/useAPI'
 import WellLandsTable from './components/WellLandsTable/WellLandsTable'
 import React from 'react'
-import WellAddLands from './components/WellAddLand/WellAddLands'
 import { useParams } from 'react-router'
 import { useUser } from '../../../../../contexts/UserContext'
+import WellAddLand from './components/WellAddLand/WellAddLand'
 
 const WellLandsCard = ({ wellLands }) => {
 	const api = useAPI()
@@ -20,7 +20,7 @@ const WellLandsCard = ({ wellLands }) => {
 					<Typography.Title level={2} className='text-card-title'>
 						لیست زمین ها ({lands?.length})
 					</Typography.Title>
-					{isAdmin && <WellAddLands lands={{ lands: lands }} setLandsData={api.setData} />}
+					{isAdmin && <WellAddLand lands={lands} setLandsData={api.setData} />}
 				</Flex>
 				{lands.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} />}
 			</Flex>

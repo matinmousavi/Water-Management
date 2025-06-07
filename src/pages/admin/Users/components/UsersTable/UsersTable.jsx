@@ -2,7 +2,7 @@ import { Avatar, Button, Input, Table } from 'antd'
 import { Link } from 'react-router'
 import { SearchOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons'
 import React from 'react'
-import useTableHeight from '../../../../../hooks/useTableHeight'
+import useContainerHeight from '../../../../../hooks/useContainerHeight'
 
 import styles from './UsersTable.module.css'
 
@@ -50,7 +50,7 @@ const columns = [
 		title: <Avatar size={35} icon={<UserOutlined />} style={{ visibility: 'hidden' }} />,
 		dataIndex: 'profilePicture',
 		key: 'profilePicture',
-		width: 40,
+		width: 50,
 		render: (_, record) => {
 			return record?.profilePicture?.url ? (
 				<Avatar src={record.profilePicture?.url} size={35} icon={<UserOutlined />} />
@@ -94,22 +94,24 @@ const columns = [
 ]
 
 const UsersTable = ({ usersData }) => {
-	const { pageSize } = useTableHeight()
+	const [containerRef, height] = useContainerHeight(40)
 
 	return (
-		<Table
-			pagination={{
-				position: ['bottomCenter'],
-				total: usersData.length,
-				pageSize,
-			}}
-			className={styles.table}
-			columns={columns}
-			dataSource={usersData}
-			rowKey={record => record._id}
-			size='small'
-			bordered
-		/>
+		<div ref={containerRef}>
+			<Table
+				pagination={{
+					position: ['bottomCenter'],
+					total: usersData.length,
+				}}
+				className={styles.table}
+				columns={columns}
+				dataSource={usersData}
+				rowKey={record => record._id}
+				size='small'
+				bordered
+				scroll={{ y: height }}
+			/>
+		</div>
 	)
 }
 

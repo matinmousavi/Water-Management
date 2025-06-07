@@ -6,8 +6,6 @@ import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import { useUser } from '../../../contexts/UserContext'
 import AddWell from './components/AddWell/AddWell'
 
-const { Title } = Typography
-
 const Wells = () => {
 	const { user, isAdmin } = useUser()
 
@@ -20,9 +18,9 @@ const Wells = () => {
 		<Flex vertical className='main-container'>
 			<Breadcrumbs />
 			<Flex justify='space-between' align='center'>
-				<Title level={1} className='text-page-title'>
+				<Typography.Title level={1} className='text-page-title'>
 					لیست چاه‌ها ({api.data.wells.length})
-				</Title>
+				</Typography.Title>
 
 				{isAdmin && <AddWell setData={api.setData} />}
 			</Flex>
