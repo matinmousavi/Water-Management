@@ -140,7 +140,7 @@ const MyModal = () => {
 			<Button onClick={() => open(onBeforeOpen, 'before')}>Open Modal (Before)</Button>
 			<Button onClick={() => open(onAfterOpen, 'after')}>Open Modal (After)</Button>
 
-			<Modal title='Example Modal' open={isOpen} onCancel={() => close(onBeforeClose, 'before')} afterOpenChange={open => handleAfterChange(open)}>
+			<Modal title='Example Modal' open={isOpen} onCancel={() => close(onBeforeClose, 'before')} afterOpenChange={handleAfterChange}>
 				Modal content here
 			</Modal>
 		</>

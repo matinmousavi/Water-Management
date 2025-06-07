@@ -8,6 +8,8 @@ import EditUser from './components/EditUser/EditUser'
 const ContactInfoCard = ({ initialValue, setPageTitle }) => {
 	const api = useAPI()
 
+	console.log(api.data)
+
 	return (
 		<Card>
 			<Flex align='center' justify='space-between'>
