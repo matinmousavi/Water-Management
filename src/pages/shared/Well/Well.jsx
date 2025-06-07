@@ -29,6 +29,8 @@ const Well = () => {
 		}
 	}, [api.data?.well])
 
+	console.log(api.data)
+
 	if (api.isLoading || !api.data?.well) return <Loading />
 
 	return (

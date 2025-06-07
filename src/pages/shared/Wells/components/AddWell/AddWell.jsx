@@ -1,15 +1,17 @@
 import { useCallback } from 'react'
-import { Button, Flex, Modal, Form, notification } from 'antd'
+import { Button, Flex, Modal, Form } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import useModal from '../../../../../hooks/useModal'
 import useAPI from '../../../../../hooks/useAPI'
 import WellForm from '../../../../../components/Well/WellForm/WellForm'
+import useNotification from '../../../../../hooks/useNotification'
 
 const AddWell = ({ setData }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
 	const wellApi = useAPI()
 	const irrigatorsApi = useAPI()
+	const { openNotification } = useNotification()
 
 	const handleOpen = () => {
 		irrigatorsApi.init('users', { role: 'irrigator' })
@@ -25,30 +27,20 @@ const AddWell = ({ setData }) => {
 			const response = await wellApi.post('wells', values)
 
 			if (response?.error) {
-				notification.error({
-					message: 'خطا',
-					description: response.message,
-				})
+				openNotification('error', 'خطا', response.message || 'خطایی در ثبت چاه رخ داده است.')
 			} else {
-				notification.success({
-					message: 'عملیات موفق',
-					description: 'چاه با موفقیت افزوده شد.',
-				})
+				openNotification('success', 'عملیات موفق', 'چاه با موفقیت افزوده شد.')
 				setData(prev => ({
 					...prev,
 					wells: [...(prev?.wells || []), response.well],
 				}))
-				close(() => {
-					form.resetFields()
-				}, 'after')
+				close(() => form.resetFields(), 'after')
 			}
 		} catch (err) {
-			notification.error({
-				message: 'خطا',
-				description: err?.error?.message || 'خطایی رخ داده است',
-			})
+			console.error(err)
+			openNotification('error', 'خطا', err?.error?.message || err?.message || 'خطایی رخ داده است')
 		}
-	}, [form, wellApi, close, setData])
+	}, [form, wellApi, close, setData, openNotification])
 
 	return (
 		<>
@@ -71,7 +63,7 @@ const AddWell = ({ setData }) => {
 				cancelText='انصراف'
 				forceRender
 			>
-				<WellForm form={form} irrigators={irrigatorsApi.data.users} />
+				<WellForm form={form} irrigators={irrigatorsApi.data?.users || []} />
 			</Modal>
 		</>
 	)

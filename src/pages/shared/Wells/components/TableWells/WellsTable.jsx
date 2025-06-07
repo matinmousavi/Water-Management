@@ -1,9 +1,11 @@
 import { Table } from 'antd'
 import { Link } from 'react-router'
 import { useUser } from '../../../../../contexts/UserContext'
+import useContainerHeight from '../../../../../hooks/useContainerHeight'
 
 const WellsTable = ({ WellsData }) => {
 	const { isIrrigator } = useUser()
+	const [containerRef, height] = useContainerHeight(40)
 
 	const columns = [
 		{
@@ -17,7 +19,7 @@ const WellsTable = ({ WellsData }) => {
 			dataIndex: 'irrigator',
 			key: 'irrigator',
 			render: (irrigator, record) =>
-				irrigator._id ? (
+				irrigator?._id ? (
 					<Link to={isIrrigator ? `/wells/${record._id}` : `/users/${irrigator._id}`}>
 						{irrigator.firstName} {irrigator.lastName}
 					</Link>
@@ -44,14 +46,20 @@ const WellsTable = ({ WellsData }) => {
 	]
 
 	return (
-		<Table
-			pagination={{ position: ['bottomCenter'], total: WellsData.length, pageSize: 6 }}
-			columns={columns}
-			dataSource={WellsData}
-			rowKey={record => record._id}
-			bordered
-			size='small'
-		/>
+		<div ref={containerRef}>
+			<Table
+				columns={columns}
+				dataSource={WellsData}
+				rowKey={record => record._id}
+				pagination={{
+					position: ['bottomCenter'],
+					total: WellsData.length,
+				}}
+				scroll={{ y: height }}
+				bordered
+				size='small'
+			/>
+		</div>
 	)
 }
 
