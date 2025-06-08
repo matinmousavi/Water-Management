@@ -12,20 +12,13 @@ const irrigationSchema = new mongoose.Schema(
 			ref: 'Well',
 			required: true,
 		},
-		startTime: {
+		start: {
 			type: Date,
 			required: true,
 		},
-		endTime: {
+		end: {
 			type: Date,
-			// validate: {
-			// 	validator: function (value) {
-			// 		return value > this.startTime
-			// 	},
-			// 	message: 'endTime باید بعد از startTime باشد.',
-			// },
 		},
-
 		durationMinutes: {
 			type: Number,
 			min: 1,

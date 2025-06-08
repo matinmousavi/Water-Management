@@ -5,6 +5,7 @@ import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import AdminWellLogForm from '../AdminWellLogForm/AdminWellLogForm'
 import IrrigatorWellLogForm from '../IrrigatorWellLogForm/IrrigatorWellLogForm'
+import dayjs from 'dayjs'
 
 const WellEditLog = ({ logData, setLogs, onClose }) => {
 	const [isOpen, setIsOpen] = useState(true)
@@ -32,7 +33,9 @@ const WellEditLog = ({ logData, setLogs, onClose }) => {
 
 			if (isAdmin) {
 				payload.startTime = values.startTime
+				payload.startDate = values.startDate
 				payload.isOngoing = values.isOngoing
+				payload.endDate = values.isOngoing ? null : values.endDate
 				payload.endTime = values.isOngoing ? null : values.endTime
 			} else {
 				if (values.isStart) {
@@ -74,20 +77,22 @@ const WellEditLog = ({ logData, setLogs, onClose }) => {
 		}
 
 		if (isAdmin) {
-			values.startTime = logData.startTime
-			values.endTime = logData.endTime
-			values.isOngoing = !logData.endTime
+			values.startTime = dayjs(logData.start)
+			values.endTime = dayjs(logData.end)
+			values.startDate = dayjs(logData.start)
+			values.endDate = dayjs(logData.end)
+			values.isOngoing = !logData.end
 		} else {
-			values.isStart = !!logData.startTime
-			values.isEnd = !!logData.endTime
+			values.isStart = !!logData.start
+			values.isEnd = !!logData.end
 		}
 
 		form.setFieldsValue(values)
 	}
 
 	// Trigger init lands and set form values on mount
+	landsApi.init('lands')
 	useState(() => {
-		landsApi.init('lands')
 		initialFormValues()
 	})
 
