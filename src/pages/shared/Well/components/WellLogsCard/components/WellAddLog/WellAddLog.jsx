@@ -32,21 +32,23 @@ const WellAddLog = ({ setLogs }) => {
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-			console.log(values)
 
-			const payload = { landId: values.lands, wellId, notes: {} }
+			const payload = { landId: values.landId, wellId, notes: {} }
 
 			if (isAdmin) {
+				payload.startDate = values.startDate
 				payload.startTime = values.startTime
 				payload.isOngoing = values.isOngoing
 				payload.endTime = values.isOngoing ? null : values.endTime
 			} else {
 				if (values.isStart) {
+					payload.startDate = new Date()
 					payload.startTime = new Date()
 					payload.endTime = null
 					payload.isStart = true
 				}
 				if (values.isEnd) {
+					payload.endDate = new Date()
 					payload.endTime = new Date()
 					payload.isStart = false
 				}

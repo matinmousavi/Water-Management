@@ -32,7 +32,6 @@ const AddLand = ({ setData }) => {
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', 'زمین با موفقیت افزوده شد.')
-				console.log(response)
 				setData(prev => ({
 					...prev,
 					lands: [...(prev?.lands || []), response.land],
