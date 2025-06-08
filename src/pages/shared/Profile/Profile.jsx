@@ -1,4 +1,4 @@
-import { Flex, Typography } from 'antd'
+import { Flex, Tag, Typography } from 'antd'
 import { useParams } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 
@@ -10,6 +10,7 @@ import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
+import { EditOutlined } from '@ant-design/icons'
 
 const { Title } = Typography
 
@@ -51,6 +52,12 @@ const Profile = () => {
 					<Title level={1} className='text-page-title'>
 						{pageTitle}
 					</Title>
+
+					<Tag color='green'>
+						<Flex align='center' gap={3}>
+							فعال <EditOutlined />
+						</Flex>
+					</Tag>
 				</Flex>
 
 				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />

@@ -1,4 +1,4 @@
-import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined } from '@ant-design/icons'
+import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
 import { Drawer, Flex, Image, Layout, Menu, Button } from 'antd'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
@@ -8,7 +8,7 @@ import styles from './Layouts.module.css'
 const { Header, Content } = Layout
 
 const Layouts = () => {
-	const { isAdmin, isIrrigator } = useUser()
+	const { isAdmin, isIrrigator, logout } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
 	const [isMobile, setIsMobile] = useState(false)
@@ -60,18 +60,24 @@ const Layouts = () => {
 			label: <Link to='/profile'></Link>,
 		},
 		{
-			key: '/',
+			key: '/bell',
 			icon: <BellOutlined />,
 			label: <Link to='/'></Link>,
 		},
 	]
 
 	if (isAdmin) {
-		profileMenuItems.push({
-			key: '/settings',
-			icon: <SettingOutlined />,
-			label: <Link to='/settings'></Link>,
-		})
+		profileMenuItems.push(
+			{
+				key: '/settings',
+				icon: <SettingOutlined />,
+				label: <Link to='/settings'></Link>,
+			},
+			{
+				key: 'logout',
+				icon: <LogoutOutlined onClick={logout} />,
+			}
+		)
 	}
 
 	return (
@@ -80,9 +86,9 @@ const Layouts = () => {
 				<Flex align='center' justify='space-between'>
 					<Flex className={styles['w-full']} align='center' gap={10}>
 						<Link to='/'>
-							<Image width={30} src='../assets/images/water.png' preview={false} />
+							<Image width={30} src='../assets/images/default-logo.png' preview={false} />
 						</Link>
-						<h2 className={styles.title}>مدیریت آب</h2>
+						<h3 className={styles.title}>مدیریت آب</h3>
 
 						{!isMobile && <Menu className={styles.flex} theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} />}
 					</Flex>
