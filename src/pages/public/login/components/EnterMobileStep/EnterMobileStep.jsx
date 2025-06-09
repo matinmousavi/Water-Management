@@ -24,14 +24,10 @@ const EnterMobileStep = ({ setStep, setMobile, setExpireDate }) => {
 
 	return (
 		<>
-			<div className={styles['text-center']}>
-				<Typography.Text>برای ورود، شماره موبایل خود را وارد کنید.</Typography.Text>
-			</div>
-
 			<Form form={form} layout='vertical' onFinish={handleSubmit}>
-				<Flex vertical gap={20}>
+				<Flex vertical justify='space-between' className={styles.formContainer} gap={20}>
 					<Form.Item
-						className={styles['no-star']}
+						className={styles.formItem}
 						label='شماره موبایل خود را وارد وارد کنید'
 						name='mobile'
 						rules={[
