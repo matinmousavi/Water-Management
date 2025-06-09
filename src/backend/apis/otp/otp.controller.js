@@ -5,7 +5,7 @@ import User from '../../models/User.model.js'
 const isProd = import.meta.env?.PROD
 
 const generateOTP = () => {
-	return Math.floor(100000 + Math.random() * 900000).toString()
+	return Math.floor(1000 + Math.random() * 9000).toString()
 }
 
 export const sendOtp = async (req, res) => {

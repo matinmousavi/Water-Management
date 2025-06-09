@@ -1,4 +1,4 @@
-import { Avatar, Button, Input, Table } from 'antd'
+import { Avatar, Button, Input, Table, Tag } from 'antd'
 import { Link } from 'react-router'
 import { SearchOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons'
 import React from 'react'
@@ -90,6 +90,12 @@ const columns = [
 		title: 'کد حسابداری',
 		dataIndex: 'accountingCode',
 		key: 'accountingCode',
+	},
+	{
+		title: 'وضعیت',
+		dataIndex: 'status',
+		key: 'status',
+		render: () => <Tag color='green'>فعال</Tag>,
 	},
 ]
 
