@@ -43,8 +43,6 @@ const LandEdit = ({ initialValue, setData, setPageTitle }) => {
 				openNotification('success', 'عملیات موفق', 'زمین با موفقیت ویرایش شد')
 				setData?.({ land: response.land })
 
-				console.log(response)
-
 				if (typeof setPageTitle === 'function') {
 					const newTitle = response.land.name
 					setPageTitle(prev => (newTitle !== prev ? newTitle : prev))

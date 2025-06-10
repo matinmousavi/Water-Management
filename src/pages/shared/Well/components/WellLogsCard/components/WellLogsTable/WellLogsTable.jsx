@@ -32,16 +32,12 @@ const WellLogsTable = ({ data, setLogs }) => {
 
 	const columns = [
 		{
-			title: 'تاریخ',
-			dataIndex: 'createdAt',
-			key: 'createdAt',
-			render: createdAt => new Date(createdAt).toLocaleDateString('fa-IR'),
+			title: 'تاریخ شروع',
+			render: record => new Date(record.start).toLocaleDateString('fa-IR'),
 		},
 		{
 			title: 'ساعت شروع',
-			dataIndex: 'startTime',
-			key: 'startTime',
-			render: startTime => (startTime ? new Date(startTime).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'),
+			render: record => (record.start ? new Date(record.start).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
@@ -81,8 +77,6 @@ const WellLogsTable = ({ data, setLogs }) => {
 			),
 		},
 	]
-
-	console.log(data)
 
 	return (
 		<>

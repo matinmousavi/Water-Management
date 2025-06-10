@@ -35,6 +35,10 @@
 	padding-top: 0.5rem;
 }
 
+.ant-otp .ant-otp-input-wrapper {
+	margin-left: 16px !important;
+}
+
 @media (min-width: 1440px) {
 	.ant-modal {
 		max-width: 520px;

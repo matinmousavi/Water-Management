@@ -3,7 +3,7 @@ import EnterMobileStep from './components/EnterMobileStep/EnterMobileStep'
 import VerifyOtpStep from './components/VerifyOtpStep/VerifyOtpStep'
 import { Flex, Card, Typography } from 'antd'
 import styles from './Login.module.css'
-import img from '../../../assets/images/water.png'
+import img from '../../../assets/images/default-logo.png'
 
 const Login = () => {
 	const [step, setStep] = useState(1)
@@ -13,9 +13,9 @@ const Login = () => {
 	return (
 		<Flex className={styles.container} justify='center' align='center'>
 			<Card className={styles.card}>
-				<Flex vertical gap={16}>
-					<Flex justify='center' align='center' gap={10}>
-						<img src={img} alt='Water Logo' width={55} />
+				<Flex vertical justify='center' gap={16}>
+					<Flex vertical justify='center' align='center' gap={10}>
+						<img src={img} alt='Water Logo' width={30} />
 						<Typography.Title level={2}>مدیریت آب</Typography.Title>
 					</Flex>
 

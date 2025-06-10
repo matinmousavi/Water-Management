@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Table, Tag } from 'antd'
 import { Link } from 'react-router-dom'
 
 const LandsTable = ({ landsData = [] }) => {
@@ -35,11 +35,11 @@ const LandsTable = ({ landsData = [] }) => {
 			filterSearch: true,
 			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
 		},
-		{
-			title: 'محصول',
-			dataIndex: 'cropType',
-			key: 'cropType',
-		},
+		// {
+		// 	title: 'محصول',
+		// 	dataIndex: 'cropType',
+		// 	key: 'cropType',
+		// },
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
@@ -62,12 +62,12 @@ const LandsTable = ({ landsData = [] }) => {
 			render: (_, record) => record.owner.mobile,
 		},
 		{
-			title: 'عنوان چاه‌ها',
+			title: 'عنوان چاه‌',
 			key: 'wellTitles',
 			render: (_, record) => record.wells?.map(well => well.title).join('-'),
 		},
 		{
-			title: 'میراب',
+			title: 'میرآب',
 			key: 'irrigator',
 			filters: allIrrigators,
 			onFilter: (value, record) => {
@@ -92,6 +92,7 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
+			render: () => <Tag color='green'>فعال</Tag>,
 		},
 	]
 

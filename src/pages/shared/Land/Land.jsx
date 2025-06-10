@@ -1,4 +1,6 @@
 import { Flex, Typography } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
+
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import { useEffect, useState } from 'react'
@@ -49,11 +51,17 @@ const Land = () => {
 
 			<Flex vertical gap={10}>
 				<Breadcrumbs data={{ title: pageTitle }} />
-				<Flex>
+				<Flex align='center'>
 					<BackButton backTo={'wells'} />
 					<Title level={1} className='text-h3'>
 						{pageTitle}
 					</Title>
+					<Tag color='green'>
+						<Flex align='center' gap={3}>
+							فعال <EditOutlined />
+						</Flex>
+					</Tag>
+					,
 				</Flex>
 
 				<LandInfo landData={landData} setPageTitle={setPageTitle} />

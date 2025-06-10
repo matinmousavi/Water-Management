@@ -32,7 +32,7 @@ const EnterMobileStep = ({ setStep, setMobile, setExpireDate }) => {
 				<Flex vertical gap={20}>
 					<Form.Item
 						className={styles['no-star']}
-						label='شماره موبایل'
+						label='شماره موبایل خود را وارد وارد کنید'
 						name='mobile'
 						rules={[
 							{ required: true, message: 'شماره موبایل را وارد کنید' },
@@ -43,7 +43,7 @@ const EnterMobileStep = ({ setStep, setMobile, setExpireDate }) => {
 					</Form.Item>
 
 					<Button type='primary' htmlType='submit' block size='large'>
-						ورود
+						ارسال کد تایید
 					</Button>
 				</Flex>
 			</Form>

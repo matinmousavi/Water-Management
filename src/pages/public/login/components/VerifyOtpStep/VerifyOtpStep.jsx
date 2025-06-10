@@ -67,7 +67,7 @@ const VerifyOtpStep = ({ mobile, expireDate: initialExpireDate, onBack }) => {
 
 	const onOtpChange = value => {
 		form.setFieldsValue({ otp: value })
-		if (value.length === 6) {
+		if (value.length === 4) {
 			form.submit()
 		}
 	}
@@ -81,16 +81,16 @@ const VerifyOtpStep = ({ mobile, expireDate: initialExpireDate, onBack }) => {
 			</Button>
 
 			<Form form={form} layout='vertical' onFinish={handleVerify} initialValues={{ otp: '' }}>
-				<Flex vertical gap={20}>
+				<Flex vertical justify='center' gap={20}>
 					<Form.Item
-						label='کد تأیید'
 						name='otp'
 						rules={[
 							{ required: true, message: 'کد را وارد کنید!' },
-							{ pattern: /^\d{6}$/, message: 'کد باید ۶ رقم باشد.' },
+							{ pattern: /^\d{4}$/, message: 'کد باید 4 رقم باشد.' },
 						]}
+						className={styles.otp}
 					>
-						<Input.OTP length={6} autoFocus inputMode='numeric' style={{ direction: 'ltr' }} onChange={onOtpChange} />
+						<Input.OTP length={4} autoFocus inputMode='numeric' style={{ direction: 'ltr' }} onChange={onOtpChange} />
 					</Form.Item>
 
 					{timeLeft > 0 ? (

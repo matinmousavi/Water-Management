@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Table, Tag } from 'antd'
 import { Link } from 'react-router'
 import { useUser } from '../../../../../contexts/UserContext'
 import useContainerHeight from '../../../../../hooks/useContainerHeight'
@@ -15,7 +15,7 @@ const WellsTable = ({ WellsData }) => {
 			render: (text, record) => <Link to={`/wells/${record._id}`}>{text}</Link>,
 		},
 		{
-			title: 'میراب',
+			title: 'میرآب',
 			dataIndex: 'irrigator',
 			key: 'irrigator',
 			render: (irrigator, record) =>
@@ -34,7 +34,7 @@ const WellsTable = ({ WellsData }) => {
 			render: lands => (Array.isArray(lands) ? lands.length : 0),
 		},
 		{
-			title: 'کد پروانه',
+			title: 'لایسنس کد',
 			dataIndex: 'licenseCode',
 			key: 'licenseCode',
 		},
@@ -42,6 +42,12 @@ const WellsTable = ({ WellsData }) => {
 			title: 'چرخه',
 			dataIndex: 'cycleDays',
 			key: 'cycleDays',
+		},
+		{
+			title: 'وضعیت',
+			dataIndex: 'status',
+			key: 'status',
+			render: () => <Tag color='green'>فعال</Tag>,
 		},
 	]
 

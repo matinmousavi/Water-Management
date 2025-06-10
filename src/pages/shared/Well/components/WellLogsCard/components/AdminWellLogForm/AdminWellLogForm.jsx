@@ -15,7 +15,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 
 	return (
 		<Form form={form} layout='horizontal' labelAlign='left' labelCol={labelCol} wrapperCol={wrapperCol}>
-			<Form.Item name='lands' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item name='landId' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Select
 					showSearch
 					placeholder='انتخاب زمین'

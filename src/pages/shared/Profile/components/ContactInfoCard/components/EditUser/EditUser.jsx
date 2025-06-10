@@ -39,7 +39,6 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 
 				if (typeof setData === 'function') {
 					setData(({ user }) => {
-						console.log(response.user)
 						const { firstName: _, lastName: __, ...newRest } = response.user
 						const { firstName: ___, lastName: ____, ...prevRest } = user || {}
 
