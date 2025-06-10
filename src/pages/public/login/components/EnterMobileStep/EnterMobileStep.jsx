@@ -24,19 +24,21 @@ const EnterMobileStep = ({ setStep, setMobile, setExpireDate }) => {
 
 	return (
 		<>
-			<Form form={form} layout='vertical' onFinish={handleSubmit}>
+			<Form form={form} layout='vertical' className={styles.form} onFinish={handleSubmit}>
 				<Flex vertical justify='space-between' className={styles.formContainer} gap={20}>
-					<Form.Item
-						className={styles.formItem}
-						label='شماره موبایل خود را وارد وارد کنید'
-						name='mobile'
-						rules={[
-							{ required: true, message: 'شماره موبایل را وارد کنید' },
-							{ pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/, message: 'شماره موبایل معتبر نیست' },
-						]}
-					>
-						<Input autoFocus size='large' maxLength={11} inputMode='numeric' />
-					</Form.Item>
+					<Flex vertical gap={20}>
+						<Typography.Text className='title-login'>شماره موبایل خود را وارد کنید.</Typography.Text>
+						<Form.Item
+							className={styles.formItem}
+							name='mobile'
+							rules={[
+								{ required: true, message: 'شماره موبایل را وارد کنید' },
+								{ pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/, message: 'شماره موبایل معتبر نیست' },
+							]}
+						>
+							<Input autoFocus size='large' maxLength={11} inputMode='numeric' />
+						</Form.Item>
+					</Flex>
 
 					<Button type='primary' htmlType='submit' block size='large'>
 						ارسال کد تایید

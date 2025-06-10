@@ -1,32 +1,9 @@
-.card {
-	margin: 10px 0;
+.wellContainer {
 }
-
-.card h2 {
-	font-size: 16px;
-	font-weight: 900;
+.header {
+	display: none;
 }
-
-.infoWrapper {
-	margin-top: 20px;
-	padding: 0;
-}
-
-.line {
-	margin-top: 15px;
-}
-
-.text {
-	font-size: 12px;
-}
-
 /* ------------- tablet ------------- */
-@media (min-width: 768px) {
-	.text {
-		font-size: 14px;
-	}
-}
-
-.form {
+l .form {
 	padding: 20px;
 }

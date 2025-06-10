@@ -1,7 +1,23 @@
+.otp-text {
+	color: #00000099;
+}
+.text-right {
+	text-align: right;
+}
 .text-center {
 	text-align: center;
 }
-.otp {
+
+.otpContainer {
+	flex-grow: 1;
+}
+.formOtp {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+.formItem {
 	display: flex;
 	justify-content: center;
 }

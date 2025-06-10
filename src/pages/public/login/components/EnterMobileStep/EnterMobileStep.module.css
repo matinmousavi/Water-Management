@@ -1,9 +1,12 @@
 .no-star label::before {
 	display: none !important;
 }
-.formContainer {
-	height: 70vh;
+.form {
+	flex-grow: 1;
+	display: flex;
+	justify-content: space-between;
 }
+
 .formItem {
 	height: 90px;
 	max-width: 312px;

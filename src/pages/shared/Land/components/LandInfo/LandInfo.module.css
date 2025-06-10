@@ -1,3 +1,6 @@
+.cardContainer {
+	display: none;
+}
 .infoWrapper {
 	margin-top: 20px;
 	padding: 0;
@@ -7,5 +10,8 @@
 	margin-top: 15px;
 }
 /* ------------- tablet ------------- */
-@media (min-width: 768px) {
+@media (min-width: 1280px) {
+	.cardContainer {
+		display: block;
+	}
 }

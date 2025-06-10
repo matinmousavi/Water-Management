@@ -1,3 +1,7 @@
+.header {
+	display: none;
+}
+
 .text {
 	font-size: 12px;
 }

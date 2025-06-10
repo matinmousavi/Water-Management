@@ -2,6 +2,7 @@ import { Card, Flex, Typography } from 'antd'
 import { useParams } from 'react-router'
 import WellAddLog from './components/WellAddLog/WellAddLog'
 import WellLogsTable from './components/WellLogsTable/WellLogsTable'
+import styles from './WellLogsCard.module.css'
 
 const { Title } = Typography
 
@@ -9,7 +10,7 @@ const WellLogsCard = ({ wellLogs, setLogs }) => {
 	const { wellId } = useParams()
 
 	return (
-		<Card>
+		<Card className={styles.cardContainer}>
 			<Flex vertical gap={40}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-card-title'>

@@ -1,0 +1,10 @@
+.landsContainer {
+	display: none;
+}
+
+/* ------------- tablet ------------- */
+@media (min-width: 1280px) {
+	.landsContainer {
+		display: flex;
+	}
+}

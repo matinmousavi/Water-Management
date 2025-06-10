@@ -55,7 +55,7 @@ const LandInfo = ({ landData, setPageTitle }) => {
 	]
 
 	return (
-		<Card>
+		<Card className={styles.cardContainer}>
 			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-h2'>

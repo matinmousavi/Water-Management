@@ -1,0 +1,32 @@
+.mobile-header {
+	h1 {
+		font-size: 16px;
+		font-weight: 500;
+	}
+}
+
+.ant-layout-content {
+	padding: 24px 16px 16px 16px;
+}
+.ant-breadcrumb {
+	display: none;
+}
+.ant-typography,
+a {
+	font-size: 14px;
+}
+.title-login {
+	font-size: 14px;
+}
+@media (min-width: 1440px) {
+	.mobile-header {
+		display: none;
+	}
+
+	.ant-layout-content {
+		padding: 60px 10px;
+	}
+	.ant-breadcrumb {
+		display: block;
+	}
+}

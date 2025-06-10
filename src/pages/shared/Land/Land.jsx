@@ -110,7 +110,7 @@ const Land = () => {
 
 			<Flex vertical gap={10}>
 				<Breadcrumbs data={{ title: pageTitle }} />
-				<Flex align='center'>
+				<Flex className={styles.header} align='center'>
 					<BackButton backTo={'wells'} />
 					<Title level={1} className='text-h3'>
 						{pageTitle}
@@ -120,7 +120,6 @@ const Land = () => {
 							فعال <EditOutlined />
 						</Flex>
 					</Tag>
-					,
 				</Flex>
 
 				<LandInfo landData={landData} setPageTitle={setPageTitle} />

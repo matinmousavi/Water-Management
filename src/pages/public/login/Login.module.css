@@ -4,13 +4,12 @@
 	background-color: #fff;
 	padding: 24px;
 	padding-top: 100px;
+	position: relative;
 }
-.card {
-	max-width: 312px;
-	width: 100%;
-	display: flex;
-	gap: 56px !important;
-	flex-direction: column;
+.buttonBack {
+	position: absolute;
+	top: 24px;
+	right: 24px;
 }
 .header {
 	height: 55px;

@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import useAPI from '../../../../../hooks/useAPI'
 import EditWell from './components/EditWell/EditWell'
 import { useUser } from '../../../../../contexts/UserContext'
+import styles from './WellinfoCard.module.css'
 
 const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 	const api = useAPI()
@@ -38,7 +39,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 	}, [well])
 
 	return (
-		<Card>
+		<Card className={styles.wellInfoContainer}>
 			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
 					<Typography.Title level={2} className='text-card-title'>

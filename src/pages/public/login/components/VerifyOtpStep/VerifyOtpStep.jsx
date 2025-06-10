@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { Form, Input, Button, Typography, Flex } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
 import { useUser } from '../../../../../contexts/UserContext'
@@ -73,45 +72,44 @@ const VerifyOtpStep = ({ mobile, expireDate: initialExpireDate, onBack }) => {
 	}
 
 	return (
-		<>
-			<Typography.Paragraph className={styles['text-center']}>کد ۶ رقمی به شماره {mobile} ارسال شد.</Typography.Paragraph>
-
-			<Button type='link' icon={<EditOutlined />} onClick={onBack}>
-				ویرایش شماره
+		<Flex className={styles.otpContainer} vertical gap={20}>
+			<Typography.Text className='title-login'>کد تایید 4 رقمی به شماره {mobile} ارسال شد.</Typography.Text>
+			<Button type='link' onClick={onBack}>
+				ویرایش شماره تماس
 			</Button>
-
-			<Form form={form} layout='vertical' onFinish={handleVerify} initialValues={{ otp: '' }}>
-				<Flex vertical justify='center' gap={20}>
+			<Form form={form} className={styles.formOtp} layout='vertical' onFinish={handleVerify} initialValues={{ otp: '' }}>
+				<Flex vertical justify='center' gap={35}>
 					<Form.Item
 						name='otp'
 						rules={[
 							{ required: true, message: 'کد را وارد کنید!' },
 							{ pattern: /^\d{4}$/, message: 'کد باید 4 رقم باشد.' },
 						]}
-						className={styles.otp}
+						className={styles.formItem}
 					>
 						<Input.OTP length={4} autoFocus inputMode='numeric' style={{ direction: 'ltr' }} onChange={onOtpChange} />
 					</Form.Item>
 
 					{timeLeft > 0 ? (
 						<div className={styles['text-center']}>
-							<Typography.Text type='secondary'>{formatTime(timeLeft)} تا ارسال مجدد کد</Typography.Text>
+							<Typography.Text className={styles['otp-text']} type='secondary'>
+								{formatTime(timeLeft)} تا ارسال مجدد کد
+							</Typography.Text>
 						</div>
 					) : (
-						<div>
-							<Typography.Text>کد دریافت نکردید؟</Typography.Text>
-							<Button type='link' onClick={resendOtp}>
+						<div className={styles['text-center']}>
+							<Typography.Text className={styles['otp-text']}>کد دریافت نکردید؟</Typography.Text>
+							<Button size={14} type='link' onClick={resendOtp}>
 								ارسال مجدد
 							</Button>
 						</div>
 					)}
-
-					<Button type='primary' htmlType='submit' block size='large' loading={loading}>
-						ورود
-					</Button>
 				</Flex>
+				<Button type='primary' htmlType='submit' block size={16} loading={loading}>
+					ورود
+				</Button>
 			</Form>
-		</>
+		</Flex>
 	)
 }
 

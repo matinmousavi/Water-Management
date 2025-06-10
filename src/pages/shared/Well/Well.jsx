@@ -12,6 +12,8 @@ import WellLandsCard from './components/WellLandsCard/WellLandsCard'
 import WellLogCard from './components/WellLogsCard/WellLogsCard'
 import { useUser } from '../../../contexts/UserContext'
 import { EditOutlined } from '@ant-design/icons'
+import styles from './Well.module.css'
+import iconWell from '../../../assets/icons/Vector.svg'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -36,10 +38,13 @@ const Well = () => {
 		<>
 			<MetaTitle>ویرایش چاه</MetaTitle>
 
-			<Flex vertical>
+			<Flex vertical className={styles.wellContainer}>
 				<Breadcrumbs data={api.data?.well} />
-
-				<Flex align='center' gap={16}>
+				<Flex className='mobile-header' gap={8} justify='center'>
+					<img src={iconWell} alt='image icon' />
+					<h1>{title}</h1>
+				</Flex>
+				<Flex className={styles.header} align='center' gap={16}>
 					<BackButton backTo='/wells' />
 					<Typography.Title className='text-page-title'>{title}</Typography.Title>
 					<Tag color='green'>
