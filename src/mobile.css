@@ -11,12 +11,27 @@
 .ant-breadcrumb {
 	display: none;
 }
+.ant-drawer-content {
+	border-radius: 16px 16px 0 0;
+}
+.ant-drawer-body {
+	padding: 16px !important;
+}
 .ant-typography,
 a {
 	font-size: 14px;
 }
-.title-login {
-	font-size: 14px;
+
+.ant-card-body {
+	padding: 16px !important;
+}
+
+.ant-tabs-nav-wrap {
+	justify-content: center;
+}
+.title-login,
+.title-form {
+	font-size: 14px !important;
 }
 @media (min-width: 1440px) {
 	.mobile-header {
@@ -29,4 +44,11 @@ a {
 	.ant-breadcrumb {
 		display: block;
 	}
+}
+
+/* Typography styles */
+
+.title-h1 {
+	font-size: 16px !important;
+	font-weight: 500 !important;
 }

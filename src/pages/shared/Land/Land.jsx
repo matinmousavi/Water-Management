@@ -1,4 +1,4 @@
-import { Flex, Typography } from 'antd'
+import { Flex, Tag, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 
 import useAPI from '../../../hooks/useAPI'
@@ -13,6 +13,8 @@ import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import LandInfo from './components/LandInfo/LandInfo'
 import { useUser } from '../../../contexts/UserContext'
 import LandNote from './components/LandNote/LandNote'
+import styles from './Land.module.css'
+import MobileLand from './components/LandInfo/components/MobileLand/MobileLand'
 
 const { Title } = Typography
 
@@ -62,10 +64,13 @@ const Land = () => {
 						</Flex>
 					</Tag>
 				</Flex>
-
-				<LandInfo landData={landData} setPageTitle={setPageTitle} />
-				<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
-
+				<MobileLand landData={landData} />
+				<div className={styles.landInfo}>
+					<LandInfo landData={landData} setPageTitle={setPageTitle} />
+				</div>
+				<div className={styles.landNotes}>
+					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
+				</div>
 				{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 			</Flex>
 		</>

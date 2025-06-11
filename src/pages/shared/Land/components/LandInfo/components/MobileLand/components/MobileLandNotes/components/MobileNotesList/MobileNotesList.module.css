@@ -1,0 +1,29 @@
+h4 {
+	margin: 0;
+}
+.btns {
+	button {
+		width: fit-content;
+	}
+}
+
+.wrapper {
+	margin-top: 1rem;
+}
+.text {
+	font-size: 12px;
+}
+.lineDrawer {
+	width: 24px;
+	border: 4px solid #d1d4dd;
+}
+.wrapper {
+	margin-top: 1rem;
+}
+
+/* ------------- tablet ------------- */
+@media (min-width: 768px) {
+	.text {
+		font-size: 14px;
+	}
+}

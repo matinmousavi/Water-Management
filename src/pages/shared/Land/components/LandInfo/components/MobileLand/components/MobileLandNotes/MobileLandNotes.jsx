@@ -1,22 +1,21 @@
-import { Button, Card, Flex, Form, Input, Modal, Typography } from 'antd'
+import { Button, Card, Drawer, Flex, Form, Input, Modal, Space, Typography } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
-import styles from './LandNote.module.css'
-import useAPI from '../../../../../hooks/useAPI'
-import { useEffect, useRef, useState } from 'react'
+import styles from './MobileLandNotes.module.css'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import NoteList from './components/NoteList/NoteList'
-import useNotification from '../../../../../hooks/useNotification'
+import useAPI from '../../../../../../../../../hooks/useAPI'
+import MobileNotesList from './components/MobileNotesList/MobileNotesList'
+import useNotification from '../../../../../../../../../hooks/useNotification'
 
 const { Title } = Typography
 
-const LandNote = ({ notesData: initialNotes }) => {
+const MobileLandNotes = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
-	const cardRef = useRef()
 	const notesApi = useAPI()
 	const { openNotification } = useNotification()
 	const [noteForm] = Form.useForm()
+	const [open, setOpen] = useState(false)
 
-	const [isShowModalNote, setIsShowModalNote] = useState(false)
 	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
 	const [selectedNote, setSelectedNote] = useState(null)
 	const [notes, setNotes] = useState(initialNotes || [])
@@ -26,17 +25,16 @@ const LandNote = ({ notesData: initialNotes }) => {
 	}, [initialNotes])
 
 	const handleOpenAddNoteModal = () => {
+		showDrawer()
 		setIsNoteEditMode(false)
 		noteForm.resetFields()
 		setSelectedNote(null)
-		setIsShowModalNote(true)
 	}
 
 	const handleEditNote = note => {
 		setIsNoteEditMode(true)
 		setSelectedNote(note)
 		noteForm.setFieldsValue({ text: note.text })
-		setIsShowModalNote(true)
 	}
 
 	const handleDelete = async noteId => {
@@ -65,7 +63,6 @@ const LandNote = ({ notesData: initialNotes }) => {
 				openNotification('success', 'یادداشت با موفقیت ویرایش شد')
 			} else {
 				const response = await notesApi.post(`lands/${landId}/notes`, values)
-				console.log('Full create response:', response)
 
 				const newData = response.data || response.note || response
 				if (!newData._id) {
@@ -85,38 +82,36 @@ const LandNote = ({ notesData: initialNotes }) => {
 		}
 	}
 
+	const showDrawer = () => {
+		setOpen(true)
+	}
+
+	const onClose = () => {
+		setOpen(false)
+	}
+
 	return (
 		<>
-			<div ref={cardRef} className={styles.commentContainer}>
-				<Card className={styles.card}>
-					<Flex align='center' justify='space-between'>
-						<Title level={2} className='text-h2'>
-							یادداشت زمین
-						</Title>
+			<div className={styles.commentContainer}>
+				<div className={styles.card}>
+					<Flex className={styles.buttonAddNote} align='center' justify='space-between'>
 						<Button type='default' onClick={handleOpenAddNoteModal}>
-							<PlusCircleOutlined />
-							<span>افزودن یادداشت</span>
+							افزودن یادداشت
 						</Button>
 					</Flex>
 
-					<NoteList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
-				</Card>
+					<MobileNotesList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+				</div>
 			</div>
 
-			<Modal
-				title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
-				centered
-				open={isShowModalNote}
-				onCancel={() => {
-					setIsShowModalNote(false)
-					noteForm.resetFields()
-					setSelectedNote(null)
-				}}
-				footer={null}
-			>
+			<Drawer placement='bottom' closable={false} width={322} onClose={onClose} open={open}>
+				<Space>
+					<span className={styles.lineDrawer}></span>
+				</Space>
 				<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
+					<Title className='title-form'>افزودن یادداشت</Title>
 					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-						<Input.TextArea rows={4} placeholder='متن یادداشت را وارد کنید...' />
+						<Input.TextArea rows={4} />
 					</Form.Item>
 					<Flex justify='end' gap={8}>
 						<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
@@ -125,8 +120,8 @@ const LandNote = ({ notesData: initialNotes }) => {
 						</Button>
 					</Flex>
 				</Form>
-			</Modal>
+			</Drawer>
 		</>
 	)
 }
-export default LandNote
+export default MobileLandNotes

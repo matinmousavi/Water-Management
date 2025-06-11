@@ -1,0 +1,35 @@
+.header {
+	display: none;
+}
+
+.text {
+	font-size: 12px;
+}
+.buttonAddNote {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	z-index: 2;
+	background-color: #ffffff;
+	width: 100vw;
+	padding: 16px;
+	button {
+		width: 100%;
+	}
+}
+
+.wrapper {
+	margin-top: 1rem;
+}
+
+/* ------------- tablet ------------- */
+@media (min-width: 768px) {
+	.text {
+		font-size: 14px;
+	}
+}
+
+.form {
+	padding: 20px;
+}
