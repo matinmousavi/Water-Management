@@ -3,11 +3,11 @@ import { Form, Select } from 'antd'
 const WellAddLandsForm = ({ form, lands = [] }) => {
 	return (
 		<Form form={form} layout='vertical'>
-			<Form.Item name='lands' label='زمین‌ها'>
+			<Form.Item name='lands' label='زمین'>
 				<Select
 					mode='multiple'
 					showSearch
-					placeholder='زمین‌ها را انتخاب کنید'
+					placeholder='انتخاب'
 					allowClear
 					style={{ width: '100%' }}
 					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -15,6 +15,7 @@ const WellAddLandsForm = ({ form, lands = [] }) => {
 						value: land._id,
 						label: land.name,
 					}))}
+					size='large'
 				/>
 			</Form.Item>
 		</Form>

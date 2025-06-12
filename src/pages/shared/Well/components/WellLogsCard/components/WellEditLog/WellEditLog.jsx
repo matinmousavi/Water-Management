@@ -102,7 +102,7 @@ const WellEditLog = ({ logData, setLogs, onClose }) => {
 			open={isOpen}
 			onOk={handleSubmit}
 			onCancel={handleCancel}
-			okText='ذخیره'
+			okText='ثبت'
 			cancelText='انصراف'
 			confirmLoading={irrigationApi.isLoading}
 			loading={landsApi.isLoading}

@@ -60,7 +60,7 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 			</Button>
 
 			<Modal
-				title='افزودن زمین به چاه'
+				title='افزودن زمین'
 				open={isOpen}
 				onOk={handleSubmit}
 				onCancel={handleCancel}

@@ -57,6 +57,10 @@
 	color: #f5222d !important;
 }
 
+.ant-picker {
+	border-radius: 4px !important;
+}
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
