@@ -59,7 +59,7 @@ const AddWell = ({ setData }) => {
 				afterOpenChange={handleAfterChange}
 				confirmLoading={wellApi.isLoading}
 				loading={irrigatorsApi.isLoading}
-				okText='ذخیره'
+				okText='ثبت'
 				cancelText='انصراف'
 				forceRender
 			>
