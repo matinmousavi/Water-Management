@@ -1,10 +1,17 @@
-import { Routes, Route } from 'react-router-dom'
-import Login from '../pages/public/login/Login'
+import { lazy, Suspense } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+
+import Loading from '../components/Loading/Loading'
+
+const Login = lazy(() => import('../pages/public/login/Login'))
 
 const AuthRoutes = () => (
-	<Routes>
-		<Route path='/' element={<Login />} />
-	</Routes>
+	<Suspense fallback={<Loading />}>
+		<Routes>
+			<Route path='/' element={<Login />} />
+			<Route path='*' element={<Navigate to='/' replace />} />
+		</Routes>
+	</Suspense>
 )
 
 export default AuthRoutes
