@@ -61,6 +61,38 @@
 	border-radius: 4px !important;
 }
 
+.ant-modal-content {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 20px !important;
+}
+
+.ant-form {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 20px !important;
+}
+
+.ant-form-item {
+	margin-bottom: 0 !important;
+}
+
+.ant-modal-footer {
+	margin-top: 0 !important;
+}
+
+.ant-modal .ant-row {
+	flex-flow: row nowrap !important;
+}
+
+.ant-form-item-label {
+	width: 160px !important;
+}
+
+.ant-select-selector {
+	border-radius: 4px !important;
+}
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
@@ -120,38 +152,6 @@
 .style-btn {
 	border-color: #0066ee;
 	color: #0066ee;
-}
-
-.ant-modal-content {
-	display: flex !important;
-	flex-direction: column !important;
-	gap: 20px !important;
-}
-
-.ant-form {
-	display: flex !important;
-	flex-direction: column !important;
-	gap: 20px !important;
-}
-
-.ant-form-item {
-	margin-bottom: 0 !important;
-}
-
-.ant-modal-footer {
-	margin-top: 0 !important;
-}
-
-.ant-modal .ant-row {
-	flex-flow: row nowrap !important;
-}
-
-.ant-form-item-label {
-	width: 160px !important;
-}
-
-.ant-select-selector {
-	border-radius: 4px !important;
 }
 
 @media (min-width: 1440px) {
