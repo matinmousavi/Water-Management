@@ -52,7 +52,7 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 
 	return (
 		<>
-			<Button type='default' size='middle' onClick={() => open(handleOpen, 'before')}>
+			<Button className='style-btn' size='middle' onClick={() => open(handleOpen, 'before')}>
 				<Flex gap={8}>
 					<PlusCircleOutlined />
 					<span>افزودن زمین</span>

@@ -2,6 +2,7 @@ import { App, Button, Card, Flex, Typography, message } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import useAPI from '../../hooks/useAPI'
 import style from './DeleteCard.module.css'
+import { DeleteOutlined } from '@ant-design/icons'
 
 const { Title } = Typography
 
@@ -37,11 +38,11 @@ const DeleteCard = ({ title, api, backTo }) => {
 	return (
 		<Card className={style.card}>
 			<Flex justify='space-between' align='center'>
-				<Title level={2} className='text-h2'>
+				<Title level={2} className='text-card-title'>
 					حذف {title}
 				</Title>
-				<Button className={style.button} type='primary' danger onClick={handleDelete} loading={deleteAPI.isLoading}>
-					حذف {title}
+				<Button danger onClick={handleDelete} loading={deleteAPI.isLoading} icon={<DeleteOutlined />}>
+					حذف
 				</Button>
 			</Flex>
 		</Card>

@@ -1,6 +1,5 @@
 import { Form, Input, Select } from 'antd'
 import { useUser } from '../../../contexts/UserContext'
-import styles from './WellForm.module.css'
 
 const { TextArea } = Input
 

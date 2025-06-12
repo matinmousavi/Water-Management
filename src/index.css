@@ -53,6 +53,10 @@
 	padding: 0 6px !important;
 }
 
+.ant-btn-color-dangerous {
+	color: #f5222d !important;
+}
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
@@ -99,12 +103,19 @@
 
 .label .text {
 	font-weight: 400;
+	font-size: 1rem !important;
 	color: #00000080;
 }
 
 .value .text {
 	font-weight: 500;
+	font-size: 1rem !important;
 	color: #000;
+}
+
+.style-btn {
+	border-color: #0066ee;
+	color: #0066ee;
 }
 
 .ant-modal-content {
@@ -127,7 +138,7 @@
 	margin-top: 0 !important;
 }
 
-.ant-row {
+.ant-modal .ant-row {
 	flex-flow: row nowrap !important;
 }
 
@@ -169,9 +180,32 @@
 
 	.ant-btn {
 		font-size: 13px !important;
+		padding: 0 12px !important;
+		height: 39px !important;
 	}
 
 	.ant-flex {
 		gap: 13px !important;
+	}
+
+	.ant-card-body .ant-flex {
+		gap: 33px !important;
+	}
+
+	.ant-btn .ant-flex {
+		gap: 5px !important;
+	}
+
+	.text-card-title {
+		font-size: 13px !important;
+	}
+
+	.value .text,
+	.label .text {
+		font-size: 13px !important;
+	}
+
+	.ant-table-wrapper .ant-table {
+		font-size: 13px !important;
 	}
 }

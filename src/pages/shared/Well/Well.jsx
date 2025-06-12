@@ -39,11 +39,11 @@ const Well = () => {
 			<Flex vertical>
 				<Breadcrumbs data={api.data?.well} />
 
-				<Flex align='center' gap={16}>
+				<Flex align='center' gap={8}>
 					<BackButton backTo='/wells' />
 					<Typography.Title className='text-page-title'>{title}</Typography.Title>
 					<Tag color='green'>
-						<Flex align='center' gap={3}>
+						<Flex align='center' gap={4}>
 							فعال <EditOutlined />
 						</Flex>
 					</Tag>

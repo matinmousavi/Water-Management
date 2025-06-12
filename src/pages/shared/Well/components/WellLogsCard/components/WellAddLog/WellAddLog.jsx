@@ -76,7 +76,7 @@ const WellAddLog = ({ setLogs }) => {
 
 	return (
 		<>
-			<Button type='default' size='middle' onClick={open}>
+			<Button className='style-btn' size='middle' onClick={open}>
 				<Flex gap={8}>
 					<PlusCircleOutlined />
 					<span>افزودن لاگ</span>
