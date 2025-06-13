@@ -32,6 +32,32 @@
 	}
 }
 
+.container {
+	padding-bottom: 80px;
+	position: relative;
+	min-height: 100vh;
+}
+
+.footer {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	background: white;
+	border-top: 1px solid #eee;
+	padding: 12px 16px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	z-index: 100;
+}
+
+.timerText {
+	color: green;
+	font-weight: bold;
+	font-size: 16px;
+}
+
 @media (min-width: 1280px) {
 	.cardContainer {
 		display: none;

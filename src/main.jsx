@@ -18,7 +18,7 @@ createRoot(document.getElementById('root')).render(
 				token: {
 					fontFamily: 'VazirmatnFD',
 					colorPrimary: '#3372EF',
-					borderRadius: 8,
+					borderRadius: 6,
 					fontSize: 16,
 				},
 				components: {
@@ -32,12 +32,13 @@ createRoot(document.getElementById('root')).render(
 						primaryShadow: 'none',
 						colorPrimary: '#0066EE',
 						defaultBorderColor: '#0066EE',
-						colorLink: 'rgba(59, 143, 243, 1)',
-						colorText: '#0066EE',
+						colorPrimaryText: '#fff',
+						colorTextSecondary: '#0066EE',
+						colorLink: '#0066EE',
 						controlHeight: 42,
+						borderRadius: 8,
 					},
 					Input: {
-						borderRadius: 4,
 						activeShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
 					},
 					Card: {

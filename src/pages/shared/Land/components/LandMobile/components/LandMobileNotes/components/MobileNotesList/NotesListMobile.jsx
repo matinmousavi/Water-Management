@@ -1,6 +1,6 @@
 import { Card, Flex, Typography } from 'antd'
-import styles from './MobileNotesList.module.css'
-const MobileNotesList = ({ data }) => {
+import styles from './NotesListMobile.module.css'
+const NotesListMobile = ({ data }) => {
 	const { Text } = Typography
 	return (
 		<Flex vertical gap={16} className={styles.wrapper}>
@@ -24,4 +24,4 @@ const MobileNotesList = ({ data }) => {
 		</Flex>
 	)
 }
-export default MobileNotesList
+export default NotesListMobile

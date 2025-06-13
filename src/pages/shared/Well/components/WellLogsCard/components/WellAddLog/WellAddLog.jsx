@@ -6,16 +6,14 @@ import useNotification from '../../../../../../../hooks/useNotification'
 import { useUser } from '../../../../../../../contexts/UserContext'
 import AdminWellLogForm from '../AdminWellLogForm/AdminWellLogForm'
 import IrrigatorWellLogForm from '../IrrigatorWellLogForm/IrrigatorWellLogForm'
-import { useParams } from 'react-router'
 
-const WellAddLog = ({ setLogs }) => {
+const WellAddLog = ({ setLogs, wellId }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [form] = Form.useForm()
 	const irrigationApi = useAPI()
 	const landsApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
-	const { wellId } = useParams()
 
 	if (isOpen) {
 		landsApi.init('lands')

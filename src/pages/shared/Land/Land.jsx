@@ -1,4 +1,4 @@
-import { Flex, Tag, Typography } from 'antd'
+import { Flex, Grid, Tag, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 
 import useAPI from '../../../hooks/useAPI'
@@ -14,7 +14,7 @@ import LandInfo from './components/LandInfo/LandInfo'
 import { useUser } from '../../../contexts/UserContext'
 import LandNote from './components/LandNote/LandNote'
 import styles from './Land.module.css'
-import MobileLand from './components/LandInfo/components/MobileLand/MobileLand'
+import LandMobile from './components/LandMobile/LandMobile'
 
 const { Title } = Typography
 
@@ -25,6 +25,8 @@ const Land = () => {
 	const { isAdmin } = useUser()
 	const landApi = useAPI()
 	const [pageTitle, setPageTitle] = useState('')
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 
 	const fetchLand = async () => {
 		try {
@@ -51,28 +53,27 @@ const Land = () => {
 		<>
 			<MetaTitle>{pageTitle || 'ویرایش زمین'}</MetaTitle>
 
-			<Flex vertical gap={10}>
-				<Breadcrumbs data={{ title: pageTitle }} />
-				<Flex className={styles.header} align='center'>
-					<BackButton backTo={'wells'} />
-					<Title level={1} className='text-h3'>
-						{pageTitle}
-					</Title>
-					<Tag color='green'>
-						<Flex align='center' gap={3}>
-							فعال <EditOutlined />
-						</Flex>
-					</Tag>
-				</Flex>
-				<MobileLand landData={landData} />
-				<div className={styles.landInfo}>
-					<LandInfo landData={landData} setPageTitle={setPageTitle} />
-				</div>
-				<div className={styles.landNotes}>
+			{isMobile ? (
+				<LandMobile landData={landData} />
+			) : (
+				<Flex vertical gap={10}>
+					<Breadcrumbs data={{ title: pageTitle }} />
+					<Flex className={styles.header} align='center'>
+						<BackButton backTo={'wells'} />
+						<Title level={1} className='text-h3'>
+							{pageTitle}
+						</Title>
+						<Tag color='green'>
+							<Flex align='center' gap={3}>
+								فعال <EditOutlined />
+							</Flex>
+						</Tag>
+					</Flex>
 					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
-				</div>
-				{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
-			</Flex>
+					<LandInfo landData={landData} setPageTitle={setPageTitle} />
+					{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
+				</Flex>
+			)}
 		</>
 	)
 }

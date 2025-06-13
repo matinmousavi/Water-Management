@@ -1,8 +1,6 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 
-import Layouts from '../layouts/Layouts'
 import Loading from '../components/Loading/Loading'
 
 const AdminRoutes = lazy(() => import('./AdminRoutes'))

@@ -1,22 +1,22 @@
 import { Flex, Tabs, Typography } from 'antd'
-import tree from '../../../../../../../assets/icons/tree_bold.svg'
-import MobileLandInfo from './components/MobileLandInfo/MobileLandInfo'
-import MobileLandNotes from './components/MobileLandNotes/MobileLandNotes'
-import styles from './MobileLand.module.css'
+import tree from '../../../../../assets/icons/tree_bold.svg'
+import styles from './LandMobile.module.css'
+import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
+import LandNotesMobile from './components/LandMobileNotes/LandNotesMobile'
 
-const MobileLand = ({ landData }) => {
+const LandMobile = ({ landData }) => {
 	console.log(landData)
 
 	const items = [
 		{
 			key: 'specifications',
 			label: 'مشخصات',
-			children: <MobileLandInfo data={landData} />,
+			children: <LandInfoMobile data={landData} />,
 		},
 		{
 			key: 'notes',
 			label: 'یادداشت ها',
-			children: <MobileLandNotes notesData={landData?.notes} />,
+			children: <LandNotesMobile notesData={landData?.notes} />,
 		},
 	]
 	return (
@@ -29,4 +29,4 @@ const MobileLand = ({ landData }) => {
 		</Flex>
 	)
 }
-export default MobileLand
+export default LandMobile

@@ -1,19 +1,16 @@
+import { Router } from 'express'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
+import { fieldTranslations } from '../../constants/fieldTranslations.js'
 
-const fieldTranslations = {
-	licenseCode: 'لایسنس کد',
-	title: 'عنوان چاه',
-	cycleDays: 'روزهای چرخه',
-	irrigator: 'میرآب',
-}
+const router = Router()
 
-export const getWells = async (req, res) => {
+// GET all wells
+router.get('/', async (req, res) => {
 	try {
 		const filter = {}
 
 		const allowedFields = ['title', 'licenseCode', 'irrigator']
-
 		allowedFields.forEach(field => {
 			if (req.query[field]) {
 				if (field === 'irrigator') {
@@ -25,16 +22,26 @@ export const getWells = async (req, res) => {
 		})
 
 		const wells = await Well.find(filter).populate('irrigator').populate('lands').lean()
+
+		for (let well of wells) {
+			const irrigations = await Irrigation.find({ well: well._id })
+				.populate('land')
+				.populate('createdBy', 'firstName lastName')
+				.sort({ createdAt: -1 })
+				.lean()
+
+			well.logs = irrigations
+		}
+
 		return res.status(200).json({ wells })
 	} catch (err) {
 		console.error(err.message)
-		return res.status(500).json({
-			message: 'خطا در دریافت اطلاعات چاه‌ها!',
-		})
+		return res.status(500).json({ message: 'خطا در دریافت اطلاعات چاه‌ها!' })
 	}
-}
+})
 
-export const getWell = async (req, res) => {
+// GET single well
+router.get('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
 
@@ -65,7 +72,7 @@ export const getWell = async (req, res) => {
 				path: 'createdBy',
 				select: 'firstName lastName',
 			})
-			.sort({ startTime: -1 })
+			.sort({ createdAt: -1 })
 			.lean()
 
 		return res.status(200).json({ well: { ...well, logs: irrigations } })
@@ -73,9 +80,10 @@ export const getWell = async (req, res) => {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
-}
+})
 
-export const createWell = async (req, res) => {
+// POST create well
+router.post('/', async (req, res) => {
 	try {
 		const { title, licenseCode, cycleDays, location, irrigator, lands } = req.body
 		let newWell = await Well.create({ title, licenseCode, cycleDays, location, irrigator, lands })
@@ -91,24 +99,23 @@ export const createWell = async (req, res) => {
 
 		if (err.code === 11000) {
 			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.wells[field] || field
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.wells[field] || field
 			return res.status(400).json({ message: `${fieldName} الزامی است.` })
 		}
 
-		return res.status(500).json({
-			message: 'خطا در ایجاد چاه.',
-		})
+		return res.status(500).json({ message: 'خطا در ایجاد چاه.' })
 	}
-}
+})
 
-export const updateWell = async (req, res) => {
+// PATCH update well
+router.patch('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
 		const updates = req.body
@@ -137,17 +144,16 @@ export const updateWell = async (req, res) => {
 
 		if (err.code === 11000) {
 			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.wells[field] || field
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 
-		return res.status(500).json({
-			message: 'خطا در ویرایش چاه.',
-		})
+		return res.status(500).json({ message: 'خطا در ویرایش چاه.' })
 	}
-}
+})
 
-export const deleteWell = async (req, res) => {
+// DELETE well
+router.delete('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
 		const well = await Well.findByIdAndDelete(wellId)
@@ -159,8 +165,13 @@ export const deleteWell = async (req, res) => {
 		return res.status(200).json({ message: 'چاه با موفقیت حذف شد.' })
 	} catch (err) {
 		console.error('خطا در حذف چاه:', err.message)
-		return res.status(500).json({
-			message: 'خطای داخلی سرور.',
-		})
+		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
-}
+})
+
+// Fallback for unsupported methods
+router.all(/.*/, (req, res) => {
+	return res.status(405).send({ error: 'Method Not Allowed' })
+})
+
+export default router

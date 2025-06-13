@@ -1,15 +1,15 @@
-import { Button, Card, Drawer, Flex, Form, Input, Modal, Space, Typography } from 'antd'
-import { PlusCircleOutlined } from '@ant-design/icons'
-import styles from './MobileLandNotes.module.css'
+import { Button, Drawer, Flex, Form, Input, Space, Typography } from 'antd'
+
+import styles from './LandNotesMobile.module.css'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import useAPI from '../../../../../../../../../hooks/useAPI'
-import MobileNotesList from './components/MobileNotesList/MobileNotesList'
-import useNotification from '../../../../../../../../../hooks/useNotification'
+import useAPI from '../../../../../../../hooks/useAPI'
+import useNotification from '../../../../../../../hooks/useNotification'
+import NotesListMobile from './components/MobileNotesList/NotesListMobile'
 
 const { Title } = Typography
 
-const MobileLandNotes = ({ notesData: initialNotes }) => {
+const LandNotesMobile = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
 	const notesApi = useAPI()
 	const { openNotification } = useNotification()
@@ -73,7 +73,6 @@ const MobileLandNotes = ({ notesData: initialNotes }) => {
 				openNotification('success', 'یادداشت با موفقیت افزوده شد')
 			}
 
-			setIsShowModalNote(false)
 			setSelectedNote(null)
 			noteForm.resetFields()
 		} catch (error) {
@@ -100,7 +99,7 @@ const MobileLandNotes = ({ notesData: initialNotes }) => {
 						</Button>
 					</Flex>
 
-					<MobileNotesList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+					<NotesListMobile handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
 				</div>
 			</div>
 
@@ -114,7 +113,7 @@ const MobileLandNotes = ({ notesData: initialNotes }) => {
 						<Input.TextArea rows={4} />
 					</Form.Item>
 					<Flex justify='end' gap={8}>
-						<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
+						<Button>انصراف</Button>
 						<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
 							{isNoteEditMode ? 'ذخیره تغییرات' : 'ذخیره'}
 						</Button>
@@ -124,4 +123,4 @@ const MobileLandNotes = ({ notesData: initialNotes }) => {
 		</>
 	)
 }
-export default MobileLandNotes
+export default LandNotesMobile

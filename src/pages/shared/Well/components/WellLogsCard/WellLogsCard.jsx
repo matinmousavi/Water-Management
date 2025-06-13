@@ -1,16 +1,13 @@
-import { Card, Flex, Typography } from 'antd'
-import { useParams } from 'react-router'
+import { Card, Flex, Typography, Grid } from 'antd'
 import WellAddLog from './components/WellAddLog/WellAddLog'
 import WellLogsTable from './components/WellLogsTable/WellLogsTable'
-import styles from './WellLogsCard.module.css'
+import WellLogsMobile from '../WellLogsMobile/WellLogsMobile'
 
 const { Title } = Typography
 
-const WellLogsCard = ({ wellLogs, setLogs }) => {
-	const { wellId } = useParams()
-
+const WellLogsCard = ({ wellLogs, wellId, setLogs }) => {
 	return (
-		<Card className={styles.cardContainer}>
+		<Card>
 			<Flex vertical gap={40}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-card-title'>
