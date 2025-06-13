@@ -1,16 +1,23 @@
 h4 {
 	margin: 0;
 }
+
 .btns {
 	button {
 		width: fit-content;
 	}
 }
-.wrapper {
-	margin-top: 1rem;
+
+.userName {
+	font-size: 14px;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 1);
 }
-.text {
-	font-size: 12px;
+
+.date {
+	font-size: 14px;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 0.5);
 }
 
 .fakePopoverBox {
@@ -38,13 +45,24 @@ h4 {
 	background-color: red;
 }
 
-.wrapper {
-	margin-top: 1rem;
+.commentText {
+	font-size: 14px;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 0.88);
 }
 
-/* ------------- tablet ------------- */
-@media (min-width: 768px) {
-	.text {
-		font-size: 14px;
+/* ------------- desktop ------------- */
+
+@media (min-width: 1280px) and (max-width: 1440px) {
+	.commentText {
+		font-size: 11px;
+	}
+
+	.date {
+		font-size: 11px;
+	}
+
+	.userName {
+		font-size: 11px;
 	}
 }

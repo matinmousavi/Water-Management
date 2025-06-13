@@ -89,17 +89,19 @@ const LandNote = ({ notesData: initialNotes }) => {
 		<>
 			<div ref={cardRef} className={styles.commentContainer}>
 				<Card className={styles.card}>
-					<Flex align='center' justify='space-between'>
-						<Title level={2} className='text-h2'>
-							یادداشت زمین
-						</Title>
-						<Button type='default' onClick={handleOpenAddNoteModal}>
-							<PlusCircleOutlined />
-							<span>افزودن یادداشت</span>
-						</Button>
-					</Flex>
+					<Flex gap={36} vertical>
+						<Flex align='center' justify='space-between'>
+							<Title level={2} className='text-card-title'>
+								یادداشت زمین ({notes?.length})
+							</Title>
+							<Button className='style-btn' onClick={handleOpenAddNoteModal}>
+								<PlusCircleOutlined />
+								<span>افزودن یادداشت</span>
+							</Button>
+						</Flex>
 
-					<NoteList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+						<NoteList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+					</Flex>
 				</Card>
 			</div>
 

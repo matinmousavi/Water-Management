@@ -49,10 +49,6 @@
 	gap: 8px !important;
 }
 
-.ant-pagination-item {
-	padding: 0 6px !important;
-}
-
 .ant-btn-color-dangerous {
 	color: #f5222d !important;
 }
@@ -174,30 +170,10 @@
 		font-size: 11px !important;
 	}
 
-	.ant-breadcrumb > ol {
-		gap: 5px !important;
-	}
-
-	.ant-pagination {
-		gap: 5px !important;
-	}
-
 	.ant-btn {
 		font-size: 13px !important;
 		padding: 0 12px !important;
 		height: 39px !important;
-	}
-
-	.ant-flex {
-		gap: 13px !important;
-	}
-
-	.ant-card-body .ant-flex {
-		gap: 33px !important;
-	}
-
-	.ant-btn .ant-flex {
-		gap: 5px !important;
 	}
 
 	.text-card-title {

@@ -1,4 +1,4 @@
-import { Flex, Typography } from 'antd'
+import { Flex, Typography, Tag } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 
 import useAPI from '../../../hooks/useAPI'
@@ -49,7 +49,7 @@ const Land = () => {
 		<>
 			<MetaTitle>{pageTitle || 'ویرایش زمین'}</MetaTitle>
 
-			<Flex vertical gap={10}>
+			<Flex vertical gap={16}>
 				<Breadcrumbs data={{ title: pageTitle }} />
 				<Flex align='center'>
 					<BackButton backTo={'wells'} />
@@ -61,7 +61,6 @@ const Land = () => {
 							فعال <EditOutlined />
 						</Flex>
 					</Tag>
-					,
 				</Flex>
 
 				<LandInfo landData={landData} setPageTitle={setPageTitle} />

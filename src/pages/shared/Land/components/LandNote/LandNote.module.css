@@ -33,10 +33,6 @@
 	background-color: red;
 }
 
-.wrapper {
-	margin-top: 1rem;
-}
-
 /* ------------- tablet ------------- */
 @media (min-width: 768px) {
 	.text {
