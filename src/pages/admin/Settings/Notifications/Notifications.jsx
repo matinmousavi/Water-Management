@@ -4,6 +4,8 @@ import BreadCrumbs from '../../../../components/BreadCrumbs/BreadCrumbs'
 import useAPI from '../../../../hooks/useAPI'
 import Loading from '../../../../components/Loading/Loading'
 import useNotification from '../../../../hooks/useNotification'
+import styles from './Notifications.module.css'
+import { EditOutlined } from '@ant-design/icons'
 
 const keyTitles = {
 	otp: 'پیام تأیید ورود (OTP)',
@@ -65,6 +67,7 @@ const Notifications = () => {
 	}
 
 	if (api.isLoading || !api.data) return <Loading />
+	console.log(api.data?.templates)
 
 	const getTemplate = key => api.data.templates.find(t => t.key === key)
 
@@ -72,73 +75,28 @@ const Notifications = () => {
 		<Flex vertical gap={32}>
 			<BreadCrumbs />
 			<Typography.Title level={1} className='text-page-title'>
-				اطلاع رسانی ها - پیامکی
+				تنظیمات اطلاع رسانی
 			</Typography.Title>
-			<Form form={form} layout='vertical'>
-				<Flex vertical gap={16}>
-					<Card>
-						<Flex vertical gap={16}>
-							<Typography.Title level={2} className='text-h2'>
-								اطلاع رسانی OTP
-							</Typography.Title>
-							<Typography.Text>پیامک حاوی کد تأیید هنگام ورود کاربر به سیستم ارسال می‌شود.</Typography.Text>
-
-							<Form.Item name='otp'>
-								<Input.TextArea rows={4} placeholder='متن پیامک را وارد کنید' />
-							</Form.Item>
-
-							{renderPlaceholders(getTemplate('otp')?.placeholders)}
-
-							<Flex justify='end'>
-								<Button type='primary' loading={savingKey === 'otp'} onClick={() => handleSave('otp')}>
-									ذخیره
-								</Button>
-							</Flex>
+			<Flex vertical className={styles.list}>
+				<Card className={styles.item}>
+					<Flex vertical>
+						<Flex align='center' className={styles.itemContainer} justify='space-between'>
+							<Typography.Title className='text-page-title'>اطلاع رسانی کد تایید</Typography.Title>
+							<Button className='style-btn' size='middle' type='default'>
+								<Flex gap={8}>
+									<EditOutlined />
+									<span>ویرایش</span>
+								</Flex>
+							</Button>
 						</Flex>
-					</Card>
-
-					<Card>
-						<Flex vertical gap={20}>
-							<Typography.Title level={2} className='text-h2'>
-								اطلاع رسانی آبرسانی
-							</Typography.Title>
-							<Typography.Text>پیامک حاوی اطلاعات آبرسانی به میراب و مالک زمین ارسال می‌شود.</Typography.Text>
-
-							<Row gutter={16}>
-								<Col span={12}>
-									<Flex vertical gap={8}>
-										<Flex justify='space-between' align='center'>
-											<Typography.Text>شروع آبرسانی</Typography.Text>
-											<Button type='primary' loading={savingKey === 'irrigation_start'} onClick={() => handleSave('irrigation_start')}>
-												ذخیره
-											</Button>
-										</Flex>
-										<Form.Item name='irrigation_start'>
-											<Input.TextArea rows={4} placeholder='متن پیامک را وارد کنید' />
-										</Form.Item>
-										{renderPlaceholders(getTemplate('irrigation_start')?.placeholders)}
-									</Flex>
-								</Col>
-
-								<Col span={12}>
-									<Flex vertical gap={8}>
-										<Flex justify='space-between' align='center'>
-											<Typography.Text>پایان آبرسانی</Typography.Text>
-											<Button type='primary' loading={savingKey === 'irrigation_end'} onClick={() => handleSave('irrigation_end')}>
-												ذخیره
-											</Button>
-										</Flex>
-										<Form.Item name='irrigation_end'>
-											<Input.TextArea rows={4} placeholder='متن پیامک را وارد کنید' />
-										</Form.Item>
-										{renderPlaceholders(getTemplate('irrigation_end')?.placeholders)}
-									</Flex>
-								</Col>
-							</Row>
-						</Flex>
-					</Card>
-				</Flex>
-			</Form>
+						<Typography.Text className={styles.text}>
+							لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در
+							ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد فراوان جامعه و متخصصان را می طلبد، تا با نرم افزارها شناخت بیشتری را
+							برای طراحان رایانه ای علی الخصوص طراحان خلاقی، و فرهنگ پیشرو در زبان فارسی ایجاد کرد.
+						</Typography.Text>
+					</Flex>
+				</Card>
+			</Flex>
 		</Flex>
 	)
 }
