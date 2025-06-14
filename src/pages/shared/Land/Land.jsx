@@ -1,4 +1,5 @@
-import { Flex, Typography, Tag } from 'antd'
+import { Modal, Select, Form, Tag, Typography, Flex } from 'antd'
+
 import { EditOutlined } from '@ant-design/icons'
 
 import useAPI from '../../../hooks/useAPI'
@@ -13,6 +14,7 @@ import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import LandInfo from './components/LandInfo/LandInfo'
 import { useUser } from '../../../contexts/UserContext'
 import LandNote from './components/LandNote/LandNote'
+import LandLogsCard from './components/LandLogsCard/LandLogsCard'
 
 const { Title } = Typography
 
@@ -23,6 +25,10 @@ const Land = () => {
 	const { isAdmin } = useUser()
 	const landApi = useAPI()
 	const [pageTitle, setPageTitle] = useState('')
+	const [logs, setLogs] = useState([])
+	const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+	const [status, setStatus] = useState([])
+	const [form] = Form.useForm()
 
 	const fetchLand = async () => {
 		try {
@@ -30,10 +36,25 @@ const Land = () => {
 			if (response?.land) {
 				setLandData(response.land)
 				setPageTitle(response.land.name)
+				// setLogs(response.land.logs || [])
+				// setStatus(response.land.status)
 			}
 		} catch (error) {
 			openNotification('error', 'خطا در دریافت اطلاعات زمین')
 			console.error('خطا در دریافت اطلاعات زمین:', error)
+		}
+	}
+
+	const handleStatusChange = async () => {
+		try {
+			const values = await form.validateFields()
+			const newStatus = values.status
+			console.log('New Status:', newStatus)
+			setStatus(newStatus)
+			setIsStatusModalOpen(false)
+		} catch (error) {
+			openNotification('error', 'خطا در تغییر وضعیت  زمین')
+			console.error('خطا در  تغییر وضعیت زمین:', error)
 		}
 	}
 
@@ -56,18 +77,54 @@ const Land = () => {
 					<Title level={1} className='text-h3'>
 						{pageTitle}
 					</Title>
-					<Tag color='green'>
+					<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={() => setIsStatusModalOpen(true)}>
 						<Flex align='center' gap={3}>
-							فعال <EditOutlined />
+							{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
 						</Flex>
 					</Tag>
 				</Flex>
 
 				<LandInfo landData={landData} setPageTitle={setPageTitle} />
 				<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
+				<LandLogsCard landLogs={logs} setLogs={setLogs} />
 
 				{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 			</Flex>
+
+			<Modal
+				title={`تغییر وضعیت ${landData?.name}`}
+				open={isStatusModalOpen}
+				onCancel={() => setIsStatusModalOpen(false)}
+				onOk={handleStatusChange}
+				okText='ثبت'
+				cancelText='انصراف'
+			>
+				<Form layout='vertical' form={form} initialValues={{ status }}>
+					<Form.Item name='status' label='وضعیت' rules={[{ required: true, message: 'لطفا وضعیت را انتخاب کنید' }]}>
+						<Select
+							optionLabelProp='label'
+							options={[
+								{
+									label: (
+										<Tag color='green' style={{ color: 'green', padding: '0 8px' }}>
+											فعال
+										</Tag>
+									),
+									value: 'active',
+								},
+								{
+									label: (
+										<Tag color='red' style={{ color: 'red', padding: '0 8px' }}>
+											غیرفعال
+										</Tag>
+									),
+									value: 'inactive',
+								},
+							]}
+						/>
+					</Form.Item>
+				</Form>
+			</Modal>
 		</>
 	)
 }
