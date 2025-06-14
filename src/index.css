@@ -23,14 +23,6 @@
 	max-width: 420px;
 }
 
-.ant-flex {
-	gap: 16px;
-}
-
-.ant-pagination {
-	gap: 8px !important;
-}
-
 .ant-input {
 	padding-top: 0.5rem;
 }
@@ -162,11 +154,27 @@
 	.ant-modal {
 		max-width: 520px;
 	}
+
+	.ant-flex {
+		gap: 16px;
+	}
+
+	.ant-pagination {
+		gap: 8px !important;
+	}
 }
 
 @media (1280px <= width <1440px) {
 	.ant-modal {
 		max-width: 520px;
+	}
+
+	.ant-flex {
+		gap: 16px;
+	}
+
+	.ant-pagination {
+		gap: 8px !important;
 	}
 
 	.text-page-title {
