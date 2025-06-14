@@ -113,7 +113,6 @@ const UsersTable = ({ usersData }) => {
 				columns={columns}
 				dataSource={usersData}
 				rowKey={record => record._id}
-				size='small'
 				bordered
 				scroll={{ y: height }}
 			/>

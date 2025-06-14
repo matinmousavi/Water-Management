@@ -1,4 +1,4 @@
-import { Form, Input, Radio } from 'antd'
+import { Form, Input, Select } from 'antd'
 
 const ROLES = [
 	{ key: 'admin', label: 'مدیر' },
@@ -11,7 +11,7 @@ const wrapperColSpan = 18
 
 const UserForm = ({ form }) => {
 	return (
-		<Form form={form} layout='horizontal' labelCol={{ span: labelColSpan }} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
+		<Form form={form} layout='horizontal' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
 			<Form.Item label='نام' name='firstName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>
@@ -21,13 +21,18 @@ const UserForm = ({ form }) => {
 			</Form.Item>
 
 			<Form.Item label='نقش' name='role' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Radio.Group>
-					{ROLES.map(role => (
-						<Radio key={role.key} value={role.key}>
-							{role.label}
-						</Radio>
-					))}
-				</Radio.Group>
+				<Select
+					showSearch
+					placeholder='انتخاب'
+					allowClear
+					style={{ width: '100%' }}
+					options={ROLES.map(role => ({
+						value: `${role?.label}`,
+						label: `${role?.label}`,
+					}))}
+					fieldNames={{ value: 'value', label: 'label' }}
+					size='large'
+				/>
 			</Form.Item>
 
 			<Form.Item

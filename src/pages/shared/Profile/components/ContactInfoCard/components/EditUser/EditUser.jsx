@@ -62,7 +62,7 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 
 	return (
 		<>
-			<Button type='primary' onClick={() => open(handleOpen, 'before')}>
+			<Button className='style-btn' onClick={() => open(handleOpen, 'before')}>
 				<Flex gap={5} align='center' justify='center'>
 					<EditOutlined />
 					<span>ویرایش</span>
@@ -76,7 +76,7 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 				onCancel={handleCancel}
 				afterOpenChange={handleAfterChange}
 				confirmLoading={userApi.isLoading}
-				okText='ذخیره'
+				okText='ثبت'
 				cancelText='انصراف'
 				forceRender
 				centered

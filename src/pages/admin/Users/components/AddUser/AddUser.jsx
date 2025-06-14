@@ -56,7 +56,7 @@ const AddUser = ({ setUser }) => {
 				onCancel={handleCancel}
 				afterOpenChange={handleAfterChange}
 				confirmLoading={userApi.isLoading}
-				okText='ذخیره'
+				okText='ثبت'
 				cancelText='انصراف'
 				forceRender
 				centered
