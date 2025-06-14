@@ -6,46 +6,10 @@
 		height: auto;
 		height: 100%;
 	}
-
-	.date {
-		color: rgba(0, 0, 0, 0.5);
-		font-size: 14px;
-	}
-}
-
-.text {
-	font-size: 12px;
-}
-
-.arrowLeft {
-	position: absolute;
-	right: -8px;
-	bottom: 20px;
-	width: 0;
-	height: 0;
-	border-top: 8px solid transparent;
-	border-bottom: 8px solid transparent;
-	border-left: 8px solid #fff;
-	filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.08));
-}
-
-.popConfirm {
-	background-color: red;
 }
 
 .deleteOkButton {
 	background-color: #f5222d;
 	color: #fff;
 	border-color: #f5222d;
-}
-
-/* ------------- tablet ------------- */
-@media (min-width: 768px) {
-	.text {
-		font-size: 14px;
-	}
-}
-
-.form {
-	padding: 20px;
 }

@@ -20,7 +20,7 @@ const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
 									})}
 								</span>
 							</Flex>
-							<Space size={8} className={styles.btns}>
+							<Space className={styles.btns}>
 								<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
 								<Button type='link' icon={<DeleteOutlined />} danger onClick={() => handleDeleteClick(note)} />
 							</Space>

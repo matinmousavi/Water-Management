@@ -89,6 +89,10 @@
 	border-radius: 4px !important;
 }
 
+.ant-space-gap-col-small {
+	column-gap: 0 !important;
+}
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
