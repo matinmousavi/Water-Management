@@ -32,7 +32,7 @@ const WellLogsTable = ({ data, setLogs }) => {
 
 	const columns = [
 		{
-			title: 'تاریخ شروع',
+			title: 'تاریخ ',
 			render: record => new Date(record.start).toLocaleDateString('fa-IR'),
 		},
 		{
@@ -80,7 +80,7 @@ const WellLogsTable = ({ data, setLogs }) => {
 
 	return (
 		<>
-			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} />
+			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
 			{selectedLog && isOpen && (
 				<WellEditLog
 					logData={selectedLog}

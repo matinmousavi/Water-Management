@@ -89,22 +89,24 @@ const LandNote = ({ notesData: initialNotes }) => {
 		<>
 			<div ref={cardRef} className={styles.commentContainer}>
 				<Card className={styles.card}>
-					<Flex align='center' justify='space-between'>
-						<Title level={2} className='text-h2'>
-							یادداشت زمین
-						</Title>
-						<Button type='default' onClick={handleOpenAddNoteModal}>
-							<PlusCircleOutlined />
-							<span>افزودن یادداشت</span>
-						</Button>
-					</Flex>
+					<Flex gap={36} vertical>
+						<Flex align='center' justify='space-between'>
+							<Title level={2} className='text-card-title'>
+								یادداشت زمین ({notes?.length})
+							</Title>
+							<Button className='style-btn' onClick={handleOpenAddNoteModal}>
+								<PlusCircleOutlined />
+								<span>افزودن یادداشت</span>
+							</Button>
+						</Flex>
 
-					<NoteList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+						<NoteList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+					</Flex>
 				</Card>
 			</div>
 
 			<Modal
-				title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
+				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}` : 'افزودن یادداشت'}
 				centered
 				open={isShowModalNote}
 				onCancel={() => {
@@ -116,12 +118,12 @@ const LandNote = ({ notesData: initialNotes }) => {
 			>
 				<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
 					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-						<Input.TextArea rows={4} placeholder='متن یادداشت را وارد کنید...' />
+						<Input.TextArea rows={4} />
 					</Form.Item>
 					<Flex justify='end' gap={8}>
 						<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
 						<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
-							{isNoteEditMode ? 'ذخیره تغییرات' : 'ذخیره'}
+							ثبت
 						</Button>
 					</Flex>
 				</Form>

@@ -39,10 +39,54 @@
 	margin-left: 16px !important;
 }
 
-@media (min-width: 1440px) {
-	.ant-modal {
-		max-width: 520px;
-	}
+.ant-breadcrumb-link > span,
+.ant-breadcrumb-link > a {
+	font-size: 14px !important;
+	font-weight: 400 !important;
+}
+
+.ant-breadcrumb > ol {
+	gap: 8px !important;
+}
+
+.ant-btn-color-dangerous {
+	color: #f5222d !important;
+}
+
+.ant-picker {
+	border-radius: 4px !important;
+}
+
+.ant-modal-content {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 20px !important;
+}
+
+.ant-form {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 20px !important;
+}
+
+.ant-form-item {
+	margin-bottom: 0 !important;
+}
+
+.ant-modal-footer {
+	margin-top: 0 !important;
+}
+
+.ant-modal .ant-row {
+	flex-flow: row nowrap !important;
+}
+
+.ant-form-item-label {
+	width: 160px !important;
+}
+
+.ant-select-selector {
+	border-radius: 4px !important;
 }
 
 /* --------------------------------------------
@@ -50,10 +94,11 @@
 --------------------------------------------- */
 .text-page-title {
 	font-size: 1rem !important;
-	font-weight: 500;
-	color: #1f2937;
+	font-weight: 400 !important;
+	color: #000000 !important;
 	margin-bottom: 0 !important;
 }
+
 .text-card-title {
 	font-size: 1rem !important;
 	font-weight: 400 !important;
@@ -90,10 +135,57 @@
 
 .label .text {
 	font-weight: 400;
+	font-size: 1rem !important;
 	color: #00000080;
 }
 
 .value .text {
 	font-weight: 500;
+	font-size: 1rem !important;
 	color: #000;
+}
+
+.style-btn {
+	border-color: #0066ee;
+	color: #0066ee;
+}
+
+@media (min-width: 1440px) {
+	.ant-modal {
+		max-width: 520px;
+	}
+}
+
+@media (1280px <= width <1440px) {
+	.ant-modal {
+		max-width: 520px;
+	}
+
+	.text-page-title {
+		font-size: 13px !important;
+	}
+
+	.ant-breadcrumb-link > span,
+	.ant-breadcrumb-link > a {
+		font-size: 11px !important;
+	}
+
+	.ant-btn {
+		font-size: 13px !important;
+		padding: 0 12px !important;
+		height: 39px !important;
+	}
+
+	.text-card-title {
+		font-size: 13px !important;
+	}
+
+	.value .text,
+	.label .text {
+		font-size: 13px !important;
+	}
+
+	.ant-table-wrapper .ant-table {
+		font-size: 13px !important;
+	}
 }

@@ -15,9 +15,10 @@ const wrapperColSpan = 20
 
 const LandForm = ({ form, landOwners = [], wells = [] }) => {
 	const { isAdmin } = useUser()
+	console.log(landOwners)
 
 	return (
-		<Form form={form} layout='horizontal' name='landForm' labelCol={{ span: labelColSpan }} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
+		<Form form={form} name='landForm' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
 			<Form.Item name='name' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>
@@ -26,7 +27,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 				<Form.Item name='owner' label='مالک زمین' rules={[{ required: true, message: 'مالک را وارد کنید' }]}>
 					<Select
 						showSearch
-						placeholder='مالک را انتخاب کنید'
+						placeholder='انتخاب'
 						allowClear
 						style={{ width: '100%' }}
 						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -35,13 +36,14 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 							label: `${owner.firstName} ${owner.lastName}`,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
+						size='large'
 					/>
 				</Form.Item>
 			)}
 
 			<Form.Item
 				name='area'
-				label='مساحت (هکتار)'
+				label='مساحت'
 				rules={[
 					{ required: true, message: 'این فیلد الزامی است' },
 					{ pattern: /^[0-9]+$/, message: 'فرمت معتبر نیست' },
@@ -61,12 +63,12 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 				<Input />
 			</Form.Item>
 
-			<Form.Item name='cropType' label='نوع محصول' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item name='cropType' label='محصول' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>
 
-			<Form.Item name='irrigationType' label='نوع آبیاری' rules={[{ required: true, message: 'لطفاً نوع آبیاری را انتخاب کنید' }]}>
-				<Select options={irrigationOptions} placeholder='انتخاب نوع آبیاری' allowClear />
+			<Form.Item name='irrigationType' label='نوع آبیاری' rules={[{ required: true, message: 'نوع آبیاری را انتخاب کنید ' }]}>
+				<Select options={irrigationOptions} placeholder='انتخاب' allowClear size='large' />
 			</Form.Item>
 
 			<Form.Item
@@ -82,7 +84,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 			<Form.Item name='wellId' label='چاه'>
 				<Select
 					showSearch
-					placeholder='چاه را انتخاب کنید'
+					placeholder='انتخاب'
 					allowClear
 					style={{ width: '100%' }}
 					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -91,6 +93,22 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 						label: well.title,
 					}))}
 					fieldNames={{ value: 'value', label: 'label' }}
+					size='large'
+				/>
+			</Form.Item>
+			<Form.Item name='irrigator' label='میرآب' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Select
+					showSearch
+					placeholder='انتخاب'
+					allowClear
+					style={{ width: '100%' }}
+					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+					options={landOwners.map(owner => ({
+						value: owner._id,
+						label: `${owner.firstName} ${owner.lastName}`,
+					}))}
+					fieldNames={{ value: 'value', label: 'label' }}
+					size='large'
 				/>
 			</Form.Item>
 		</Form>

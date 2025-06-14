@@ -1,6 +1,8 @@
 import { Form, Input, Select } from 'antd'
 import { useUser } from '../../../contexts/UserContext'
 
+const { TextArea } = Input
+
 const WellForm = ({ form, irrigators = [] }) => {
 	const { isAdmin } = useUser()
 
@@ -11,10 +13,10 @@ const WellForm = ({ form, irrigators = [] }) => {
 			</Form.Item>
 
 			{isAdmin && (
-				<Form.Item label='میراب' name='irrigator'>
+				<Form.Item label=' نام میرآب ' name='irrigator'>
 					<Select
 						showSearch
-						placeholder='میراب را انتخاب کنید'
+						placeholder='انتخاب'
 						allowClear
 						style={{ width: '100%' }}
 						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -23,6 +25,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 							label: `${irrigator.firstName} ${irrigator.lastName}`,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
+						size='large'
 					/>
 				</Form.Item>
 			)}
@@ -36,7 +39,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 			</Form.Item>
 
 			<Form.Item label='مکان' name='location' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input />
+				<TextArea rows={3} />
 			</Form.Item>
 		</Form>
 	)

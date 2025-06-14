@@ -36,7 +36,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: (_, record) => `${record.owner?.firstName} ${record.owner?.lastName}`,
+			render: (_, record) => <Link to={`/users/${record.owner?._id}`}>{`${record.owner?.firstName} ${record.owner?.lastName}`}</Link>,
 		},
 		{
 			title: 'شماره تماس',
@@ -73,7 +73,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 		})
 	}
 
-	return <Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} />
+	return <Table dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
 }
 
 export default WellLandsTable
