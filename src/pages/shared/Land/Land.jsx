@@ -56,7 +56,7 @@ const Land = () => {
 			{isMobile ? (
 				<LandMobile landData={landData} />
 			) : (
-				<Flex vertical gap={10}>
+				<Flex vertical gap={16}>
 					<Breadcrumbs data={{ title: pageTitle }} />
 					<Flex className={styles.header} align='center'>
 						<BackButton backTo={'wells'} />
