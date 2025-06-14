@@ -15,6 +15,7 @@ const wrapperColSpan = 20
 
 const LandForm = ({ form, landOwners = [], wells = [] }) => {
 	const { isAdmin } = useUser()
+	console.log(landOwners)
 
 	return (
 		<Form form={form} name='landForm' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>

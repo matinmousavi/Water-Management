@@ -106,7 +106,7 @@ const LandNote = ({ notesData: initialNotes }) => {
 			</div>
 
 			<Modal
-				title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
+				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}` : 'افزودن یادداشت'}
 				centered
 				open={isShowModalNote}
 				onCancel={() => {
@@ -118,12 +118,12 @@ const LandNote = ({ notesData: initialNotes }) => {
 			>
 				<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
 					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-						<Input.TextArea rows={4} placeholder='متن یادداشت را وارد کنید...' />
+						<Input.TextArea rows={4} />
 					</Form.Item>
 					<Flex justify='end' gap={8}>
 						<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
 						<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
-							{isNoteEditMode ? 'ذخیره تغییرات' : 'ذخیره'}
+							ثبت
 						</Button>
 					</Flex>
 				</Form>
