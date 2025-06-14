@@ -1,4 +1,5 @@
 import { Form, Input, Select } from 'antd'
+import ProfileImageInput from '../ProfileImageInput/ProfileImageInput'
 
 const ROLES = [
 	{ key: 'admin', label: 'مدیر' },
@@ -12,6 +13,10 @@ const wrapperColSpan = 18
 const UserForm = ({ form }) => {
 	return (
 		<Form form={form} layout='horizontal' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
+			<Form.Item label='تصویر ' name='image' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<ProfileImageInput />
+			</Form.Item>
+
 			<Form.Item label='نام' name='firstName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>

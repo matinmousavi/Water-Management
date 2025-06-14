@@ -93,6 +93,10 @@
 	column-gap: 0 !important;
 }
 
+.ant-upload {
+	width: 100% !important;
+}
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
