@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Flex, Tag, Typography } from 'antd'
+import { Flex, Tag, Typography, Modal, Select, Form } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import Loading from '../../../components/Loading/Loading'
@@ -20,6 +20,9 @@ const Well = () => {
 
 	const [title, setPageTitle] = useState('')
 	const [logs, setLogs] = useState([])
+	const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+	const [status, setStatus] = useState([])
+	const [form] = Form.useForm()
 
 	if (wellId) api.init(`wells/${wellId}`)
 
@@ -27,8 +30,22 @@ const Well = () => {
 		if (api.data?.well) {
 			setPageTitle(api.data.well.title)
 			setLogs(api.data.well.logs || [])
+			// setStatus(userData.status)
 		}
 	}, [api.data?.well])
+
+	const handleStatusChange = async () => {
+		try {
+			const values = await form.validateFields()
+			const newStatus = values.status
+			console.log('New Status:', newStatus)
+			setStatus(newStatus)
+			setIsStatusModalOpen(false)
+		} catch (error) {
+			openNotification('error', 'خطا در تغییر وضعیت  زمین')
+			console.error('خطا در  تغییر وضعیت زمین:', error)
+		}
+	}
 
 	if (api.isLoading || !api.data?.well) return <Loading />
 
@@ -42,9 +59,9 @@ const Well = () => {
 				<Flex align='center' gap={8}>
 					<BackButton backTo='/wells' />
 					<Typography.Title className='text-page-title'>{title}</Typography.Title>
-					<Tag color='green'>
-						<Flex align='center' gap={4}>
-							فعال <EditOutlined />
+					<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={() => setIsStatusModalOpen(true)}>
+						<Flex align='center' gap={3}>
+							{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
 						</Flex>
 					</Tag>
 				</Flex>
@@ -57,6 +74,41 @@ const Well = () => {
 
 				{isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
 			</Flex>
+
+			<Modal
+				title={`تغییر وضعیت چاه ${api.data?.well?.title}`}
+				open={isStatusModalOpen}
+				onCancel={() => setIsStatusModalOpen(false)}
+				onOk={handleStatusChange}
+				okText='ثبت'
+				cancelText='انصراف'
+			>
+				<Form layout='vertical' form={form} initialValues={{ status }}>
+					<Form.Item name='status' label='وضعیت' rules={[{ required: true, message: 'لطفا وضعیت را انتخاب کنید' }]}>
+						<Select
+							optionLabelProp='label'
+							options={[
+								{
+									label: (
+										<Tag color='green' style={{ color: 'green', padding: '0 8px' }}>
+											فعال
+										</Tag>
+									),
+									value: 'active',
+								},
+								{
+									label: (
+										<Tag color='red' style={{ color: 'red', padding: '0 8px' }}>
+											غیرفعال
+										</Tag>
+									),
+									value: 'inactive',
+								},
+							]}
+						/>
+					</Form.Item>
+				</Form>
+			</Modal>
 		</>
 	)
 }

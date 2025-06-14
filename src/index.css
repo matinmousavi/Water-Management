@@ -204,4 +204,7 @@
 	.ant-table-wrapper .ant-table {
 		font-size: 13px !important;
 	}
+	.ant-tag > div {
+		font-size: 11px;
+	}
 }
