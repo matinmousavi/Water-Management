@@ -7,7 +7,7 @@ import useNotification from '../../../../../hooks/useNotification'
 import { useParams } from 'react-router'
 import NoteList from './components/NoteList/NoteList'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 
 const LandNote = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
@@ -18,6 +18,7 @@ const LandNote = ({ notesData: initialNotes }) => {
 
 	const [isShowModalNote, setIsShowModalNote] = useState(false)
 	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
+	const [isNoteDeleteMode, setIsNoteDeleteMode] = useState(false)
 	const [selectedNote, setSelectedNote] = useState(null)
 	const [notes, setNotes] = useState(initialNotes || [])
 
@@ -39,14 +40,23 @@ const LandNote = ({ notesData: initialNotes }) => {
 		setIsShowModalNote(true)
 	}
 
-	const handleDelete = async noteId => {
+	const handleDeleteClick = note => {
+		setSelectedNote(note)
+		setIsNoteDeleteMode(true)
+	}
+
+	const confirmDeleteNote = async () => {
+		if (!selectedNote?._id) return
 		try {
-			await notesApi.delete(`lands/${landId}/notes/${noteId}`)
-			setNotes(prev => prev.filter(note => note?._id !== noteId))
+			await notesApi.delete(`lands/${landId}/notes/${selectedNote._id}`)
+			setNotes(prev => prev.filter(note => note._id !== selectedNote._id))
 			openNotification('success', 'یادداشت با موفقیت حذف شد')
 		} catch (error) {
 			openNotification('error', 'خطا در حذف یادداشت')
 			console.error('Error deleting note:', error)
+		} finally {
+			setIsNoteDeleteMode(false)
+			setSelectedNote(null)
 		}
 	}
 
@@ -100,7 +110,7 @@ const LandNote = ({ notesData: initialNotes }) => {
 							</Button>
 						</Flex>
 
-						<NoteList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+						<NoteList handleDeleteClick={handleDeleteClick} handleEditNote={handleEditNote} data={notes} />
 					</Flex>
 				</Card>
 			</div>
@@ -127,6 +137,25 @@ const LandNote = ({ notesData: initialNotes }) => {
 						</Button>
 					</Flex>
 				</Form>
+			</Modal>
+
+			<Modal
+				title={`حذف یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}`}
+				centered
+				open={isNoteDeleteMode}
+				onCancel={() => {
+					setIsNoteDeleteMode(false)
+					setSelectedNote(null)
+				}}
+				onOk={confirmDeleteNote}
+				confirmLoading={notesApi.isLoading}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					className: styles.deleteOkButton,
+				}}
+			>
+				<Text>آیا از حذف این یادداشت اطمینان دارید؟</Text>
 			</Modal>
 		</>
 	)
