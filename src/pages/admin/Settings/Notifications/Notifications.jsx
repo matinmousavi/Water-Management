@@ -37,13 +37,13 @@ const Notifications = () => {
 	if (api.isLoading || !api.data) return <Loading />
 
 	return (
-		<Flex vertical gap={32}>
+		<Flex vertical gap={16}>
 			<BreadCrumbs />
 			<Typography.Title level={1} className='text-page-title'>
 				تنظیمات اطلاع رسانی
 			</Typography.Title>
 
-			<Flex vertical className={styles.list}>
+			<Flex vertical gap={16} className={styles.list}>
 				{templates.map((item, index) => (
 					<Card key={index} className={styles.item}>
 						<Flex vertical>
