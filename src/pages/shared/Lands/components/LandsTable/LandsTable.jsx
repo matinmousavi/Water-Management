@@ -8,6 +8,7 @@ const LandsTable = ({ landsData = [] }) => {
 			value: name,
 		})
 	)
+
 	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner.firstName} ${land.owner.lastName}`))).map(name => ({
 		text: name,
 		value: name,
@@ -35,11 +36,6 @@ const LandsTable = ({ landsData = [] }) => {
 			filterSearch: true,
 			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
 		},
-		// {
-		// 	title: 'محصول',
-		// 	dataIndex: 'cropType',
-		// 	key: 'cropType',
-		// },
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
@@ -64,7 +60,7 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'عنوان چاه‌',
 			key: 'wellTitles',
-			render: (_, record) => record.wells?.map(well => well.title).join('-'),
+			render: (_, record) => record.wells?.map(well => <Link to={`/wells/${well._id}`}>{well.title}</Link>),
 		},
 		{
 			title: 'میرآب',
@@ -74,7 +70,7 @@ const LandsTable = ({ landsData = [] }) => {
 				return record.wells.some(well => `${well.irrigator.firstName} ${well.irrigator.lastName}` === value)
 			},
 			render: (_, record) => {
-				return record.wells?.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`).join('-')
+				return record.wells?.map(well => <Link to={`/wells/${well._id}`}>{`${well.irrigator.firstName} ${well.irrigator.lastName}`}</Link>)
 			},
 		},
 		{
@@ -107,6 +103,7 @@ const LandsTable = ({ landsData = [] }) => {
 				pageSize: 6,
 			}}
 			scroll={{ x: 'max-content' }}
+			bordered
 		/>
 	)
 }

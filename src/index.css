@@ -23,14 +23,6 @@
 	max-width: 420px;
 }
 
-.ant-flex {
-	gap: 16px;
-}
-
-.ant-pagination {
-	gap: 8px !important;
-}
-
 .ant-input {
 	padding-top: 0.5rem;
 }
@@ -47,10 +39,6 @@
 
 .ant-breadcrumb > ol {
 	gap: 8px !important;
-}
-
-.ant-pagination-item {
-	padding: 0 6px !important;
 }
 
 .ant-btn-color-dangerous {
@@ -91,6 +79,14 @@
 
 .ant-select-selector {
 	border-radius: 4px !important;
+}
+
+.ant-space-gap-col-small {
+	column-gap: 0 !important;
+}
+
+.ant-upload {
+	width: 100% !important;
 }
 
 /* --------------------------------------------
@@ -158,11 +154,27 @@
 	.ant-modal {
 		max-width: 520px;
 	}
+
+	.ant-flex {
+		gap: 16px;
+	}
+
+	.ant-pagination {
+		gap: 8px !important;
+	}
 }
 
 @media (1280px <= width <1440px) {
 	.ant-modal {
 		max-width: 520px;
+	}
+
+	.ant-flex {
+		gap: 16px;
+	}
+
+	.ant-pagination {
+		gap: 8px !important;
 	}
 
 	.text-page-title {
@@ -174,30 +186,10 @@
 		font-size: 11px !important;
 	}
 
-	.ant-breadcrumb > ol {
-		gap: 5px !important;
-	}
-
-	.ant-pagination {
-		gap: 5px !important;
-	}
-
 	.ant-btn {
 		font-size: 13px !important;
 		padding: 0 12px !important;
 		height: 39px !important;
-	}
-
-	.ant-flex {
-		gap: 13px !important;
-	}
-
-	.ant-card-body .ant-flex {
-		gap: 33px !important;
-	}
-
-	.ant-btn .ant-flex {
-		gap: 5px !important;
 	}
 
 	.text-card-title {
@@ -211,5 +203,8 @@
 
 	.ant-table-wrapper .ant-table {
 		font-size: 13px !important;
+	}
+	.ant-tag > div {
+		font-size: 11px;
 	}
 }

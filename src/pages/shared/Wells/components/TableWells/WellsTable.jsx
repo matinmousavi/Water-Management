@@ -60,10 +60,10 @@ const WellsTable = ({ WellsData }) => {
 				pagination={{
 					position: ['bottomCenter'],
 					total: WellsData.length,
+					pageSize: 6,
 				}}
 				scroll={{ y: height }}
 				bordered
-				size='small'
 			/>
 		</div>
 	)
