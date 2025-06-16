@@ -1,6 +1,6 @@
 import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
 import { Drawer, Flex, Image, Layout, Menu, Button } from 'antd'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState, useEffect } from 'react'
 import styles from './Layouts.module.css'
@@ -12,6 +12,8 @@ const Layouts = () => {
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
 	const [isMobile, setIsMobile] = useState(false)
+
+	const navigate = useNavigate()
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -33,7 +35,7 @@ const Layouts = () => {
 		if (isAdmin || isIrrigator) {
 			items.push({
 				key: '/wells',
-				label: <Link to='/wells'>چاه ها</Link>,
+				label: <Link to='/wells'>چاه‌ها</Link>,
 			})
 		}
 
@@ -41,7 +43,7 @@ const Layouts = () => {
 			items.push(
 				{
 					key: '/lands',
-					label: <Link to='/lands'>زمین ها</Link>,
+					label: <Link to='/lands'>زمین‌ها</Link>,
 				},
 				{
 					key: '/users',
@@ -56,13 +58,11 @@ const Layouts = () => {
 	const profileMenuItems = [
 		{
 			key: '/profile',
-			icon: <UserOutlined />,
-			label: <Link to='/profile'></Link>,
+			icon: <UserOutlined className={styles.icons} onClick={() => navigate('/profile')} />,
 		},
 		{
 			key: '/bell',
-			icon: <BellOutlined />,
-			label: <Link to='/'></Link>,
+			icon: <BellOutlined className={styles.icons} />,
 		},
 	]
 
@@ -70,12 +70,11 @@ const Layouts = () => {
 		profileMenuItems.push(
 			{
 				key: '/settings',
-				icon: <SettingOutlined />,
-				label: <Link to='/settings'></Link>,
+				icon: <SettingOutlined className={styles.icons} onClick={() => navigate('/settings')} />,
 			},
 			{
 				key: 'logout',
-				icon: <LogoutOutlined onClick={logout} />,
+				icon: <LogoutOutlined className={styles.icons} onClick={logout} />,
 			}
 		)
 	}
@@ -86,7 +85,7 @@ const Layouts = () => {
 				<Flex align='center' justify='space-between'>
 					<Flex className={styles['w-full']} align='center' gap={10}>
 						<Link to='/'>
-							<Image width={30} src='../assets/images/default-logo.png' preview={false} />
+							<Image width={24} src='../assets/images/default-logo.png' preview={false} />
 						</Link>
 						<h3 className={styles.title}>مدیریت آب</h3>
 

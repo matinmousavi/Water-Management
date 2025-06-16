@@ -23,9 +23,9 @@ const AdminWellLogForm = ({ form, lands }) => {
 					filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}
 					allowClear
 				>
-					{lands?.map(l => (
-						<Select.Option key={l._id} value={l._id}>
-							{l.name}
+					{lands?.map(land => (
+						<Select.Option key={land._id} value={land._id}>
+							{land.title}
 						</Select.Option>
 					))}
 				</Select>

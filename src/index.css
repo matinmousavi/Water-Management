@@ -89,6 +89,10 @@
 	width: 100% !important;
 }
 
+.ant-menu-title-content {
+	margin-inline-start: 0 !important;
+}
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */

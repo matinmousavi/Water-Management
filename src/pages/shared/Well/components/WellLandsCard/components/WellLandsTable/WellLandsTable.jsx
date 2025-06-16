@@ -28,9 +28,9 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 	const columns = [
 		{
 			title: 'عنوان زمین',
-			dataIndex: 'name',
-			key: 'name',
-			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.name}</Link>,
+			dataIndex: 'title',
+			key: 'title',
+			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.title}</Link>,
 		},
 		{
 			title: 'مالک زمین',

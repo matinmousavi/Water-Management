@@ -19,7 +19,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 
 	return (
 		<Form form={form} name='landForm' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
-			<Form.Item name='name' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item name='title' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>
 

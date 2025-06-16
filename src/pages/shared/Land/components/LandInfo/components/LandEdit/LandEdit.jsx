@@ -44,7 +44,7 @@ const LandEdit = ({ initialValue, setData, setPageTitle }) => {
 				setData?.({ land: response.land })
 
 				if (typeof setPageTitle === 'function') {
-					const newTitle = response.land.name
+					const newTitle = response.land.title
 					setPageTitle(prev => (newTitle !== prev ? newTitle : prev))
 				}
 				close(() => form.resetFields(), 'after')

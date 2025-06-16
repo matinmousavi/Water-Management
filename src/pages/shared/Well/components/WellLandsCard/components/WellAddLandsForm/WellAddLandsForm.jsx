@@ -13,7 +13,7 @@ const WellAddLandsForm = ({ form, lands = [] }) => {
 					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 					options={lands.map(land => ({
 						value: land._id,
-						label: land.name,
+						label: land.title,
 					}))}
 					size='large'
 				/>

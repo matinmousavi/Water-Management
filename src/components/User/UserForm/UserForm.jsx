@@ -13,7 +13,7 @@ const wrapperColSpan = 18
 const UserForm = ({ form }) => {
 	return (
 		<Form form={form} layout='horizontal' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
-			<Form.Item label='تصویر ' name='image' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item label='تصویر ' name='image'>
 				<ProfileImageInput />
 			</Form.Item>
 
@@ -32,7 +32,7 @@ const UserForm = ({ form }) => {
 					allowClear
 					style={{ width: '100%' }}
 					options={ROLES.map(role => ({
-						value: `${role?.label}`,
+						value: `${role?.key}`,
 						label: `${role?.label}`,
 					}))}
 					fieldNames={{ value: 'value', label: 'label' }}
