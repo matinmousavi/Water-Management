@@ -46,20 +46,20 @@ messageTemplateSchema.statics.initializeTemplates = async function () {
 		},
 		{
 			key: 'irrigation_start',
-			text: 'آبیاری زمین "{{landName}}" در ساعت {{time}} شروع شد.',
+			text: 'آبیاری زمین "{{landTitle}}" در ساعت {{time}} شروع شد.',
 			description: 'اطلاع‌رسانی شروع آبیاری زمین',
 			placeholders: [
-				{ key: '{{landName}}', description: 'نام زمین' },
+				{ key: '{{landTitle}}', description: 'نام زمین' },
 				{ key: '{{time}}', description: 'زمان شروع' },
 			],
 			type: 'sms',
 		},
 		{
 			key: 'irrigation_end',
-			text: 'آبیاری زمین "{{landName}}" به پایان رسید. مدت زمان: {{duration}} دقیقه.',
+			text: 'آبیاری زمین "{{landTitle}}" به پایان رسید. مدت زمان: {{duration}} دقیقه.',
 			description: 'اطلاع‌رسانی پایان آبیاری زمین',
 			placeholders: [
-				{ key: '{{landName}}', description: 'نام زمین' },
+				{ key: '{{landTitle}}', description: 'نام زمین' },
 				{ key: '{{duration}}', description: 'مدت زمان آبیاری (دقیقه)' },
 			],
 			type: 'sms',

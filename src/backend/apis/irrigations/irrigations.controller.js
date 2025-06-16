@@ -40,9 +40,9 @@ export const getIrrigations = async (req, res) => {
 		})
 
 		const irrigations = await Irrigation.find(filter)
-			.populate('land', 'name')
+			.populate('land', 'title')
 			.populate('well', 'title')
-			.populate('createdBy', 'name')
+			.populate('createdBy', 'firstName lastName mobile')
 			.sort({ createdAt: -1 })
 			.lean()
 
@@ -57,7 +57,11 @@ export const getIrrigation = async (req, res) => {
 	try {
 		const { irrigationId } = req.params
 
-		const irrigation = await Irrigation.findById(irrigationId).populate('land', 'name').populate('well', 'title').populate('createdBy', 'name').lean()
+		const irrigation = await Irrigation.findById(irrigationId)
+			.populate('land', 'title')
+			.populate('well', 'title')
+			.populate('createdBy', 'firstName lastName Mobile')
+			.lean()
 
 		if (!irrigation) {
 			return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
@@ -123,10 +127,10 @@ export const createIrrigation = async (req, res) => {
 
 		const irrigation = await Irrigation.findById(created._id).populate('createdBy', 'firstName lastName mobile').populate('land', 'name')
 
-		const land = await Land.findById(landId).populate('owner', 'mobile name')
+		const land = await Land.findById(landId).populate('owner', 'firstName lastName mobile')
 		if (land?.owner?.mobile) {
 			const to = land.owner.mobile
-			const landName = land.name
+			const landName = land.title
 			if (isStart) {
 				await sendTemplatedSMS({
 					to,
@@ -203,12 +207,12 @@ export const updateIrrigation = async (req, res) => {
 
 		await irrigation.save()
 
-		const updated = await Irrigation.findById(irrigationId).populate('land', 'name').populate('well', 'title').populate('createdBy', 'firstName lastName')
+		const updated = await Irrigation.findById(irrigationId).populate('land', 'title').populate('well', 'title').populate('createdBy', 'firstName lastName')
 
 		const land = await Land.findById(updated.land._id).populate('owner', 'mobile')
 		if (land?.owner?.mobile) {
 			const to = land.owner.mobile
-			const landName = land.name
+			const landName = land.title
 
 			if (req.body.isStart === true && !prevOngoing) {
 				await sendTemplatedSMS({

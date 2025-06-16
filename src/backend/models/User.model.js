@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema(
 			unique: true,
 			sparse: true,
 		},
+		status: {
+			type: String,
+			enum: ['active', 'inactive'],
+			default: 'active',
+		},
 		profilePicture: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'File',
@@ -63,6 +68,8 @@ userSchema.statics.initializeAdmin = async function () {
 			email: 'admin@example.com',
 			address: 'تهران، میدان آزادی',
 			accountingCode: 'ADM-001',
+			status: 'active',
+			profilePicture: null,
 		})
 		console.log('✅ Default admin user created from the model.')
 	} else {
