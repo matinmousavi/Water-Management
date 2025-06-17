@@ -1,20 +1,20 @@
 import { EditOutlined } from '@ant-design/icons'
 import { Button, Flex, Form, Modal, Typography } from 'antd'
-import useModal from '../../../../../hooks/useModal'
+import useModal from '../../../../../../hooks/useModal'
 import { useForm } from 'antd/es/form/Form'
-import useAPI from '../../../../../hooks/useAPI'
+import useAPI from '../../../../../../hooks/useAPI'
 import TextArea from 'antd/es/input/TextArea'
-import styles from './EditNotifications.module.css'
-import useNotification from '../../../../../hooks/useNotification'
+import styles from './EditNotification.module.css'
+import useNotification from '../../../../../../hooks/useNotification'
 
-const EditNotifications = ({ data, onUpdate }) => {
+const EditNotification = ({ template, setTemplate, title }) => {
 	const { open, close, isOpen } = useModal()
 	const [form] = useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
 
 	const handleOpen = () => {
-		form.setFieldsValue({ ...data, text: data.text })
+		form.setFieldsValue(template)
 	}
 
 	const handleCancel = () => {
@@ -25,15 +25,16 @@ const EditNotifications = ({ data, onUpdate }) => {
 		const values = form.getFieldsValue()
 
 		try {
-			const response = await api.put(`messageTemplates/${data.key}`, {
+			const response = await api.put(`messageTemplates/${template.key}`, {
 				text: values.text,
-				description: data.description,
-				placeholders: data.placeholders,
-				type: data.type,
 			})
 
 			if (!response.error) {
-				onUpdate?.({ ...data, text: values.text })
+				setTemplate(prev => ({
+					...prev,
+					text: values.text,
+				}))
+				openNotification('success', 'ذخیره موفق', `پیام «${title}» با موفقیت ذخیره شد`)
 				close()
 			}
 		} catch (error) {
@@ -52,10 +53,10 @@ const EditNotifications = ({ data, onUpdate }) => {
 			</Button>
 
 			<Modal
+				title={title}
 				className={styles.modal}
 				cancelText='انصراف'
 				confirmLoading={api.isLoading}
-				title={data?.description}
 				open={isOpen}
 				onCancel={handleCancel}
 				okText='ثبت'
@@ -67,7 +68,7 @@ const EditNotifications = ({ data, onUpdate }) => {
 						متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:
 					</Typography.Title>
 					<Flex vertical gap={5}>
-						{data.placeholders.map((item, index) => (
+						{template.placeholders.map((item, index) => (
 							<Flex key={index} align='center' gap={2}>
 								<Typography.Text className={styles.textPlaceholdersText}>{item.description}</Typography.Text>
 								<span>←</span>
@@ -86,4 +87,4 @@ const EditNotifications = ({ data, onUpdate }) => {
 	)
 }
 
-export default EditNotifications
+export default EditNotification

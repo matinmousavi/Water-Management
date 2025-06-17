@@ -50,6 +50,7 @@ createRoot(document.getElementById('root')).render(
 						itemMarginBottom: 20,
 					},
 					Table: {
+						cellFontSize: 14,
 						cellPaddingBlock: 8,
 						cellPaddingInline: 8,
 						colorSplit: 'rgba(0, 0, 0, 0.06)',

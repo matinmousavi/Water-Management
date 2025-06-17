@@ -93,6 +93,14 @@
 	margin-inline-start: 0 !important;
 }
 
+.ant-breadcrumb a:hover {
+	background-color: transparent !important;
+}
+
+.title-container {
+	width: 100% !important;
+	height: 40px !important;
+}
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
@@ -137,6 +145,12 @@
 	color: #4b5563;
 }
 
+.text-paragraph {
+	font-size: 12px !important;
+	font-weight: 300;
+	color: #000000cc;
+}
+
 .label .text {
 	font-weight: 400;
 	font-size: 1rem !important;
@@ -152,6 +166,12 @@
 .style-btn {
 	border-color: #0066ee;
 	color: #0066ee;
+	height: 40px !important;
+}
+
+.heading-container {
+	width: 100% !important;
+	height: 40px !important;
 }
 
 @media (min-width: 1440px) {
