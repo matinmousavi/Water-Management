@@ -12,11 +12,13 @@ import WellLandsCard from './components/WellLandsCard/WellLandsCard'
 import WellLogCard from './components/WellLogsCard/WellLogsCard'
 import { useUser } from '../../../contexts/UserContext'
 import { EditOutlined } from '@ant-design/icons'
+import useNotification from '../../../hooks/useNotification'
 
 const Well = () => {
 	const { wellId } = useParams()
 	const api = useAPI()
 	const { isAdmin } = useUser()
+	const { openNotification } = useNotification()
 
 	const [title, setPageTitle] = useState('')
 	const [logs, setLogs] = useState([])
@@ -30,7 +32,6 @@ const Well = () => {
 		if (api.data?.well) {
 			setPageTitle(api.data.well.title)
 			setLogs(api.data.well.logs || [])
-			// setStatus(userData.status)
 		}
 	}, [api.data?.well])
 
@@ -56,10 +57,10 @@ const Well = () => {
 			<Flex vertical>
 				<Breadcrumbs data={api.data?.well} />
 
-				<Flex align='center' gap={8}>
+				<Flex align='center' className='heading-container'>
 					<BackButton backTo='/wells' />
 					<Typography.Title className='text-page-title'>{title}</Typography.Title>
-					<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={() => setIsStatusModalOpen(true)}>
+					<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }}>
 						<Flex align='center' gap={3}>
 							{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
 						</Flex>

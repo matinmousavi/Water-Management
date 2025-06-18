@@ -47,15 +47,15 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 					{isAdmin && <EditWell initialValue={well} setData={api.setData} setPageTitle={setPageTitle} />}
 				</Flex>
 
-				<Row gutter={[0, 36]}>
+				<Row justify='space-between' gutter={[0, 36]}>
 					{wellInfoItems.map((item, index) => (
 						<Col xs={24} md={12} key={index}>
 							<Row>
-								<Col xs={6} className='label'>
-									<Typography.Text className='text'>{item.label}</Typography.Text>
+								<Col xs={6}>
+									<Typography.Text className='text-label'>{item.label}</Typography.Text>
 								</Col>
-								<Col xs={18} className='value'>
-									<Typography.Text className='text'>{item.value}</Typography.Text>
+								<Col xs={18}>
+									<Typography.Text className='text-value'>{item.value}</Typography.Text>
 								</Col>
 							</Row>
 						</Col>

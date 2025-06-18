@@ -7,18 +7,17 @@ const WellForm = ({ form, irrigators = [] }) => {
 	const { isAdmin } = useUser()
 
 	return (
-		<Form form={form} layout='vertical'>
+		<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
 			<Form.Item label='عنوان چاه' name='title' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input />
 			</Form.Item>
 
 			{isAdmin && (
-				<Form.Item label=' نام میرآب ' name='irrigator'>
+				<Form.Item label='نام میرآب' name='irrigator' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 					<Select
 						showSearch
 						placeholder='انتخاب'
 						allowClear
-						style={{ width: '100%' }}
 						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 						options={irrigators?.map(irrigator => ({
 							value: irrigator._id,
@@ -39,7 +38,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 			</Form.Item>
 
 			<Form.Item label='مکان' name='location' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<TextArea rows={3} />
+				<TextArea rows={4} />
 			</Form.Item>
 		</Form>
 	)

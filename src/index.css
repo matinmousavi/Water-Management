@@ -19,13 +19,6 @@
 /* --------------------------------------------
    2. Ant Design Class Overrides
 --------------------------------------------- */
-.ant-modal {
-	max-width: 420px;
-}
-
-.ant-input {
-	padding-top: 0.5rem;
-}
 
 .ant-otp .ant-otp-input-wrapper {
 	margin-left: 16px !important;
@@ -71,10 +64,7 @@
 
 .ant-modal .ant-row {
 	flex-flow: row nowrap !important;
-}
-
-.ant-form-item-label {
-	width: 160px !important;
+	align-items: center !important;
 }
 
 .ant-select-selector {
@@ -101,6 +91,7 @@
 	width: 100% !important;
 	height: 40px !important;
 }
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
@@ -151,13 +142,13 @@
 	color: #000000cc;
 }
 
-.label .text {
+.text-label {
 	font-weight: 400;
 	font-size: 1rem !important;
 	color: #00000080;
 }
 
-.value .text {
+.text-value {
 	font-weight: 500;
 	font-size: 1rem !important;
 	color: #000;
@@ -174,6 +165,11 @@
 	height: 40px !important;
 }
 
+.ant-form-item .ant-form-item-label {
+	text-align: start !important;
+	padding: 0 !important;
+}
+
 @media (min-width: 1440px) {
 	.ant-modal {
 		max-width: 520px;
@@ -186,11 +182,29 @@
 	.ant-pagination {
 		gap: 8px !important;
 	}
+
+	.ant-input {
+		min-height: 40px !important;
+	}
+	.ant-form {
+		width: 472px !important;
+	}
+	.anticon {
+		min-width: 14px;
+		font-size: 14px;
+	}
+
+	.ant-tag {
+		padding: 4px 16px !important;
+	}
 }
 
-@media (1280px <= width <1440px) {
+@media (1024px <= width <1440px) {
 	.ant-modal {
 		max-width: 520px;
+	}
+	.ant-card .ant-card-body {
+		padding: 33px !important;
 	}
 
 	.ant-flex {
@@ -202,33 +216,33 @@
 	}
 
 	.text-page-title {
-		font-size: 13px !important;
+		font-size: 14px !important;
 	}
 
 	.ant-breadcrumb-link > span,
 	.ant-breadcrumb-link > a {
-		font-size: 11px !important;
+		font-size: 14px !important;
 	}
 
 	.ant-btn {
-		font-size: 13px !important;
+		font-size: 14px !important;
 		padding: 0 12px !important;
-		height: 39px !important;
+		height: 40px !important;
 	}
 
 	.text-card-title {
-		font-size: 13px !important;
+		font-size: 14px !important;
 	}
 
 	.value .text,
 	.label .text {
-		font-size: 13px !important;
+		font-size: 14px !important;
 	}
 
 	.ant-table-wrapper .ant-table {
 		font-size: 13px !important;
 	}
-	.ant-tag > div {
-		font-size: 11px;
+	.ant-tag {
+		font-size: 13px;
 	}
 }

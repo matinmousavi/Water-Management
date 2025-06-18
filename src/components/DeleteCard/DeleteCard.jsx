@@ -41,8 +41,10 @@ const DeleteCard = ({ title, api, backTo }) => {
 				<Title level={2} className='text-card-title'>
 					حذف {title}
 				</Title>
-				<Button danger onClick={handleDelete} loading={deleteAPI.isLoading} icon={<DeleteOutlined />}>
-					حذف
+				<Button danger onClick={handleDelete} loading={deleteAPI.isLoading}>
+					<Flex align='center' gap={8}>
+						<DeleteOutlined /> <span>حذف</span>
+					</Flex>
 				</Button>
 			</Flex>
 		</Card>

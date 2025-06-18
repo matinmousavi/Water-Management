@@ -6,7 +6,7 @@ import useAPI from '../../../../../hooks/useAPI'
 import WellForm from '../../../../../components/Well/WellForm/WellForm'
 import useNotification from '../../../../../hooks/useNotification'
 
-const AddWell = ({ setData }) => {
+const AddWell = () => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
 	const wellApi = useAPI()
@@ -24,23 +24,30 @@ const AddWell = ({ setData }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-			const response = await wellApi.post('wells', values)
+			const tempId = 'temp-' + Date.now()
 
-			if (response?.error) {
-				openNotification('error', 'خطا', response.message || 'خطایی در ثبت چاه رخ داده است.')
-			} else {
-				openNotification('success', 'عملیات موفق', 'چاه با موفقیت افزوده شد.')
-				setData(prev => ({
+			await wellApi.post('wells', values, {
+				optimisticUpdate: prev => ({
 					...prev,
-					wells: [...(prev?.wells || []), response.well],
-				}))
-				close(() => form.resetFields(), 'after')
-			}
+					wells: [...(prev?.wells || []), { ...values, _id: tempId }],
+				}),
+				rollback: prev => ({
+					...prev,
+					wells: prev?.wells?.filter(w => w._id !== tempId) || [],
+				}),
+				responseHandler: (prev, res) => ({
+					...prev,
+					wells: prev.wells.map(w => (w._id === tempId ? res.well : w)),
+				}),
+			})
+
+			openNotification('success', 'عملیات موفق', 'چاه با موفقیت افزوده شد.')
+			close(() => form.resetFields(), 'after')
 		} catch (err) {
 			console.error(err)
 			openNotification('error', 'خطا', err?.error?.message || err?.message || 'خطایی رخ داده است')
 		}
-	}, [form, wellApi, close, setData, openNotification])
+	}, [form, wellApi, close, openNotification])
 
 	return (
 		<>

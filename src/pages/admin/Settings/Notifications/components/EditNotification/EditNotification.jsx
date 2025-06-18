@@ -78,7 +78,7 @@ const EditNotification = ({ template, setTemplate, title }) => {
 					</Flex>
 					<Form form={form}>
 						<Form.Item name='text'>
-							<TextArea className={styles.textArea} />
+							<TextArea rows={4} className={styles.textArea} />
 						</Form.Item>
 					</Form>
 				</Flex>
