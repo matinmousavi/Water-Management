@@ -1,23 +1,27 @@
 import { Card, Flex, Typography } from 'antd'
 import styles from './NotesListMobile.module.css'
 const NotesListMobile = ({ data }) => {
-	const { Text } = Typography
+	const { Text, Title } = Typography
 	return (
 		<Flex vertical gap={16} className={styles.wrapper}>
 			{data?.map(note => (
 				<Card>
 					<Flex gap={8} vertical>
 						<Flex align='center' justify='space-between' gap={20}>
-							<h4>{note?.user ? `${note?.user.firstName} ${note?.user.lastName}` : 'کاربر ناشناس'}</h4>
-							<span className={styles.date}>
+							<Title className={styles.title} level={4}>
+								{note?.user ? `${note?.user.firstName} ${note?.user.lastName}` : 'کاربر ناشناس'}
+							</Title>
+							<Text className={styles.date}>
+								|{' '}
 								{new Date(note?.createdAt).toLocaleDateString('fa-IR', {
+									hour: 'numeric',
 									year: 'numeric',
 									month: 'long',
 									day: 'numeric',
 								})}
-							</span>
+							</Text>
 						</Flex>
-						<Text>{note?.text}</Text>
+						<Text className={styles.text}>{note?.text}</Text>
 					</Flex>
 				</Card>
 			))}

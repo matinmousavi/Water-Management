@@ -15,9 +15,14 @@
 .title-login,
 .title-form {
 	font-size: 0.875rem !important; /* 14px */
+	text-align: center;
 }
 
 /* ---------- Ant Design Overrides ---------- */
+
+.ant-card {
+	border-radius: 4px;
+}
 
 .ant-typography,
 a {
@@ -73,6 +78,16 @@ a {
 	border-inline-end: none !important;
 	border: none !important;
 	box-shadow: none !important;
+}
+.ant-tabs-nav-list {
+	gap: 25px;
+}
+.ant-tabs-tab {
+	margin: 0 !important;
+}
+.ant-tabs-tab-btn {
+	font-size: 14px;
+	font-weight: 400;
 }
 
 /* ---------- Media Query ---------- */

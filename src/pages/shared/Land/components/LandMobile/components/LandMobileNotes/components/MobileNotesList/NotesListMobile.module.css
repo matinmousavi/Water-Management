@@ -20,7 +20,16 @@ h4 {
 .wrapper {
 	margin-top: 1rem;
 }
-
+.title {
+	font-size: 14px !important;
+	font-weight: 400 !important;
+}
+.date {
+	font-weight: 400 !important;
+}
+.text {
+	font-weight: 300 !important;
+}
 /* ------------- tablet ------------- */
 @media (min-width: 768px) {
 	.text {

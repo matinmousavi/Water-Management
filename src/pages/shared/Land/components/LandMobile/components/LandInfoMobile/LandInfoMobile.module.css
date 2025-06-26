@@ -1,11 +1,12 @@
 .card {
-	padding: 16px !important;
 }
 .cardContainer {
 	width: 100%;
 	direction: rtl;
 }
-
+.itemCaar {
+	height: 40px !important;
+}
 .cardType {
 	flex: 1;
 	display: flex;
@@ -19,11 +20,17 @@
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
+	span {
+		font-weight: 600 !important;
+	}
 }
 
 .table {
+	table {
+		width: 296px !important;
+	}
 	th {
-		font-size: 12px;
+		font-size: 12px !important;
 		text-align: center !important;
 	}
 	td {

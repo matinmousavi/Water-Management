@@ -71,6 +71,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 
 				setNotes(prev => [...prev, newData])
 				openNotification('success', 'یادداشت با موفقیت افزوده شد')
+				setOpen(false)
 			}
 
 			setSelectedNote(null)
@@ -103,22 +104,34 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				</div>
 			</div>
 
-			<Drawer placement='bottom' closable={false} width={322} onClose={onClose} open={open}>
-				<Space>
-					<span className={styles.lineDrawer}></span>
-				</Space>
-				<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
-					<Title className='title-form'>افزودن یادداشت</Title>
-					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-						<Input.TextArea rows={4} />
-					</Form.Item>
-					<Flex justify='end' gap={8}>
-						<Button>انصراف</Button>
-						<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
-							{isNoteEditMode ? 'ذخیره تغییرات' : 'ذخیره'}
-						</Button>
-					</Flex>
-				</Form>
+			<Drawer
+				rootClassName={styles.customDrawerRoot}
+				className={styles.containerDrawer}
+				placement='bottom'
+				closable={false}
+				height={322}
+				onClose={onClose}
+				open={open}
+			>
+				<Flex className={styles.contentDrawer} vertical gap={10}>
+					<div className={styles.drawerHeader}>
+						<div onClick={() => setOpen(false)} className={styles.lineDrawer}></div>
+					</div>
+					<Form className={styles.form} form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
+						<Title className='title-form'>افزودن یادداشت</Title>
+						<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+							<Input.TextArea rows={4} className={styles.textArea} />
+						</Form.Item>
+						<Flex justify='center'>
+							<Button onClick={() => setOpen(false)} className={styles.returnButton}>
+								بازگشت
+							</Button>
+							<Button className={styles.okButton} type='primary' htmlType='submit' loading={notesApi.isLoading}>
+								ثبت
+							</Button>
+						</Flex>
+					</Form>
+				</Flex>
 			</Drawer>
 		</>
 	)

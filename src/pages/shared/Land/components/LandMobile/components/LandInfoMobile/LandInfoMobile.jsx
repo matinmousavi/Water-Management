@@ -107,9 +107,9 @@ const LandInfoMobile = ({ data }) => {
 		<div className={styles.container}>
 			<Flex vertical>
 				<Card className={styles.card}>
-					<Flex vertical gap={18}>
+					<Flex vertical gap={8}>
 						{listItems.map((item, index) => (
-							<Flex key={index} gap={10} align='start'>
+							<Flex className={styles.itemCaar} key={index} gap={10} align='center' justify='center'>
 								<Flex gap={8} className={styles.cardType}>
 									<img src={item.icon} alt='icon' />
 									<Text>{item.title}</Text>
