@@ -1,0 +1,63 @@
+.container_fixed {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(32, 34, 42, 0.56);
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	z-index: 1000;
+}
+
+.container {
+	background-color: #fff;
+	border-top-left-radius: 16px;
+	border-top-right-radius: 16px;
+	width: 100%;
+	padding: 24px 0;
+	box-shadow: 0 8px 10px rgba(0, 0, 0, 0.14);
+	user-select: none;
+	position: relative;
+}
+
+.btn_sheet {
+	width: 24px;
+	height: 4px;
+	background-color: rgba(209, 212, 221, 1);
+	border-radius: 4px;
+	margin: 0 auto 24px;
+}
+
+.title {
+	text-align: center;
+	font-size: 14px;
+	font-weight: 500;
+	color: #3e3e3e;
+	margin-bottom: 8px;
+}
+
+.subtitle {
+	text-align: center;
+	font-size: 14px;
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.88);
+	margin-bottom: 24px;
+}
+
+.container_buttons {
+	display: flex;
+	gap: 16px;
+	padding: 0 16px;
+}
+
+.btn_cancel {
+	width: 50%;
+}
+
+.btn_end {
+	width: 50%;
+	background-color: #f5222d;
+	color: #ffff;
+}

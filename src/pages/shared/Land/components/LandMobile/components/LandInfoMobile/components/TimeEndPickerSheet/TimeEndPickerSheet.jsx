@@ -1,12 +1,13 @@
 import { Button } from 'antd'
 import { useState, useRef, useEffect } from 'react'
-import english2persian from '../../../../../../../../utils/english2persian'
+import english2persian from '../../../../../../../../../utils/english2persian'
+import styles from './TimeEndPickerSheet.module.css'
 
 const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
-const TimePickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
+const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'))
 	const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'))
 
@@ -92,113 +93,46 @@ const TimePickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	if (!isOpen) return null
 
 	return (
-		<div
-			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				right: 0,
-				bottom: 0,
-				backgroundColor: 'rgba(32, 34, 42, 0.56)',
-				display: 'flex',
-				alignItems: 'flex-end',
-				justifyContent: 'center',
-				zIndex: 1000,
-			}}
-		>
-			<div
-				style={{
-					backgroundColor: '#fff',
-					borderTopLeftRadius: 16,
-					borderTopRightRadius: 16,
-					width: '100%',
-					paddingTop: 24,
-					paddingBottom: 24,
-					boxShadow: '0 8px 10px rgba(0,0,0,0.14)',
-					userSelect: 'none',
-					position: 'relative',
-				}}
-			>
-				<div
-					style={{
-						width: 24,
-						height: 4,
-						backgroundColor: 'rgba(209, 212, 221, 1)',
-						borderRadius: 4,
-						margin: '0 auto 24px',
-					}}
-				/>
+		<div className={styles.container_fixed}>
+			<div className={styles.container}>
+				<div className={styles.btn_sheet} />
 
-				<div
-					style={{
-						textAlign: 'center',
-						fontSize: 14,
-						fontWeight: '500',
-						color: '#3E3E3E',
-						marginBottom: 8,
-					}}
-				>
-					ثبت زمان شروع آبیاری
-				</div>
+				<div className={styles.title}>ثبت زمان پایان آبیاری</div>
 
-				<div
-					style={{
-						textAlign: 'center',
-						fontSize: 14,
-						fontWeight: '400',
-						color: 'rgba(0, 0, 0, 0.88)',
-						marginBottom: 24,
-					}}
-				>
-					ساعت شروع آبیاری را مشخص کنید.
-				</div>
+				<div className={styles.subtitle}>ساعت پایان آبیاری را مشخص کنید.</div>
 
-				<div style={{ position: 'relative', marginBottom: 24 }}>
+				<div className={styles.container_time_lines}>
 					{/* خطوط راهنما */}
 					<div
 						style={{
-							position: 'absolute',
 							top: ITEM_HEIGHT * CENTER_INDEX,
-							left: 0,
-							right: 0,
-							height: 1,
-							backgroundColor: 'rgba(217, 217, 217, 1)',
-							zIndex: 10,
 						}}
+						className={styles.line}
 					/>
 					<div
 						style={{
-							position: 'absolute',
 							top: ITEM_HEIGHT * (CENTER_INDEX + 1),
-							left: 0,
-							right: 0,
-							height: 1,
-							backgroundColor: 'rgba(217, 217, 217, 1)',
-							zIndex: 10,
 						}}
+						className={styles.line}
 					/>
 
 					<div
 						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							justifyContent: 'center',
-							alignItems: 'center',
 							height: ITEM_HEIGHT * VISIBLE_COUNT,
-							overflow: 'hidden',
 						}}
+						className={styles.container_time}
 					>
 						{renderList(minutes, minute, setMinute, minuteRef, 'minute')}
-						<div style={{ width: 20, fontSize: 20, fontWeight: '600', textAlign: 'center' }}>:</div>
+						<div className={styles.clone}>:</div>
 						{renderList(hours, hour, setHour, hourRef, 'hour')}
 					</div>
 				</div>
 
-				<div style={{ display: 'flex', gap: 16, padding: '0 16px' }}>
-					<Button onClick={onClose} style={{ width: '50%' }}>
+				<div className={styles.container_buttons}>
+					<Button onClick={onClose} className={styles.btn}>
 						بازگشت
 					</Button>
-					<Button onClick={handleSubmit} type='primary' style={{ width: '50%' }}>
+					<Button onClick={handleSubmit} type='primary' className={styles.btn}>
 						ثبت
 					</Button>
 				</div>
@@ -207,4 +141,4 @@ const TimePickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	)
 }
 
-export default TimePickerSheet
+export default TimeEndPickerSheet
