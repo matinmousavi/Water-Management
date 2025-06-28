@@ -1,39 +1,40 @@
-import { App, Button, Card, Flex, Typography, message } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { Button, Card, Flex, Form, Modal, Typography } from 'antd'
+import { useNavigate, useParams } from 'react-router-dom'
 import useAPI from '../../hooks/useAPI'
 import style from './DeleteCard.module.css'
 import { DeleteOutlined } from '@ant-design/icons'
+import useModal from '../../hooks/useModal'
+import useNotification from '../../hooks/useNotification'
+import { useCallback } from 'react'
 
 const { Title } = Typography
 
-const DeleteCard = ({ title, api, backTo }) => {
-	const { modal } = App.useApp()
+const DeleteCard = ({ title, backTo }) => {
+	const { isOpen, open, close, handleAfterChange } = useModal()
+	const [form] = Form.useForm()
 	const deleteAPI = useAPI()
 	const navigate = useNavigate()
+	const { wellId } = useParams()
+	
+	const { openNotification } = useNotification()
 
-	const handleDelete = () => {
-		modal.confirm({
-			title: `حذف ${title}`,
-			content: `آیا از حذف این ${title} مطمئن هستید؟ این عمل غیرقابل بازگشت است.`,
-			okText: 'بله، حذف شود',
-			cancelText: 'انصراف',
-			okType: 'danger',
-			centered: true,
-			onOk: async () => {
-				try {
-					await deleteAPI.delete(`${api}`)
-					message.success(`${title} با موفقیت حذف شد`)
-					if (backTo) navigate(backTo)
-				} catch (error) {
-					message.error(`خطا در حذف ${title}`)
-					console.error('Error deleting:', error)
-				}
-			},
-			okButtonProps: {
-				loading: deleteAPI.isLoading,
-			},
-		})
+	const handleOpen = () => {
+		console.log('')
 	}
+	const handleCancel = () => {
+		close(() => form.resetFields(), 'after')
+	}
+
+	const handleSubmit = useCallback(async () => {
+		try {
+			await deleteAPI.delete(`wells/${wellId}`)
+			openNotification('success', `${title} با موفقیت حذف شد`)
+			if (backTo) navigate(backTo)
+		} catch (error) {
+			openNotification('error', `خطا در حذف ${title}`)
+			console.error('Error deleting:', error)
+		}
+	}, [])
 
 	return (
 		<Card className={style.card}>
@@ -41,12 +42,29 @@ const DeleteCard = ({ title, api, backTo }) => {
 				<Title level={2} className='text-card-title'>
 					حذف {title}
 				</Title>
-				<Button danger onClick={handleDelete} loading={deleteAPI.isLoading}>
+				<Button danger onClick={() => open(handleOpen, 'before')} loading={deleteAPI.isLoading}>
 					<Flex align='center' gap={8}>
 						<DeleteOutlined /> <span>حذف</span>
 					</Flex>
 				</Button>
 			</Flex>
+			<Modal
+				title='حذف چاه'
+				open={isOpen}
+				onOk={handleSubmit}
+				onCancel={handleCancel}
+				afterOpenChange={handleAfterChange}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					danger: true,
+					type: 'primary',
+				}}
+				confirmLoading={deleteAPI.isLoading}
+				loading={deleteAPI.isLoading}
+			>
+				<p>آیا از حذف این چاه اطمینان دارید؟</p>
+			</Modal>
 		</Card>
 	)
 }
