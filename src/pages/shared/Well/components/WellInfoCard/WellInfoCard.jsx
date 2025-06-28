@@ -15,7 +15,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 
 		return [
 			{
-				label: 'نام میراب',
+				label: 'نام میرآب',
 				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.firstName} ${irrigator.lastName}`}</Link> : '--',
 			},
 			{
@@ -23,7 +23,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: irrigator?.mobile || '--',
 			},
 			{
-				label: 'لایسنس کد',
+				label: 'License Code',
 				value: well?.licenseCode || '--',
 			},
 			{
@@ -42,7 +42,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
 					<Typography.Title level={2} className='text-card-title'>
-						مشخصات چاه
+						مشخصات {well?.title}
 					</Typography.Title>
 					{isAdmin && <EditWell initialValue={well} setData={api.setData} setPageTitle={setPageTitle} />}
 				</Flex>
