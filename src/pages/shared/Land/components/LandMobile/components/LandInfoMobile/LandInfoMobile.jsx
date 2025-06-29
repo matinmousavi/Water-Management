@@ -97,9 +97,33 @@ const LandInfoMobile = ({ data }) => {
 	]
 
 	const columns = [
-		{ title: 'تاریخ', dataIndex: 'start', key: 'start' },
-		{ title: 'ساعت شروع', dataIndex: 'start', key: 'start' },
-		{ title: 'مدت زمان آبیاری', dataIndex: 'timeIrrigation', key: 'timeIrrigation' },
+		{
+			title: 'تاریخ',
+			dataIndex: 'start',
+			key: 'start',
+			render: value => {
+				const date = moment(value)
+				return (
+					<>
+						<Typography.Text>{date.format('dddd')}</Typography.Text>
+						<br />
+						<Typography.Text>{date.format('jD jMMMM jYYYY')}</Typography.Text>
+					</>
+				)
+			},
+		},
+		{
+			title: 'ساعت شروع',
+			dataIndex: 'start',
+			key: 'start-time',
+			render: value => moment(value).format('HH:mm'),
+		},
+		{
+			title: 'مدت زمان آبیاری',
+			dataIndex: 'timeIrrigation',
+			key: 'timeIrrigation',
+			render: () => <span>12 دقیقه</span>,
+		},
 		{
 			title: 'توضیحات',
 			dataIndex: 'description',
@@ -132,7 +156,7 @@ const LandInfoMobile = ({ data }) => {
 				</Card>
 				<Card>
 					<Text>لاگ توزیع آب ({data?.logs?.length})</Text>
-					<Table pagination={false} className={styles.table} dataSource={data.logs} columns={columns} />
+					<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={data.logs} columns={columns} />
 				</Card>
 			</Flex>
 
