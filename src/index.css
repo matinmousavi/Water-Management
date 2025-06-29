@@ -92,6 +92,13 @@
 	width: 100% !important;
 	height: 40px !important;
 }
+.ant-form-item-required::before , label::before {
+  order: 1;
+  margin-inline-start: -4px !important;
+}
+label::after {
+  content: '' !important;
+}
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */

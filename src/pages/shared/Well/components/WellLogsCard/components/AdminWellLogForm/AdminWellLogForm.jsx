@@ -31,7 +31,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				</Select>
 			</Form.Item>
 
-			<Form.Item label='شروع آبرسانی'>
+			<Form.Item label='شروع آبرسانی' required>
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='startDate' noStyle rules={[{ required: true, message: 'تاریخ شروع الزامی است' }]}>
