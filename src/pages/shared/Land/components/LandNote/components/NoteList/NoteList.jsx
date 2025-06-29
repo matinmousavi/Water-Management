@@ -1,8 +1,8 @@
-import { Button, Flex, Popconfirm, Space } from 'antd'
+import { Button, Flex, Space } from 'antd'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import styles from './NoteList.module.css'
 
-const NoteList = ({ data, handleDelete, handleEditNote }) => {
+const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
 	return (
 		<Flex vertical gap={8}>
 			{data?.map(note => (
@@ -20,18 +20,9 @@ const NoteList = ({ data, handleDelete, handleEditNote }) => {
 									})}
 								</span>
 							</Flex>
-							<Space size={8} className={styles.btns}>
+							<Space className={styles.btns}>
 								<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
-								<Popconfirm
-									placement='topRight'
-									title='آیا مطمئنید؟'
-									getPopupContainer={trigger => trigger.parentElement}
-									okText='بله'
-									cancelText='خیر'
-									onConfirm={() => handleDelete(note?._id)}
-								>
-									<Button type='link' icon={<DeleteOutlined />} danger />
-								</Popconfirm>
+								<Button type='link' icon={<DeleteOutlined />} danger onClick={() => handleDeleteClick(note)} />
 							</Space>
 						</Flex>
 						<p className={styles.commentText}>{note?.text}</p>

@@ -23,6 +23,11 @@ const wellSchema = new mongoose.Schema(
 			trim: true,
 			default: '',
 		},
+		status: {
+			type: String,
+			enum: ['active', 'inactive'],
+			default: 'active',
+		},
 		irrigator: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',

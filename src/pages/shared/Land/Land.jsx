@@ -2,15 +2,14 @@ import { Flex, Grid, Tag, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 
 import useAPI from '../../../hooks/useAPI'
-import { useParams } from 'react-router'
-import { useEffect, useState } from 'react'
 import Loading from '../../../components/Loading/Loading'
-import useNotification from '../../../hooks/useNotification'
+import ContactInfoCard from './components/LandInfo/LandInfo'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import BackButton from '../../../components/BackButton/BackButton'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
-import LandInfo from './components/LandInfo/LandInfo'
+import LandNote from './components/LandNote/LandNote'
+import LandLogsCard from './components/LandLogsCard/LandLogsCard'
 import { useUser } from '../../../contexts/UserContext'
 import LandNote from './components/LandNote/LandNote'
 import styles from './Land.module.css'
@@ -33,7 +32,8 @@ const Land = () => {
 			const response = await landApi.get(`lands/${landId}`)
 			if (response?.land) {
 				setLandData(response.land)
-				setPageTitle(response.land.name)
+				setPageTitle(response.land.title)
+				setLogs(response.land.logs || [])
 			}
 		} catch (error) {
 			openNotification('error', 'خطا در دریافت اطلاعات زمین')

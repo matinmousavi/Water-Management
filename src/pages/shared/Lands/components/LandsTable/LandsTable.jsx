@@ -14,7 +14,7 @@ const LandsTable = ({ landsData = [] }) => {
 		value: name,
 	}))
 
-	const uniqueLandNames = Array.from(new Set(landsData.map(land => land.name))).map(name => ({
+	const uniqueLandNames = Array.from(new Set(landsData.map(land => land.title))).map(name => ({
 		text: name,
 		value: name,
 	}))
@@ -29,12 +29,12 @@ const LandsTable = ({ landsData = [] }) => {
 	const columns = [
 		{
 			title: 'عنوان زمین',
-			dataIndex: 'name',
-			key: 'name',
+			dataIndex: 'title',
+			key: 'title',
 			filters: uniqueLandNames,
-			onFilter: (value, record) => record.name.includes(value),
+			onFilter: (value, record) => record.title.includes(value),
 			filterSearch: true,
-			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
+			render: (title, record) => <Link to={`/lands/${record._id}`}>{title}</Link>,
 		},
 		{
 			title: 'مالک زمین',
@@ -88,7 +88,7 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
-			render: () => <Tag color='green'>فعال</Tag>,
+			render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
 		},
 	]
 

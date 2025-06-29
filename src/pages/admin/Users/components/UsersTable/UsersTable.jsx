@@ -50,7 +50,7 @@ const columns = [
 		title: <Avatar size={35} icon={<UserOutlined />} style={{ visibility: 'hidden' }} />,
 		dataIndex: 'profilePicture',
 		key: 'profilePicture',
-		width: 50,
+		width: 52,
 		render: (_, record) => {
 			return record?.profilePicture?.url ? (
 				<Avatar src={record.profilePicture?.url} size={35} icon={<UserOutlined />} />
@@ -95,7 +95,7 @@ const columns = [
 		title: 'وضعیت',
 		dataIndex: 'status',
 		key: 'status',
-		render: () => <Tag color='green'>فعال</Tag>,
+		render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
 	},
 ]
 
@@ -113,7 +113,6 @@ const UsersTable = ({ usersData }) => {
 				columns={columns}
 				dataSource={usersData}
 				rowKey={record => record._id}
-				size='small'
 				bordered
 				scroll={{ y: height }}
 			/>

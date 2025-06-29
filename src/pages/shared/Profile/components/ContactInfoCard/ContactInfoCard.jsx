@@ -10,15 +10,17 @@ const ContactInfoCard = ({ initialValue, setPageTitle }) => {
 
 	return (
 		<Card>
-			<Flex align='center' justify='space-between'>
-				<Typography.Title level={2} className='text-h2'>
-					مشخصات کاربر
-				</Typography.Title>
+			<Flex vertical gap={36}>
+				<Flex align='center' justify='space-between'>
+					<Typography.Title level={2} className='text-card-title'>
+						مشخصات کاربر
+					</Typography.Title>
 
-				<EditUser initialValue={initialValue} setData={api.setData} setPageTitle={setPageTitle} />
+					<EditUser initialValue={initialValue} setData={api.setData} setPageTitle={setPageTitle} />
+				</Flex>
+
+				<ContactInfoDisplay userData={api.data.user || initialValue} />
 			</Flex>
-
-			<ContactInfoDisplay userData={api.data.user || initialValue} />
 		</Card>
 	)
 }

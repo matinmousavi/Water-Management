@@ -34,6 +34,21 @@
 
 @media (min-width: 1024px) {
 	.content {
-		padding: 10px 60px;
+		padding: 0 60px 10px;
+	}
+}
+
+.icons {
+	min-width: 18px !important;
+	font-size: 18px !important;
+}
+@media (1024px <= width <1440px) {
+	:global(.ant-menu-title-content) {
+		font-size: 14px !important;
+	}
+
+	.icons {
+		min-width: 15px !important;
+		font-size: 15px !important;
 	}
 }

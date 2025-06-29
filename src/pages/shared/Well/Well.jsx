@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Typography, Tag, Grid, Flex } from 'antd'
+import { Typography, Tag, Grid, Flex, Modal, Select, Form } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { useParams } from 'react-router'
 
@@ -17,6 +17,7 @@ import WellLogCard from './components/WellLogsCard/WellLogsCard'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 
 import iconWell from '../../../assets/icons/Vector.svg'
+import useNotification from '../../../hooks/useNotification'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -24,9 +25,13 @@ const Well = () => {
 	const { user, isAdmin } = useUser()
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
+	const { openNotification } = useNotification()
 
 	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
+	const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+	const [status, setStatus] = useState([])
+	const [form] = Form.useForm()
 
 	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
 
@@ -36,6 +41,20 @@ const Well = () => {
 			setTitle(fetchedWell.title)
 			setLogs(fetchedWell.logs || [])
 		}
+	}, [api.data?.well])
+
+	const handleStatusChange = async () => {
+		try {
+			const values = await form.validateFields()
+			const newStatus = values.status
+			console.log('New Status:', newStatus)
+			setStatus(newStatus)
+			setIsStatusModalOpen(false)
+		} catch (error) {
+			openNotification('error', 'خطا در تغییر وضعیت  زمین')
+			console.error('خطا در  تغییر وضعیت زمین:', error)
+		}
+	}
 	}, [api.data])
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
@@ -90,6 +109,41 @@ const Well = () => {
 
 				{isAdmin && <DeleteCard title='چاه' api={`wells/${actualWellId}`} backTo='/wells' />}
 			</Flex>
+
+			<Modal
+				title={`تغییر وضعیت چاه ${api.data?.well?.title}`}
+				open={isStatusModalOpen}
+				onCancel={() => setIsStatusModalOpen(false)}
+				onOk={handleStatusChange}
+				okText='ثبت'
+				cancelText='انصراف'
+			>
+				<Form layout='vertical' form={form} initialValues={{ status }}>
+					<Form.Item name='status' label='وضعیت' rules={[{ required: true, message: 'لطفا وضعیت را انتخاب کنید' }]}>
+						<Select
+							optionLabelProp='label'
+							options={[
+								{
+									label: (
+										<Tag color='green' style={{ color: 'green', padding: '0 8px' }}>
+											فعال
+										</Tag>
+									),
+									value: 'active',
+								},
+								{
+									label: (
+										<Tag color='red' style={{ color: 'red', padding: '0 8px' }}>
+											غیرفعال
+										</Tag>
+									),
+									value: 'inactive',
+								},
+							]}
+						/>
+					</Form.Item>
+				</Form>
+			</Modal>
 		</>
 	)
 }

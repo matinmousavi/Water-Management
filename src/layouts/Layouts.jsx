@@ -1,6 +1,7 @@
 import { Grid, Drawer, Menu, Button, Image, Layout, Flex } from 'antd'
 import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Drawer, Flex, Image, Layout, Menu, Button } from 'antd'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
@@ -15,14 +16,26 @@ const Layouts = () => {
 	const isMobile = screens.xs
 
 	const [drawerVisible, setDrawerVisible] = useState(false)
+	const [isMobile, setIsMobile] = useState(false)
+
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 576)
+		}
+		handleResize()
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	const mainMenuItems = useMemo(() => {
 		const items = []
 
 		if (isIrrigator) {
 			items.push({
-				key: '/',
-				label: <Link to='/'>چاه</Link>,
+				key: '/wells',
+				label: <Link to='/wells'>چاه‌ها</Link>,
 			})
 		}
 
@@ -34,11 +47,7 @@ const Layouts = () => {
 				},
 				{
 					key: '/lands',
-					label: <Link to='/lands'>زمین ها</Link>,
-				},
-				{
-					key: '/wells',
-					label: <Link to='/wells'>چاه ها</Link>,
+					label: <Link to='/lands'>زمین‌ها</Link>,
 				},
 				{
 					key: '/users',
@@ -53,13 +62,11 @@ const Layouts = () => {
 	const profileMenuItems = [
 		{
 			key: '/profile',
-			icon: <UserOutlined />,
-			label: <Link to='/profile'>{isMobile && 'پروفایل'}</Link>,
+			icon: <UserOutlined className={styles.icons} onClick={() => navigate('/profile')} />,
 		},
 		{
 			key: '/bell',
-			icon: <BellOutlined />,
-			label: <Link to='/'>{isMobile && 'اعلان‌ها'}</Link>,
+			icon: <BellOutlined className={styles.icons} />,
 		},
 	]
 
@@ -67,12 +74,11 @@ const Layouts = () => {
 		profileMenuItems.push(
 			{
 				key: '/settings',
-				icon: <SettingOutlined />,
-				label: <Link to='/settings'></Link>,
+				icon: <SettingOutlined className={styles.icons} onClick={() => navigate('/settings')} />,
 			},
 			{
 				key: 'logout',
-				icon: <LogoutOutlined onClick={logout} />,
+				icon: <LogoutOutlined className={styles.icons} onClick={logout} />,
 			}
 		)
 	}
@@ -83,7 +89,7 @@ const Layouts = () => {
 				<Flex align='center' justify='space-between'>
 					<Flex className={styles['w-full']} align='center' gap={10}>
 						<Link to='/'>
-							<Image width={30} src='../assets/images/default-logo.png' preview={false} />
+							<Image width={24} src='../assets/images/default-logo.png' preview={false} />
 						</Link>
 						<h3 className={styles.title}>مدیریت آب</h3>
 						{!isMobile && <Menu className={styles.flex} theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} />}

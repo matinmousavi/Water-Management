@@ -3,14 +3,14 @@ import { Button, Flex, Modal, Form } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import useModal from '../../../../../hooks/useModal'
 import useAPI from '../../../../../hooks/useAPI'
-import useNotification from '../../../../../hooks/useNotification' // اینو اضافه کن
+import useNotification from '../../../../../hooks/useNotification'
 import UserForm from '../../../../../components/User/UserForm/UserForm'
 
 const AddUser = ({ setUser }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
 	const userApi = useAPI()
-	const { openNotification } = useNotification() // هوک رو صدا بزن
+	const { openNotification } = useNotification()
 
 	const handleOpen = () => {
 		form.resetFields()
@@ -23,6 +23,7 @@ const AddUser = ({ setUser }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
+			console.log('Form Values:', values)
 			const response = await userApi.post('users', values)
 
 			if (response?.error) {
@@ -56,7 +57,7 @@ const AddUser = ({ setUser }) => {
 				onCancel={handleCancel}
 				afterOpenChange={handleAfterChange}
 				confirmLoading={userApi.isLoading}
-				okText='ذخیره'
+				okText='ثبت'
 				cancelText='انصراف'
 				forceRender
 				centered

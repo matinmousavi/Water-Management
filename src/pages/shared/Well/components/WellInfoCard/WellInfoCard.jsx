@@ -15,7 +15,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 
 		return [
 			{
-				label: 'نام میراب',
+				label: 'نام میرآب',
 				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.firstName} ${irrigator.lastName}`}</Link> : '--',
 			},
 			{
@@ -23,7 +23,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: irrigator?.mobile || '--',
 			},
 			{
-				label: 'لایسنس کد',
+				label: 'License Code',
 				value: well?.licenseCode || '--',
 			},
 			{
@@ -42,20 +42,20 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
 					<Typography.Title level={2} className='text-card-title'>
-						مشخصات چاه
+						مشخصات {well?.title}
 					</Typography.Title>
 					{isAdmin && <EditWell initialValue={well} setData={api.setData} setPageTitle={setPageTitle} />}
 				</Flex>
 
-				<Row gutter={[0, 36]}>
+				<Row justify='space-between' gutter={[0, 36]}>
 					{wellInfoItems.map((item, index) => (
 						<Col xs={24} md={12} key={index}>
 							<Row>
-								<Col xs={6} className='label'>
-									<Typography.Text className='text'>{item.label}</Typography.Text>
+								<Col xs={6}>
+									<Typography.Text className='text-label'>{item.label}</Typography.Text>
 								</Col>
-								<Col xs={18} className='value'>
-									<Typography.Text className='text'>{item.value}</Typography.Text>
+								<Col xs={18}>
+									<Typography.Text className='text-value'>{item.value}</Typography.Text>
 								</Col>
 							</Row>
 						</Col>

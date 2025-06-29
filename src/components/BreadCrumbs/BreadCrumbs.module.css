@@ -1,3 +1,6 @@
+.breadcrumb {
+	padding: 16px 0 !important;
+}
 .active {
 	color: #000;
 }

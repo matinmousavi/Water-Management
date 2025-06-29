@@ -42,7 +42,7 @@ createRoot(document.getElementById('root')).render(
 					},
 					Card: {
 						bodyPadding: 36,
-						borderRadiusLG: 8,
+						borderRadiusLG: 4,
 					},
 					Typography: {
 						titleMarginBottom: 0,
@@ -51,11 +51,18 @@ createRoot(document.getElementById('root')).render(
 						itemMarginBottom: 20,
 					},
 					Table: {
+						cellFontSize: 14,
 						cellPaddingBlock: 8,
 						cellPaddingInline: 8,
 						colorSplit: 'rgba(0, 0, 0, 0.06)',
 						borderRadius: 0.5,
 					},
+					Modal: {
+						titleFontSize: 16,
+					},
+					Select: {
+						fontSize: 16,
+					}
 				},
 			}}
 		>

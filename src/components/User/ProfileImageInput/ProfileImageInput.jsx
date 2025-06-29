@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
-import { Card, Upload, message, Modal, Flex, Typography } from 'antd'
+import { Upload, message, Modal, Flex } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import ImgCrop from 'antd-img-crop'
-import useAPI from '../../../../../hooks/useAPI'
+import useAPI from '../../../hooks/useAPI'
 import { useParams } from 'react-router'
-
-const { Title } = Typography
 
 const beforeUpload = file => {
 	const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
@@ -19,7 +17,7 @@ const beforeUpload = file => {
 	return isJpgOrPng && isLt2M
 }
 
-const ProfileImageCard = ({ pictureUrl }) => {
+const ProfileImageInput = ({ pictureUrl }) => {
 	const [fileList, setFileList] = useState(pictureUrl ? [{ uid: '-1', name: 'avatar', status: 'done', url: pictureUrl }] : [])
 	const [previewVisible, setPreviewVisible] = useState(false)
 	const [previewImage, setPreviewImage] = useState('')
@@ -83,39 +81,43 @@ const ProfileImageCard = ({ pictureUrl }) => {
 
 	return (
 		<>
-			<Card>
-				<Flex vertical justify='space-between' gap={10}>
-					<Title level={2} className='text-h2'>
-						عکس پروفایل
-					</Title>
-					<ImgCrop rotationSlider>
-						<Upload
-							accept='.jpg,.png'
-							name='profilePicture'
-							listType='picture-circle'
-							fileList={fileList}
-							beforeUpload={beforeUpload}
-							customRequest={customUpload}
-							onChange={handleChange}
-							onPreview={handlePreview}
-							onRemove={handleRemove}
-							maxCount={1}
-							showUploadList={{
-								showPreviewIcon: true,
-								showRemoveIcon: true,
-								removeIcon: <DeleteOutlined />,
+			<ImgCrop rotationSlider>
+				<Upload
+					accept='.jpg,.png'
+					name='profilePicture'
+					fileList={fileList}
+					beforeUpload={beforeUpload}
+					customRequest={customUpload}
+					onChange={handleChange}
+					onPreview={handlePreview}
+					onRemove={handleRemove}
+					maxCount={1}
+					showUploadList={{
+						showPreviewIcon: true,
+						showRemoveIcon: true,
+						removeIcon: <DeleteOutlined />,
+					}}
+				>
+					{fileList.length === 0 && (
+						<Flex
+							gap={8}
+							align='center'
+							justify='center'
+							style={{
+								border: '1px dashed #3B8FF3',
+								borderRadius: 4,
+								width: '100%',
+								height: 40,
+								color: '#3B8FF3',
+								cursor: 'pointer',
 							}}
 						>
-							{fileList.length === 0 && (
-								<div>
-									<PlusOutlined />
-									<div style={{ marginTop: 8 }}>آپلود</div>
-								</div>
-							)}
-						</Upload>
-					</ImgCrop>
-				</Flex>
-			</Card>
+							<PlusOutlined />
+							<div>انتخاب عکس پروفایل</div>
+						</Flex>
+					)}
+				</Upload>
+			</ImgCrop>
 
 			<Modal open={previewVisible} title='پیش‌نمایش تصویر' destroyOnHidden footer={null} onCancel={() => setPreviewVisible(false)}>
 				<img alt='preview' style={{ width: '100%' }} src={previewImage} />
@@ -124,4 +126,4 @@ const ProfileImageCard = ({ pictureUrl }) => {
 	)
 }
 
-export default React.memo(ProfileImageCard)
+export default React.memo(ProfileImageInput)

@@ -66,7 +66,7 @@ router.get('/:wellId', async (req, res) => {
 		const irrigations = await Irrigation.find({ well: wellId })
 			.populate({
 				path: 'land',
-				select: 'name area location',
+				select: 'title area location',
 			})
 			.populate({
 				path: 'createdBy',
