@@ -1,0 +1,79 @@
+.header {
+	display: none;
+}
+
+.text {
+	font-size: 12px;
+}
+
+.form {
+	height: 100%;
+	justify-content: space-between;
+}
+
+.buttonAddNote {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	z-index: 2;
+	background-color: #ffffff;
+	width: 100vw;
+	padding: 16px;
+	button {
+		width: 100%;
+		border: 1px solid #0066ee;
+		color: #0066ee;
+		font-size: 16px;
+		font-weight: 500;
+	}
+}
+
+.okButton,
+.returnButton {
+	margin-top: 0 !important;
+	flex-grow: 1;
+	width: 156px;
+}
+.returnButton {
+	border: 1px solid #0066ee;
+	color: #0066ee;
+	font-size: 16px;
+	font-weight: 500;
+}
+.wrapper {
+	margin-top: 1rem;
+}
+.customDrawerRoot :global(.ant-drawer-body) {
+	padding-top: 0 !important;
+}
+
+.containerDrawer {
+	border-radius: 16px 16px 0 0 !important;
+}
+.contentDrawer {
+	height: 100%;
+}
+.drawerHeader {
+	min-height: 40px;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+.lineDrawer {
+	width: 24px;
+	border-top: 4px solid #afafaf;
+	border-radius: 2px;
+	margin: 0 16px;
+}
+.textArea {
+	height: 142px;
+	border-radius: 6px;
+}
+
+/* ------------- tablet ------------- */
+@media (min-width: 768px) {
+	.text {
+		font-size: 14px;
+	}
+}

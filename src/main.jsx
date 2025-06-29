@@ -7,6 +7,7 @@ import fa_IR from 'antd/locale/fa_IR'
 
 import App from './App.jsx'
 import './index.css'
+import './mobile.css'
 
 createRoot(document.getElementById('root')).render(
 	<StrictMode>
@@ -17,7 +18,7 @@ createRoot(document.getElementById('root')).render(
 				token: {
 					fontFamily: 'VazirmatnFD',
 					colorPrimary: '#3372EF',
-					borderRadius: 8,
+					borderRadius: 6,
 					fontSize: 16,
 				},
 				components: {
@@ -34,9 +35,9 @@ createRoot(document.getElementById('root')).render(
 						colorLink: 'rgba(59, 143, 243, 1)',
 						colorText: 'rgba(0, 0, 0, 0.85)',
 						controlHeight: 42,
+						borderRadius: 8,
 					},
 					Input: {
-						borderRadius: 4,
 						activeShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
 					},
 					Card: {

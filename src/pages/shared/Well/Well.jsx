@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Flex, Tag, Typography, Modal, Select, Form } from 'antd'
-import useAPI from '../../../hooks/useAPI'
+import { Typography, Tag, Grid, Flex, Modal, Select, Form } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
 import { useParams } from 'react-router'
+
+import useAPI from '../../../hooks/useAPI'
+import { useUser } from '../../../contexts/UserContext'
+
 import Loading from '../../../components/Loading/Loading'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
@@ -10,28 +14,32 @@ import BackButton from '../../../components/BackButton/BackButton'
 import WellInfoCard from './components/WellInfoCard/WellInfoCard'
 import WellLandsCard from './components/WellLandsCard/WellLandsCard'
 import WellLogCard from './components/WellLogsCard/WellLogsCard'
-import { useUser } from '../../../contexts/UserContext'
-import { EditOutlined } from '@ant-design/icons'
+import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
+
+import iconWell from '../../../assets/icons/Vector.svg'
 import useNotification from '../../../hooks/useNotification'
 
 const Well = () => {
 	const { wellId } = useParams()
 	const api = useAPI()
-	const { isAdmin } = useUser()
+	const { user, isAdmin } = useUser()
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 	const { openNotification } = useNotification()
 
-	const [title, setPageTitle] = useState('')
+	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
 	const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
 	const [status, setStatus] = useState([])
 	const [form] = Form.useForm()
 
-	if (wellId) api.init(`wells/${wellId}`)
+	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
 
 	useEffect(() => {
-		if (api.data?.well) {
-			setPageTitle(api.data.well.title)
-			setLogs(api.data.well.logs || [])
+		const fetchedWell = api.data?.well || api.data?.wells?.[0]
+		if (fetchedWell) {
+			setTitle(fetchedWell.title)
+			setLogs(fetchedWell.logs || [])
 		}
 	}, [api.data?.well])
 
@@ -47,33 +55,59 @@ const Well = () => {
 			console.error('خطا در  تغییر وضعیت زمین:', error)
 		}
 	}
+	}, [api.data])
 
-	if (api.isLoading || !api.data?.well) return <Loading />
+	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
+		return <Loading />
+	}
+
+	const well = api.data?.well || api.data?.wells?.[0]
+	const actualWellId = wellId || well?._id
 
 	return (
 		<>
-			<MetaTitle>ویرایش چاه</MetaTitle>
+			<MetaTitle>چاه</MetaTitle>
 
-			<Flex vertical>
-				<Breadcrumbs data={api.data?.well} />
-
-				<Flex align='center' className='heading-container'>
-					<BackButton backTo='/wells' />
-					<Typography.Title className='text-page-title'>{title}</Typography.Title>
-					<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }}>
-						<Flex align='center' gap={3}>
-							{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
+			<Flex vertical gap='large'>
+				{isMobile ? (
+					<Flex gap={8} justify='center' align='center'>
+						<img src={iconWell} alt='icon' />
+						<Typography.Title level={2} className='text-h2'>
+							{title}
+						</Typography.Title>
+					</Flex>
+				) : (
+					<>
+						<Breadcrumbs data={{ title }} />
+						<Flex align='center' gap={16}>
+							<BackButton backTo='/wells' />
+							<Typography.Title className='text-page-title'>{title}</Typography.Title>
+							<Tag color='green'>
+								<Flex align='center' gap={4}>
+									فعال <EditOutlined />
+								</Flex>
+							</Tag>
 						</Flex>
-					</Tag>
-				</Flex>
+					</>
+				)}
 
-				<WellInfoCard wellInfo={api.data?.well} setPageTitle={setPageTitle} />
+				{!isMobile && (
+					<>
+						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
+						<WellLandsCard wellLands={well.lands} />
+						<WellLogCard wellLogs={logs} wellId={actualWellId} setLogs={setLogs} />
+					</>
+				)}
 
-				<WellLandsCard wellLands={api.data?.well?.lands} />
+				{isMobile && (
+					<Flex vertical gap={12}>
+						{logs.map(log => (
+							<WellLogsMobile key={log._id} data={log} />
+						))}
+					</Flex>
+				)}
 
-				<WellLogCard wellLogs={logs} setLogs={setLogs} />
-
-				{isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
+				{isAdmin && <DeleteCard title='چاه' api={`wells/${actualWellId}`} backTo='/wells' />}
 			</Flex>
 
 			<Modal

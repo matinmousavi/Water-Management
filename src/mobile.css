@@ -1,0 +1,107 @@
+/* ---------- Custom Styles ---------- */
+
+.mobile-header {
+	h1 {
+		font-size: 1rem;
+		font-weight: 500;
+	}
+}
+
+.title-h1 {
+	font-size: 1rem !important; /* 16px */
+	font-weight: 500 !important;
+}
+
+.title-login,
+.title-form {
+	font-size: 0.875rem !important; /* 14px */
+	text-align: center;
+}
+
+/* ---------- Ant Design Overrides ---------- */
+
+.ant-card {
+	border-radius: 4px;
+}
+
+.ant-typography,
+a {
+	font-size: 0.875rem;
+}
+
+.ant-btn {
+	font-size: 1rem !important;
+	font-weight: 400 !important;
+}
+
+.ant-btn.ant-btn-link {
+	font-size: 0.875rem !important;
+	font-weight: 400 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	height: initial !important;
+}
+
+.ant-layout-content {
+	padding: 1.5rem 1rem 1rem 1rem; /* 24px 16px 16px 16px */
+}
+
+.ant-breadcrumb {
+	display: none;
+}
+
+.ant-drawer-content {
+	border-radius: 1rem 1rem 0 0;
+}
+
+.ant-drawer-body {
+	padding: 1rem !important;
+}
+
+.ant-card-body {
+	padding: 1rem !important;
+}
+
+.ant-tabs-nav-wrap {
+	justify-content: center;
+}
+
+.ant-drawer-content {
+	border-radius: 0 !important;
+}
+
+.ant-otp {
+	gap: 16px;
+}
+
+.ant-menu {
+	border-inline-end: none !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+.ant-tabs-nav-list {
+	gap: 25px;
+}
+.ant-tabs-tab {
+	margin: 0 !important;
+}
+.ant-tabs-tab-btn {
+	font-size: 14px;
+	font-weight: 400;
+}
+
+/* ---------- Media Query ---------- */
+
+@media (min-width: 1440px) {
+	.mobile-header {
+		display: none;
+	}
+
+	.ant-layout-content {
+		padding: 3.75rem 0.625rem; /* 60px 10px */
+	}
+
+	.ant-breadcrumb {
+		display: block;
+	}
+}

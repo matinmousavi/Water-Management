@@ -1,8 +1,70 @@
 .container {
-	width: 100%;
-	height: 100vh;
-	background-color: #1c1c2c;
+	width: 100% !important;
+	height: 100vh !important;
+	background-color: #fff !important;
 }
-.card {
-	width: 25%;
+
+.wrapper {
+	width: 100% !important;
+	max-width: 425px !important;
+	height: 100% !important;
+	max-height: 768px !important;
+	background-color: #fff !important;
+	padding: 100px 24px 24px !important;
+	gap: 56px !important;
+}
+
+.form {
+	width: 100% !important;
+	display: flex !important;
+	flex-direction: column !important;
+	flex: 1 !important;
+}
+
+.form-wrapper {
+	display: flex !important;
+	justify-content: space-between !important;
+	flex: 1 !important;
+	gap: 20px !important;
+}
+
+.title {
+	font-size: 20px !important;
+	font-weight: 600 !important;
+}
+
+.mobile {
+	font-weight: 600 !important;
+}
+
+.otp-item {
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	margin-bottom: 0 !important;
+}
+
+/* ---------- Media Query ---------- */
+@media screen and (min-width: 768px) {
+	.container {
+		background-color: #1e1e2c !important;
+	}
+
+	.wrapper {
+		width: 400px !important;
+		height: initial !important;
+		gap: 32px !important;
+		padding: 29px !important;
+		border-radius: 5px !important;
+		filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1)) !important;
+	}
+
+	.form {
+		justify-content: initial !important;
+		flex: initial !important;
+	}
+
+	.form-wrapper {
+		gap: 36px !important;
+	}
 }

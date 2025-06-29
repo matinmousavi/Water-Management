@@ -3,9 +3,9 @@ import { PlusCircleOutlined } from '@ant-design/icons'
 import styles from './LandNote.module.css'
 import useAPI from '../../../../../hooks/useAPI'
 import { useEffect, useRef, useState } from 'react'
-import useNotification from '../../../../../hooks/useNotification'
 import { useParams } from 'react-router'
 import NoteList from './components/NoteList/NoteList'
+import useNotification from '../../../../../hooks/useNotification'
 
 const { Title, Text } = Typography
 
