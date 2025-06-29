@@ -3,7 +3,7 @@ import { EditOutlined } from '@ant-design/icons'
 
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
-import ContactInfoCard from './components/LandInfo/LandInfo'
+import LandInfo from './components/LandInfo/LandInfo'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import BackButton from '../../../components/BackButton/BackButton'
@@ -11,14 +11,17 @@ import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import LandNote from './components/LandNote/LandNote'
 import LandLogsCard from './components/LandLogsCard/LandLogsCard'
 import { useUser } from '../../../contexts/UserContext'
-import LandNote from './components/LandNote/LandNote'
 import styles from './Land.module.css'
 import LandMobile from './components/LandMobile/LandMobile'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router'
+import useNotification from '../../../hooks/useNotification'
 
 const { Title } = Typography
 
 const Land = () => {
 	const [landData, setLandData] = useState(null)
+	const [logs, setLogs] = useState(null)
 	const { landId } = useParams()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
@@ -71,6 +74,7 @@ const Land = () => {
 					</Flex>
 					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
+					<LandLogsCard landLogs={logs} setLogs={setLogs} />
 					{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}
