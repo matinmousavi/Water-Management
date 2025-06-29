@@ -2,7 +2,7 @@ import mongoose from '../config/database.js'
 
 const landSchema = new mongoose.Schema(
 	{
-		name: {
+		title: {
 			type: String,
 			required: true,
 			trim: true,
@@ -32,6 +32,11 @@ const landSchema = new mongoose.Schema(
 		cropType: {
 			type: String,
 			trim: true,
+		},
+		status: {
+			type: String,
+			enum: ['active', 'inactive'],
+			default: 'active',
 		},
 		notes: [
 			{

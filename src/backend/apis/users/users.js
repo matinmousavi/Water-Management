@@ -1,4 +1,7 @@
+import { Router } from 'express'
 import User from '../../models/User.model.js'
+
+const router = Router()
 
 const fieldTranslations = {
 	mobile: 'شماره موبایل',
@@ -8,10 +11,9 @@ const fieldTranslations = {
 	accountingCode: 'کد حسابداری',
 }
 
-export const getUsers = async (req, res) => {
+router.get('/', async (req, res) => {
 	try {
 		const filter = {}
-
 		const allowedFields = ['role', 'firstName', 'lastName', 'mobile', 'email', 'address', 'accountingCode']
 
 		allowedFields.forEach(field => {
@@ -21,34 +23,17 @@ export const getUsers = async (req, res) => {
 		})
 
 		const users = await User.find(filter).populate('profilePicture').lean()
-
 		return res.status(200).json({ users })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در دریافت اطلاعات کاربران!' })
 	}
-}
+})
 
-export const getUser = async (req, res) => {
-	try {
-		const { userId } = req.params
-		const user = await User.findById(userId).populate('profilePicture')
-		if (!user) {
-			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
-		}
-		return res.status(200).json({ user })
-	} catch (err) {
-		console.error(err.message)
-		return res.status(500).json({ message: 'خطای داخلی سرور' })
-	}
-}
-
-export const createUser = async (req, res) => {
+router.post('/', async (req, res) => {
 	try {
 		const { role, firstName, lastName, mobile, email, accountingCode, address } = req.body
-
 		const user = await User.create({ role, firstName, lastName, mobile, email, accountingCode, address })
-
 		return res.status(201).json({ message: 'کاربر با موفقیت ایجاد شد.', user })
 	} catch (err) {
 		console.error(err.message)
@@ -68,9 +53,23 @@ export const createUser = async (req, res) => {
 
 		return res.status(500).json({ message: 'خطا در ایجاد کاربر.' })
 	}
-}
+})
 
-export const updateUser = async (req, res) => {
+router.get('/:userId', async (req, res) => {
+	try {
+		const { userId } = req.params
+		const user = await User.findById(userId).populate('profilePicture')
+		if (!user) {
+			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
+		}
+		return res.status(200).json({ user })
+	} catch (err) {
+		console.error(err.message)
+		return res.status(500).json({ message: 'خطای داخلی سرور' })
+	}
+})
+
+router.patch('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
 		const updates = req.body
@@ -102,12 +101,11 @@ export const updateUser = async (req, res) => {
 
 		return res.status(500).json({ message: 'خطای داخلی سرور' })
 	}
-}
+})
 
-export const deleteUser = async (req, res) => {
+router.delete('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
-
 		const user = await User.findByIdAndDelete(userId)
 
 		if (!user) {
@@ -119,4 +117,10 @@ export const deleteUser = async (req, res) => {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور' })
 	}
-}
+})
+
+router.all(/.*/, (req, res) => {
+	return res.status(405).send({ error: 'Method Not Allowed' })
+})
+
+export default router

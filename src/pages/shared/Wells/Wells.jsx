@@ -17,7 +17,7 @@ const Wells = () => {
 	return (
 		<Flex vertical className='main-container'>
 			<Breadcrumbs />
-			<Flex justify='space-between' align='center'>
+			<Flex className='heading-container' justify='space-between' align='center'>
 				<Typography.Title level={1} className='text-page-title'>
 					لیست چاه‌ها ({api.data.wells.length})
 				</Typography.Title>

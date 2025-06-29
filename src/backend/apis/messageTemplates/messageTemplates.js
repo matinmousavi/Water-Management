@@ -1,16 +1,20 @@
+import { Router } from 'express'
 import MessageTemplate from '../../models/messageTemplate.model.js'
 
-export const getAllTemplates = async (req, res) => {
+const router = Router()
+
+router.get('/', async (req, res) => {
 	try {
-		const templates = await MessageTemplate.find().sort({ key: 1 })
+		const templates = await MessageTemplate.find()
+
 		res.json({ templates })
 	} catch (err) {
 		console.error(err.message)
 		res.status(500).json({ message: 'خطا در دریافت پیام‌ها' })
 	}
-}
+})
 
-export const getTemplateByKey = async (req, res) => {
+router.get('/:key', async (req, res) => {
 	try {
 		const { key } = req.params
 		const template = await MessageTemplate.findOne({ key })
@@ -22,9 +26,9 @@ export const getTemplateByKey = async (req, res) => {
 		console.error(err.message)
 		res.status(500).json({ message: 'خطا در دریافت پیام' })
 	}
-}
+})
 
-export const updateTemplateByKey = async (req, res) => {
+router.put('/:key', async (req, res) => {
 	try {
 		const { key } = req.params
 		const { text, description, placeholders, type } = req.body
@@ -48,4 +52,10 @@ export const updateTemplateByKey = async (req, res) => {
 
 		res.status(500).json({ message: 'خطا در به‌روزرسانی پیام' })
 	}
-}
+})
+
+router.all(/.*/, (req, res) => {
+	res.status(405).json({ error: 'Method Not Allowed' })
+})
+
+export default router

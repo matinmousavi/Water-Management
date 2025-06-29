@@ -1,18 +1,19 @@
 import { Flex, Typography } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
+import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 import useAPI from '../../../hooks/useAPI'
-import { useParams } from 'react-router'
-import { useEffect, useState } from 'react'
 import Loading from '../../../components/Loading/Loading'
-import useNotification from '../../../hooks/useNotification'
+import ContactInfoCard from './components/LandInfo/LandInfo'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import BackButton from '../../../components/BackButton/BackButton'
 import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
-import LandInfo from './components/LandInfo/LandInfo'
-import { useUser } from '../../../contexts/UserContext'
 import LandNote from './components/LandNote/LandNote'
+import LandLogsCard from './components/LandLogsCard/LandLogsCard'
+import { useUser } from '../../../contexts/UserContext'
+import LandStatus from './components/LandStatus'
+import useNotification from '../../../hooks/useNotification'
 
 const { Title } = Typography
 
@@ -23,13 +24,15 @@ const Land = () => {
 	const { isAdmin } = useUser()
 	const landApi = useAPI()
 	const [pageTitle, setPageTitle] = useState('')
+	const [logs, setLogs] = useState([])
 
 	const fetchLand = async () => {
 		try {
 			const response = await landApi.get(`lands/${landId}`)
 			if (response?.land) {
 				setLandData(response.land)
-				setPageTitle(response.land.name)
+				setPageTitle(response.land.title)
+				setLogs(response.land.logs || [])
 			}
 		} catch (error) {
 			openNotification('error', 'خطا در دریافت اطلاعات زمین')
@@ -49,23 +52,20 @@ const Land = () => {
 		<>
 			<MetaTitle>{pageTitle || 'ویرایش زمین'}</MetaTitle>
 
-			<Flex vertical gap={10}>
+			<Flex vertical gap={16}>
 				<Breadcrumbs data={{ title: pageTitle }} />
-				<Flex align='center'>
+
+				<Flex align='center' gap={16}>
 					<BackButton backTo={'wells'} />
 					<Title level={1} className='text-h3'>
 						{pageTitle}
 					</Title>
-					<Tag color='green'>
-						<Flex align='center' gap={3}>
-							فعال <EditOutlined />
-						</Flex>
-					</Tag>
-					,
+					<LandStatus landId={landId} currentStatus={landData.status} landTitle={pageTitle} />
 				</Flex>
 
-				<LandInfo landData={landData} setPageTitle={setPageTitle} />
+				<ContactInfoCard landData={landData} setPageTitle={setPageTitle} />
 				<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
+				<LandLogsCard landLogs={logs} setLogs={setLogs} />
 
 				{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 			</Flex>

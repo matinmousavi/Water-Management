@@ -18,20 +18,20 @@ const AdminWellLogForm = ({ form, lands }) => {
 			<Form.Item name='landId' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Select
 					showSearch
-					placeholder='انتخاب زمین'
+					placeholder='انتخاب'
 					optionFilterProp='children'
 					filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}
 					allowClear
 				>
-					{lands?.map(l => (
-						<Select.Option key={l._id} value={l._id}>
-							{l.name}
+					{lands?.map(land => (
+						<Select.Option key={land._id} value={land._id}>
+							{land.title}
 						</Select.Option>
 					))}
 				</Select>
 			</Form.Item>
 
-			<Form.Item label='تاریخ شروع'>
+			<Form.Item label='شروع آب‌رسانی' required>
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='startDate' noStyle rules={[{ required: true, message: 'تاریخ شروع الزامی است' }]}>
@@ -46,7 +46,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				</Row>
 			</Form.Item>
 
-			<Form.Item label='تاریخ پایان'>
+			<Form.Item label='پایان آب‌رسانی'>
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='endDate' noStyle>
@@ -62,14 +62,10 @@ const AdminWellLogForm = ({ form, lands }) => {
 			</Form.Item>
 
 			<Form.Item name='isOngoing' valuePropName='checked' wrapperCol={{ offset: labelCol.span, span: wrapperCol.span }}>
-				<Checkbox>در حال آبیاری</Checkbox>
+				<Checkbox>در حال آب‌رسانی</Checkbox>
 			</Form.Item>
 
-			<Form.Item name='startNotes' label='توضیحات شروع'>
-				<Input.TextArea rows={3} />
-			</Form.Item>
-
-			<Form.Item name='endNotes' label='توضیحات پایان'>
+			<Form.Item name='startNotes' label='توضیحات'>
 				<Input.TextArea rows={3} />
 			</Form.Item>
 		</Form>

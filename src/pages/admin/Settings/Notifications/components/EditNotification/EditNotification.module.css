@@ -1,0 +1,15 @@
+.titlePlaceholders {
+	font-size: 12px !important;
+	font-weight: 400 !important;
+}
+.textPlaceholdersText,
+.textPlaceholdersKey {
+	font-size: 12px !important;
+	font-weight: 400 !important;
+}
+.textPlaceholdersKey {
+	font-weight: 900 !important;
+}
+.textArea {
+	font-size: 12px;
+}

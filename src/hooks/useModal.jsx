@@ -5,14 +5,15 @@ const useModal = () => {
 
 	const beforeOpenRef = useRef(null)
 	const afterOpenRef = useRef(null)
-
 	const beforeCloseRef = useRef(null)
 	const afterCloseRef = useRef(null)
 
 	const open = useCallback((callback, timing = 'before') => {
 		if (timing === 'before') {
 			beforeOpenRef.current = callback
-			beforeOpenRef.current?.()
+			if (typeof beforeOpenRef.current === 'function') {
+				beforeOpenRef.current()
+			}
 			beforeOpenRef.current = null
 		} else if (timing === 'after') {
 			afterOpenRef.current = callback
@@ -23,7 +24,9 @@ const useModal = () => {
 	const close = useCallback((callback, timing = 'before') => {
 		if (timing === 'before') {
 			beforeCloseRef.current = callback
-			beforeCloseRef.current?.()
+			if (typeof beforeCloseRef.current === 'function') {
+				beforeCloseRef.current()
+			}
 			beforeCloseRef.current = null
 		} else if (timing === 'after') {
 			afterCloseRef.current = callback
@@ -33,10 +36,14 @@ const useModal = () => {
 
 	const handleAfterChange = useCallback(openState => {
 		if (openState) {
-			afterOpenRef.current?.()
+			if (typeof afterOpenRef.current === 'function') {
+				afterOpenRef.current()
+			}
 			afterOpenRef.current = null
 		} else {
-			afterCloseRef.current?.()
+			if (typeof afterCloseRef.current === 'function') {
+				afterCloseRef.current()
+			}
 			afterCloseRef.current = null
 		}
 	}, [])

@@ -7,12 +7,12 @@ import { authMiddleware, isAdmin, isLogin } from '../middlewares/auth.js'
 
 import otp from './otp/otp.routes.js'
 import me from './me/me.routes.js'
-import users from './users/users.routes.js'
+import users from './users/users.js'
 import upload from './upload/upload.routes.js'
 import wells from './wells/wells.routes.js'
 import lands from './lands/lands.routes.js'
 import irrigations from './irrigations/irrigations.routes.js'
-import messageTemplates from './messageTemplates/messageTemplates.routes.js'
+import messageTemplates from './messageTemplates/messageTemplates.js'
 
 const isProd = import.meta.env?.PROD
 const router = Router()

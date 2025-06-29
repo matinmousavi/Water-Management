@@ -15,7 +15,7 @@ const WellLandsCard = ({ wellLands }) => {
 
 	return (
 		<Card>
-			<Flex vertical gap={(0, 40)}>
+			<Flex vertical gap={(0, 36)}>
 				<Flex align='center' justify='space-between'>
 					<Typography.Title level={2} className='text-card-title'>
 						لیست زمین ها ({lands?.length})

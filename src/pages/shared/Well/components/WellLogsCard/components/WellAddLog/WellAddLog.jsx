@@ -76,7 +76,7 @@ const WellAddLog = ({ setLogs }) => {
 
 	return (
 		<>
-			<Button type='default' size='middle' onClick={open}>
+			<Button className='style-btn' size='middle' onClick={open}>
 				<Flex gap={8}>
 					<PlusCircleOutlined />
 					<span>افزودن لاگ</span>
@@ -88,7 +88,7 @@ const WellAddLog = ({ setLogs }) => {
 				open={isOpen}
 				onOk={handleSubmit}
 				onCancel={handleCancel}
-				okText='ذخیره'
+				okText='ثبت'
 				cancelText='انصراف'
 				confirmLoading={irrigationApi.isLoading}
 				loading={landsApi.isLoading}

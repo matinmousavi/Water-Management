@@ -47,7 +47,7 @@ const WellsTable = ({ WellsData }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
-			render: () => <Tag color='green'>فعال</Tag>,
+			render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
 		},
 	]
 
@@ -60,10 +60,10 @@ const WellsTable = ({ WellsData }) => {
 				pagination={{
 					position: ['bottomCenter'],
 					total: WellsData.length,
+					pageSize: 6,
 				}}
 				scroll={{ y: height }}
 				bordered
-				size='small'
 			/>
 		</div>
 	)

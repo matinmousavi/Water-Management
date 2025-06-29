@@ -8,12 +8,13 @@ const LandsTable = ({ landsData = [] }) => {
 			value: name,
 		})
 	)
+
 	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner.firstName} ${land.owner.lastName}`))).map(name => ({
 		text: name,
 		value: name,
 	}))
 
-	const uniqueLandNames = Array.from(new Set(landsData.map(land => land.name))).map(name => ({
+	const uniqueLandNames = Array.from(new Set(landsData.map(land => land.title))).map(name => ({
 		text: name,
 		value: name,
 	}))
@@ -28,18 +29,13 @@ const LandsTable = ({ landsData = [] }) => {
 	const columns = [
 		{
 			title: 'عنوان زمین',
-			dataIndex: 'name',
-			key: 'name',
+			dataIndex: 'title',
+			key: 'title',
 			filters: uniqueLandNames,
-			onFilter: (value, record) => record.name.includes(value),
+			onFilter: (value, record) => record.title.includes(value),
 			filterSearch: true,
-			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
+			render: (title, record) => <Link to={`/lands/${record._id}`}>{title}</Link>,
 		},
-		// {
-		// 	title: 'محصول',
-		// 	dataIndex: 'cropType',
-		// 	key: 'cropType',
-		// },
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
@@ -64,7 +60,7 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'عنوان چاه‌',
 			key: 'wellTitles',
-			render: (_, record) => record.wells?.map(well => well.title).join('-'),
+			render: (_, record) => record.wells?.map(well => <Link to={`/wells/${well._id}`}>{well.title}</Link>),
 		},
 		{
 			title: 'میرآب',
@@ -74,7 +70,7 @@ const LandsTable = ({ landsData = [] }) => {
 				return record.wells.some(well => `${well.irrigator.firstName} ${well.irrigator.lastName}` === value)
 			},
 			render: (_, record) => {
-				return record.wells?.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`).join('-')
+				return record.wells?.map(well => <Link to={`/wells/${well._id}`}>{`${well.irrigator.firstName} ${well.irrigator.lastName}`}</Link>)
 			},
 		},
 		{
@@ -92,7 +88,7 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
-			render: () => <Tag color='green'>فعال</Tag>,
+			render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
 		},
 	]
 
@@ -107,6 +103,7 @@ const LandsTable = ({ landsData = [] }) => {
 				pageSize: 6,
 			}}
 			scroll={{ x: 'max-content' }}
+			bordered
 		/>
 	)
 }

@@ -7,7 +7,7 @@ import useNotification from '../../../../../hooks/useNotification'
 import { useParams } from 'react-router'
 import NoteList from './components/NoteList/NoteList'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 
 const LandNote = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
@@ -18,6 +18,7 @@ const LandNote = ({ notesData: initialNotes }) => {
 
 	const [isShowModalNote, setIsShowModalNote] = useState(false)
 	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
+	const [isNoteDeleteMode, setIsNoteDeleteMode] = useState(false)
 	const [selectedNote, setSelectedNote] = useState(null)
 	const [notes, setNotes] = useState(initialNotes || [])
 
@@ -39,14 +40,23 @@ const LandNote = ({ notesData: initialNotes }) => {
 		setIsShowModalNote(true)
 	}
 
-	const handleDelete = async noteId => {
+	const handleDeleteClick = note => {
+		setSelectedNote(note)
+		setIsNoteDeleteMode(true)
+	}
+
+	const confirmDeleteNote = async () => {
+		if (!selectedNote?._id) return
 		try {
-			await notesApi.delete(`lands/${landId}/notes/${noteId}`)
-			setNotes(prev => prev.filter(note => note?._id !== noteId))
+			await notesApi.delete(`lands/${landId}/notes/${selectedNote._id}`)
+			setNotes(prev => prev.filter(note => note._id !== selectedNote._id))
 			openNotification('success', 'یادداشت با موفقیت حذف شد')
 		} catch (error) {
 			openNotification('error', 'خطا در حذف یادداشت')
 			console.error('Error deleting note:', error)
+		} finally {
+			setIsNoteDeleteMode(false)
+			setSelectedNote(null)
 		}
 	}
 
@@ -89,22 +99,24 @@ const LandNote = ({ notesData: initialNotes }) => {
 		<>
 			<div ref={cardRef} className={styles.commentContainer}>
 				<Card className={styles.card}>
-					<Flex align='center' justify='space-between'>
-						<Title level={2} className='text-h2'>
-							یادداشت زمین
-						</Title>
-						<Button type='default' onClick={handleOpenAddNoteModal}>
-							<PlusCircleOutlined />
-							<span>افزودن یادداشت</span>
-						</Button>
-					</Flex>
+					<Flex gap={36} vertical>
+						<Flex align='center' justify='space-between'>
+							<Title level={2} className='text-card-title'>
+								یادداشت زمین ({notes?.length})
+							</Title>
+							<Button className='style-btn' onClick={handleOpenAddNoteModal}>
+								<PlusCircleOutlined />
+								<span>افزودن یادداشت</span>
+							</Button>
+						</Flex>
 
-					<NoteList handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+						<NoteList handleDeleteClick={handleDeleteClick} handleEditNote={handleEditNote} data={notes} />
+					</Flex>
 				</Card>
 			</div>
 
 			<Modal
-				title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
+				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}` : 'افزودن یادداشت'}
 				centered
 				open={isShowModalNote}
 				onCancel={() => {
@@ -116,15 +128,33 @@ const LandNote = ({ notesData: initialNotes }) => {
 			>
 				<Form form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
 					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-						<Input.TextArea rows={4} placeholder='متن یادداشت را وارد کنید...' />
+						<Input.TextArea rows={4} />
 					</Form.Item>
 					<Flex justify='end' gap={8}>
 						<Button onClick={() => setIsShowModalNote(false)}>انصراف</Button>
 						<Button type='primary' htmlType='submit' loading={notesApi.isLoading}>
-							{isNoteEditMode ? 'ذخیره تغییرات' : 'ذخیره'}
+							ثبت
 						</Button>
 					</Flex>
 				</Form>
+			</Modal>
+
+			<Modal
+				title={`حذف یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}`}
+				open={isNoteDeleteMode}
+				onCancel={() => {
+					setIsNoteDeleteMode(false)
+					setSelectedNote(null)
+				}}
+				onOk={confirmDeleteNote}
+				confirmLoading={notesApi.isLoading}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					className: styles.deleteOkButton,
+				}}
+			>
+				<Text>آیا از حذف این یادداشت اطمینان دارید؟</Text>
 			</Modal>
 		</>
 	)

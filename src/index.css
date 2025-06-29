@@ -2,56 +2,119 @@
    1. Base Tags and Reset Styles
 --------------------------------------------- */
 @import url('./assets/fonts/Vazirmatn/Vazirmatn-FD-font-face.css');
-
 :root {
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
-
 * {
 	padding: 0;
 	margin: 0;
 	box-sizing: border-box;
 }
-
 /* --------------------------------------------
    2. Ant Design Class Overrides
 --------------------------------------------- */
-.ant-modal {
-	max-width: 420px;
-}
-
-.ant-flex {
-	gap: 16px;
-}
-
-.ant-pagination {
-	gap: 8px !important;
-}
-
-.ant-input {
-	padding-top: 0.5rem;
-}
-
 .ant-otp .ant-otp-input-wrapper {
 	margin-left: 16px !important;
 }
-
-@media (min-width: 1440px) {
-	.ant-modal {
-		max-width: 520px;
-	}
+.ant-breadcrumb-link>span,
+.ant-breadcrumb-link>a {
+	font-size: 14px !important;
+	font-weight: 400 !important;
 }
-
+.ant-breadcrumb>ol {
+	gap: 8px !important;
+}
+.ant-modal-footer .ant-btn-color-dangerous {
+	background-color: #f5222d !important;
+	border: 1 !important;
+}
+.ant-modal-footer .ant-btn {
+	font-size: 14px !important;
+	padding: 0 16px !important;
+	height: 32px !important;
+}
+.ant-picker {
+	border-radius: 4px !important;
+}
+.ant-modal-content {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 20px !important;
+}
+.ant-form {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 20px !important;
+}
+.ant-form-item {
+	margin-bottom: 0 !important;
+}
+.ant-modal-footer {
+	margin-top: 0 !important;
+}
+.ant-modal .ant-row {
+	flex-flow: row nowrap !important;
+	align-items: center !important;
+}
+.ant-select-selector {
+	border-radius: 4px !important;
+}
+.ant-select-selection-placeholder {
+	font-size: 16px !important;
+}
+.ant-select-arrow .anticon svg {
+	width: 18px !important;
+	height: 18px !important;
+}
+.ant-space-gap-col-small {
+	column-gap: 0 !important;
+}
+.ant-breadcrumb-link>span,
+.ant-breadcrumb-link>a {
+	font-size: 14px !important;
+}
+.ant-upload {
+	width: 100% !important;
+}
+.anticon {
+	font-size: 1rem !important;
+}
+.ant-menu-title-content {
+	margin-inline-start: 0 !important;
+}
+.ant-breadcrumb a:hover {
+	background-color: transparent !important;
+}
+.title-container {
+	width: 100% !important;
+	height: 40px !important;
+}
+.ant-form-item-required::before, label::before {
+	order: 1;
+	margin-inline-start: -4px !important;
+}
+label::after {
+	content: '' !important;
+}
+.ant-checkbox-inner {
+	width: 16px !important;
+	height: 16px !important;
+	border-radius: 4px !important;
+}
+.ant-checkbox-input:checked ~ .ant-checkbox-inner {
+	background-color: #0066EE !important;
+	border-color: #0066EE !important;
+}
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */
 .text-page-title {
 	font-size: 1rem !important;
-	font-weight: 500;
-	color: #1f2937;
+	font-weight: 400 !important;
+	color: #000000 !important;
 	margin-bottom: 0 !important;
 }
 .text-card-title {
@@ -60,40 +123,117 @@
 	color: #000000e0 !important;
 	margin-bottom: 0 !important;
 }
-
 .text-h1 {
 	font-size: 1rem !important;
 	font-weight: 600;
 	color: #374151;
 	line-height: 1.3;
 }
-
 .text-h2 {
 	font-size: 1rem !important;
 	font-weight: 600;
 	color: #374151;
 	line-height: 1.3;
 }
-
 .text-h3 {
 	font-size: 0.875rem !important;
 	font-weight: 500;
 	color: #4b5563;
 	line-height: 1.4;
 }
-
 .text-h4 {
 	font-size: 0.75rem !important;
 	font-weight: 500;
 	color: #4b5563;
 }
-
-.label .text {
+.text-paragraph {
+	font-size: 12px !important;
+	font-weight: 300;
+	color: #000000cc;
+}
+.text-label {
 	font-weight: 400;
+	font-size: 1rem !important;
 	color: #00000080;
 }
-
-.value .text {
+.text-value {
 	font-weight: 500;
+	font-size: 1rem !important;
 	color: #000;
+	line-height: 22px !important;
+}
+.text-value>a {
+	font-size: 14px !important;
+}
+.style-btn {
+	border-color: #0066ee;
+	color: #0066ee;
+	height: 40px !important;
+}
+.heading-container {
+	width: 100% !important;
+	height: 40px !important;
+}
+.ant-form-item .ant-form-item-label {
+	text-align: start !important;
+	padding: 0 !important;
+}
+@media (min-width: 1440px) {
+	.ant-modal {
+		max-width: 520px;
+	}
+	.ant-flex {
+		gap: 16px;
+	}
+	.ant-pagination {
+		gap: 8px !important;
+	}
+	.ant-input {
+		min-height: 40px !important;
+	}
+	.ant-form {
+		width: 472px !important;
+	}
+	.anticon {
+		min-width: 14px;
+		font-size: 14px;
+	}
+	.ant-tag {
+		padding: 4px 16px !important;
+	}
+}
+@media (1024px <=width <1440px) {
+	.ant-modal {
+		max-width: 520px;
+	}
+	.ant-card .ant-card-body {
+		padding: 33px !important;
+	}
+	.ant-flex {
+		gap: 16px;
+	}
+	.ant-pagination {
+		gap: 8px !important;
+	}
+	.text-page-title {
+		font-size: 14px !important;
+	}
+	.ant-btn {
+		font-size: 14px !important;
+		padding: 0 12px !important;
+		height: 40px !important;
+	}
+	.text-card-title {
+		font-size: 14px !important;
+	}
+	.value .text,
+	.label .text {
+		font-size: 14px !important;
+	}
+	.ant-table-wrapper .ant-table {
+		font-size: 13px !important;
+	}
+	.ant-tag {
+		font-size: 13px;
+	}
 }

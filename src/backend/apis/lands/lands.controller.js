@@ -4,7 +4,7 @@ import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 
 const fieldTranslations = {
-	name: 'نام زمین',
+	title: 'عنوان زمین',
 	owner: 'مالک',
 	area: 'مساحت',
 	kFactor: 'ضریب K',
@@ -59,13 +59,13 @@ export const getLand = async (req, res) => {
 
 export const createLand = async (req, res) => {
 	try {
-		const { name, owner, area, kFactor, location, irrigationType, cropType, note, wellId } = req.body
+		const { title, owner, area, kFactor, location, irrigationType, cropType, note, wellId } = req.body
 		const userId = req.user._id
 
 		const initialNote = note ? [{ user: userId, text: note }] : []
 
 		const newLand = await Land.create({
-			name,
+			title,
 			owner,
 			area,
 			kFactor,
