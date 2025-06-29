@@ -31,7 +31,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				</Select>
 			</Form.Item>
 
-			<Form.Item label='شروع آبرسانی' required>
+			<Form.Item label='شروع آب‌رسانی' required>
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='startDate' noStyle rules={[{ required: true, message: 'تاریخ شروع الزامی است' }]}>
@@ -46,7 +46,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				</Row>
 			</Form.Item>
 
-			<Form.Item label='پایان آبرسانی'>
+			<Form.Item label='پایان آب‌رسانی'>
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='endDate' noStyle>
@@ -62,7 +62,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 			</Form.Item>
 
 			<Form.Item name='isOngoing' valuePropName='checked' wrapperCol={{ offset: labelCol.span, span: wrapperCol.span }}>
-				<Checkbox>در حال آبرسانی</Checkbox>
+				<Checkbox>در حال آب‌رسانی</Checkbox>
 			</Form.Item>
 
 			<Form.Item name='startNotes' label='توضیحات'>

@@ -92,12 +92,21 @@
 	width: 100% !important;
 	height: 40px !important;
 }
-.ant-form-item-required::before , label::before {
-  order: 1;
-  margin-inline-start: -4px !important;
+.ant-form-item-required::before, label::before {
+	order: 1;
+	margin-inline-start: -4px !important;
 }
 label::after {
-  content: '' !important;
+	content: '' !important;
+}
+.ant-checkbox-inner {
+	width: 16px !important;
+	height: 16px !important;
+	border-radius: 4px !important;
+}
+.ant-checkbox-input:checked ~ .ant-checkbox-inner {
+	background-color: #0066EE !important;
+	border-color: #0066EE !important;
 }
 /* --------------------------------------------
    3. Custom Utility / UI Classes

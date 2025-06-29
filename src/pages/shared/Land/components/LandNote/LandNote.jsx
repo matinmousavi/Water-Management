@@ -141,7 +141,6 @@ const LandNote = ({ notesData: initialNotes }) => {
 
 			<Modal
 				title={`حذف یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}`}
-				centered
 				open={isNoteDeleteMode}
 				onCancel={() => {
 					setIsNoteDeleteMode(false)

@@ -1,5 +1,5 @@
 import { Button, Card, Flex, Form, Modal, Typography } from 'antd'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import useAPI from '../../hooks/useAPI'
 import style from './DeleteCard.module.css'
 import { DeleteOutlined } from '@ant-design/icons'
@@ -9,25 +9,20 @@ import { useCallback } from 'react'
 
 const { Title } = Typography
 
-const DeleteCard = ({ title, backTo }) => {
+const DeleteCard = ({ title, api , backTo }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
 	const deleteAPI = useAPI()
 	const navigate = useNavigate()
-	const { wellId } = useParams()
 	
 	const { openNotification } = useNotification()
-
-	const handleOpen = () => {
-		console.log('')
-	}
 	const handleCancel = () => {
 		close(() => form.resetFields(), 'after')
 	}
 
 	const handleSubmit = useCallback(async () => {
 		try {
-			await deleteAPI.delete(`wells/${wellId}`)
+			await deleteAPI.delete(api)
 			openNotification('success', `${title} با موفقیت حذف شد`)
 			if (backTo) navigate(backTo)
 		} catch (error) {
@@ -42,14 +37,14 @@ const DeleteCard = ({ title, backTo }) => {
 				<Title level={2} className='text-card-title'>
 					حذف {title}
 				</Title>
-				<Button danger onClick={() => open(handleOpen, 'before')} loading={deleteAPI.isLoading}>
+				<Button danger onClick={() => open()} loading={deleteAPI.isLoading}>
 					<Flex align='center' gap={8}>
 						<DeleteOutlined /> <span>حذف</span>
 					</Flex>
 				</Button>
 			</Flex>
 			<Modal
-				title='حذف چاه'
+				title={`حذف ${title}`}
 				open={isOpen}
 				onOk={handleSubmit}
 				onCancel={handleCancel}
@@ -63,7 +58,7 @@ const DeleteCard = ({ title, backTo }) => {
 				confirmLoading={deleteAPI.isLoading}
 				loading={deleteAPI.isLoading}
 			>
-				<p>آیا از حذف این چاه اطمینان دارید؟</p>
+				<p>آیا از حذف این {title} اطمینان دارید؟</p>
 			</Modal>
 		</Card>
 	)
