@@ -37,8 +37,6 @@ const Profile = () => {
 
 	const userData = userDataRef.current || {}
 
-	console.log('User Data:', userData)
-
 	return (
 		<>
 			<MetaTitle>پروفایل</MetaTitle>

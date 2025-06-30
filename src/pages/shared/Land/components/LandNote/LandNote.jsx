@@ -64,7 +64,6 @@ const LandNote = ({ notesData: initialNotes }) => {
 		try {
 			if (isNoteEditMode && selectedNote?._id) {
 				const response = await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
-				console.log('Full update response:', response)
 
 				const updatedData = response.data || response.note || response
 				if (!updatedData._id) {
@@ -75,7 +74,6 @@ const LandNote = ({ notesData: initialNotes }) => {
 				openNotification('success', 'یادداشت با موفقیت ویرایش شد')
 			} else {
 				const response = await notesApi.post(`lands/${landId}/notes`, values)
-				console.log('Full create response:', response)
 
 				const newData = response.data || response.note || response
 				if (!newData._id) {
