@@ -6,10 +6,10 @@ import moment from 'moment-jalaali'
 import { Link } from 'react-router'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
-const WellLogsMobile = ({ data }) => {
-	const { Text } = Typography
-	console.log(data)
 
+const { Text } = Typography
+
+const WellLogsMobile = ({ data }) => {
 	return (
 		<Card>
 			<Flex vertical gap={18}>

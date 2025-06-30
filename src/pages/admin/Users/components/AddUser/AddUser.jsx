@@ -23,7 +23,6 @@ const AddUser = ({ setUser }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-			console.log('Form Values:', values)
 			const response = await userApi.post('users', values)
 
 			if (response?.error) {

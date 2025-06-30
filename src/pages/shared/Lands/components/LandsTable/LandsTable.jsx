@@ -60,18 +60,24 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'عنوان چاه‌',
 			key: 'wellTitles',
-			render: (_, record) => record.wells?.map(well => <Link to={`/wells/${well._id}`}>{well.title}</Link>),
+			render: (_, record) =>
+				record.wells?.map(well => (
+					<Link key={well._id} to={`/wells/${well._id}`}>
+						{well.title}
+					</Link>
+				)),
 		},
 		{
 			title: 'میرآب',
 			key: 'irrigator',
 			filters: allIrrigators,
-			onFilter: (value, record) => {
-				return record.wells.some(well => `${well.irrigator.firstName} ${well.irrigator.lastName}` === value)
-			},
-			render: (_, record) => {
-				return record.wells?.map(well => <Link to={`/wells/${well._id}`}>{`${well.irrigator.firstName} ${well.irrigator.lastName}`}</Link>)
-			},
+			onFilter: (value, record) => record.wells.some(well => `${well.irrigator.firstName} ${well.irrigator.lastName}` === value),
+			render: (_, record) =>
+				record.wells?.map(well => (
+					<Link key={well._id} to={`/wells/${well._id}`}>
+						{`${well.irrigator.firstName} ${well.irrigator.lastName}`}
+					</Link>
+				)),
 		},
 		{
 			title: 'نوع آبیاری',

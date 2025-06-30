@@ -104,9 +104,16 @@ label::after {
 	height: 16px !important;
 	border-radius: 4px !important;
 }
-.ant-checkbox-input:checked ~ .ant-checkbox-inner {
+.ant-checkbox-input:checked~.ant-checkbox-inner {
 	background-color: #0066EE !important;
 	border-color: #0066EE !important;
+}
+.ant-card .ant-card-body {
+	padding: 36px !important;
+}
+.anticon-arrow-right svg {
+	width: 12px !important;
+	height: 12px !important;
 }
 /* --------------------------------------------
    3. Custom Utility / UI Classes

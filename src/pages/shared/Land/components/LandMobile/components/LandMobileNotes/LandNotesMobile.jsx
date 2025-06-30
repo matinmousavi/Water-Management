@@ -52,7 +52,6 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 		try {
 			if (isNoteEditMode && selectedNote?._id) {
 				const response = await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
-				console.log('Full update response:', response)
 
 				const updatedData = response.data || response.note || response
 				if (!updatedData._id) {
