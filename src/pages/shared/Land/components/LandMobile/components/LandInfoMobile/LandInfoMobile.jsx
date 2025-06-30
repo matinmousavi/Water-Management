@@ -21,9 +21,6 @@ const LandInfoMobile = ({ data }) => {
 	const api = useAPI()
 	api.init(`lands/${landId}`)
 
-	console.log(api.data)
-	console.log(data.logs)
-
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [elapsedTime, setElapsedTime] = useState(0)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
@@ -31,7 +28,7 @@ const LandInfoMobile = ({ data }) => {
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [startTime, setStartTime] = useState(null)
 	const [isDescription, setIsDescription] = useState(false)
-
+	const [isOngoing, setIsOngoing] = useState(false)
 	const startY = useRef(0)
 
 	useEffect(() => {
@@ -135,8 +132,8 @@ const LandInfoMobile = ({ data }) => {
 		},
 		{
 			title: 'توضیحات',
-			dataIndex: 'description',
-			key: 'description',
+			dataIndex: 'notes',
+			key: 'notes',
 			render: value => {
 				console.log('value is:', value)
 
@@ -144,12 +141,12 @@ const LandInfoMobile = ({ data }) => {
 					<Flex align='center' justify='center' gap={8}>
 						<EyeOutlined onClick={() => setIsDescription(true)} style={{ color: '#1890ff' }} />
 						<Modal
-							title={`توضیحات لاگ توزیع آب ${value}`}
+							rootClassName={styles.modalDescription}
+							title={`توضیحات لاگ توزیع آب ${value.start}`}
 							footer={false}
 							centered
 							open={isDescription}
-							onClose={() => setIsDescription(false)}
-							closable={false}
+							onCancel={() => setIsDescription(false)}
 							okText={null}
 						></Modal>
 					</Flex>
@@ -159,7 +156,8 @@ const LandInfoMobile = ({ data }) => {
 	]
 
 	console.log(data)
-
+	console.log('data api : ', api.data?.land)
+	console.log(data.logs)
 	return (
 		<div className={styles.container}>
 			<Flex gap={16} vertical>
@@ -181,7 +179,7 @@ const LandInfoMobile = ({ data }) => {
 				<Card>
 					<Flex vertical gap={8}>
 						<Text>لاگ توزیع آب ({data?.logs?.length})</Text>
-						<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={data.logs} columns={columns} />
+						<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={api.data?.land?.logs} columns={columns} />
 					</Flex>
 				</Card>
 			</Flex>

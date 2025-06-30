@@ -24,7 +24,10 @@
 		font-weight: 600 !important;
 	}
 }
-
+.modalDescription :global(.ant-modal-title) {
+	font-size: 12px !important;
+	font-weight: 600 !important;
+}
 .table {
 	table {
 		width: 296px !important;
