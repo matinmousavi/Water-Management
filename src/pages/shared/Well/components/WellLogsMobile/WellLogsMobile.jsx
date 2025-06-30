@@ -6,11 +6,6 @@ import moment from 'moment-jalaali'
 import { Link } from 'react-router'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
-<<<<<<< HEAD
-const WellLogsMobile = ({ data }) => {
-	const { Text } = Typography
-=======
->>>>>>> a3f6530c8500fa47dd1a283a525d3bee74a447d9
 
 const { Text } = Typography
 
