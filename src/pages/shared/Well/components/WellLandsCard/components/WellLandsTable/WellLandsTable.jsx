@@ -16,8 +16,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 		try {
 			const updatedLands = data?.filter(item => item._id !== landId)
 			const response = await wellApi.patch(`wells/${wellId}`, { lands: updatedLands })
-			console.log(response);
-			
+
 			if (!response?.error) {
 				openNotification('success', 'زمین از چاه حذف شد')
 				setData({ lands: response.well.lands })
