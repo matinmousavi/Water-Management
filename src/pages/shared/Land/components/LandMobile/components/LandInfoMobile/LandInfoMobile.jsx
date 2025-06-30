@@ -98,8 +98,8 @@ const LandInfoMobile = ({ data }) => {
 		{ icon: iconContacts, title: 'نام زمین', value: data?.name },
 		{ icon: iconPhone, title: 'شماره تماس', value: data?.owner?.mobile },
 		{ icon: iconLocation, title: 'آدرس زمین', value: data?.location },
-		{ icon: iconClock, title: 'آخرین زمان آبیاری', value: moment(data?.createAt).format('dddd jD jMMMM jYYYY') || '-' },
 		{ icon: iconClock, title: 'زمان آبیاری بعدی', value: moment(data?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
+		{ icon: iconClock, title: 'آخرین زمان آبیاری', value: moment(data?.createAt).format('dddd jD jMMMM jYYYY') || '-' },
 	]
 
 	const columns = [

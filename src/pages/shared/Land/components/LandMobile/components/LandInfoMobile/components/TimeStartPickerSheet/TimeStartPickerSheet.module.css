@@ -50,14 +50,6 @@
 	position: relative;
 	margin-bottom: 24px;
 }
-.line {
-	position: absolute;
-	left: 0;
-	right: 0;
-	height: 1;
-	background-color: rgba(217, 217, 217, 1);
-	z-index: 10;
-}
 
 .container_time {
 	display: flex;

@@ -38,7 +38,7 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 
 	const renderList = (items, selected, setSelected, ref, type) => {
 		return (
-			<div style={{ flex: 1 }}>
+			<div className='container-scroll' style={{ flex: 1 }}>
 				<div
 					ref={ref}
 					onScroll={e => handleScroll(e, type)}
@@ -53,7 +53,7 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 					}}
 					className='no-scrollbar'
 				>
-					<div style={{ paddingTop: ITEM_HEIGHT * CENTER_INDEX, paddingBottom: ITEM_HEIGHT * CENTER_INDEX }}>
+					<div className='container-item-scroll' style={{ paddingTop: ITEM_HEIGHT * CENTER_INDEX, paddingBottom: ITEM_HEIGHT * CENTER_INDEX }}>
 						{items.map((item, idx) => {
 							const isSelected = item === selected
 							return (
@@ -62,13 +62,14 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 									style={{
 										height: ITEM_HEIGHT,
 										lineHeight: `${ITEM_HEIGHT}px`,
-										textAlign: 'center',
 										scrollSnapAlign: 'center',
 										fontSize: 20,
+										padding: '0 10px',
 										fontWeight: isSelected ? '600' : '400',
 										color: isSelected ? 'rgba(0,0,0,0.88)' : 'rgba(30,30,44,0.5)',
 										userSelect: 'none',
 									}}
+									className='item-scroll'
 									onClick={() => setSelected(item)}
 								>
 									{english2persian(item)}
@@ -105,15 +106,25 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 					{/* خطوط راهنما */}
 					<div
 						style={{
+							position: 'absolute',
+							left: 0,
+							right: 0,
+							height: 1,
+							backgroundColor: 'rgba(217, 217, 217, 1)',
+							zIndex: 10,
 							top: ITEM_HEIGHT * CENTER_INDEX,
 						}}
-						className={styles.line}
 					/>
 					<div
 						style={{
+							position: 'absolute',
+							left: 0,
+							right: 0,
+							height: 1,
+							backgroundColor: 'rgba(217, 217, 217, 1)',
+							zIndex: 10,
 							top: ITEM_HEIGHT * (CENTER_INDEX + 1),
 						}}
-						className={styles.line}
 					/>
 
 					<div

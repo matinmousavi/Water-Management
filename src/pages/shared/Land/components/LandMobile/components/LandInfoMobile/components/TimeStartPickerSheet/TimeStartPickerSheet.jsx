@@ -106,15 +106,25 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 					{/* خطوط راهنما */}
 					<div
 						style={{
+							position: 'absolute',
+							left: 0,
+							right: 0,
+							height: 1,
+							backgroundColor: 'rgba(217, 217, 217, 1)',
+							zIndex: 10,
 							top: ITEM_HEIGHT * CENTER_INDEX,
 						}}
-						className={styles.line}
 					/>
 					<div
 						style={{
+							position: 'absolute',
+							left: 0,
+							right: 0,
+							height: 1,
+							backgroundColor: 'rgba(217, 217, 217, 1)',
+							zIndex: 10,
 							top: ITEM_HEIGHT * (CENTER_INDEX + 1),
 						}}
-						className={styles.line}
 					/>
 
 					<div
