@@ -86,6 +86,8 @@ const Layouts = () => {
 
 					{!isMobile ? (
 						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
+					) : isIrrigator ? (
+						<Button type='text' icon={<UserOutlined />} onClick={() => navigate('/')} />
 					) : (
 						<Button type='text' icon={<MenuOutlined />} onClick={() => setDrawerVisible(true)} />
 					)}
