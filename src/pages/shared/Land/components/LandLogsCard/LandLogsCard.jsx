@@ -1,11 +1,11 @@
 import { Card, Flex, Typography } from 'antd'
-import { useParams } from 'react-router'
 import LandAddLog from './components/LandAddLog/LandAddLog'
 import LandLogsTable from './components/LandLogsTable/LandLogsTable'
+import { useParams } from 'react-router'
 
 const { Title } = Typography
 
-const LandLogsCard = ({ landLogs, setLogs }) => {
+const LandLogsCard = ({ landLogs, setLogs, well }) => {
 	const { wellId } = useParams()
 
 	return (
@@ -15,7 +15,7 @@ const LandLogsCard = ({ landLogs, setLogs }) => {
 					<Title level={2} className='text-card-title'>
 						لاگ توزیع آب ({landLogs.length})
 					</Title>
-					<LandAddLog wellId={wellId} setLogs={setLogs} />
+					<LandAddLog wellId={well._id || wellId} setLogs={setLogs} />
 				</Flex>
 				{landLogs.length > 0 && <LandLogsTable data={landLogs} setLogs={setLogs} wellId={wellId} />}
 			</Flex>

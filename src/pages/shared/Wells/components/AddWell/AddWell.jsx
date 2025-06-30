@@ -6,10 +6,9 @@ import useAPI from '../../../../../hooks/useAPI'
 import WellForm from '../../../../../components/Well/WellForm/WellForm'
 import useNotification from '../../../../../hooks/useNotification'
 
-const AddWell = () => {
+const AddWell = ({ wellsApi }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
-	const wellApi = useAPI()
 	const irrigatorsApi = useAPI()
 	const { openNotification } = useNotification()
 
@@ -26,10 +25,10 @@ const AddWell = () => {
 			const values = await form.validateFields()
 			const tempId = 'temp-' + Date.now()
 
-			await wellApi.post('wells', values, {
+			await wellsApi.post('wells', values, {
 				optimisticUpdate: prev => ({
 					...prev,
-					wells: [...(prev?.wells || []), { ...values, _id: tempId }],
+					wells: [...(prev?.wells || []), { ...values, _id: tempId, status: 'active' }],
 				}),
 				rollback: prev => ({
 					...prev,
@@ -47,7 +46,7 @@ const AddWell = () => {
 			console.error(err)
 			openNotification('error', 'خطا', err?.error?.message || err?.message || 'خطایی رخ داده است')
 		}
-	}, [form, wellApi, close, openNotification])
+	}, [form, wellsApi, close, openNotification])
 
 	return (
 		<>
@@ -64,7 +63,7 @@ const AddWell = () => {
 				onOk={handleSubmit}
 				onCancel={handleCancel}
 				afterOpenChange={handleAfterChange}
-				confirmLoading={wellApi.isLoading}
+				confirmLoading={wellsApi.isLoading}
 				loading={irrigatorsApi.isLoading}
 				okText='ثبت'
 				cancelText='انصراف'

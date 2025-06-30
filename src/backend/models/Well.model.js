@@ -15,13 +15,12 @@ const wellSchema = new mongoose.Schema(
 		},
 		cycleDays: {
 			type: Number,
-			required: true,
 			min: 1,
 		},
 		location: {
 			type: String,
+			required: true,
 			trim: true,
-			default: '',
 		},
 		status: {
 			type: String,

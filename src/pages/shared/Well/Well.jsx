@@ -18,6 +18,7 @@ import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 
 import iconWell from '../../../assets/icons/Vector.svg'
 import useNotification from '../../../hooks/useNotification'
+import WellStatus from './components/WellStatus'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -44,16 +45,15 @@ const Well = () => {
 	}, [api.data?.well])
 
 	const handleStatusChange = async () => {
-	try {
-		const values = await form.validateFields()
-		await api.patch(`wells/${actualWellId}`, { status: values.status })
-		setIsStatusModalOpen(false)
-		openNotification('وضعیت چاه با موفقیت تغییر کرد')
-	} catch (error) {
-		openNotification('خطا در تغییر وضعیت چاه', error)
+		try {
+			const values = await form.validateFields()
+			await api.patch(`wells/${actualWellId}`, { status: values.status })
+			setIsStatusModalOpen(false)
+			openNotification('وضعیت چاه با موفقیت تغییر کرد')
+		} catch (error) {
+			openNotification('خطا در تغییر وضعیت چاه', error)
+		}
 	}
-}
-
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
@@ -80,11 +80,7 @@ const Well = () => {
 						<Flex align='center' gap={16}>
 							<BackButton backTo='/wells' />
 							<Typography.Title className='text-page-title'>{title}</Typography.Title>
-							<Tag color='green'>
-								<Flex align='center' gap={4}>
-									فعال <EditOutlined />
-								</Flex>
-							</Tag>
+							<WellStatus wellId={wellId} currentStatus={well.status} />
 						</Flex>
 					</>
 				)}

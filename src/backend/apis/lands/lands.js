@@ -1,7 +1,10 @@
+import { Router } from 'express'
 import mongoose from '../../config/database.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
+
+const router = Router()
 
 const fieldTranslations = {
 	title: 'عنوان زمین',
@@ -17,76 +20,56 @@ async function attachWells(land) {
 		.select('_id title licenseCode cycleDays irrigator')
 		.populate('irrigator', '_id firstName lastName mobile')
 		.lean()
-
 	return { ...land, wells }
 }
 
-export const getLands = async (req, res) => {
+router.get('/', async (req, res) => {
 	try {
 		const lands = await Land.find().populate('owner').lean()
 		const landsWithWells = await Promise.all(lands.map(attachWells))
-
 		return res.status(200).json({ lands: landsWithWells })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در دریافت اطلاعات زمین‌ها!' })
 	}
-}
+})
 
-export const getLand = async (req, res) => {
+router.get('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
-
 		if (!mongoose.isValidObjectId(landId)) {
 			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
 		}
-
 		const land = await Land.findById(landId).populate('owner').populate({ path: 'notes.user', select: '_id firstName lastName' }).lean()
-
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
 		}
-
 		const landWithWells = await attachWells(land)
 		const logs = await Irrigation.find({ land: land._id }).sort({ date: -1 }).lean()
-
 		return res.status(200).json({ land: { ...landWithWells, logs } })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
-}
+})
 
-export const createLand = async (req, res) => {
+router.post('/', async (req, res) => {
 	try {
 		const { title, owner, area, kFactor, location, irrigationType, cropType, note, wellId } = req.body
 		const userId = req.user._id
-
 		const initialNote = note ? [{ user: userId, text: note }] : []
 
-		const newLand = await Land.create({
-			title,
-			owner,
-			area,
-			kFactor,
-			location,
-			irrigationType,
-			cropType,
-			notes: initialNote,
-		})
+		const newLand = await Land.create({ title, owner, area, kFactor, location, irrigationType, cropType, notes: initialNote })
 
 		if (wellId) {
 			const well = await Well.findById(wellId)
-			if (!well) {
-				return res.status(404).json({ message: 'چاه مورد نظر یافت نشد.' })
-			}
+			if (!well) return res.status(404).json({ message: 'چاه مورد نظر یافت نشد.' })
 			well.lands.push(newLand._id)
 			await well.save()
 		}
 
 		const populatedLand = await Land.findById(newLand._id).populate('owner').lean()
 		const landWithWells = await attachWells(populatedLand)
-
 		return res.status(201).json({ message: 'زمین با موفقیت ایجاد شد.', land: landWithWells })
 	} catch (err) {
 		console.error(err.message)
@@ -103,9 +86,9 @@ export const createLand = async (req, res) => {
 		}
 		return res.status(500).json({ message: 'خطا در ایجاد زمین.' })
 	}
-}
+})
 
-export const updateLand = async (req, res) => {
+router.patch('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
 		const updates = { ...req.body }
@@ -116,10 +99,8 @@ export const updateLand = async (req, res) => {
 
 		if (wellId) {
 			await Well.updateMany({ lands: land._id }, { $pull: { lands: land._id } })
-
 			const well = await Well.findById(wellId)
 			if (!well) return res.status(404).json({ message: 'چاه مورد نظر یافت نشد.' })
-
 			if (!well.lands.includes(land._id)) {
 				well.lands.push(land._id)
 				await well.save()
@@ -132,7 +113,6 @@ export const updateLand = async (req, res) => {
 
 		const populatedLand = await Land.findById(landId).populate('owner').lean()
 		const updated = await attachWells(populatedLand)
-
 		return res.status(200).json({ message: 'زمین با موفقیت ویرایش شد.', land: updated })
 	} catch (err) {
 		console.error(err.message)
@@ -143,9 +123,9 @@ export const updateLand = async (req, res) => {
 		}
 		return res.status(500).json({ message: 'خطا در ویرایش زمین.' })
 	}
-}
+})
 
-export const deleteLand = async (req, res) => {
+router.delete('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
 		const land = await Land.findByIdAndDelete(landId)
@@ -155,9 +135,9 @@ export const deleteLand = async (req, res) => {
 		console.error('خطا در حذف زمین:', err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
-}
+})
 
-export const addNoteToLand = async (req, res) => {
+router.post('/:landId/notes', async (req, res) => {
 	try {
 		const { landId } = req.params
 		const { text } = req.body
@@ -178,9 +158,9 @@ export const addNoteToLand = async (req, res) => {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در افزودن یادداشت.' })
 	}
-}
+})
 
-export const updateNoteOnLand = async (req, res) => {
+router.put('/:landId/notes/:noteId', async (req, res) => {
 	try {
 		const { landId, noteId } = req.params
 		const { text } = req.body
@@ -206,9 +186,9 @@ export const updateNoteOnLand = async (req, res) => {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در ویرایش یادداشت.' })
 	}
-}
+})
 
-export const deleteNoteFromLand = async (req, res) => {
+router.delete('/:landId/notes/:noteId', async (req, res) => {
 	try {
 		const { landId, noteId } = req.params
 		const userId = req.user._id
@@ -233,4 +213,10 @@ export const deleteNoteFromLand = async (req, res) => {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در حذف یادداشت.' })
 	}
-}
+})
+
+router.all(/.*/, (req, res) => {
+	return res.status(405).send({ error: 'Method Not Allowed' })
+})
+
+export default router
