@@ -1,20 +1,23 @@
-import { Popconfirm, Space, Table } from 'antd'
+import { Modal, Space, Table } from 'antd'
 import { DeleteTwoTone } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useUser } from '../../../../../../../contexts/UserContext'
+import useModal from '../../../../../../../hooks/useModal'
 
 const WellLandsTable = ({ data, setData, wellId }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
+	const { isOpen, open, close, handleAfterChange } = useModal()
 
 	const handleDelete = async landId => {
 		try {
 			const updatedLands = data?.filter(item => item._id !== landId)
 			const response = await wellApi.patch(`wells/${wellId}`, { lands: updatedLands })
-
+			console.log(response);
+			
 			if (!response?.error) {
 				openNotification('success', 'زمین از چاه حذف شد')
 				setData({ lands: response.well.lands })
@@ -22,7 +25,13 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 		} catch (error) {
 			console.error('Error:', error)
 			openNotification('error', error?.error?.message || 'خطا در حذف زمین')
+		} finally {
+			close()
 		}
+	}
+
+	const handleCancel = () => {
+		close()
 	}
 
 	const columns = [
@@ -39,7 +48,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 			render: (_, record) => <Link to={`/users/${record.owner?._id}`}>{`${record.owner?.firstName} ${record.owner?.lastName}`}</Link>,
 		},
 		{
-			title: 'شماره تماس',
+			title: 'شماره تماس مالک',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
 			render: (_, record) => (record?.owner?.mobile ? record?.owner?.mobile : '--'),
@@ -63,17 +72,36 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 			title: 'عملیات',
 			dataIndex: 'action',
 			key: 'action',
-			render: (_, record) => (
+			render: () => (
 				<Space>
-					<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
-						<DeleteTwoTone twoToneColor='#ff0000' />
-					</Popconfirm>
+					<DeleteTwoTone twoToneColor='#ff0000' onClick={() => open()} />
 				</Space>
 			),
 		})
 	}
 
-	return <Table dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
+	return (
+		<>
+			<Table dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
+			<Modal
+				title='حذف زمین'
+				open={isOpen}
+				onOk={handleDelete}
+				onCancel={handleCancel}
+				afterOpenChange={handleAfterChange}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					danger: true,
+					type: 'primary',
+				}}
+				confirmLoading={wellApi.isLoading}
+				loading={wellApi.isLoading}
+			>
+				<p>آیا از حذف این زمین اطمینان دارید؟</p>
+			</Modal>
+		</>
+	)
 }
 
 export default WellLandsTable
