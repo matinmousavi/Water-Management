@@ -44,16 +44,15 @@ const Well = () => {
 	}, [api.data?.well])
 
 	const handleStatusChange = async () => {
-	try {
-		const values = await form.validateFields()
-		await api.patch(`wells/${actualWellId}`, { status: values.status })
-		setIsStatusModalOpen(false)
-		openNotification('وضعیت چاه با موفقیت تغییر کرد')
-	} catch (error) {
-		openNotification('خطا در تغییر وضعیت چاه', error)
+		try {
+			const values = await form.validateFields()
+			await api.patch(`wells/${actualWellId}`, { status: values.status })
+			setIsStatusModalOpen(false)
+			openNotification('وضعیت چاه با موفقیت تغییر کرد')
+		} catch (error) {
+			openNotification('خطا در تغییر وضعیت چاه', error)
+		}
 	}
-}
-
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
@@ -71,7 +70,7 @@ const Well = () => {
 					<Flex gap={8} justify='center' align='center'>
 						<img src={iconWell} alt='icon' />
 						<Typography.Title level={2} className='text-h2'>
-							{title}
+							{well?.title}
 						</Typography.Title>
 					</Flex>
 				) : (
@@ -99,7 +98,7 @@ const Well = () => {
 
 				{isMobile && (
 					<Flex vertical gap={12}>
-						{logs.map(log => (
+						{well?.logs?.map(log => (
 							<WellLogsMobile key={log._id} data={log} />
 						))}
 					</Flex>

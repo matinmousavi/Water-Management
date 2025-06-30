@@ -104,8 +104,8 @@ const Login = () => {
 						) : (
 							<Flex vertical gap={50}>
 								<Flex vertical gap={20}>
-									<Typography.Text>
-										کد تأیید برای شماره <span className={styles.mobile}>{mobile}</span> ارسال شد.
+									<Typography.Text className={styles.containerMobile}>
+										کد تأیید ۴ رقمی به شماره <span className={styles.mobile}>{mobile}</span> ارسال شد.
 									</Typography.Text>
 									<Button className={styles['link-btn']} type='link' onClick={() => setStep(1)}>
 										<EditOutlined />
@@ -132,7 +132,7 @@ const Login = () => {
 										</Flex>
 									) : (
 										<Flex gap={5} justify='center' align='center'>
-											<Typography.Text>کد را دریافت نکرداید؟</Typography.Text>
+											<Typography.Text className={styles.resendCode}>کد را دریافت نکرداید؟</Typography.Text>
 											<Button className={styles['link-btn']} type='link' onClick={resendOtp}>
 												ارسال مجدد
 											</Button>

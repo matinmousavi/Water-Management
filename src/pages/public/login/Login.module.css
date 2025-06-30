@@ -33,6 +33,10 @@
 	font-weight: 600 !important;
 }
 
+.containerMobile {
+	text-align: center;
+}
+
 .mobile {
 	font-weight: 600 !important;
 }
@@ -42,6 +46,10 @@
 	justify-content: center !important;
 	align-items: center !important;
 	margin-bottom: 0 !important;
+}
+
+.resendCode {
+	color: rgba(0, 0, 0, 0.6);
 }
 
 /* ---------- Media Query ---------- */
