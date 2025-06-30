@@ -30,7 +30,7 @@ const Well = () => {
 	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
 	const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
-	const [status, setStatus] = useState([])
+	const [status] = useState([])
 	const [form] = Form.useForm()
 
 	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
@@ -44,18 +44,16 @@ const Well = () => {
 	}, [api.data?.well])
 
 	const handleStatusChange = async () => {
-		try {
-			const values = await form.validateFields()
-			const newStatus = values.status
-			console.log('New Status:', newStatus)
-			setStatus(newStatus)
-			setIsStatusModalOpen(false)
-		} catch (error) {
-			openNotification('error', 'خطا در تغییر وضعیت  زمین')
-			console.error('خطا در  تغییر وضعیت زمین:', error)
-		}
+	try {
+		const values = await form.validateFields()
+		await api.patch(`wells/${actualWellId}`, { status: values.status })
+		setIsStatusModalOpen(false)
+		openNotification('وضعیت چاه با موفقیت تغییر کرد')
+	} catch (error) {
+		openNotification('خطا در تغییر وضعیت چاه', error)
 	}
-	}, [api.data])
+}
+
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
