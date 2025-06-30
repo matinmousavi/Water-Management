@@ -60,7 +60,6 @@ const Well = () => {
 
 	const well = api.data?.well || api.data?.wells?.[0]
 	const actualWellId = wellId || well?._id
-	console.log(well)
 
 	return (
 		<>

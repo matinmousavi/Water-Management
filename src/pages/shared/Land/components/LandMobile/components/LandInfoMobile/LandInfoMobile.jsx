@@ -1,4 +1,4 @@
-import { Card, Flex, Table, Typography, Button, Drawer } from 'antd'
+import { Card, Flex, Table, Typography, Button, Drawer, Modal } from 'antd'
 import moment from 'moment-jalaali'
 import styles from './LandInfoMobile.module.css'
 import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg'
@@ -10,11 +10,19 @@ import { useState, useEffect, useRef } from 'react'
 import TimeStartPickerSheet from './components/TimeStartPickerSheet/TimeStartPickerSheet'
 import TimeEndPickerSheet from './components/TimeEndPickerSheet/TimeEndPickerSheet'
 import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
+import useAPI from '../../../../../../../hooks/useAPI'
+import { useParams } from 'react-router'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
 const LandInfoMobile = ({ data }) => {
 	const { Text } = Typography
+	const { landId } = useParams()
+	const api = useAPI()
+	api.init(`lands/${landId}`)
+
+	console.log(api.data)
+	console.log(data.logs)
 
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [elapsedTime, setElapsedTime] = useState(0)
@@ -22,6 +30,7 @@ const LandInfoMobile = ({ data }) => {
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [startTime, setStartTime] = useState(null)
+	const [isDescription, setIsDescription] = useState(false)
 
 	const startY = useRef(0)
 
@@ -122,23 +131,38 @@ const LandInfoMobile = ({ data }) => {
 			title: 'مدت زمان آبیاری',
 			dataIndex: 'timeIrrigation',
 			key: 'timeIrrigation',
-			render: () => <span>12 دقیقه</span>,
+			render: value => moment(value).format('HH:mm'),
 		},
 		{
 			title: 'توضیحات',
 			dataIndex: 'description',
 			key: 'description',
-			render: () => (
-				<Flex align='center' justify='center' gap={8}>
-					<EyeOutlined style={{ color: '#1890ff' }} />
-				</Flex>
-			),
+			render: value => {
+				console.log('value is:', value)
+
+				return (
+					<Flex align='center' justify='center' gap={8}>
+						<EyeOutlined onClick={() => setIsDescription(true)} style={{ color: '#1890ff' }} />
+						<Modal
+							title={`توضیحات لاگ توزیع آب ${value}`}
+							footer={false}
+							centered
+							open={isDescription}
+							onClose={() => setIsDescription(false)}
+							closable={false}
+							okText={null}
+						></Modal>
+					</Flex>
+				)
+			},
 		},
 	]
 
+	console.log(data)
+
 	return (
 		<div className={styles.container}>
-			<Flex vertical>
+			<Flex gap={16} vertical>
 				<Card className={styles.card}>
 					<Flex vertical gap={8}>
 						{listItems.map((item, index) => (

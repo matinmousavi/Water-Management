@@ -18,6 +18,14 @@
 	text-align: center;
 }
 
+.container-scroll:nth-child(1) {
+	.container-item-scroll {
+		.item-scroll {
+			text-align: left;
+		}
+	}
+}
+
 /* ---------- Ant Design Overrides ---------- */
 
 .ant-card {

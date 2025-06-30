@@ -83,3 +83,12 @@
 .btn {
 	width: 50%;
 }
+
+.containerItemScroll:nth-child(1) {
+	background-color: red;
+}
+.itemList {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
