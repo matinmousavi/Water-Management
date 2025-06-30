@@ -5,6 +5,8 @@ import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
 import LandNotesMobile from './components/LandMobileNotes/LandNotesMobile'
 
 const LandMobile = ({ landData }) => {
+	console.log(landData)
+
 	const items = [
 		{
 			key: 'specifications',
