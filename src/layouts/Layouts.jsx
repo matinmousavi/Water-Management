@@ -1,8 +1,8 @@
-import { Drawer, Menu, Button, Image, Layout, Flex } from 'antd'
+import { Drawer, Menu, Button, Image, Layout, Flex, Grid } from 'antd'
 import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
 
 const { Header, Content } = Layout
@@ -11,28 +11,18 @@ const Layouts = () => {
 	const { isAdmin, isIrrigator, logout } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
-	const [isMobile, setIsMobile] = useState(false)
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 
 	const navigate = useNavigate()
-
-	useEffect(() => {
-		const handleResize = () => {
-			setIsMobile(window.innerWidth <= 576)
-		}
-		handleResize()
-		window.addEventListener('resize', handleResize)
-		return () => window.removeEventListener('resize', handleResize)
-	}, [])
 
 	const mainMenuItems = useMemo(() => {
 		const items = []
 		if (isAdmin) {
-			items.push(
-				{
-					key: '/',
-					label: <Link to='/'>داشبورد</Link>,
-				}
-			)
+			items.push({
+				key: '/',
+				label: <Link to='/'>داشبورد</Link>,
+			})
 		}
 
 		if (isAdmin || isIrrigator) {
