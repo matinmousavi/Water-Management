@@ -58,7 +58,6 @@ const LandInfoMobile = ({ data }) => {
 
 	const handleStop = () => {
 		setEndNoticeDrawer(true)
-		setIsIrrigating(false)
 		setStartTime(null)
 	}
 
@@ -161,9 +160,6 @@ const LandInfoMobile = ({ data }) => {
 		},
 	]
 
-	console.log(data)
-	console.log('data api : ', api.data?.land)
-	console.log(data.logs)
 	return (
 		<div className={styles.container}>
 			<Flex gap={16} vertical>
