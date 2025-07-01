@@ -27,7 +27,6 @@ const landSchema = new mongoose.Schema(
 		irrigationType: {
 			type: String,
 			enum: ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر'],
-			required: true,
 		},
 		cropType: {
 			type: String,

@@ -13,6 +13,12 @@ const LandStatus = ({ landId, currentStatus, landTitle }) => {
 	const landApi = useAPI()
 	const { isOpen, open, close, handleAfterChange } = useModal()
 
+	const handleOpen = () => {
+		open(() => {
+			form.setFieldsValue({ status })
+		}, 'before')
+	}
+
 	const handleStatusChange = async () => {
 		try {
 			const values = await form.validateFields()
@@ -34,7 +40,7 @@ const LandStatus = ({ landId, currentStatus, landTitle }) => {
 
 	return (
 		<>
-			<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }}>
+			<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={handleOpen}>
 				<Flex align='center' gap={3}>
 					{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
 				</Flex>
@@ -53,6 +59,7 @@ const LandStatus = ({ landId, currentStatus, landTitle }) => {
 				<Form layout='vertical' form={form}>
 					<Form.Item name='status' label='وضعیت' rules={[{ required: true, message: 'لطفا وضعیت را انتخاب کنید' }]}>
 						<Select
+							size='large'
 							optionLabelProp='label'
 							options={[
 								{
