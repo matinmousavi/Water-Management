@@ -11,7 +11,7 @@ const EndNoticeDrawer = ({ onSubmit, onClose, isOpen = true, time }) => {
 
 				<div className={styles.title}>پایان آبیاری</div>
 
-				<div className={styles.subtitle}>هنوز مدت زمان ۳۲ : ۵۴ : ۰۱ {time}به پایان آبیاری باقی‌مانده است.</div>
+				<div className={styles.subtitle}>هنوز مدت زمان ۳۲ : ۵۴ : ۰۱ {formatTime(time)}به پایان آبیاری باقی‌مانده است.</div>
 				<div className={styles.subtitle}>از پایان دادن به زمان‌ آبیاری اطمینان دارید؟ </div>
 
 				<div className={styles.container_buttons}>
