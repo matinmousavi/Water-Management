@@ -71,7 +71,7 @@ const Well = () => {
 					<Flex gap={8} justify='center' align='center'>
 						<img src={iconWell} alt='icon' />
 						<Typography.Title level={2} className='text-h2'>
-							{title}
+							{well?.title}
 						</Typography.Title>
 					</Flex>
 				) : (
@@ -95,7 +95,7 @@ const Well = () => {
 
 				{isMobile && (
 					<Flex vertical gap={12}>
-						{logs.map(log => (
+						{well?.logs?.map(log => (
 							<WellLogsMobile key={log._id} data={log} />
 						))}
 					</Flex>

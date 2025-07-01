@@ -1,4 +1,4 @@
-import { Card, Flex, Table, Typography, Button, Drawer } from 'antd'
+import { Card, Flex, Table, Typography, Button, Drawer, Modal } from 'antd'
 import moment from 'moment-jalaali'
 import styles from './LandInfoMobile.module.css'
 import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg'
@@ -10,11 +10,16 @@ import { useState, useEffect, useRef } from 'react'
 import TimeStartPickerSheet from './components/TimeStartPickerSheet/TimeStartPickerSheet'
 import TimeEndPickerSheet from './components/TimeEndPickerSheet/TimeEndPickerSheet'
 import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
+import useAPI from '../../../../../../../hooks/useAPI'
+import { useParams } from 'react-router'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
 const LandInfoMobile = ({ data }) => {
 	const { Text } = Typography
+	const { landId } = useParams()
+	const api = useAPI()
+	api.init(`lands/${landId}`)
 
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [elapsedTime, setElapsedTime] = useState(0)
@@ -22,7 +27,8 @@ const LandInfoMobile = ({ data }) => {
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [startTime, setStartTime] = useState(null)
-
+	const [isDescription, setIsDescription] = useState(false)
+	const [isOngoing, setIsOngoing] = useState(false)
 	const startY = useRef(0)
 
 	useEffect(() => {
@@ -92,8 +98,8 @@ const LandInfoMobile = ({ data }) => {
 		{ icon: iconContacts, title: 'نام زمین', value: data?.name },
 		{ icon: iconPhone, title: 'شماره تماس', value: data?.owner?.mobile },
 		{ icon: iconLocation, title: 'آدرس زمین', value: data?.location },
-		{ icon: iconClock, title: 'آخرین زمان آبیاری', value: moment(data?.createAt).format('dddd jD jMMMM jYYYY') || '-' },
 		{ icon: iconClock, title: 'زمان آبیاری بعدی', value: moment(data?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
+		{ icon: iconClock, title: 'آخرین زمان آبیاری', value: moment(data?.createAt).format('dddd jD jMMMM jYYYY') || '-' },
 	]
 
 	const columns = [
@@ -122,23 +128,39 @@ const LandInfoMobile = ({ data }) => {
 			title: 'مدت زمان آبیاری',
 			dataIndex: 'timeIrrigation',
 			key: 'timeIrrigation',
-			render: () => <span>12 دقیقه</span>,
+			render: value => moment(value).format('HH:mm'),
 		},
 		{
 			title: 'توضیحات',
-			dataIndex: 'description',
-			key: 'description',
-			render: () => (
-				<Flex align='center' justify='center' gap={8}>
-					<EyeOutlined style={{ color: '#1890ff' }} />
-				</Flex>
-			),
+			dataIndex: 'notes',
+			key: 'notes',
+			render: value => {
+				console.log('value is:', value)
+
+				return (
+					<Flex align='center' justify='center' gap={8}>
+						<EyeOutlined onClick={() => setIsDescription(true)} style={{ color: '#1890ff' }} />
+						<Modal
+							rootClassName={styles.modalDescription}
+							title={`توضیحات لاگ توزیع آب ${value.start}`}
+							footer={false}
+							centered
+							open={isDescription}
+							onCancel={() => setIsDescription(false)}
+							okText={null}
+						></Modal>
+					</Flex>
+				)
+			},
 		},
 	]
 
+	console.log(data)
+	console.log('data api : ', api.data?.land)
+	console.log(data.logs)
 	return (
 		<div className={styles.container}>
-			<Flex vertical>
+			<Flex gap={16} vertical>
 				<Card className={styles.card}>
 					<Flex vertical gap={8}>
 						{listItems.map((item, index) => (
@@ -157,7 +179,7 @@ const LandInfoMobile = ({ data }) => {
 				<Card>
 					<Flex vertical gap={8}>
 						<Text>لاگ توزیع آب ({data?.logs?.length})</Text>
-						<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={data.logs} columns={columns} />
+						<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={api.data?.land?.logs} columns={columns} />
 					</Flex>
 				</Card>
 			</Flex>

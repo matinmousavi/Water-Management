@@ -18,10 +18,9 @@ const WellLogsMobile = ({ data }) => {
 						<img src={iconTree} alt='icon tree' />
 						<Text>نام زمین</Text>
 					</Flex>
-					<Flex className={styles.cardRole}>
-						<Link to={`/lands/${data.land._id}`}>{data?.land.name}</Link>
-					</Flex>
+					<Flex className={styles.cardRole}>{data?.land ? <Link to={`/lands/${data?.land._id}`}>{data?.land?.name}</Link> : <Text>-</Text>}</Flex>
 				</Flex>
+
 				<Flex gap={10}>
 					<Flex gap={8} className={styles.cardType}>
 						<img src={iconClock} alt='icon tree' />

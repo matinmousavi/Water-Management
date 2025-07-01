@@ -116,6 +116,18 @@ label::after {
 	width: 12px !important;
 	height: 12px !important;
 }
+.ant-picker-input input {
+  font-size: 16px !important;
+}
+
+.ant-picker {
+  font-size: 16px !important;
+}
+
+.ant-picker-input::placeholder {
+  font-size: 16px !important;
+}
+
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */

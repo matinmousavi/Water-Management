@@ -22,6 +22,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 					optionFilterProp='children'
 					filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}
 					allowClear
+					size='large'
 				>
 					{lands?.map(land => (
 						<Select.Option key={land._id} value={land._id}>
@@ -35,12 +36,12 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='startDate' noStyle rules={[{ required: true, message: 'تاریخ شروع الزامی است' }]}>
-							<FaDatePicker style={{ width: '100%' }} />
+							<FaDatePicker placeholder="تاریخ" size='large' />
 						</Form.Item>
 					</Col>
 					<Col span={11}>
 						<Form.Item name='startTime' noStyle rules={[{ required: true, message: 'زمان شروع الزامی است' }]}>
-							<TimePicker style={{ width: '100%' }} format='HH:mm' />
+							<TimePicker placeholder='ساعت' format='HH:mm' size='large' />
 						</Form.Item>
 					</Col>
 				</Row>
@@ -50,12 +51,12 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='endDate' noStyle>
-							<FaDatePicker style={{ width: '100%' }} disabled={isOngoing} />
+							<FaDatePicker placeholder="تاریخ" disabled={isOngoing} size='large' />
 						</Form.Item>
 					</Col>
 					<Col span={11}>
 						<Form.Item name='endTime' noStyle>
-							<TimePicker style={{ width: '100%' }} format='HH:mm' disabled={isOngoing} />
+							<TimePicker placeholder='ساعت' format='HH:mm' disabled={isOngoing} size='large' />
 						</Form.Item>
 					</Col>
 				</Row>
