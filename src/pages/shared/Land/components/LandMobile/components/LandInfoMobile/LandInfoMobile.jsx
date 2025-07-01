@@ -135,8 +135,6 @@ const LandInfoMobile = ({ data }) => {
 			dataIndex: 'notes',
 			key: 'notes',
 			render: value => {
-				console.log('value is:', value)
-
 				return (
 					<Flex align='center' justify='center' gap={8}>
 						<EyeOutlined onClick={() => setIsDescription(true)} style={{ color: '#1890ff' }} />
@@ -154,10 +152,6 @@ const LandInfoMobile = ({ data }) => {
 			},
 		},
 	]
-
-	console.log(data)
-	console.log('data api : ', api.data?.land)
-	console.log(data.logs)
 	return (
 		<div className={styles.container}>
 			<Flex gap={16} vertical>

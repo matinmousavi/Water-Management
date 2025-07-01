@@ -65,9 +65,15 @@ const WellLogsTable = ({ data, setLogs }) => {
 		},
 		{
 			title: 'عنوان زمین',
-			dataIndex: ['land', 'name'],
-			key: 'landName',
+			dataIndex: ['land', 'title'],
+			key: 'landTitle',
 			render: (text, record) => <Link to={`/lands/${record.land?._id}`}>{text}</Link> || '--',
+		},
+		{
+			title: 'نام مالک',
+			dataIndex: ['land', 'owner'],
+			key: 'landOwner',
+			render: owener => (owener ? `${owener.firstName} ${owener.lastName}` : '--'),
 		},
 		{
 			title: 'نام ایجاد کننده لاگ',
