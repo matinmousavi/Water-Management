@@ -1,7 +1,7 @@
 import { Button } from 'antd'
 import styles from './EndNoticeDrawer.module.css'
 
-const EndNoticeDrawer = ({ onSubmit, onClose, isOpen = true }) => {
+const EndNoticeDrawer = ({ onSubmit, onClose, isOpen = true, time }) => {
 	if (!isOpen) return null
 
 	return (
@@ -11,7 +11,7 @@ const EndNoticeDrawer = ({ onSubmit, onClose, isOpen = true }) => {
 
 				<div className={styles.title}>پایان آبیاری</div>
 
-				<div className={styles.subtitle}>هنوز مدت زمان ۳۲ : ۵۴ : ۰۱ به پایان آبیاری باقی‌مانده است.</div>
+				<div className={styles.subtitle}>هنوز مدت زمان {time} به پایان آبیاری باقی‌مانده است.</div>
 				<div className={styles.subtitle}>از پایان دادن به زمان‌ آبیاری اطمینان دارید؟ </div>
 
 				<div className={styles.container_buttons}>

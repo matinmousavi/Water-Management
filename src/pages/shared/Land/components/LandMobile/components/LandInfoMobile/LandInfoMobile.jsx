@@ -22,7 +22,7 @@ const LandInfoMobile = ({ data }) => {
 	api.init(`lands/${landId}`)
 
 	const [isIrrigating, setIsIrrigating] = useState(false)
-	const [elapsedTime, setElapsedTime] = useState(0)
+	const [elapsedTime, setElapsedTime] = useState(7200)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
@@ -35,7 +35,13 @@ const LandInfoMobile = ({ data }) => {
 		let interval = null
 		if (isIrrigating) {
 			interval = setInterval(() => {
-				setElapsedTime(prev => prev + 1)
+				setElapsedTime(prev => {
+					if (prev <= 1) {
+						clearInterval(interval)
+						return 0
+					}
+					return prev - 1
+				})
 			}, 1000)
 		} else {
 			clearInterval(interval)
@@ -47,12 +53,11 @@ const LandInfoMobile = ({ data }) => {
 		const hrs = Math.floor(seconds / 3600)
 		const mins = Math.floor((seconds % 3600) / 60)
 		const secs = seconds % 60
-		return `${hrs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${secs.toString().padStart(2, '0')}`
+		return `  ${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
 	}
 
 	const handleStop = () => {
 		setEndNoticeDrawer(true)
-		setIsIrrigating(false)
 		setStartTime(null)
 	}
 
@@ -71,14 +76,14 @@ const LandInfoMobile = ({ data }) => {
 	const handleTimeStartSelected = time => {
 		setStartTime(time)
 		setIsIrrigating(true)
-		setElapsedTime(0)
+		setElapsedTime(7200)
 		setShowStartDrawer(false)
 	}
 
 	const handleTimeEndSelected = time => {
 		setStartTime(time)
 		setIsIrrigating(false)
-		setElapsedTime(0)
+		setElapsedTime(7200)
 		setShowEndDrawer(false)
 	}
 
@@ -182,8 +187,8 @@ const LandInfoMobile = ({ data }) => {
 			<div className={styles.footer}>
 				{isIrrigating ? (
 					<>
-						<Text className={styles.timerText}>{formatTime(elapsedTime)}</Text>
-						<Button type='default' style={{ borderColor: '#1677ff', color: '#1677ff', fontWeight: 500 }} onClick={handleStop}>
+						<Text className={`${styles.timerText} ${elapsedTime <= 900 ? styles.timerDanger : ''}`}>{formatTime(elapsedTime)}</Text>
+						<Button type='default' className={` ${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>
@@ -206,7 +211,7 @@ const LandInfoMobile = ({ data }) => {
 			</Drawer>
 			<Drawer title={null} placement='bottom' height='auto' open={endNoticeDrawer} onClose={() => setEndNoticeDrawer(false)} closable={false}>
 				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<EndNoticeDrawer onSubmit={handleEndNotice} onClose={CancelTimeEnd} />
+					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(elapsedTime)} onClose={CancelTimeEnd} />
 				</div>
 			</Drawer>
 		</div>
