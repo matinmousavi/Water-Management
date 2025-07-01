@@ -22,7 +22,7 @@ const WellLandsCard = ({ wellLands }) => {
 						<Typography.Title level={2} className='text-card-title'>
 							لیست زمین ها ({lands?.length})
 						</Typography.Title>
-						{isAdmin && <WellAddLand lands={lands} setLandsData={api.setData} />}
+						{isAdmin && <WellAddLand currentLands={lands} setLandsData={api.setData} />}
 					</Flex>
 					{lands.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} />}
 				</Flex>

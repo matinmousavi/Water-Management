@@ -106,10 +106,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 					type: 'primary',
 				}}
 				confirmLoading={wellApi.isLoading}
-				loading={wellApi.isLoading}
-			>
-				<p>آیا از حذف این زمین اطمینان دارید؟</p>
-			</Modal>
+			/>
 		</>
 	)
 }
