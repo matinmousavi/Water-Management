@@ -16,6 +16,7 @@ import LandMobile from './components/LandMobile/LandMobile'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import useNotification from '../../../hooks/useNotification'
+import LandStatus from './components/LandStatus'
 
 const { Title } = Typography
 
@@ -62,19 +63,15 @@ const Land = () => {
 				<Flex vertical gap={16}>
 					<Breadcrumbs data={{ title: pageTitle }} />
 					<Flex className={styles.header} align='center'>
-						<BackButton backTo={'wells'} />
+						<BackButton backTo={'lands'} />
 						<Title level={1} className='text-h3'>
 							{pageTitle}
 						</Title>
-						<Tag color='green'>
-							<Flex align='center' gap={3}>
-								فعال <EditOutlined />
-							</Flex>
-						</Tag>
+						<LandStatus landId={landId} currentStatus={landData.status} landTitle={pageTitle} />
 					</Flex>
-					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
-					<LandLogsCard landLogs={logs} setLogs={setLogs} />
+					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
+					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} />
 					{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}
