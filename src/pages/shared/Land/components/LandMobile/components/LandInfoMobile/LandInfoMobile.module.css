@@ -1,12 +1,12 @@
-.card {
-}
 .cardContainer {
 	width: 100%;
 	direction: rtl;
 }
+
 .itemCaar {
 	height: 40px !important;
 }
+
 .cardType {
 	flex: 1;
 	display: flex;
@@ -24,10 +24,12 @@
 		font-weight: 600 !important;
 	}
 }
+
 .modalDescription :global(.ant-modal-title) {
 	font-size: 12px !important;
 	font-weight: 600 !important;
 }
+
 .table {
 	table {
 		width: 296px !important;
@@ -64,9 +66,20 @@
 }
 
 .timerText {
-	color: green;
-	font-weight: bold;
-	font-size: 16px;
+	color: rgba(82, 196, 26, 1);
+	font-weight: 500;
+	font-size: 20px;
+}
+
+.timerDanger {
+	color: rgba(245, 34, 45, 1);
+	font-weight: 500;
+	font-size: 20px;
+}
+
+.btnDanger {
+	background-color: #0066ee;
+	color: #ffff;
 }
 
 @media (min-width: 1280px) {
