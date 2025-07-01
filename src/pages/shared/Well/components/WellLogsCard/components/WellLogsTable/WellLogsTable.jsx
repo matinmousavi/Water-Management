@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Popconfirm, Space, Table } from 'antd'
+import { Button, Modal, Popconfirm, Space, Table } from 'antd'
 import { DeleteTwoTone, EditOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
@@ -10,19 +10,30 @@ import WellEditLog from '../WellEditLog/WellEditLog'
 const WellLogsTable = ({ data, setLogs }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
-	const { open, close, isOpen } = useModal()
-	const [selectedLog, setSelectedLog] = useState(null)
+	const { open, close, isOpen, handleAfterChange } = useModal()
 
-	const handleDelete = async irrigationsId => {
+	const [selectedLog, setSelectedLog] = useState(null)
+	const [selectedLogId, setSelectedLogId] = useState(null) // برای حذف
+
+	const handleDelete = async () => {
+		if (!selectedLogId) return
 		try {
-			const response = await wellApi.delete(`irrigations/${irrigationsId}`)
+			const response = await wellApi.delete(`irrigations/${selectedLogId}`)
 			if (!response?.error) {
 				openNotification('success', 'لاگ آبیاری با موفقیت حذف شد')
-				setLogs(prev => prev.filter(item => item._id !== irrigationsId))
+				setLogs(prev => prev.filter(item => item._id !== selectedLogId))
 			}
 		} catch (error) {
 			openNotification('error', error?.error?.message || 'خطا در حذف لاگ آبیاری')
+		} finally {
+			setSelectedLogId(null)
+			close()
 		}
+	}
+
+	const handleCancel = () => {
+		setSelectedLogId(null)
+		close()
 	}
 
 	const handleEditClick = record => {
@@ -69,9 +80,13 @@ const WellLogsTable = ({ data, setLogs }) => {
 			key: 'action',
 			render: (_, record) => (
 				<Space>
-					<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
-						<DeleteTwoTone twoToneColor='#ff0000' />
-					</Popconfirm>
+					<DeleteTwoTone
+						twoToneColor='#ff0000'
+						onClick={() => {
+							setSelectedLogId(record._id)
+							open()
+						}}
+					/>
 					<Button type='link' icon={<EditOutlined />} onClick={() => handleEditClick(record)} />
 				</Space>
 			),
@@ -81,7 +96,7 @@ const WellLogsTable = ({ data, setLogs }) => {
 	return (
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
-			{selectedLog && isOpen && (
+			{selectedLog && isOpen && !selectedLogId && (
 				<WellEditLog
 					logData={selectedLog}
 					setLogs={setLogs}
@@ -90,6 +105,24 @@ const WellLogsTable = ({ data, setLogs }) => {
 						setSelectedLog(null)
 					}}
 				/>
+			)}
+			{selectedLogId && (
+				<Modal
+					title='حذف لاگ توزیع آب'
+					open={isOpen}
+					onOk={handleDelete}
+					onCancel={handleCancel}
+					afterOpenChange={handleAfterChange}
+					okText='تایید'
+					cancelText='انصراف'
+					okButtonProps={{
+						danger: true,
+						type: 'primary',
+					}}
+					confirmLoading={wellApi.isLoading}
+				>
+					<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
+				</Modal>
 			)}
 		</>
 	)

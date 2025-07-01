@@ -5,16 +5,19 @@ import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useUser } from '../../../../../../../contexts/UserContext'
 import useModal from '../../../../../../../hooks/useModal'
+import { useState } from 'react'
 
 const WellLandsTable = ({ data, setData, wellId }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
 	const { isOpen, open, close, handleAfterChange } = useModal()
+	const [selectedLandId, setSelectedLandId] = useState(null)
 
-	const handleDelete = async landId => {
+	const handleDelete = async () => {
+		if (!selectedLandId) return
 		try {
-			const updatedLands = data?.filter(item => item._id !== landId)
+			const updatedLands = data?.filter(item => item._id !== selectedLandId)
 			const response = await wellApi.patch(`wells/${wellId}`, { lands: updatedLands })
 
 			if (!response?.error) {
@@ -25,11 +28,13 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 			console.error('Error:', error)
 			openNotification('error', error?.error?.message || 'خطا در حذف زمین')
 		} finally {
+			setSelectedLandId(null)
 			close()
 		}
 	}
 
 	const handleCancel = () => {
+		setSelectedLandId(null)
 		close()
 	}
 
@@ -71,9 +76,15 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 			title: 'عملیات',
 			dataIndex: 'action',
 			key: 'action',
-			render: () => (
+			render: (_, record) => (
 				<Space>
-					<DeleteTwoTone twoToneColor='#ff0000' onClick={() => open()} />
+					<DeleteTwoTone
+						twoToneColor='#ff0000'
+						onClick={() => {
+							setSelectedLandId(record._id)
+							open()
+						}}
+					/>
 				</Space>
 			),
 		})
