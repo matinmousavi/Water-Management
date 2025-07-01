@@ -19,12 +19,12 @@
 .ant-otp .ant-otp-input-wrapper {
 	margin-left: 16px !important;
 }
-.ant-breadcrumb-link>span,
-.ant-breadcrumb-link>a {
+.ant-breadcrumb-link > span,
+.ant-breadcrumb-link > a {
 	font-size: 14px !important;
 	font-weight: 400 !important;
 }
-.ant-breadcrumb>ol {
+.ant-breadcrumb > ol {
 	gap: 8px !important;
 }
 .ant-modal-footer .ant-btn-color-dangerous {
@@ -72,8 +72,8 @@
 .ant-space-gap-col-small {
 	column-gap: 0 !important;
 }
-.ant-breadcrumb-link>span,
-.ant-breadcrumb-link>a {
+.ant-breadcrumb-link > span,
+.ant-breadcrumb-link > a {
 	font-size: 14px !important;
 }
 .ant-upload {
@@ -92,7 +92,8 @@
 	width: 100% !important;
 	height: 40px !important;
 }
-.ant-form-item-required::before, label::before {
+.ant-form-item-required::before,
+label::before {
 	order: 1;
 	margin-inline-start: -4px !important;
 }
@@ -104,9 +105,9 @@ label::after {
 	height: 16px !important;
 	border-radius: 4px !important;
 }
-.ant-checkbox-input:checked~.ant-checkbox-inner {
-	background-color: #0066EE !important;
-	border-color: #0066EE !important;
+.ant-checkbox-input:checked ~ .ant-checkbox-inner {
+	background-color: #0066ee !important;
+	border-color: #0066ee !important;
 }
 .ant-card .ant-card-body {
 	padding: 36px !important;
@@ -181,7 +182,7 @@ label::after {
 	color: #000;
 	line-height: 22px !important;
 }
-.text-value>a {
+.text-value > a {
 	font-size: 14px !important;
 }
 .style-btn {
@@ -254,5 +255,8 @@ label::after {
 	}
 	.ant-tag {
 		font-size: 13px;
+	}
+	.ant-breadcrumb {
+		display: block !important;
 	}
 }

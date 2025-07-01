@@ -125,7 +125,16 @@ export const createIrrigation = async (req, res) => {
 			createdBy: userId,
 		})
 
-		const irrigation = await Irrigation.findById(created._id).populate('createdBy', 'firstName lastName mobile').populate('land', 'name')
+		const irrigation = await Irrigation.findById(created._id)
+			.populate('createdBy', 'firstName lastName mobile')
+			.populate({
+				path: 'land',
+				populate: {
+					path: 'owner',
+					select: 'firstName lastName mobile',
+				},
+				select: 'title owner',
+			})
 
 		const land = await Land.findById(landId).populate('owner', 'firstName lastName mobile')
 		if (land?.owner?.mobile) {
