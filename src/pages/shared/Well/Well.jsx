@@ -18,6 +18,7 @@ import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 
 import iconWell from '../../../assets/icons/Vector.svg'
 import useNotification from '../../../hooks/useNotification'
+import WellStatus from './components/WellStatus'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -79,11 +80,7 @@ const Well = () => {
 						<Flex align='center' gap={16}>
 							<BackButton backTo='/wells' />
 							<Typography.Title className='text-page-title'>{title}</Typography.Title>
-							<Tag color='green'>
-								<Flex align='center' gap={4}>
-									فعال <EditOutlined />
-								</Flex>
-							</Tag>
+							<WellStatus wellId={wellId} currentStatus={well.status} />
 						</Flex>
 					</>
 				)}

@@ -5,45 +5,43 @@ import useNotification from '../../../../hooks/useNotification'
 import useAPI from '../../../../hooks/useAPI'
 import useModal from '../../../../hooks/useModal'
 
-const UserStatus = ({ userId, currentStatus }) => {
+const WellStatus = ({ wellId, currentStatus }) => {
 	const [status, setStatus] = useState(currentStatus)
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
-	const userApi = useAPI()
+	const wellApi = useAPI()
 	const { isOpen, open, close, handleAfterChange } = useModal()
-
-	const currStatus = status || currentStatus
 
 	const handleOpen = () => {
 		open(() => {
-			form.setFieldsValue({ status: currStatus })
+			form.setFieldsValue({ status })
 		}, 'before')
 	}
 
 	const handleStatusChange = async () => {
 		try {
 			const values = await form.validateFields()
-			const response = await userApi.patch(`users/${userId}`, { status: values.status })
+			const response = await wellApi.patch(`wells/${wellId}`, { status: values.status })
 
 			if (response.error) {
 				openNotification('error', response.error)
 				return
 			}
 
-			setStatus(response.user.status)
+			setStatus(response.well.status)
 			openNotification('success', 'وضعیت با موفقیت به‌روزرسانی شد')
 			close()
 		} catch (error) {
-			openNotification('error', 'خطا در تغییر وضعیت کاربر')
-			console.error('خطا در تغییر وضعیت کاربر:', error)
+			openNotification('error', 'خطا در تغییر وضعیت چاه')
+			console.error('خطا در تغییر وضعیت چاه', error)
 		}
 	}
 
 	return (
 		<>
-			<Tag color={currStatus === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={handleOpen}>
+			<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={handleOpen}>
 				<Flex align='center' gap={3}>
-					{currStatus === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
+					{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
 				</Flex>
 			</Tag>
 
@@ -55,9 +53,9 @@ const UserStatus = ({ userId, currentStatus }) => {
 				okText='ثبت'
 				cancelText='انصراف'
 				afterOpenChange={handleAfterChange}
-				confirmLoading={userApi.isLoading}
+				confirmLoading={wellApi.isLoading}
 			>
-				<Form layout='vertical' form={form}>
+				<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
 					<Form.Item name='status' label='وضعیت' rules={[{ required: true, message: 'لطفا وضعیت را انتخاب کنید' }]}>
 						<Select
 							size='large'
@@ -80,4 +78,4 @@ const UserStatus = ({ userId, currentStatus }) => {
 	)
 }
 
-export default UserStatus
+export default WellStatus

@@ -13,7 +13,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 			</Form.Item>
 
 			{isAdmin && (
-				<Form.Item label='نام میرآب' name='irrigator' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Form.Item label='نام میرآب' name='irrigator'>
 					<Select
 						showSearch
 						placeholder='انتخاب'
@@ -33,7 +33,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 				<Input />
 			</Form.Item>
 
-			<Form.Item label='روزهای چرخه' name='cycleDays' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item label='روزهای چرخه' name='cycleDays'>
 				<Input type='number' />
 			</Form.Item>
 

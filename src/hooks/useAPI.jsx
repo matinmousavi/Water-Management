@@ -93,21 +93,29 @@ export default function useAPI() {
 	}
 
 	async function mutate({ requestUrl, method, params, optimisticUpdate, rollback }, responseHandler) {
-		const prev = data
+		let prevDataSnapshot = data
 
 		if (optimisticUpdate) {
-			setData(optimisticUpdate(prev))
+			setData(current => {
+				const optimisticState = optimisticUpdate(current)
+				prevDataSnapshot = current
+				return optimisticState
+			})
 		}
 
 		try {
 			const res = await getAPI({ requestUrl, method, params, setState: false })
+
 			if (responseHandler) {
-				setData(responseHandler(data, res))
+				setData(current => responseHandler(current, res))
+			} else {
+				setData(res)
 			}
+
 			return res
 		} catch (err) {
 			if (optimisticUpdate && rollback) {
-				setData(rollback(prev))
+				setData(rollback(prevDataSnapshot))
 			}
 			throw err
 		}

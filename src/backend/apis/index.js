@@ -10,7 +10,7 @@ import me from './me/me.routes.js'
 import users from './users/users.js'
 import upload from './upload/upload.routes.js'
 import wells from './wells/wells.js'
-import lands from './lands/lands.routes.js'
+import lands from './lands/lands.js'
 import irrigations from './irrigations/irrigations.routes.js'
 import messageTemplates from './messageTemplates/messageTemplates.js'
 
