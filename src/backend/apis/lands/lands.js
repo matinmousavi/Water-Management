@@ -3,17 +3,10 @@ import mongoose from '../../config/database.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
+import { fieldTranslations } from '../../constants/fieldTranslations.js'
+import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
 const router = Router()
-
-const fieldTranslations = {
-	title: 'عنوان زمین',
-	owner: 'مالک',
-	area: 'مساحت',
-	kFactor: 'ضریب K',
-	location: 'موقعیت',
-	irrigationType: 'نوع آبیاری',
-}
 
 async function attachWells(land) {
 	const wells = await Well.find({ lands: land._id })
@@ -23,9 +16,24 @@ async function attachWells(land) {
 	return { ...land, wells }
 }
 
+// GET all lands with optional filters
 router.get('/', async (req, res) => {
 	try {
-		const lands = await Land.find().populate('owner').lean()
+		const safeQuery = sanitizeQuery(req.query)
+		const filter = {}
+		const allowedFields = ['title', 'owner', 'status', 'irrigationType', 'cropType', 'location']
+
+		allowedFields.forEach(field => {
+			if (safeQuery[field]) {
+				if (field === 'owner') {
+					filter[field] = safeQuery[field]
+				} else {
+					filter[field] = { $regex: safeQuery[field], $options: 'i' }
+				}
+			}
+		})
+
+		const lands = await Land.find(filter).populate('owner').lean()
 		const landsWithWells = await Promise.all(lands.map(attachWells))
 		return res.status(200).json({ lands: landsWithWells })
 	} catch (err) {
@@ -34,12 +42,15 @@ router.get('/', async (req, res) => {
 	}
 })
 
+// GET land by ID
 router.get('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
+
 		if (!mongoose.isValidObjectId(landId)) {
 			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
 		}
+
 		const land = await Land.findById(landId).populate('owner').populate({ path: 'notes.user', select: '_id firstName lastName' }).lean()
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
@@ -53,6 +64,7 @@ router.get('/:landId', async (req, res) => {
 	}
 })
 
+// POST create new land
 router.post('/', async (req, res) => {
 	try {
 		const { title, owner, area, kFactor, location, irrigationType, cropType, note, wellId } = req.body
@@ -75,19 +87,20 @@ router.post('/', async (req, res) => {
 		console.error(err.message)
 		if (err.code === 11000) {
 			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.lands[field] || field
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.lands[field] || field
 			return res.status(400).json({ message: `${fieldName} الزامی است.` })
 		}
 		return res.status(500).json({ message: 'خطا در ایجاد زمین.' })
 	}
 })
 
+// PATCH update land
 router.patch('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
@@ -118,13 +131,14 @@ router.patch('/:landId', async (req, res) => {
 		console.error(err.message)
 		if (err.code === 11000) {
 			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.lands[field] || field
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 		return res.status(500).json({ message: 'خطا در ویرایش زمین.' })
 	}
 })
 
+// DELETE land
 router.delete('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
@@ -137,6 +151,7 @@ router.delete('/:landId', async (req, res) => {
 	}
 })
 
+// POST add note to land
 router.post('/:landId/notes', async (req, res) => {
 	try {
 		const { landId } = req.params
@@ -160,6 +175,7 @@ router.post('/:landId/notes', async (req, res) => {
 	}
 })
 
+// PUT update a specific note
 router.put('/:landId/notes/:noteId', async (req, res) => {
 	try {
 		const { landId, noteId } = req.params
@@ -188,6 +204,7 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
 	}
 })
 
+// DELETE specific note from land
 router.delete('/:landId/notes/:noteId', async (req, res) => {
 	try {
 		const { landId, noteId } = req.params
@@ -215,6 +232,7 @@ router.delete('/:landId/notes/:noteId', async (req, res) => {
 	}
 })
 
+// Fallback for unsupported methods
 router.all(/.*/, (req, res) => {
 	return res.status(405).send({ error: 'Method Not Allowed' })
 })
