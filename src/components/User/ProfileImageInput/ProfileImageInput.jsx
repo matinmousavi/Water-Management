@@ -17,7 +17,7 @@ const beforeUpload = file => {
 	return isJpgOrPng && isLt2M
 }
 
-const ProfileImageInput = ({ pictureUrl }) => {
+const ProfileImageInput = ({ pictureUrl, form }) => {
 	const [fileList, setFileList] = useState(pictureUrl ? [{ uid: '-1', name: 'avatar', status: 'done', url: pictureUrl }] : [])
 	const [previewVisible, setPreviewVisible] = useState(false)
 	const [previewImage, setPreviewImage] = useState('')
@@ -27,6 +27,12 @@ const ProfileImageInput = ({ pictureUrl }) => {
 
 	const handleChange = ({ fileList: newList }) => {
 		setFileList(newList)
+
+		if (form) {
+			form.setFieldsValue({
+				image: newList.length > 0 ? newList[0] : null,
+			})
+		}
 	}
 
 	const handlePreview = async file => {

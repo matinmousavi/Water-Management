@@ -29,10 +29,13 @@ const AddUser = ({ setUser }) => {
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', 'کاربر با موفقیت افزوده شد.')
+
+				const refreshedData = await userApi.get('users')
 				setUser(prev => ({
 					...prev,
-					users: [...(prev?.users || []), response.user],
+					users: refreshedData.users,
 				}))
+
 				close(() => form.resetFields(), 'after')
 			}
 		} catch (err) {
