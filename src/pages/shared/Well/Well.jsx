@@ -71,7 +71,7 @@ const Well = () => {
 					<Flex gap={8} justify='center' align='center'>
 						<img src={iconWell} alt='icon' />
 						<Typography.Title level={2} className='text-h2'>
-							{well?.title}
+							چاه {well?.title}
 						</Typography.Title>
 					</Flex>
 				) : (

@@ -44,6 +44,10 @@
 	text-align: left;
 }
 
+/* --------------------------------------------
+3. Ant Design Overrides 
+--------------------------------------------- */
+
 .ant-card {
 	border-radius: 4px;
 }
@@ -109,10 +113,6 @@ a {
 	font-size: 14px;
 	font-weight: 400;
 }
-
-/* --------------------------------------------
-   3. Ant Design Overrides 
---------------------------------------------- */
 
 .ant-otp .ant-otp-input-wrapper {
 	margin-left: 16px !important;

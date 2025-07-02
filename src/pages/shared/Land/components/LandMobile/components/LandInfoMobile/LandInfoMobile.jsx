@@ -100,7 +100,7 @@ const LandInfoMobile = ({ data }) => {
 	}
 
 	const listItems = [
-		{ icon: iconContacts, title: 'نام زمین', value: data?.name },
+		{ icon: iconContacts, title: 'نام زمین', value: data?.title },
 		{ icon: iconPhone, title: 'شماره تماس', value: data?.owner?.mobile },
 		{ icon: iconLocation, title: 'آدرس زمین', value: data?.location },
 		{ icon: iconClock, title: 'زمان آبیاری بعدی', value: moment(data?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
