@@ -8,6 +8,7 @@ import utc from 'dayjs/plugin/utc.js'
 import timezone from 'dayjs/plugin/timezone.js'
 import { isAdmin } from '../../middlewares/auth.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
+import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
 const router = Router()
 
@@ -24,13 +25,16 @@ const mergeDateTime = (dateStr, timeStr) => {
 // GET all irrigations
 router.get('/', async (req, res) => {
 	try {
+		const safeQuery = sanitizeQuery(req.query)
 		const filter = {}
 		const allowedFilters = ['land', 'well', 'createdBy']
+
 		allowedFilters.forEach(field => {
-			if (req.query[field]) {
-				filter[field] = req.query[field]
+			if (safeQuery[field]) {
+				filter[field] = safeQuery[field]
 			}
 		})
+
 		const irrigations = await Irrigation.find(filter)
 			.populate('land', 'title')
 			.populate('well', 'title')
