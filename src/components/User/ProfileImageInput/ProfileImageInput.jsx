@@ -18,7 +18,9 @@ const beforeUpload = file => {
 }
 
 const ProfileImageInput = ({ pictureUrl, form }) => {
-	const [fileList, setFileList] = useState(pictureUrl ? [{ uid: '-1', name: 'avatar', status: 'done', url: pictureUrl }] : [])
+	const [fileList, setFileList] = useState(
+		pictureUrl ? [{ uid: '-1', name: 'avatar', status: 'done', url: pictureUrl }] : []
+	)
 	const [previewVisible, setPreviewVisible] = useState(false)
 	const [previewImage, setPreviewImage] = useState('')
 
@@ -26,11 +28,21 @@ const ProfileImageInput = ({ pictureUrl, form }) => {
 	const { userId } = useParams()
 
 	const handleChange = ({ fileList: newList }) => {
-		setFileList(newList)
+		const updatedList = newList.map(file => {
+			if (file.status === 'error') {
+				return {
+					...file,
+					thumbUrl: '/default-profile.png',
+				}
+			}
+			return file
+		})
+
+		setFileList(updatedList)
 
 		if (form) {
 			form.setFieldsValue({
-				image: newList.length > 0 ? newList[0] : null,
+				image: updatedList.length > 0 ? updatedList[0] : null,
 			})
 		}
 	}
@@ -50,14 +62,11 @@ const ProfileImageInput = ({ pictureUrl, form }) => {
 	const handleRemove = async () => {
 		try {
 			const endpoint = userId ? `upload/profile/picture/${userId}` : 'upload/profile/picture'
-
 			await uploadApi.delete(endpoint)
-
 			setFileList([])
 			message.success('عکس با موفقیت حذف شد')
 			return true
 		} catch (err) {
-			console.error('خطا در حذف عکس:', err)
 			message.error('حذف عکس با خطا مواجه شد')
 			return false
 		}
@@ -69,17 +78,11 @@ const ProfileImageInput = ({ pictureUrl, form }) => {
 
 		try {
 			const endpoint = userId ? `upload/profile/picture/${userId}` : 'upload/profile/picture'
-
 			const res = await uploadApi.post(endpoint, formData)
-
-			if (res?.error) {
-				throw new Error(res.message || 'آپلود عکس با خطا مواجه شد')
-			}
-
+			if (res?.error) throw new Error(res.message || 'آپلود عکس با خطا مواجه شد')
 			onSuccess?.(res, file)
 			message.success('عکس با موفقیت آپلود شد')
 		} catch (err) {
-			console.error('خطا در آپلود عکس:', err)
 			message.error(err.message || 'آپلود عکس با خطا مواجه شد')
 			onError?.(err)
 		}
@@ -89,8 +92,8 @@ const ProfileImageInput = ({ pictureUrl, form }) => {
 		<>
 			<ImgCrop rotationSlider>
 				<Upload
-					accept='.jpg,.png'
-					name='profilePicture'
+					accept=".jpg,.png"
+					name="profilePicture"
 					fileList={fileList}
 					beforeUpload={beforeUpload}
 					customRequest={customUpload}
@@ -98,6 +101,7 @@ const ProfileImageInput = ({ pictureUrl, form }) => {
 					onPreview={handlePreview}
 					onRemove={handleRemove}
 					maxCount={1}
+					listType="picture"
 					showUploadList={{
 						showPreviewIcon: true,
 						showRemoveIcon: true,
@@ -107,8 +111,8 @@ const ProfileImageInput = ({ pictureUrl, form }) => {
 					{fileList.length === 0 && (
 						<Flex
 							gap={8}
-							align='center'
-							justify='center'
+							align="center"
+							justify="center"
 							style={{
 								border: '1px dashed #3B8FF3',
 								borderRadius: 4,
@@ -125,8 +129,14 @@ const ProfileImageInput = ({ pictureUrl, form }) => {
 				</Upload>
 			</ImgCrop>
 
-			<Modal open={previewVisible} title='پیش‌نمایش تصویر' destroyOnHidden footer={null} onCancel={() => setPreviewVisible(false)}>
-				<img alt='preview' style={{ width: '100%' }} src={previewImage} />
+			<Modal
+				open={previewVisible}
+				title="پیش‌نمایش تصویر"
+				destroyOnClose
+				footer={null}
+				onCancel={() => setPreviewVisible(false)}
+			>
+				<img alt="preview" style={{ width: '100%' }} src={previewImage} />
 			</Modal>
 		</>
 	)
