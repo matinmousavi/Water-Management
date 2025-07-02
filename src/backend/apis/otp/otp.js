@@ -1,14 +1,18 @@
+import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 import OTP from '../../models/Otp.model.js'
 import User from '../../models/User.model.js'
 
+const router = Router()
 const isProd = import.meta.env?.PROD
 
+// Generate a random 4-digit OTP code
 const generateOTP = () => {
 	return Math.floor(1000 + Math.random() * 9000).toString()
 }
 
-export const sendOtp = async (req, res) => {
+// POST generate & send OTP to user mobile
+router.post('/send', async (req, res) => {
 	try {
 		const { mobile } = req.body
 		if (!mobile) return res.status(400).json({ message: 'شماره موبایل الزامی است.' })
@@ -46,9 +50,10 @@ export const sendOtp = async (req, res) => {
 	} catch (err) {
 		return res.status(500).json({ error: err.message, message: 'خطا در ارسال کد OTP.' })
 	}
-}
+})
 
-export const verifyOtp = async (req, res) => {
+// POST verify OTP and login/register user
+router.post('/verify', async (req, res) => {
 	try {
 		const { mobile, otp } = req.body
 
@@ -61,10 +66,9 @@ export const verifyOtp = async (req, res) => {
 
 		if (!record) return res.status(400).json({ message: 'کد اشتباه یا منقضی شده است.' })
 
-		const user = await User.findOne({ mobile })
-
+		let user = await User.findOne({ mobile })
 		if (!user) {
-			await User.create({ mobile })
+			user = await User.create({ mobile })
 		}
 
 		record.verified = true
@@ -78,8 +82,16 @@ export const verifyOtp = async (req, res) => {
 			sameSite: 'strict',
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
+
 		return res.json({ success: true, message: 'ورود با موفقیت انجام شد.' })
 	} catch (err) {
 		return res.status(500).json({ error: err.message, message: 'خطا در تایید کد OTP.' })
 	}
-}
+})
+
+// Fallback for unsupported HTTP methods
+router.all(/.*/, (req, res) => {
+	return res.status(405).send({ error: 'Method Not Allowed' })
+})
+
+export default router

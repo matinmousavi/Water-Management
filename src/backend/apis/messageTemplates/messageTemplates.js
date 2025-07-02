@@ -3,6 +3,7 @@ import MessageTemplate from '../../models/messageTemplate.model.js'
 
 const router = Router()
 
+// GET all message templates
 router.get('/', async (req, res) => {
 	try {
 		const templates = await MessageTemplate.find()
@@ -14,6 +15,7 @@ router.get('/', async (req, res) => {
 	}
 })
 
+// GET a single message template by key
 router.get('/:key', async (req, res) => {
 	try {
 		const { key } = req.params
@@ -28,6 +30,7 @@ router.get('/:key', async (req, res) => {
 	}
 })
 
+// PUT update message template by key
 router.put('/:key', async (req, res) => {
 	try {
 		const { key } = req.params
@@ -54,6 +57,7 @@ router.put('/:key', async (req, res) => {
 	}
 })
 
+// Fallback for unsupported methods
 router.all(/.*/, (req, res) => {
 	res.status(405).json({ error: 'Method Not Allowed' })
 })

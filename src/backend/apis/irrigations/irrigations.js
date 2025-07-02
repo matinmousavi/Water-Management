@@ -1,20 +1,15 @@
-import dayjs from 'dayjs'
+import { Router } from 'express'
 import mongoose from '../../config/database.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import Land from '../../models/Land.model.js'
 import { sendTemplatedSMS } from '../../utils/sendTemplatedSMS.js'
+import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc.js'
 import timezone from 'dayjs/plugin/timezone.js'
 import { isAdmin } from '../../middlewares/auth.js'
+import { fieldTranslations } from '../../constants/fieldTranslations.js'
 
-const fieldTranslations = {
-	land: 'زمین',
-	well: 'چاه',
-	start: 'زمان شروع',
-	end: 'زمان پایان',
-	durationMinutes: 'مدت زمان',
-	createdBy: 'ثبت‌کننده',
-}
+const router = Router()
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -22,23 +17,20 @@ dayjs.extend(timezone)
 const mergeDateTime = (dateStr, timeStr) => {
 	const date = dayjs(dateStr)
 	const time = dayjs(timeStr)
-
 	const combined = date.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
-
 	return combined.utc().toDate()
 }
 
-export const getIrrigations = async (req, res) => {
+// GET all irrigations
+router.get('/', async (req, res) => {
 	try {
 		const filter = {}
-
 		const allowedFilters = ['land', 'well', 'createdBy']
 		allowedFilters.forEach(field => {
 			if (req.query[field]) {
 				filter[field] = req.query[field]
 			}
 		})
-
 		const irrigations = await Irrigation.find(filter)
 			.populate('land', 'title')
 			.populate('well', 'title')
@@ -51,33 +43,30 @@ export const getIrrigations = async (req, res) => {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در دریافت لاگ‌های آبیاری!' })
 	}
-}
+})
 
-export const getIrrigation = async (req, res) => {
+// GET single irrigation
+router.get('/:irrigationId', async (req, res) => {
 	try {
 		const { irrigationId } = req.params
-
 		const irrigation = await Irrigation.findById(irrigationId)
 			.populate('land', 'title')
 			.populate('well', 'title')
-			.populate('createdBy', 'firstName lastName Mobile')
+			.populate('createdBy', 'firstName lastName mobile')
 			.lean()
 
-		if (!irrigation) {
-			return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
-		}
-
+		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
 		return res.status(200).json({ irrigation })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
-}
+})
 
-export const createIrrigation = async (req, res) => {
+// POST create irrigation
+router.post('/', async (req, res) => {
 	try {
 		let { landId, wellId, startDate, startTime, endDate, endTime, notes, isOngoing, isStart, isEnd } = req.body
-
 		const userId = req.user._id
 		const now = new Date()
 
@@ -94,9 +83,7 @@ export const createIrrigation = async (req, res) => {
 		}
 
 		if (isAdmin) {
-			if (startDate && startTime) {
-				startDate = mergeDateTime(startDate, startTime)
-			}
+			if (startDate && startTime) startDate = mergeDateTime(startDate, startTime)
 			if (endDate && endTime) {
 				endDate = mergeDateTime(endDate, endTime)
 				isOngoing = false
@@ -157,23 +144,21 @@ export const createIrrigation = async (req, res) => {
 			}
 		}
 
-		return res.status(201).json({
-			message: 'آبیاری با موفقیت ثبت شد.',
-			irrigation,
-		})
+		return res.status(201).json({ message: 'آبیاری با موفقیت ثبت شد.', irrigation })
 	} catch (err) {
 		console.error(err)
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.irrigations[field] || field
 			return res.status(400).json({ message: `${fieldName} الزامی یا نامعتبر است.` })
 		}
 		return res.status(500).json({ message: 'خطا در ثبت آبیاری.' })
 	}
-}
+})
 
-export const updateIrrigation = async (req, res) => {
+// PATCH update irrigation
+router.patch('/:irrigationId', async (req, res) => {
 	try {
 		const { irrigationId } = req.params
 		if (!mongoose.isValidObjectId(irrigationId)) {
@@ -188,9 +173,7 @@ export const updateIrrigation = async (req, res) => {
 		const prevOngoing = irrigation.isOngoing
 		const now = new Date()
 
-		if (req.body.isStart && !isAdmin) {
-			irrigation.start = now
-		}
+		if (req.body.isStart && !isAdmin) irrigation.start = now
 		if (req.body.isEnd && !isAdmin) {
 			irrigation.end = now
 			irrigation.isOngoing = false
@@ -198,10 +181,7 @@ export const updateIrrigation = async (req, res) => {
 
 		if (isAdmin) {
 			const { startDate, startTime, endDate, endTime } = req.body
-			if (startDate && startTime) {
-				irrigation.start = mergeDateTime(startDate, startTime)
-			}
-
+			if (startDate && startTime) irrigation.start = mergeDateTime(startDate, startTime)
 			if (endDate && endTime) {
 				irrigation.end = mergeDateTime(endDate, endTime)
 				irrigation.isOngoing = false
@@ -240,23 +220,21 @@ export const updateIrrigation = async (req, res) => {
 			}
 		}
 
-		return res.status(200).json({
-			message: 'آبیاری با موفقیت ویرایش شد.',
-			irrigation: updated,
-		})
+		return res.status(200).json({ message: 'آبیاری با موفقیت ویرایش شد.', irrigation: updated })
 	} catch (err) {
 		console.error(err)
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.irrigations[field] || field
 			return res.status(400).json({ message: `${fieldName} الزامی یا نامعتبر است.` })
 		}
 		return res.status(500).json({ message: 'خطا در ویرایش آبیاری.' })
 	}
-}
+})
 
-export const deleteIrrigation = async (req, res) => {
+// DELETE irrigation
+router.delete('/:irrigationId', async (req, res) => {
 	try {
 		const { irrigationId } = req.params
 		if (!mongoose.isValidObjectId(irrigationId)) {
@@ -271,4 +249,11 @@ export const deleteIrrigation = async (req, res) => {
 		console.error(err)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
-}
+})
+
+// Fallback for unsupported methods
+router.all(/.*/, (req, res) => {
+	res.status(405).json({ error: 'Method Not Allowed' })
+})
+
+export default router

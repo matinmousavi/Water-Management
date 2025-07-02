@@ -1,16 +1,10 @@
 import { Router } from 'express'
 import User from '../../models/User.model.js'
+import { fieldTranslations } from '../../constants/fieldTranslations.js'
 
 const router = Router()
 
-const fieldTranslations = {
-	mobile: 'شماره موبایل',
-	email: 'ایمیل',
-	firstName: 'نام',
-	lastName: 'نام خانوادگی',
-	accountingCode: 'کد حسابداری',
-}
-
+// GET all users with optional filters
 router.get('/', async (req, res) => {
 	try {
 		const filter = {}
@@ -30,6 +24,7 @@ router.get('/', async (req, res) => {
 	}
 })
 
+// POST create a new user
 router.post('/', async (req, res) => {
 	try {
 		const { role, firstName, lastName, mobile, email, accountingCode, address } = req.body
@@ -40,14 +35,14 @@ router.post('/', async (req, res) => {
 
 		if (err.code === 11000) {
 			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.users[field] || field
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.users[field] || field
 			return res.status(400).json({ message: `${fieldName} الزامی است.` })
 		}
 
@@ -55,6 +50,7 @@ router.post('/', async (req, res) => {
 	}
 })
 
+// GET a single user by ID
 router.get('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
@@ -69,6 +65,7 @@ router.get('/:userId', async (req, res) => {
 	}
 })
 
+// PATCH update a user by ID
 router.patch('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
@@ -88,14 +85,14 @@ router.patch('/:userId', async (req, res) => {
 
 		if (err.code === 11000) {
 			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.users[field] || field
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
 		}
 
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
-			const fieldName = fieldTranslations[field] || field
+			const fieldName = fieldTranslations.users[field] || field
 			return res.status(400).json({ message: `${fieldName} الزامی است.` })
 		}
 
@@ -103,6 +100,7 @@ router.patch('/:userId', async (req, res) => {
 	}
 })
 
+// DELETE a user by ID
 router.delete('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
@@ -119,6 +117,7 @@ router.delete('/:userId', async (req, res) => {
 	}
 })
 
+// Fallback for unsupported HTTP methods
 router.all(/.*/, (req, res) => {
 	return res.status(405).send({ error: 'Method Not Allowed' })
 })
