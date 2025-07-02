@@ -4,6 +4,7 @@ import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
+import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
 const router = Router()
 
@@ -15,10 +16,24 @@ async function attachWells(land) {
 	return { ...land, wells }
 }
 
-// GET all lands
+// GET all lands with optional filters
 router.get('/', async (req, res) => {
 	try {
-		const lands = await Land.find().populate('owner').lean()
+		const safeQuery = sanitizeQuery(req.query)
+		const filter = {}
+		const allowedFields = ['title', 'owner', 'status', 'irrigationType', 'cropType', 'location']
+
+		allowedFields.forEach(field => {
+			if (safeQuery[field]) {
+				if (field === 'owner') {
+					filter[field] = safeQuery[field]
+				} else {
+					filter[field] = { $regex: safeQuery[field], $options: 'i' }
+				}
+			}
+		})
+
+		const lands = await Land.find(filter).populate('owner').lean()
 		const landsWithWells = await Promise.all(lands.map(attachWells))
 		return res.status(200).json({ lands: landsWithWells })
 	} catch (err) {
@@ -31,9 +46,11 @@ router.get('/', async (req, res) => {
 router.get('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
+
 		if (!mongoose.isValidObjectId(landId)) {
 			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
 		}
+
 		const land = await Land.findById(landId).populate('owner').populate({ path: 'notes.user', select: '_id firstName lastName' }).lean()
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
