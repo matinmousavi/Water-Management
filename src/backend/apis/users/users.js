@@ -83,7 +83,9 @@ router.post('/', async (req, res) => {
 			profilePicture: profilePictureId,
 		})
 
-		return res.status(201).json({ message: 'کاربر با موفقیت ایجاد شد.', user })
+		const populatedUser = await User.findById(user._id).populate('profilePicture')
+
+		return res.status(201).json({ message: 'کاربر با موفقیت ایجاد شد.', user: populatedUser })
 	} catch (err) {
 		console.error(err.message)
 
@@ -132,6 +134,10 @@ router.patch('/:userId', async (req, res) => {
 		const { userId } = req.params
 		const updates = req.body
 
+		if (updates.profilePicture === 'null') {
+			updates.profilePicture = null
+		}
+
 		const user = await User.findById(userId).populate('profilePicture')
 		if (!user) {
 			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
@@ -145,25 +151,27 @@ router.patch('/:userId', async (req, res) => {
 				return res.status(400).json({ message: 'فرمت تصویر معتبر نیست.' })
 			}
 
-			if (user.profilePicture) {
-				await deleteFile(user.profilePicture)
+			if (!user.profilePicture || file.name !== user.profilePicture.name || file.size !== user.profilePicture.size) {
+				if (user.profilePicture) {
+					await deleteFile(user.profilePicture)
+				}
+
+				const fileName = `${Date.now()}_${file.name}`
+				const uploadPath = path.join('uploads', fileName)
+				const uploadUrl = `/uploads/${fileName}`
+
+				await file.mv(uploadPath)
+
+				const savedFile = await File.create({
+					name: file.name,
+					md5: file.md5,
+					mimetype: file.mimetype,
+					size: file.size,
+					url: uploadUrl,
+				})
+
+				user.profilePicture = savedFile._id
 			}
-
-			const fileName = `${Date.now()}_${file.name}`
-			const uploadPath = path.join('uploads', fileName)
-			const uploadUrl = `/uploads/${fileName}`
-
-			await file.mv(uploadPath)
-
-			const savedFile = await File.create({
-				name: file.name,
-				md5: file.md5,
-				mimetype: file.mimetype,
-				size: file.size,
-				url: uploadUrl,
-			})
-
-			user.profilePicture = savedFile._id
 		} else if (updates.profilePicture === null && user.profilePicture) {
 			await deleteFile(user.profilePicture)
 			user.profilePicture = null
@@ -172,7 +180,9 @@ router.patch('/:userId', async (req, res) => {
 		Object.assign(user, updates)
 		await user.save()
 
-		return res.status(200).json({ message: 'کاربر با موفقیت ویرایش شد.', user })
+		const populatedUser = await User.findById(user._id).populate('profilePicture')
+
+		return res.status(200).json({ message: 'کاربر با موفقیت ویرایش شد.', user: populatedUser })
 	} catch (err) {
 		console.error(err.message)
 

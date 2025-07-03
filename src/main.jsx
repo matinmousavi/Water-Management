@@ -39,6 +39,7 @@ createRoot(document.getElementById('root')).render(
 					},
 					Input: {
 						activeShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
+						borderRadiusLG: 4,
 					},
 					Card: {
 						bodyPadding: 36,
@@ -62,7 +63,7 @@ createRoot(document.getElementById('root')).render(
 					},
 					Select: {
 						fontSize: 16,
-					}
+					},
 				},
 			}}
 		>
