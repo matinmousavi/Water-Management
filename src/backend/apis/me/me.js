@@ -1,6 +1,11 @@
+import { Router } from 'express'
+
+const router = Router()
+
 const isProd = import.meta.env?.PROD
 
-export async function getMe(req, res) {
+// GET current user profile
+router.get('/', async (req, res) => {
 	const user = req.user
 
 	if (!user) {
@@ -8,9 +13,10 @@ export async function getMe(req, res) {
 	}
 
 	return res.json({ user })
-}
+})
 
-export async function updateMe(req, res) {
+// PATCH update current user profile
+router.patch('/', async (req, res) => {
 	try {
 		const user = req.user
 		const updates = req.body
@@ -25,9 +31,10 @@ export async function updateMe(req, res) {
 	} catch (err) {
 		return res.status(500).json({ error: err.message, message: 'خطا در به‌روزرسانی اطلاعات.' })
 	}
-}
+})
 
-export const logout = (req, res) => {
+// GET logout current user
+router.get('/logout', (req, res) => {
 	res.clearCookie('token', {
 		httpOnly: true,
 		secure: isProd,
@@ -35,4 +42,11 @@ export const logout = (req, res) => {
 	})
 
 	return res.json({ message: 'خروج با موفقیت انجام شد.' })
-}
+})
+
+// Fallback for unsupported methods
+router.all(/.*/, (req, res) => {
+	return res.status(405).send({ error: 'Method Not Allowed' })
+})
+
+export default router

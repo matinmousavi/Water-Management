@@ -94,7 +94,7 @@ const Layouts = () => {
 					) : isIrrigator ? (
 						<Button type='text' icon={<UserOutlined />} onClick={() => setDrawerVisible(true)} />
 					) : (
-						<Button type='text' icon={<MenuOutlined />} onClick={() => setDrawerVisible(true)} />
+						<Button type='text' color='default' icon={<MenuOutlined className={styles.menuIcon} />} onClick={() => setDrawerVisible(true)} />
 					)}
 				</Flex>
 			</Header>
