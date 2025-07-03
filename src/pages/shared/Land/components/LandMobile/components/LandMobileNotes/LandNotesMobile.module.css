@@ -71,7 +71,9 @@
 	height: 142px;
 	border-radius: 6px;
 }
-
+.touchesBox {
+	height: 100%;
+}
 /* ------------- tablet ------------- */
 @media (min-width: 768px) {
 	.text {

@@ -1,4 +1,4 @@
-import { Drawer, Menu, Button, Image, Layout, Flex, Grid } from 'antd'
+import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography } from 'antd'
 import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
 
 const { Header, Content } = Layout
+const { Title } = Typography
 
 const Layouts = () => {
 	const { isAdmin, isIrrigator, logout } = useUser()
@@ -80,14 +81,18 @@ const Layouts = () => {
 						<Link to='/'>
 							<Image width={24} src='../assets/images/default-logo.png' preview={false} />
 						</Link>
-						<h3 className={styles.title}>مدیریت آب</h3>
+						<Link to='/'>
+							<Title level={3} className={styles.title}>
+								مدیریت آب
+							</Title>
+						</Link>
 						{!isMobile && <Menu className={styles.flex} theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} />}
 					</Flex>
 
 					{!isMobile ? (
 						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
 					) : isIrrigator ? (
-						<Button type='text' icon={<UserOutlined />} onClick={() => navigate('/')} />
+						<Button type='text' icon={<UserOutlined />} onClick={() => setDrawerVisible(true)} />
 					) : (
 						<Button type='text' color='default' icon={<MenuOutlined className={styles.menuIcon} />} onClick={() => setDrawerVisible(true)} />
 					)}

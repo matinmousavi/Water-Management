@@ -124,7 +124,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				onClose={onClose}
 				open={open}
 			>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
+				<div className={styles.touchesBox} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 					<Flex className={styles.contentDrawer} vertical gap={10}>
 						<div className={styles.drawerHeader}>
 							<div onClick={() => setOpen(false)} className={styles.lineDrawer}></div>

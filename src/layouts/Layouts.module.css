@@ -14,10 +14,12 @@
 .flex {
 	flex: 1;
 }
-
+.title {
+	font-size: 14px !important;
+}
 .title,
 .button {
-	color: white;
+	color: white !important;
 }
 
 .content {

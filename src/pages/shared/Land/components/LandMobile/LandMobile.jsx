@@ -21,7 +21,7 @@ const LandMobile = ({ landData }) => {
 		<Flex className={styles.MobileLandConatiner} vertical justify='center' gap={20}>
 			<Flex gap={8} align='center' justify='center'>
 				<img src={tree} alt='tree icon' />
-				<Typography.Title className='title-h1'>{landData?.name}</Typography.Title>
+				<Typography.Title className='title-h1'>زمین {landData?.title}</Typography.Title>
 			</Flex>
 			<Tabs defaultActiveKey='specifications' items={items} />
 		</Flex>
