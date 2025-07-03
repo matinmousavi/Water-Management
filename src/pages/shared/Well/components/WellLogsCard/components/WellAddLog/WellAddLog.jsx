@@ -54,7 +54,7 @@ const WellAddLog = ({ setLogs, wellId }) => {
 			}
 
 			const response = await irrigationApi.post('irrigations', payload)
-
+			console.log(response)
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
 			} else {
