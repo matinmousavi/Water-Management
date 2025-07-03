@@ -80,7 +80,7 @@ const Well = () => {
 						<Flex align='center' gap={16}>
 							<BackButton backTo='/wells' />
 							<Typography.Title className='text-page-title'>{title}</Typography.Title>
-							<WellStatus wellId={wellId} currentStatus={well.status} />
+							<WellStatus wellId={wellId} currentStatus={well?.status} />
 						</Flex>
 					</>
 				)}
@@ -88,7 +88,7 @@ const Well = () => {
 				{!isMobile && (
 					<>
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
-						<WellLandsCard wellLands={well.lands} />
+						<WellLandsCard wellLands={well?.lands} />
 						<WellLogCard wellLogs={logs} wellId={actualWellId} setLogs={setLogs} />
 					</>
 				)}
