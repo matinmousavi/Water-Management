@@ -36,7 +36,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='startDate' noStyle rules={[{ required: true, message: 'تاریخ شروع الزامی است' }]}>
-							<FaDatePicker placeholder="تاریخ" size='large' />
+							<FaDatePicker placeholder='تاریخ' size='large' />
 						</Form.Item>
 					</Col>
 					<Col span={11}>
@@ -51,7 +51,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
 						<Form.Item name='endDate' noStyle>
-							<FaDatePicker placeholder="تاریخ" disabled={isOngoing} size='large' />
+							<FaDatePicker placeholder='تاریخ' disabled={isOngoing} size='large' />
 						</Form.Item>
 					</Col>
 					<Col span={11}>
@@ -66,7 +66,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Checkbox>در حال آب‌رسانی</Checkbox>
 			</Form.Item>
 
-			<Form.Item name='startNotes' label='توضیحات'>
+			<Form.Item name='note' label='توضیحات'>
 				<Input.TextArea rows={3} />
 			</Form.Item>
 		</Form>

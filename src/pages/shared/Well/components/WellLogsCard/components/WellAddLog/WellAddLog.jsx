@@ -38,6 +38,7 @@ const WellAddLog = ({ setLogs, wellId }) => {
 				payload.startTime = values.startTime
 				payload.isOngoing = values.isOngoing
 				payload.endTime = values.isOngoing ? null : values.endTime
+				payload.notes = values.note
 			} else {
 				if (values.isStart) {
 					payload.startDate = new Date()
@@ -51,9 +52,6 @@ const WellAddLog = ({ setLogs, wellId }) => {
 					payload.isStart = false
 				}
 			}
-
-			if (values.startNotes) payload.notes.start = values.startNotes
-			if (values.endNotes) payload.notes.end = values.endNotes
 
 			const response = await irrigationApi.post('irrigations', payload)
 

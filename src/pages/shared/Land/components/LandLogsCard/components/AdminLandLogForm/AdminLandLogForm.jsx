@@ -2,7 +2,7 @@ import { Form, Select, Checkbox, Input, Row, Col, TimePicker } from 'antd'
 import { useEffect } from 'react'
 import FaDatePicker from '../../../../../../../components/FaDatePicker/FaDatePicker'
 
-const AdminWellLogForm = ({ form, lands }) => {
+const AdminWellLogForm = ({ form }) => {
 	const labelCol = { span: 8 }
 	const wrapperCol = { span: 18 }
 	const isOngoing = Form.useWatch('isOngoing', form)
@@ -15,22 +15,6 @@ const AdminWellLogForm = ({ form, lands }) => {
 
 	return (
 		<Form form={form} layout='horizontal' labelAlign='left' labelCol={labelCol} wrapperCol={wrapperCol}>
-			<Form.Item name='landId' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Select
-					showSearch
-					placeholder='انتخاب'
-					optionFilterProp='children'
-					filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}
-					allowClear
-				>
-					{lands?.map(land => (
-						<Select.Option key={land._id} value={land._id}>
-							{land.title}
-						</Select.Option>
-					))}
-				</Select>
-			</Form.Item>
-
 			<Form.Item label='شروع آبرسانی'>
 				<Row gutter={16} align='middle' justify='start'>
 					<Col span={13}>
@@ -65,7 +49,7 @@ const AdminWellLogForm = ({ form, lands }) => {
 				<Checkbox>در حال آبرسانی</Checkbox>
 			</Form.Item>
 
-			<Form.Item name='startNotes' label='توضیحات'>
+			<Form.Item name='note' label='توضیحات'>
 				<Input.TextArea rows={3} />
 			</Form.Item>
 		</Form>
