@@ -94,57 +94,26 @@ router.post('/', async (req, res) => {
 			}
 		}
 
-		const existing = await Irrigation.findOne({
-			land: landId,
-			well: wellId,
-			isOngoing: true,
-			end: null,
-		})
+		const existing = await Irrigation.findOne({ land: landId, well: wellId, isOngoing: true, endedAt: null })
 		if (existing) {
-			return res.status(400).json({
-				message: 'این زمین هم‌اکنون در حال آبیاری با این چاه است و هنوز پایان نیافته.',
-			})
+			return res.status(400).json({ message: 'این زمین هم‌اکنون در حال آبیاری با این چاه است و هنوز پایان نیافته.' })
 		}
 
-		const created = await Irrigation.create({
-			land: landId,
-			well: wellId,
-			start: startDate,
-			end: endDate,
-			notes,
-			isOngoing,
-			createdBy: userId,
-		})
+		const created = await Irrigation.create({ land: landId, well: wellId, startedAt: startDate, endedAt: endDate, notes, isOngoing, createdBy: userId })
 
 		const irrigation = await Irrigation.findById(created._id)
 			.populate('createdBy', 'firstName lastName mobile')
-			.populate({
-				path: 'land',
-				populate: {
-					path: 'owner',
-					select: 'firstName lastName mobile',
-				},
-				select: 'title owner',
-			})
+			.populate({ path: 'land', populate: { path: 'owner', select: 'firstName lastName mobile' }, select: 'title owner' })
 
 		const land = await Land.findById(landId).populate('owner', 'firstName lastName mobile')
 		if (land?.owner?.mobile) {
 			const to = land.owner.mobile
 			const landName = land.title
 			if (isStart) {
-				await sendTemplatedSMS({
-					to,
-					key: 'irrigation_start',
-					variables: { landName, time: now.toLocaleTimeString('fa-IR') },
-				})
+				await sendTemplatedSMS({ to, key: 'irrigation_start', variables: { landName, time: now.toLocaleTimeString('fa-IR') } })
 			}
-			if (!isOngoing && endDate) {
-				const durationMin = Math.round((new Date(endDate) - new Date(startDate)) / 60000)
-				await sendTemplatedSMS({
-					to,
-					key: 'irrigation_end',
-					variables: { landName, duration: durationMin },
-				})
+			if (!isOngoing && irrigation.duration) {
+				await sendTemplatedSMS({ to, key: 'irrigation_end', variables: { landName, duration: irrigation.duration } })
 			}
 		}
 
@@ -170,32 +139,28 @@ router.patch('/:irrigationId', async (req, res) => {
 		}
 
 		const irrigation = await Irrigation.findById(irrigationId)
-		if (!irrigation) {
-			return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
-		}
+		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
 
 		const prevOngoing = irrigation.isOngoing
 		const now = new Date()
 
-		if (req.body.isStart && !isAdmin) irrigation.start = now
+		if (req.body.isStart && !isAdmin) irrigation.startedAt = now
 		if (req.body.isEnd && !isAdmin) {
-			irrigation.end = now
+			irrigation.endedAt = now
 			irrigation.isOngoing = false
 		}
 
 		if (isAdmin) {
 			const { startDate, startTime, endDate, endTime } = req.body
-			if (startDate && startTime) irrigation.start = mergeDateTime(startDate, startTime)
+			if (startDate && startTime) irrigation.startedAt = mergeDateTime(startDate, startTime)
 			if (endDate && endTime) {
-				irrigation.end = mergeDateTime(endDate, endTime)
+				irrigation.endedAt = mergeDateTime(endDate, endTime)
 				irrigation.isOngoing = false
 			}
 		}
 
 		Object.entries(req.body).forEach(([key, val]) => {
-			if (!['isStart', 'isEnd', 'startDate', 'startTime', 'endDate', 'endTime'].includes(key)) {
-				irrigation[key] = val
-			}
+			if (!['isStart', 'isEnd', 'startDate', 'startTime', 'endDate', 'endTime'].includes(key)) irrigation[key] = val
 		})
 
 		await irrigation.save()
@@ -208,19 +173,10 @@ router.patch('/:irrigationId', async (req, res) => {
 			const landName = land.title
 
 			if (req.body.isStart === true && !prevOngoing) {
-				await sendTemplatedSMS({
-					to,
-					key: 'irrigation_start',
-					variables: { landName, time: updated.start.toLocaleTimeString('fa-IR') },
-				})
+				await sendTemplatedSMS({ to, key: 'irrigation_start', variables: { landName, time: updated.startedAt.toLocaleTimeString('fa-IR') } })
 			}
-			if ((req.body.isEnd === true || req.body.endTime) && prevOngoing) {
-				const durationMin = Math.round((new Date(updated.end) - new Date(updated.start)) / 60000)
-				await sendTemplatedSMS({
-					to,
-					key: 'irrigation_end',
-					variables: { landName, duration: durationMin },
-				})
+			if ((req.body.isEnd === true || req.body.endTime) && prevOngoing && updated.duration) {
+				await sendTemplatedSMS({ to, key: 'irrigation_end', variables: { landName, duration: updated.duration } })
 			}
 		}
 
@@ -241,13 +197,9 @@ router.patch('/:irrigationId', async (req, res) => {
 router.delete('/:irrigationId', async (req, res) => {
 	try {
 		const { irrigationId } = req.params
-		if (!mongoose.isValidObjectId(irrigationId)) {
-			return res.status(400).json({ message: 'شناسه آبیاری معتبر نیست.' })
-		}
+		if (!mongoose.isValidObjectId(irrigationId)) return res.status(400).json({ message: 'شناسه آبیاری معتبر نیست.' })
 		const deleted = await Irrigation.findByIdAndDelete(irrigationId)
-		if (!deleted) {
-			return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
-		}
+		if (!deleted) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
 		return res.status(200).json({ message: 'آبیاری با موفقیت حذف شد.' })
 	} catch (err) {
 		console.error(err)
