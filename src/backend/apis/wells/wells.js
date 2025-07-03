@@ -2,6 +2,7 @@ import { Router } from 'express'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
+import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
 const router = Router()
 
@@ -9,19 +10,32 @@ const router = Router()
 router.get('/', async (req, res) => {
 	try {
 		const filter = {}
-
+		const safeQuery = sanitizeQuery(req.query)
 		const allowedFields = ['title', 'licenseCode', 'irrigator']
 		allowedFields.forEach(field => {
-			if (req.query[field]) {
+			if (safeQuery[field]) {
 				if (field === 'irrigator') {
-					filter[field] = req.query[field]
+					filter[field] = safeQuery[field]
 				} else {
-					filter[field] = { $regex: `^${req.query[field]}$`, $options: 'i' }
+					filter[field] = { $regex: `^${safeQuery[field]}$`, $options: 'i' }
 				}
 			}
 		})
 
-		const wells = await Well.find(filter).populate('irrigator').populate('lands').lean()
+		const wells = await Well.find(filter)
+			.populate('irrigator')
+			.populate({
+				path: 'lands',
+				populate: {
+					path: 'owner',
+					select: 'firstName lastName mobile',
+				},
+			})
+			.populate({
+				path: 'irrigator',
+				select: 'firstName lastName mobile',
+			})
+			.lean()
 
 		for (let well of wells) {
 			const irrigations = await Irrigation.find({ well: well._id })
