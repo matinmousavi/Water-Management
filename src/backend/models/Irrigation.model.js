@@ -12,11 +12,11 @@ const irrigationSchema = new mongoose.Schema(
 			ref: 'Well',
 			required: true,
 		},
-		startAt: {
+		startedAt: {
 			type: Date,
 			required: true,
 		},
-		endAt: {
+		endedAt: {
 			type: Date,
 		},
 		duration: {
@@ -42,10 +42,10 @@ const irrigationSchema = new mongoose.Schema(
 	}
 )
 
-// Automatically calculates duration in HH:mm:ss format if endAt is provided.
+// Automatically calculates duration in HH:mm:ss format if endedAtAt is provided.
 irrigationSchema.pre('save', function (next) {
-	if (this.endAt && this.startAt) {
-		const diffMs = this.endAt - this.startAt
+	if (this.endedAt && this.startedAt) {
+		const diffMs = this.endedAt - this.startedAt
 		const totalSeconds = Math.floor(diffMs / 1000)
 
 		const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
