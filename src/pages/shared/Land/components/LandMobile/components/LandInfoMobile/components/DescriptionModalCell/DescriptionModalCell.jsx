@@ -1,0 +1,53 @@
+import { Flex, Modal, Drawer } from 'antd'
+import { useState } from 'react'
+import moment from 'moment-jalaali'
+import { EyeOutlined, EditOutlined } from '@ant-design/icons'
+import EditDescriptionLog from '../EditDescriptionLog/EditDescriptionLog'
+
+const DescriptionModalCell = ({ record, onUpdateNotes }) => {
+	const [openEdit, setOpenEdit] = useState(false)
+	const [openDescription, setOpenDescription] = useState(false)
+	const [notes, setNotes] = useState(record.notes || '')
+
+	const isOlderThanOneDay = moment().diff(moment(record.createdAt), 'hours') >= 24
+
+	const handleSave = () => {
+		onUpdateNotes(record._id, notes)
+		setOpen(false)
+	}
+
+	const handleEditNotice = () => {
+		setOpenEdit(false)
+	}
+	const cancelEdit = () => {
+		setOpenEdit(false)
+	}
+
+	return (
+		<Flex align='center' justify='center' gap={8}>
+			{isOlderThanOneDay ? (
+				<EyeOutlined onClick={() => setOpenDescription(true)} style={{ color: '#1890ff', cursor: 'pointer' }} />
+			) : (
+				<EditOutlined onClick={() => setOpenEdit(true)} style={{ color: '#1890ff', cursor: 'pointer' }} />
+			)}
+
+			<Modal
+				title={`توضیحات آبیاری (${moment(record.startedAt).format('dddd jD jMMMM jYYYY HH:mm')})`}
+				open={openDescription}
+				onCancel={() => setOpenDescription(false)}
+				centered
+				footer={null}
+			>
+				{record.notes || 'بدون توضیحات'}
+			</Modal>
+
+			<Drawer title={null} placement='bottom' height='auto' open={openEdit} onClose={() => setOpenEdit(false)} closable={false}>
+				<div>
+					<EditDescriptionLog onSubmit={handleEditNotice} setNotes={setNotes} notes={record?.notes} onClose={cancelEdit} />
+				</div>
+			</Drawer>
+		</Flex>
+	)
+}
+
+export default DescriptionModalCell

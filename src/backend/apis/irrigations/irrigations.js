@@ -14,11 +14,26 @@ const router = Router()
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-const mergeDateTime = (dateStr, timeStr) => {
-	const date = dayjs(dateStr)
-	const time = dayjs(timeStr)
-	const combined = date.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
-	return combined.utc().toDate()
+// const mergeDateTime = (dateStr, timeStr) => {
+// 	const date = dayjs(dateStr)
+// 	const time = dayjs(timeStr)
+// 	const combined = date.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
+// 	return combined.utc().toDate()
+// }
+
+function mergeDateTime(date, timeStr) {
+	try {
+		const [hours, minutes, seconds = '0'] = timeStr.split(':')
+		const newDate = new Date(date)
+		newDate.setHours(Number(hours))
+		newDate.setMinutes(Number(minutes))
+		newDate.setSeconds(Number(seconds))
+		newDate.setMilliseconds(0)
+		return newDate
+	} catch (err) {
+		console.error('❌ Error in mergeDateTime:', err)
+		return null
+	}
 }
 
 // GET all irrigations
@@ -78,9 +93,13 @@ router.post('/', async (req, res) => {
 
 		if (startDate && startTime) {
 			startedAt = mergeDateTime(startDate, startTime)
-		} else {
-			startedAt = now
+		} else if (startTime) {
+			startedAt = mergeDateTime(now, startTime)
+			console.log('✅ startedAt:', startedAt, isNaN(startedAt.getTime()) ? '❌ Invalid' : '✅ Valid')
 		}
+
+		console.log('📥 startTime:', startTime)
+		console.log('✅ startedAt:', startedAt)
 
 		if (endDate && endTime) {
 			endedAt = mergeDateTime(endDate, endTime)
@@ -114,16 +133,20 @@ router.post('/', async (req, res) => {
 			const landName = land.title
 
 			if (!endDate && !endTime) {
-				await sendTemplatedSMS({ to, key: 'irrigation_start', variables: { landName, time: now.toLocaleTimeString('fa-IR') } })
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_start_irrigator',
+					variables: { land_title: landName, start_time: now.toLocaleTimeString('fa-IR') },
+				})
 			}
 			if (endedAt && irrigation.duration) {
-				await sendTemplatedSMS({ to, key: 'irrigation_end', variables: { landName, duration: irrigation.duration } })
+				await sendTemplatedSMS({ to, key: 'irrigation_end_irrigator', variables: { land_title: landName, duration: irrigation.duration } })
 			}
 		}
 
 		return res.status(201).json({ message: 'آبیاری با موفقیت ثبت شد.', irrigation })
 	} catch (err) {
-		console.error(err)
+		console.error('❌ Server error in POST /irrigation:', err)
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
@@ -159,10 +182,13 @@ router.patch('/:irrigationId', async (req, res) => {
 		if (endDate && endTime) {
 			irrigation.endedAt = mergeDateTime(endDate, endTime)
 			irrigation.isOngoing = false
-		} else if (endDate || endTime) {
-			irrigation.endedAt = now
+		} else if (endTime) {
+			irrigation.endedAt = mergeDateTime(now, endTime)
 			irrigation.isOngoing = false
 		}
+
+		console.log('📥 endTime:', endTime)
+		console.log('✅ endedAt:', irrigation.endedAt)
 
 		Object.entries(otherFields).forEach(([key, val]) => {
 			irrigation[key] = val
@@ -180,15 +206,21 @@ router.patch('/:irrigationId', async (req, res) => {
 			if ((startDate && startTime) || startDate || startTime) {
 				await sendTemplatedSMS({
 					to,
-					key: 'irrigation_start',
-					variables: { landName, time: updated.startedAt.toLocaleTimeString('fa-IR') },
+					key: 'irrigation_start_irrigator',
+					variables: { land_title: landName, start_time: updated.startedAt.toLocaleTimeString('fa-IR') },
 				})
 			}
 			if (((endDate && endTime) || endDate || endTime) && updated.duration) {
 				await sendTemplatedSMS({
 					to,
-					key: 'irrigation_end',
-					variables: { landName, duration: updated.duration },
+					key: 'irrigation_end_irrigator',
+					variables: {
+						land_title: landName,
+						duration: updated.duration,
+						well_irrigator: updated.createdBy.firstName + ' ' + updated.createdBy.lastName,
+						well_title: updated.well.title,
+						end_time: updated.endedAt.toLocaleTimeString('fa-IR'),
+					},
 				})
 			}
 		}

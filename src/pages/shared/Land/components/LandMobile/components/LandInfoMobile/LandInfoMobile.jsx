@@ -1,27 +1,34 @@
-import { Card, Flex, Table, Typography, Button, Drawer, Modal } from 'antd'
+import { Card, Flex, Table, Typography, Button, Drawer } from 'antd'
 import moment from 'moment-jalaali'
 import styles from './LandInfoMobile.module.css'
 import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg'
 import iconLocation from '../../../../../../../assets/icons/EnvironmentOutlined.svg'
 import iconContacts from '../../../../../../../assets/icons/ContactsOutlined.svg'
 import iconPhone from '../../../../../../../assets/icons/PhoneOutlined.svg'
-import { EyeOutlined } from '@ant-design/icons'
 import { useState, useEffect, useRef } from 'react'
 import TimeStartPickerSheet from './components/TimeStartPickerSheet/TimeStartPickerSheet'
 import TimeEndPickerSheet from './components/TimeEndPickerSheet/TimeEndPickerSheet'
 import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useParams } from 'react-router'
+import DescriptionModalCell from './components/DescriptionModalCell/DescriptionModalCell'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
+const { Text } = Typography
+
 const LandInfoMobile = ({ data }) => {
-	const { Text } = Typography
 	const { landId } = useParams()
 	const api = useAPI()
 	api.init(`lands/${landId}`)
 
-	// console.log(data)
+	const [logs, setLogs] = useState([])
+
+	useEffect(() => {
+		if (api.data?.land?.logs) {
+			setLogs(api.data.land.logs)
+		}
+	}, [api.data?.land?.logs])
 
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [elapsedTime, setElapsedTime] = useState(7200)
@@ -29,8 +36,6 @@ const LandInfoMobile = ({ data }) => {
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [startTime, setStartTime] = useState(null)
-	const [isDescription, setIsDescription] = useState(false)
-	const [isOngoing, setIsOngoing] = useState(false)
 	const startY = useRef(0)
 
 	useEffect(() => {
@@ -81,27 +86,48 @@ const LandInfoMobile = ({ data }) => {
 		setElapsedTime(7200)
 		setShowStartDrawer(false)
 
-		const startDate = new Date(selectedTime.getFullYear(), selectedTime.getMonth(), selectedTime.getDate())
-
-		const startTime = new Date(1970, 0, 1, selectedTime.getHours(), selectedTime.getMinutes(), 0)
-
 		try {
 			await api.post('irrigations', {
 				landId,
 				wellId: data?.wells[0]?._id,
-				startDate,
-				startTime,
+				startTime: selectedTime.toTimeString().split(' ')[0],
+				isOngoing: true,
 			})
+
+			await api.init(`lands/${landId}`, false, true)
+			if (api.data?.land?.logs) {
+				setLogs(api.data.land.logs)
+			}
 		} catch (error) {
 			console.error('خطا در ارسال زمان شروع آبیاری:', error)
 		}
 	}
 
-	const handleTimeEndSelected = time => {
+	const handleTimeEndSelected = async time => {
 		setStartTime(time)
 		setIsIrrigating(false)
 		setElapsedTime(7200)
 		setShowEndDrawer(false)
+
+		try {
+			const ongoingIrrigation = api.data?.land?.logs?.find(item => item.isOngoing)
+			if (!ongoingIrrigation) {
+				return
+			}
+
+			const irrigationId = ongoingIrrigation._id
+
+			await api.patch(`irrigations/${irrigationId}`, {
+				endTime: time.toTimeString().split(' ')[0],
+			})
+
+			await api.init(`lands/${landId}`, false, true)
+			if (api.data?.land?.logs) {
+				setLogs(api.data.land.logs)
+			}
+		} catch (error) {
+			console.error('خطا در ثبت زمان پایان آبیاری:', error)
+		}
 	}
 
 	const handleEndNotice = () => {
@@ -127,49 +153,35 @@ const LandInfoMobile = ({ data }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
-
-			render: record => new Date(record.startedAt).toLocaleDateString('fa-IR'),
-			// value => {
-			// 	const date = moment(value)
-			// 	return (
-			// 		<>
-			// 			<Typography.Text>{date.format('dddd')}</Typography.Text>
-			// 			<br />
-			// 			<Typography.Text>{date.format('jD jMMMM jYYYY')}</Typography.Text>
-			// 		</>
-			// 	)
-			// },
+			dataIndex: 'startedAt',
+			key: 'date',
+			render: value => moment(value).format('jYYYY/jMM/jDD'),
 		},
 		{
 			title: 'ساعت شروع',
-			render: record => (record?.startedAt ? new Date(record?.startedAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'),
+			dataIndex: 'startedAt',
+			key: 'startTime',
+			render: value => (value ? moment(value).format('HH:mm') : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
-			dataIndex: 'timeIrrigation',
-			key: 'timeIrrigation',
-			render: value => moment(value).format('HH:mm'),
+			key: 'duration',
+			render: (text, record) => {
+				if (record.isOngoing) {
+					return 'در حال آبیاری'
+				}
+				if (!record.duration) {
+					return '--'
+				}
+				const parts = record.duration.split(':')
+				const minutes = Number(parts[0]) * 60 + Number(parts[1])
+				return `${minutes} دقیقه`
+			},
 		},
 		{
 			title: 'توضیحات',
-			render: record => {
-				return (
-					<Flex align='center' justify='center' gap={8}>
-						<EyeOutlined onClick={() => setIsDescription(true)} style={{ color: '#1890ff' }} />
-						<Modal
-							rootClassName={styles.modalDescription}
-							title={`توضیحات لاگ توزیع آب ${
-								record?.startedAt ? new Date(record?.startedAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'
-							}`}
-							footer={false}
-							centered
-							open={isDescription}
-							onCancel={() => setIsDescription(false)}
-							okText={null}
-						></Modal>
-					</Flex>
-				)
-			},
+			key: 'notes',
+			render: record => <DescriptionModalCell record={record} />,
 		},
 	]
 	return (
@@ -192,8 +204,8 @@ const LandInfoMobile = ({ data }) => {
 				</Card>
 				<Card>
 					<Flex vertical gap={8}>
-						<Text>لاگ توزیع آب ({data?.logs?.length})</Text>
-						<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={api.data?.land?.logs} columns={columns} />
+						<Text>لاگ توزیع آب ({logs?.length})</Text>
+						<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={logs} columns={columns} />
 					</Flex>
 				</Card>
 			</Flex>
