@@ -6,7 +6,6 @@ import { sendTemplatedSMS } from '../../utils/sendTemplatedSMS.js'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc.js'
 import timezone from 'dayjs/plugin/timezone.js'
-import { isAdmin } from '../../middlewares/auth.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
@@ -70,33 +69,24 @@ router.get('/:irrigationId', async (req, res) => {
 // POST create irrigation
 router.post('/', async (req, res) => {
 	try {
-		let { landId, wellId, startDate, startTime, endDate, endTime, notes, isOngoing, isStart, isEnd } = req.body
+		const { landId, wellId, startDate, startTime, endDate, endTime, notes } = req.body
+		let { isOngoing } = req.body
 		const userId = req.user._id
 		const now = new Date()
 
-		// if (isStart && !isAdmin) {
-		// 	startDate = now
-		// 	startTime = now
-		// 	endDate = null
-		// 	endTime = null
-		// }
-		if (isStart) {
-			startDate = new Date(startDate)
-			startTime = new Date(startTime)
+		let startedAt, endedAt
+
+		if (startDate && startTime) {
+			startedAt = mergeDateTime(startDate, startTime)
+		} else {
+			startedAt = now
 		}
 
-		if (isEnd && !isAdmin) {
-			endDate = now
-			endTime = now
+		if (endDate && endTime) {
+			endedAt = mergeDateTime(endDate, endTime)
 			isOngoing = false
-		}
-
-		if (isAdmin) {
-			if (startDate && startTime) startDate = mergeDateTime(startDate, startTime)
-			if (endDate && endTime) {
-				endDate = mergeDateTime(endDate, endTime)
-				isOngoing = false
-			}
+		} else {
+			endedAt = null
 		}
 
 		const existing = await Irrigation.findOne({ land: landId, well: wellId, isOngoing: true, endedAt: null })
@@ -104,7 +94,15 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({ message: 'این زمین هم‌اکنون در حال آبیاری با این چاه است و هنوز پایان نیافته.' })
 		}
 
-		const created = await Irrigation.create({ land: landId, well: wellId, startedAt: startDate, endedAt: endDate, notes, isOngoing, createdBy: userId })
+		const created = await Irrigation.create({
+			land: landId,
+			well: wellId,
+			startedAt,
+			endedAt,
+			notes,
+			isOngoing,
+			createdBy: userId,
+		})
 
 		const irrigation = await Irrigation.findById(created._id)
 			.populate('createdBy', 'firstName lastName mobile')
@@ -114,10 +112,11 @@ router.post('/', async (req, res) => {
 		if (land?.owner?.mobile) {
 			const to = land.owner.mobile
 			const landName = land.title
-			if (isStart) {
+
+			if (!endDate && !endTime) {
 				await sendTemplatedSMS({ to, key: 'irrigation_start', variables: { landName, time: now.toLocaleTimeString('fa-IR') } })
 			}
-			if (!isOngoing && irrigation.duration) {
+			if (endedAt && irrigation.duration) {
 				await sendTemplatedSMS({ to, key: 'irrigation_end', variables: { landName, duration: irrigation.duration } })
 			}
 		}
@@ -144,28 +143,29 @@ router.patch('/:irrigationId', async (req, res) => {
 		}
 
 		const irrigation = await Irrigation.findById(irrigationId)
-		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
+		if (!irrigation) {
+			return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
+		}
 
-		const prevOngoing = irrigation.isOngoing
 		const now = new Date()
+		const { startDate, startTime, endDate, endTime, ...otherFields } = req.body
 
-		if (req.body.isStart && !isAdmin) irrigation.startedAt = now
-		if (req.body.isEnd && !isAdmin) {
+		if (startDate && startTime) {
+			irrigation.startedAt = mergeDateTime(startDate, startTime)
+		} else if (startDate || startTime) {
+			irrigation.startedAt = now
+		}
+
+		if (endDate && endTime) {
+			irrigation.endedAt = mergeDateTime(endDate, endTime)
+			irrigation.isOngoing = false
+		} else if (endDate || endTime) {
 			irrigation.endedAt = now
 			irrigation.isOngoing = false
 		}
 
-		if (isAdmin) {
-			const { startDate, startTime, endDate, endTime } = req.body
-			if (startDate && startTime) irrigation.startedAt = mergeDateTime(startDate, startTime)
-			if (endDate && endTime) {
-				irrigation.endedAt = mergeDateTime(endDate, endTime)
-				irrigation.isOngoing = false
-			}
-		}
-
-		Object.entries(req.body).forEach(([key, val]) => {
-			if (!['isStart', 'isEnd', 'startDate', 'startTime', 'endDate', 'endTime'].includes(key)) irrigation[key] = val
+		Object.entries(otherFields).forEach(([key, val]) => {
+			irrigation[key] = val
 		})
 
 		await irrigation.save()
@@ -177,11 +177,19 @@ router.patch('/:irrigationId', async (req, res) => {
 			const to = land.owner.mobile
 			const landName = land.title
 
-			if (req.body.isStart === true && !prevOngoing) {
-				await sendTemplatedSMS({ to, key: 'irrigation_start', variables: { landName, time: updated.startedAt.toLocaleTimeString('fa-IR') } })
+			if ((startDate && startTime) || startDate || startTime) {
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_start',
+					variables: { landName, time: updated.startedAt.toLocaleTimeString('fa-IR') },
+				})
 			}
-			if ((req.body.isEnd === true || req.body.endTime) && prevOngoing && updated.duration) {
-				await sendTemplatedSMS({ to, key: 'irrigation_end', variables: { landName, duration: updated.duration } })
+			if (((endDate && endTime) || endDate || endTime) && updated.duration) {
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_end',
+					variables: { landName, duration: updated.duration },
+				})
 			}
 		}
 
