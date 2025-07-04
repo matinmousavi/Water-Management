@@ -21,6 +21,8 @@ const LandInfoMobile = ({ data }) => {
 	const api = useAPI()
 	api.init(`lands/${landId}`)
 
+	// console.log(data)
+
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [elapsedTime, setElapsedTime] = useState(7200)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
@@ -73,11 +75,26 @@ const LandInfoMobile = ({ data }) => {
 		}
 	}
 
-	const handleTimeStartSelected = time => {
-		setStartTime(time)
+	const handleTimeStartSelected = async selectedTime => {
+		setStartTime(selectedTime)
 		setIsIrrigating(true)
 		setElapsedTime(7200)
 		setShowStartDrawer(false)
+
+		const startDate = new Date(selectedTime.getFullYear(), selectedTime.getMonth(), selectedTime.getDate())
+
+		const startTime = new Date(1970, 0, 1, selectedTime.getHours(), selectedTime.getMinutes(), 0)
+
+		try {
+			await api.post('irrigations', {
+				landId,
+				wellId: data?.wells[0]?._id,
+				startDate,
+				startTime,
+			})
+		} catch (error) {
+			console.error('خطا در ارسال زمان شروع آبیاری:', error)
+		}
 	}
 
 	const handleTimeEndSelected = time => {
@@ -110,24 +127,22 @@ const LandInfoMobile = ({ data }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
-			dataIndex: 'start',
-			key: 'start',
-			render: value => {
-				const date = moment(value)
-				return (
-					<>
-						<Typography.Text>{date.format('dddd')}</Typography.Text>
-						<br />
-						<Typography.Text>{date.format('jD jMMMM jYYYY')}</Typography.Text>
-					</>
-				)
-			},
+
+			render: record => new Date(record.startedAt).toLocaleDateString('fa-IR'),
+			// value => {
+			// 	const date = moment(value)
+			// 	return (
+			// 		<>
+			// 			<Typography.Text>{date.format('dddd')}</Typography.Text>
+			// 			<br />
+			// 			<Typography.Text>{date.format('jD jMMMM jYYYY')}</Typography.Text>
+			// 		</>
+			// 	)
+			// },
 		},
 		{
 			title: 'ساعت شروع',
-			dataIndex: 'start',
-			key: 'start-time',
-			render: value => moment(value).format('HH:mm'),
+			render: record => (record?.startedAt ? new Date(record?.startedAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
@@ -137,15 +152,15 @@ const LandInfoMobile = ({ data }) => {
 		},
 		{
 			title: 'توضیحات',
-			dataIndex: 'notes',
-			key: 'notes',
-			render: value => {
+			render: record => {
 				return (
 					<Flex align='center' justify='center' gap={8}>
 						<EyeOutlined onClick={() => setIsDescription(true)} style={{ color: '#1890ff' }} />
 						<Modal
 							rootClassName={styles.modalDescription}
-							title={`توضیحات لاگ توزیع آب ${value.start}`}
+							title={`توضیحات لاگ توزیع آب ${
+								record?.startedAt ? new Date(record?.startedAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'
+							}`}
 							footer={false}
 							centered
 							open={isDescription}

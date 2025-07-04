@@ -8,40 +8,49 @@ const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
 const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
-	const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'))
-	const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'))
+	const now = new Date()
 
-	const [hour, setHour] = useState('06')
-	const [minute, setMinute] = useState('28')
+	const getTimeRange = () => {
+		const baseTime = new Date()
+		const timeList = []
 
-	const hourRef = useRef(null)
-	const minuteRef = useRef(null)
+		for (let offset = -30; offset <= 0; offset += 5) {
+			const newTime = new Date(baseTime.getTime() + offset * 60000)
+			const hour = newTime.getHours().toString().padStart(2, '0')
+			const minute = newTime.getMinutes().toString().padStart(2, '0')
+			timeList.push({ hour, minute })
+		}
+		return timeList
+	}
 
-	const scrollToSelected = (ref, index) => {
-		if (ref.current) {
+	const timeRange = getTimeRange()
+
+	const [selectedIndex, setSelectedIndex] = useState(6) // مرکز لیست: زمان فعلی
+	const listRef = useRef(null)
+
+	const scrollToSelected = index => {
+		if (listRef.current) {
 			const scrollPos = index * ITEM_HEIGHT
-			ref.current.scrollTo({ top: scrollPos, behavior: 'instant' })
+			listRef.current.scrollTo({ top: scrollPos, behavior: 'instant' })
 		}
 	}
 
 	useEffect(() => {
-		scrollToSelected(hourRef, hours.indexOf(hour))
-		scrollToSelected(minuteRef, minutes.indexOf(minute))
+		scrollToSelected(selectedIndex)
 	}, [])
 
-	const handleScroll = (e, type) => {
+	const handleScroll = e => {
 		const scrollTop = e.target.scrollTop
 		const index = Math.round(scrollTop / ITEM_HEIGHT)
-		if (type === 'hour' && hours[index]) setHour(hours[index])
-		if (type === 'minute' && minutes[index]) setMinute(minutes[index])
+		if (timeRange[index]) setSelectedIndex(index)
 	}
 
-	const renderList = (items, selected, setSelected, ref, type) => {
+	const renderList = () => {
 		return (
 			<div className='container-scroll' style={{ flex: 1 }}>
 				<div
-					ref={ref}
-					onScroll={e => handleScroll(e, type)}
+					ref={listRef}
+					onScroll={handleScroll}
 					style={{
 						height: ITEM_HEIGHT * VISIBLE_COUNT,
 						overflowY: 'scroll',
@@ -53,9 +62,12 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 					}}
 					className='no-scrollbar'
 				>
-					<div className='container-item-scroll' style={{ paddingTop: ITEM_HEIGHT * CENTER_INDEX, paddingBottom: ITEM_HEIGHT * CENTER_INDEX }}>
-						{items.map((item, idx) => {
-							const isSelected = item === selected
+					<div
+						className='container-item-scroll'
+						style={{ paddingTop: ITEM_HEIGHT * CENTER_INDEX, paddingBottom: ITEM_HEIGHT * CENTER_INDEX, textAlign: 'center' }}
+					>
+						{timeRange.map((time, idx) => {
+							const isSelected = idx === selectedIndex
 							return (
 								<div
 									key={idx}
@@ -68,11 +80,12 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 										fontWeight: isSelected ? '600' : '400',
 										color: isSelected ? 'rgba(0,0,0,0.88)' : 'rgba(30,30,44,0.5)',
 										userSelect: 'none',
+										textAlign: 'center',
 									}}
 									className='item-scroll'
-									onClick={() => setSelected(item)}
+									onClick={() => setSelectedIndex(idx)}
 								>
-									{english2persian(item)}
+									{english2persian(`${time.minute} : ${time.hour}`)}
 								</div>
 							)
 						})}
@@ -83,10 +96,10 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	}
 
 	const handleSubmit = () => {
-		const now = new Date()
+		const selected = timeRange[selectedIndex]
 		const selectedTime = new Date(now)
-		selectedTime.setHours(parseInt(hour))
-		selectedTime.setMinutes(parseInt(minute))
+		selectedTime.setHours(parseInt(selected.hour))
+		selectedTime.setMinutes(parseInt(selected.minute))
 		selectedTime.setSeconds(0)
 		onSubmit && onSubmit(selectedTime)
 	}
@@ -99,11 +112,9 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 				<div className={styles.btn_sheet} />
 
 				<div className={styles.title}>ثبت زمان شروع آبیاری</div>
-
 				<div className={styles.subtitle}>ساعت شروع آبیاری را مشخص کنید.</div>
 
 				<div className={styles.container_time_lines}>
-					{/* خطوط راهنما */}
 					<div
 						style={{
 							position: 'absolute',
@@ -133,9 +144,7 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 						}}
 						className={styles.container_time}
 					>
-						{renderList(minutes, minute, setMinute, minuteRef, 'minute')}
-						<div className={styles.clone}>:</div>
-						{renderList(hours, hour, setHour, hourRef, 'hour')}
+						{renderList()}
 					</div>
 				</div>
 

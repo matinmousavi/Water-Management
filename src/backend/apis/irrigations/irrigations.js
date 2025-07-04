@@ -74,12 +74,17 @@ router.post('/', async (req, res) => {
 		const userId = req.user._id
 		const now = new Date()
 
-		if (isStart && !isAdmin) {
-			startDate = now
-			startTime = now
-			endDate = null
-			endTime = null
+		// if (isStart && !isAdmin) {
+		// 	startDate = now
+		// 	startTime = now
+		// 	endDate = null
+		// 	endTime = null
+		// }
+		if (isStart) {
+			startDate = new Date(startDate)
+			startTime = new Date(startTime)
 		}
+
 		if (isEnd && !isAdmin) {
 			endDate = now
 			endTime = now
