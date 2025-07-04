@@ -18,6 +18,18 @@
 	justify-content: flex-start;
 }
 
+.timerText {
+	color: rgba(82, 196, 26, 1);
+	font-weight: 500;
+	font-size: 16px;
+}
+
+.timerDanger {
+	color: rgba(245, 34, 45, 1);
+	font-weight: 500;
+	font-size: 16px;
+}
+
 @media (min-width: 1280px) {
 	.cardContainer {
 		display: none;

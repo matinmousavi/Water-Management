@@ -111,8 +111,8 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 			<div className={styles.container}>
 				<div className={styles.btn_sheet} />
 
-				<div className={styles.title}>ثبت زمان شروع آبیاری</div>
-				<div className={styles.subtitle}>ساعت شروع آبیاری را مشخص کنید.</div>
+				<div className={styles.title}>ثبت زمان پایان آبیاری</div>
+				<div className={styles.subtitle}>ساعت پایان آبیاری را مشخص کنید.</div>
 
 				<div className={styles.container_time_lines}>
 					<div

@@ -12,6 +12,7 @@ import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import DescriptionModalCell from './components/DescriptionModalCell/DescriptionModalCell'
+import { useIrrigationTimer } from '../../../../../../../contexts/IrrigationTimerContext'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
@@ -30,31 +31,15 @@ const LandInfoMobile = ({ data }) => {
 		}
 	}, [api.data?.land?.logs])
 
-	const [isIrrigating, setIsIrrigating] = useState(false)
-	const [elapsedTime, setElapsedTime] = useState(7200)
+	const { elapsedTime, isIrrigating, startIrrigation, stopIrrigation, landID } = useIrrigationTimer()
+
+	const isCurrentLandIrrigating = isIrrigating && landID === api.data?.land?._id
+
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [startTime, setStartTime] = useState(null)
 	const startY = useRef(0)
-
-	useEffect(() => {
-		let interval = null
-		if (isIrrigating) {
-			interval = setInterval(() => {
-				setElapsedTime(prev => {
-					if (prev <= 1) {
-						clearInterval(interval)
-						return 0
-					}
-					return prev - 1
-				})
-			}, 1000)
-		} else {
-			clearInterval(interval)
-		}
-		return () => clearInterval(interval)
-	}, [isIrrigating])
 
 	const formatTime = seconds => {
 		const hrs = Math.floor(seconds / 3600)
@@ -82,8 +67,7 @@ const LandInfoMobile = ({ data }) => {
 
 	const handleTimeStartSelected = async selectedTime => {
 		setStartTime(selectedTime)
-		setIsIrrigating(true)
-		setElapsedTime(7200)
+		startIrrigation(landId)
 		setShowStartDrawer(false)
 
 		try {
@@ -105,8 +89,7 @@ const LandInfoMobile = ({ data }) => {
 
 	const handleTimeEndSelected = async time => {
 		setStartTime(time)
-		setIsIrrigating(false)
-		setElapsedTime(7200)
+		stopIrrigation()
 		setShowEndDrawer(false)
 
 		try {
@@ -133,12 +116,11 @@ const LandInfoMobile = ({ data }) => {
 	const handleEndNotice = () => {
 		setEndNoticeDrawer(false)
 		setShowEndDrawer(true)
-		setIsIrrigating(false)
+		stopIrrigation(false)
 	}
 
 	const CancelTimeEnd = () => {
 		setEndNoticeDrawer(false)
-		setIsIrrigating(true)
 		setShowEndDrawer(false)
 	}
 
@@ -155,7 +137,7 @@ const LandInfoMobile = ({ data }) => {
 			title: 'تاریخ',
 			dataIndex: 'startedAt',
 			key: 'date',
-			render: value => moment(value).format('jYYYY/jMM/jDD'),
+			render: value => moment(value).format('dddd jD jMMMM jYYYY'),
 		},
 		{
 			title: 'ساعت شروع',
@@ -173,9 +155,20 @@ const LandInfoMobile = ({ data }) => {
 				if (!record.duration) {
 					return '--'
 				}
+
 				const parts = record.duration.split(':')
-				const minutes = Number(parts[0]) * 60 + Number(parts[1])
-				return `${minutes} دقیقه`
+				const hours = Number(parts[0])
+				const minutes = Number(parts[1])
+
+				if (hours === 0) {
+					return `${minutes} دقیقه`
+				}
+
+				let result = `${hours} ساعت`
+				if (minutes > 0) {
+					result += ` و ${minutes} دقیقه`
+				}
+				return result
 			},
 		},
 		{
@@ -210,9 +203,8 @@ const LandInfoMobile = ({ data }) => {
 				</Card>
 			</Flex>
 
-			{/* دکمه پایین */}
 			<div className={styles.footer}>
-				{isIrrigating ? (
+				{isCurrentLandIrrigating ? (
 					<>
 						<Text className={`${styles.timerText} ${elapsedTime <= 900 ? styles.timerDanger : ''}`}>{formatTime(elapsedTime)}</Text>
 						<Button type='default' className={` ${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
