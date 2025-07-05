@@ -9,31 +9,26 @@ const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
 const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	const now = new Date()
-	const [selectedIndex, setSelectedIndex] = useState(6)
+	const [minuteRange, setMinuteRange] = useState([])
+	const [selectedIndex, setSelectedIndex] = useState(30)
 	const listRef = useRef(null)
 
-	const getMinuteRange = () => {
+	useEffect(() => {
 		const base = new Date()
 		const list = []
-		for (let i = -30; i <= 0; i += 5) {
+		for (let i = -30; i <= 0; i++) {
 			const newTime = new Date(base.getTime() + i * 60000)
 			list.push(newTime)
 		}
-		return list
-	}
-
-	const minuteRange = getMinuteRange()
-
-	const scrollToSelected = index => {
-		if (listRef.current) {
-			const scrollPos = index * ITEM_HEIGHT
-			listRef.current.scrollTo({ top: scrollPos, behavior: 'instant' })
-		}
-	}
+		setMinuteRange(list)
+	}, [])
 
 	useEffect(() => {
-		scrollToSelected(selectedIndex)
-	}, [])
+		if (listRef.current && minuteRange.length > 0) {
+			const scrollPos = selectedIndex * ITEM_HEIGHT
+			listRef.current.scrollTo({ top: scrollPos, behavior: 'instant' })
+		}
+	}, [minuteRange, selectedIndex])
 
 	const handleScroll = e => {
 		const scrollTop = e.target.scrollTop
@@ -42,6 +37,8 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	}
 
 	const selectedTime = minuteRange[selectedIndex] || now
+	const selectedMinute = selectedTime.getMinutes().toString().padStart(2, '0')
+	const selectedHour = selectedTime.getHours().toString().padStart(2, '0')
 
 	const renderMinuteList = () => (
 		<div className='container-scroll'>
@@ -75,7 +72,7 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 								key={idx}
 								style={{
 									height: ITEM_HEIGHT,
-									lineHeight: `${ITEM_HEIGHT}px`,
+									lineHeight: `60px`,
 									scrollSnapAlign: 'center',
 									fontSize: 20,
 									padding: '0 10px',
@@ -106,7 +103,6 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
 				<div className={styles.btn_sheet} />
-
 				<div className={styles.title}>ثبت زمان شروع آبیاری</div>
 				<div className={styles.subtitle}>ساعت شروع آبیاری را مشخص کنید.</div>
 
@@ -144,10 +140,8 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 						}}
 					>
 						{renderMinuteList()}
-
 						<div className={styles.clone}>:</div>
-
-						<div className={styles.hour}>{english2persian(selectedTime.getHours().toString().padStart(2, '0'))}</div>
+						<div className={styles.hour}>{english2persian(selectedHour)}</div>
 					</div>
 				</div>
 

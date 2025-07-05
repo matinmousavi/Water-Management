@@ -7,100 +7,93 @@ const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
-const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
+const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	const now = new Date()
-
-	const getTimeRange = () => {
-		const baseTime = new Date()
-		const timeList = []
-
-		for (let offset = -30; offset <= 0; offset += 5) {
-			const newTime = new Date(baseTime.getTime() + offset * 60000)
-			const hour = newTime.getHours().toString().padStart(2, '0')
-			const minute = newTime.getMinutes().toString().padStart(2, '0')
-			timeList.push({ hour, minute })
-		}
-		return timeList
-	}
-
-	const timeRange = getTimeRange()
-
-	const [selectedIndex, setSelectedIndex] = useState(6) // مرکز لیست: زمان فعلی
+	const [minuteRange, setMinuteRange] = useState([])
+	const [selectedIndex, setSelectedIndex] = useState(30)
 	const listRef = useRef(null)
 
-	const scrollToSelected = index => {
-		if (listRef.current) {
-			const scrollPos = index * ITEM_HEIGHT
-			listRef.current.scrollTo({ top: scrollPos, behavior: 'instant' })
+	useEffect(() => {
+		const base = new Date()
+		const list = []
+		for (let i = -30; i <= 0; i++) {
+			const newTime = new Date(base.getTime() + i * 60000)
+			list.push(newTime)
 		}
-	}
+		setMinuteRange(list)
+	}, [])
 
 	useEffect(() => {
-		scrollToSelected(selectedIndex)
-	}, [])
+		if (listRef.current && minuteRange.length > 0) {
+			const scrollPos = selectedIndex * ITEM_HEIGHT
+			listRef.current.scrollTo({ top: scrollPos, behavior: 'instant' })
+		}
+	}, [minuteRange, selectedIndex])
 
 	const handleScroll = e => {
 		const scrollTop = e.target.scrollTop
 		const index = Math.round(scrollTop / ITEM_HEIGHT)
-		if (timeRange[index]) setSelectedIndex(index)
+		if (minuteRange[index]) setSelectedIndex(index)
 	}
 
-	const renderList = () => {
-		return (
-			<div className='container-scroll' style={{ flex: 1 }}>
+	const selectedTime = minuteRange[selectedIndex] || now
+	const selectedMinute = selectedTime.getMinutes().toString().padStart(2, '0')
+	const selectedHour = selectedTime.getHours().toString().padStart(2, '0')
+
+	const renderMinuteList = () => (
+		<div className='container-scroll'>
+			<div
+				ref={listRef}
+				onScroll={handleScroll}
+				style={{
+					height: ITEM_HEIGHT * VISIBLE_COUNT,
+					overflowY: 'scroll',
+					scrollSnapType: 'y mandatory',
+					scrollPaddingTop: `${ITEM_HEIGHT * CENTER_INDEX}px`,
+					scrollPaddingBottom: `${ITEM_HEIGHT * CENTER_INDEX}px`,
+					scrollbarWidth: 'none',
+					msOverflowStyle: 'none',
+				}}
+				className='no-scrollbar'
+			>
 				<div
-					ref={listRef}
-					onScroll={handleScroll}
+					className='container-item-scroll'
 					style={{
-						height: ITEM_HEIGHT * VISIBLE_COUNT,
-						overflowY: 'scroll',
-						scrollSnapType: 'y mandatory',
-						scrollPaddingTop: `${ITEM_HEIGHT * CENTER_INDEX}px`,
-						scrollPaddingBottom: `${ITEM_HEIGHT * CENTER_INDEX}px`,
-						scrollbarWidth: 'none',
-						msOverflowStyle: 'none',
+						paddingTop: ITEM_HEIGHT * CENTER_INDEX,
+						paddingBottom: ITEM_HEIGHT * CENTER_INDEX,
+						textAlign: 'center',
 					}}
-					className='no-scrollbar'
 				>
-					<div
-						className='container-item-scroll'
-						style={{ paddingTop: ITEM_HEIGHT * CENTER_INDEX, paddingBottom: ITEM_HEIGHT * CENTER_INDEX, textAlign: 'center' }}
-					>
-						{timeRange.map((time, idx) => {
-							const isSelected = idx === selectedIndex
-							return (
-								<div
-									key={idx}
-									style={{
-										height: ITEM_HEIGHT,
-										lineHeight: `${ITEM_HEIGHT}px`,
-										scrollSnapAlign: 'center',
-										fontSize: 20,
-										padding: '0 10px',
-										fontWeight: isSelected ? '600' : '400',
-										color: isSelected ? 'rgba(0,0,0,0.88)' : 'rgba(30,30,44,0.5)',
-										userSelect: 'none',
-										textAlign: 'center',
-									}}
-									className='item-scroll'
-									onClick={() => setSelectedIndex(idx)}
-								>
-									{english2persian(`${time.minute} : ${time.hour}`)}
-								</div>
-							)
-						})}
-					</div>
+					{minuteRange.map((time, idx) => {
+						const isSelected = idx === selectedIndex
+						const minute = time.getMinutes().toString().padStart(2, '0')
+						return (
+							<div
+								key={idx}
+								style={{
+									height: ITEM_HEIGHT,
+									lineHeight: `60px`,
+									scrollSnapAlign: 'center',
+									fontSize: 20,
+									padding: '0 10px',
+									fontWeight: isSelected ? '600' : '400',
+									color: isSelected ? 'rgba(0,0,0,0.88)' : 'rgba(30,30,44,0.5)',
+									userSelect: 'none',
+									textAlign: 'center',
+								}}
+								className='item-scroll'
+								onClick={() => setSelectedIndex(idx)}
+							>
+								{english2persian(minute)}
+							</div>
+						)
+					})}
 				</div>
 			</div>
-		)
-	}
+		</div>
+	)
 
 	const handleSubmit = () => {
-		const selected = timeRange[selectedIndex]
-		const selectedTime = new Date(now)
-		selectedTime.setHours(parseInt(selected.hour))
-		selectedTime.setMinutes(parseInt(selected.minute))
-		selectedTime.setSeconds(0)
 		onSubmit && onSubmit(selectedTime)
 	}
 
@@ -110,7 +103,6 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
 				<div className={styles.btn_sheet} />
-
 				<div className={styles.title}>ثبت زمان پایان آبیاری</div>
 				<div className={styles.subtitle}>ساعت پایان آبیاری را مشخص کنید.</div>
 
@@ -141,10 +133,15 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 					<div
 						style={{
 							height: ITEM_HEIGHT * VISIBLE_COUNT,
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							gap: 8,
 						}}
-						className={styles.container_time}
 					>
-						{renderList()}
+						{renderMinuteList()}
+						<div className={styles.clone}>:</div>
+						<div className={styles.hour}>{english2persian(selectedHour)}</div>
 					</div>
 				</div>
 
@@ -161,4 +158,4 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	)
 }
 
-export default TimeEndPickerSheet
+export default TimeStartPickerSheet
