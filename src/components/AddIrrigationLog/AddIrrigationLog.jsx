@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { Button, Flex, Modal, Form } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
-import useAPI from '../../../../../../../hooks/useAPI'
-import useNotification from '../../../../../../../hooks/useNotification'
-import { useUser } from '../../../../../../../contexts/UserContext'
-import AdminLandLogForm from '../AdminLandLogForm/AdminLandLogForm'
-import IrrigatorLandLogForm from '../IrrigatorLandLogForm/IrrigatorLandLogForm'
+import useAPI from '../../hooks/useAPI'
+import useNotification from '../../hooks/useNotification'
+import { useUser } from '../../contexts/UserContext'
+import IrrigationLogForm from '../IrrigationLogForm/IrrigationLogForm'
 
-const LandAddLog = ({ setLogs, wellId }) => {
+const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well' }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [form] = Form.useForm()
 	const irrigationApi = useAPI()
@@ -30,25 +29,46 @@ const LandAddLog = ({ setLogs, wellId }) => {
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-			const payload = { wellId: values.wellId, landId, notes: {} }
 
-			if (isAdmin) {
-				payload.startDate = values.startDate
-				payload.startTime = values.startTime
-				payload.isOngoing = values.isOngoing
-				payload.endTime = values.isOngoing ? null : values.endTime
-				payload.notes = values.note
-			} else {
-				if (values.isStart) {
-					payload.startDate = new Date()
-					payload.startTime = new Date()
+			let payload = {}
+
+			if (page === 'land') {
+				payload = { wellId: values.wellId || wellId, landId: landId, notes: {} }
+
+				if (isAdmin) {
+					payload.startDate = values.startDate
+					payload.startTime = values.startTime
+					payload.endDate = values.endDate
+					payload.endTime = values.endTime
+					payload.isOngoing = values.isOngoing
+					payload.endTime = values.isOngoing ? null : values.endTime
+					payload.note = values.note
+				} else {
+					payload.startTime = values.startTime
 					payload.endTime = null
-					payload.isStart = true
 				}
-				if (values.isEnd) {
-					payload.endDate = new Date()
-					payload.endTime = new Date()
-					payload.isStart = false
+			} else if (page === 'well') {
+				payload = { wellId, landId: values.landId }
+
+				if (isAdmin) {
+					payload.startDate = values.startDate
+					payload.startTime = values.startTime
+					payload.isOngoing = values.isOngoing
+					payload.endTime = values.isOngoing ? null : values.endTime
+					payload.endDate = values.isOngoing ? null : values.endDate
+					payload.note = values.note
+				} else {
+					if (values.isStart) {
+						payload.startDate = values.startDate
+						payload.startTime = values.startTime
+						payload.endTime = null
+						payload.isStart = true
+					}
+					if (values.isEnd) {
+						payload.endTime = values.endTime
+						payload.endDate = values.endDate
+						payload.isStart = false
+					}
 				}
 			}
 
@@ -88,10 +108,10 @@ const LandAddLog = ({ setLogs, wellId }) => {
 				loading={landsApi.isLoading}
 				forceRender
 			>
-				{isAdmin ? <AdminLandLogForm form={form} /> : <IrrigatorLandLogForm type='add' form={form} lands={landsApi.data.lands} />}
+				<IrrigationLogForm page={page} mode='add' type={isAdmin ? 'admin' : 'irrigator'} form={form} lands={landsApi.data.lands} />
 			</Modal>
 		</>
 	)
 }
 
-export default LandAddLog
+export default AddIrrigationLog

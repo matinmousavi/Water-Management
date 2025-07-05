@@ -14,26 +14,11 @@ const router = Router()
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-// const mergeDateTime = (dateStr, timeStr) => {
-// 	const date = dayjs(dateStr)
-// 	const time = dayjs(timeStr)
-// 	const combined = date.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
-// 	return combined.utc().toDate()
-// }
-
-function mergeDateTime(date, timeStr) {
-	try {
-		const [hours, minutes, seconds = '0'] = timeStr.split(':')
-		const newDate = new Date(date)
-		newDate.setHours(Number(hours))
-		newDate.setMinutes(Number(minutes))
-		newDate.setSeconds(Number(seconds))
-		newDate.setMilliseconds(0)
-		return newDate
-	} catch (err) {
-		console.error('❌ Error in mergeDateTime:', err)
-		return null
-	}
+const mergeDateTime = (dateStr, timeStr) => {
+	const date = dayjs(dateStr)
+	const time = dayjs(timeStr)
+	const combined = date.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
+	return combined.utc().toDate()
 }
 
 // GET all irrigations
@@ -84,7 +69,7 @@ router.get('/:irrigationId', async (req, res) => {
 // POST create irrigation
 router.post('/', async (req, res) => {
 	try {
-		const { landId, wellId, startDate, startTime, endDate, endTime, notes } = req.body
+		const { landId, wellId, startDate, startTime, endDate, endTime, note } = req.body
 		let { isOngoing } = req.body
 		const userId = req.user._id
 		const now = new Date()
@@ -95,11 +80,7 @@ router.post('/', async (req, res) => {
 			startedAt = mergeDateTime(startDate, startTime)
 		} else if (startTime) {
 			startedAt = mergeDateTime(now, startTime)
-			console.log('✅ startedAt:', startedAt, isNaN(startedAt.getTime()) ? '❌ Invalid' : '✅ Valid')
 		}
-
-		console.log('📥 startTime:', startTime)
-		console.log('✅ startedAt:', startedAt)
 
 		if (endDate && endTime) {
 			endedAt = mergeDateTime(endDate, endTime)
@@ -118,7 +99,7 @@ router.post('/', async (req, res) => {
 			well: wellId,
 			startedAt,
 			endedAt,
-			notes,
+			note,
 			isOngoing,
 			createdBy: userId,
 		})
@@ -146,7 +127,7 @@ router.post('/', async (req, res) => {
 
 		return res.status(201).json({ message: 'آبیاری با موفقیت ثبت شد.', irrigation })
 	} catch (err) {
-		console.error('❌ Server error in POST /irrigation:', err)
+		console.error(err)
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
 			const field = firstError.path
@@ -175,8 +156,8 @@ router.patch('/:irrigationId', async (req, res) => {
 
 		if (startDate && startTime) {
 			irrigation.startedAt = mergeDateTime(startDate, startTime)
-		} else if (startDate || startTime) {
-			irrigation.startedAt = now
+		} else if (startTime) {
+			irrigation.startedAt = mergeDateTime(now, startTime)
 		}
 
 		if (endDate && endTime) {
@@ -187,16 +168,19 @@ router.patch('/:irrigationId', async (req, res) => {
 			irrigation.isOngoing = false
 		}
 
-		console.log('📥 endTime:', endTime)
-		console.log('✅ endedAt:', irrigation.endedAt)
-
 		Object.entries(otherFields).forEach(([key, val]) => {
 			irrigation[key] = val
 		})
 
 		await irrigation.save()
 
-		const updated = await Irrigation.findById(irrigationId).populate('land', 'title').populate('well', 'title').populate('createdBy', 'firstName lastName')
+		const updated = await Irrigation.findById(irrigationId)
+			.populate({
+				path: 'land',
+				populate: [{ path: 'owner', select: 'firstName lastName mobile' }],
+			})
+			.populate('well', 'title')
+			.populate('createdBy', 'firstName lastName')
 
 		const land = await Land.findById(updated.land._id).populate('owner', 'mobile')
 		if (land?.owner?.mobile) {

@@ -14,8 +14,6 @@ import { useParams } from 'react-router'
 import DescriptionModalCell from './components/DescriptionModalCell/DescriptionModalCell'
 import { useIrrigationTimer } from '../../../../../../../contexts/IrrigationTimerContext'
 
-moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
-
 const { Text } = Typography
 
 const LandInfoMobile = ({ data }) => {
@@ -24,6 +22,14 @@ const LandInfoMobile = ({ data }) => {
 	api.init(`lands/${landId}`)
 
 	const [logs, setLogs] = useState([])
+	const [startTime, setStartTime] = useState(null)
+	const [showStartDrawer, setShowStartDrawer] = useState(false)
+	const [showEndDrawer, setShowEndDrawer] = useState(false)
+	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
+
+	const startY = useRef(0)
+	const { elapsedTime, isIrrigating, startIrrigation, stopIrrigation, landID } = useIrrigationTimer()
+	const isCurrentLandIrrigating = isIrrigating && landID === api.data?.land?._id
 
 	useEffect(() => {
 		if (api.data?.land?.logs) {
@@ -31,26 +37,18 @@ const LandInfoMobile = ({ data }) => {
 		}
 	}, [api.data?.land?.logs])
 
-	const { elapsedTime, isIrrigating, startIrrigation, stopIrrigation, landID } = useIrrigationTimer()
-
-	const isCurrentLandIrrigating = isIrrigating && landID === api.data?.land?._id
-
-	const [showStartDrawer, setShowStartDrawer] = useState(false)
-	const [showEndDrawer, setShowEndDrawer] = useState(false)
-	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
-	const [startTime, setStartTime] = useState(null)
-	const startY = useRef(0)
+	const refreshLogs = async () => {
+		await api.init(`lands/${landId}`, false, true)
+		if (api.data?.land?.logs) {
+			setLogs(api.data.land.logs)
+		}
+	}
 
 	const formatTime = seconds => {
 		const hrs = Math.floor(seconds / 3600)
 		const mins = Math.floor((seconds % 3600) / 60)
 		const secs = seconds % 60
 		return `  ${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
-	}
-
-	const handleStop = () => {
-		setEndNoticeDrawer(true)
-		setStartTime(null)
 	}
 
 	const handleTouchStart = e => {
@@ -71,17 +69,18 @@ const LandInfoMobile = ({ data }) => {
 		setShowStartDrawer(false)
 
 		try {
+			// ترکیب تاریخ امروز با زمان انتخاب شده (فرض شده selectedTime فرمت 'HH:mm' داره)
+			const now = moment()
+			const time = moment(selectedTime, 'HH:mm')
+			const combined = now.clone().hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
+
 			await api.post('irrigations', {
 				landId,
 				wellId: data?.wells[0]?._id,
-				startTime: selectedTime.toTimeString().split(' ')[0],
+				startTime: combined.toISOString(), // فرمت ISO کامل
 				isOngoing: true,
 			})
-
-			await api.init(`lands/${landId}`, false, true)
-			if (api.data?.land?.logs) {
-				setLogs(api.data.land.logs)
-			}
+			await refreshLogs()
 		} catch (error) {
 			console.error('خطا در ارسال زمان شروع آبیاری:', error)
 		}
@@ -93,24 +92,25 @@ const LandInfoMobile = ({ data }) => {
 		setShowEndDrawer(false)
 
 		try {
-			const ongoingIrrigation = api.data?.land?.logs?.find(item => item.isOngoing)
-			if (!ongoingIrrigation) {
-				return
-			}
+			const ongoing = api.data?.land?.logs?.find(item => item.isOngoing)
+			if (!ongoing) return
 
-			const irrigationId = ongoingIrrigation._id
+			const now = moment()
+			const timeMoment = moment(time, 'HH:mm')
+			const combined = now.clone().hour(timeMoment.hour()).minute(timeMoment.minute()).second(0).millisecond(0)
 
-			await api.patch(`irrigations/${irrigationId}`, {
-				endTime: time.toTimeString().split(' ')[0],
+			await api.patch(`irrigations/${ongoing._id}`, {
+				endTime: combined.toISOString(),
 			})
-
-			await api.init(`lands/${landId}`, false, true)
-			if (api.data?.land?.logs) {
-				setLogs(api.data.land.logs)
-			}
+			await refreshLogs()
 		} catch (error) {
 			console.error('خطا در ثبت زمان پایان آبیاری:', error)
 		}
+	}
+
+	const handleStop = () => {
+		setEndNoticeDrawer(true)
+		setStartTime(null)
 	}
 
 	const handleEndNotice = () => {
@@ -129,7 +129,7 @@ const LandInfoMobile = ({ data }) => {
 		{ icon: iconPhone, title: 'شماره تماس', value: data?.owner?.mobile },
 		{ icon: iconLocation, title: 'آدرس زمین', value: data?.location },
 		{ icon: iconClock, title: 'زمان آبیاری بعدی', value: moment(data?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
-		{ icon: iconClock, title: 'آخرین زمان آبیاری', value: moment(data?.createAt).format('dddd jD jMMMM jYYYY') || '-' },
+		{ icon: iconClock, title: 'آخرین زمان آبیاری', value: moment(data?.createdAt).format('dddd jD jMMMM jYYYY') || '-' },
 	]
 
 	const columns = [
@@ -149,26 +149,11 @@ const LandInfoMobile = ({ data }) => {
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
 			render: (text, record) => {
-				if (record.isOngoing) {
-					return 'در حال آبیاری'
-				}
-				if (!record.duration) {
-					return '--'
-				}
+				if (record.isOngoing) return 'در حال آبیاری'
+				if (!record.duration) return '--'
 
-				const parts = record.duration.split(':')
-				const hours = Number(parts[0])
-				const minutes = Number(parts[1])
-
-				if (hours === 0) {
-					return `${minutes} دقیقه`
-				}
-
-				let result = `${hours} ساعت`
-				if (minutes > 0) {
-					result += ` و ${minutes} دقیقه`
-				}
-				return result
+				const [h, m] = record.duration.split(':').map(Number)
+				return h === 0 ? `${m} دقیقه` : `${h} ساعت${m > 0 ? ` و ${m} دقیقه` : ''}`
 			},
 		},
 		{
@@ -177,13 +162,14 @@ const LandInfoMobile = ({ data }) => {
 			render: record => <DescriptionModalCell record={record} />,
 		},
 	]
+
 	return (
 		<div className={styles.container}>
 			<Flex gap={16} vertical>
 				<Card className={styles.card}>
 					<Flex vertical gap={8}>
-						{listItems.map((item, index) => (
-							<Flex className={styles.itemCaar} key={index} gap={10} align='center' justify='center'>
+						{listItems.map((item, idx) => (
+							<Flex className={styles.itemCaar} key={idx} gap={10} align='center' justify='center'>
 								<Flex gap={8} className={styles.cardType}>
 									<img src={item.icon} alt='icon' />
 									<Text>{item.title}</Text>
@@ -195,10 +181,11 @@ const LandInfoMobile = ({ data }) => {
 						))}
 					</Flex>
 				</Card>
+
 				<Card>
 					<Flex vertical gap={8}>
 						<Text>لاگ توزیع آب ({logs?.length})</Text>
-						<Table scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={logs} columns={columns} />
+						<Table rowKey='_id' scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={logs} columns={columns} />
 					</Flex>
 				</Card>
 			</Flex>
@@ -207,7 +194,7 @@ const LandInfoMobile = ({ data }) => {
 				{isCurrentLandIrrigating ? (
 					<>
 						<Text className={`${styles.timerText} ${elapsedTime <= 900 ? styles.timerDanger : ''}`}>{formatTime(elapsedTime)}</Text>
-						<Button type='default' className={` ${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
+						<Button type='default' className={`${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>
@@ -223,11 +210,13 @@ const LandInfoMobile = ({ data }) => {
 					<TimeStartPickerSheet onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 				</div>
 			</Drawer>
+
 			<Drawer title={null} placement='bottom' height='auto' open={showEndDrawer} onClose={() => setShowEndDrawer(false)} closable={false}>
 				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 					<TimeEndPickerSheet onSubmit={handleTimeEndSelected} onClose={CancelTimeEnd} />
 				</div>
 			</Drawer>
+
 			<Drawer title={null} placement='bottom' height='auto' open={endNoticeDrawer} onClose={() => setEndNoticeDrawer(false)} closable={false}>
 				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(elapsedTime)} onClose={CancelTimeEnd} />

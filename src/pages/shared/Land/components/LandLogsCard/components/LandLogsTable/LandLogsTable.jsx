@@ -4,12 +4,13 @@ import { DeleteTwoTone, EditOutlined, EyeTwoTone } from '@ant-design/icons'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
-import LandEditLog from '../LandEditLog/LandEditLog'
+import moment from 'moment-jalaali'
+import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
 const LandLogsTable = ({ data, setLogs }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
-	const { open, close, isOpen } = useModal()
+	const { open, close } = useModal()
 	const [selectedLog, setSelectedLog] = useState(null)
 
 	const handleDelete = async irrigationsId => {
@@ -32,23 +33,18 @@ const LandLogsTable = ({ data, setLogs }) => {
 	const columns = [
 		{
 			title: 'تاریخ ',
-			render: record => new Date(record.startedAt).toLocaleDateString('fa-IR'),
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : '--'),
 		},
 		{
 			title: 'ساعت شروع',
-			render: record => (record.startedAt ? new Date(record.startedAt).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'),
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('HH:mm') : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
 			render: (_, record) => {
-				if (!record.endTime) return 'در حال آبیاری'
-				const start = new Date(record.startTime)
-				const end = new Date(record.endTime)
-				const totalMinutes = Math.floor((end - start) / (1000 * 60))
-				const hours = Math.floor(totalMinutes / 60)
-				const minutes = totalMinutes % 60
-				return `${hours}:${minutes.toString().padStart(2, '0')}`
+				if (!record.endedAt) return 'در حال آبیاری'
+				return `${record.duration}`
 			},
 		},
 		{
@@ -74,14 +70,16 @@ const LandLogsTable = ({ data, setLogs }) => {
 	return (
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
-			{selectedLog && isOpen && (
-				<LandEditLog
-					logData={selectedLog}
+
+			{selectedLog && (
+				<EditIrrigationLog
+					data={selectedLog}
 					setLogs={setLogs}
 					onClose={() => {
-						close()
 						setSelectedLog(null)
+						close()
 					}}
+					page='land'
 				/>
 			)}
 		</>

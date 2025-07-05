@@ -85,11 +85,13 @@ const columns = [
 		title: 'آدرس ایمیل',
 		dataIndex: 'email',
 		key: 'email',
+		render: email => email || '--',
 	},
 	{
 		title: 'کد حسابداری',
 		dataIndex: 'accountingCode',
 		key: 'accountingCode',
+		render: accountingCode => accountingCode || '--',
 	},
 	{
 		title: 'وضعیت',

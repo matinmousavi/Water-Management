@@ -6,6 +6,7 @@ import useAPI from '../../../../../../../hooks/useAPI'
 import { useUser } from '../../../../../../../contexts/UserContext'
 import useModal from '../../../../../../../hooks/useModal'
 import { useState } from 'react'
+import moment from 'moment-jalaali'
 
 const WellLandsTable = ({ data, setData, wellId }) => {
 	const wellApi = useAPI()
@@ -59,9 +60,9 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 		},
 		{
 			title: 'آخرین زمان آبیاری',
-			dataIndex: 'lastDateIrrigation',
-			key: 'lastDateIrrigation',
-			render: (_, record) => record?.logs || '--',
+			dataIndex: 'lastIrrigatedAt',
+			key: 'lastIrrigatedAt',
+			render: (_, record) => (record?.lastIrrigatedAt ? moment(record.lastIrrigatedAt).locale('fa').format('dddd jD jMMMM jYYYY - ساعت HH:mm') : '--'),
 		},
 		{
 			title: 'زمان آبیاری بعدی',

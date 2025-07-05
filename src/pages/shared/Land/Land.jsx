@@ -71,7 +71,7 @@ const Land = () => {
 					</Flex>
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
 					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
-					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} />
+					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} />
 					{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}

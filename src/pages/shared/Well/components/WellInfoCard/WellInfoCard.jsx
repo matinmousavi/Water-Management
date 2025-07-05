@@ -23,7 +23,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: irrigator?.mobile || '--',
 			},
 			{
-				label: 'License Code',
+				label: 'لایسنس کد',
 				value: well?.licenseCode || '--',
 			},
 			{
