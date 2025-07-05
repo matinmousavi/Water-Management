@@ -9,24 +9,20 @@ const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
 const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	const now = new Date()
+	const [selectedIndex, setSelectedIndex] = useState(6)
+	const listRef = useRef(null)
 
-	const getTimeRange = () => {
-		const baseTime = new Date()
-		const timeList = []
-
-		for (let offset = -30; offset <= 0; offset += 5) {
-			const newTime = new Date(baseTime.getTime() + offset * 60000)
-			const hour = newTime.getHours().toString().padStart(2, '0')
-			const minute = newTime.getMinutes().toString().padStart(2, '0')
-			timeList.push({ hour, minute })
+	const getMinuteRange = () => {
+		const base = new Date()
+		const list = []
+		for (let i = -30; i <= 0; i += 5) {
+			const newTime = new Date(base.getTime() + i * 60000)
+			list.push(newTime)
 		}
-		return timeList
+		return list
 	}
 
-	const timeRange = getTimeRange()
-
-	const [selectedIndex, setSelectedIndex] = useState(6) // مرکز لیست: زمان فعلی
-	const listRef = useRef(null)
+	const minuteRange = getMinuteRange()
 
 	const scrollToSelected = index => {
 		if (listRef.current) {
@@ -42,65 +38,65 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	const handleScroll = e => {
 		const scrollTop = e.target.scrollTop
 		const index = Math.round(scrollTop / ITEM_HEIGHT)
-		if (timeRange[index]) setSelectedIndex(index)
+		if (minuteRange[index]) setSelectedIndex(index)
 	}
 
-	const renderList = () => {
-		return (
-			<div className='container-scroll' style={{ flex: 1 }}>
+	const selectedTime = minuteRange[selectedIndex] || now
+
+	const renderMinuteList = () => (
+		<div className='container-scroll'>
+			<div
+				ref={listRef}
+				onScroll={handleScroll}
+				style={{
+					height: ITEM_HEIGHT * VISIBLE_COUNT,
+					overflowY: 'scroll',
+					scrollSnapType: 'y mandatory',
+					scrollPaddingTop: `${ITEM_HEIGHT * CENTER_INDEX}px`,
+					scrollPaddingBottom: `${ITEM_HEIGHT * CENTER_INDEX}px`,
+					scrollbarWidth: 'none',
+					msOverflowStyle: 'none',
+				}}
+				className='no-scrollbar'
+			>
 				<div
-					ref={listRef}
-					onScroll={handleScroll}
+					className='container-item-scroll'
 					style={{
-						height: ITEM_HEIGHT * VISIBLE_COUNT,
-						overflowY: 'scroll',
-						scrollSnapType: 'y mandatory',
-						scrollPaddingTop: `${ITEM_HEIGHT * CENTER_INDEX}px`,
-						scrollPaddingBottom: `${ITEM_HEIGHT * CENTER_INDEX}px`,
-						scrollbarWidth: 'none',
-						msOverflowStyle: 'none',
+						paddingTop: ITEM_HEIGHT * CENTER_INDEX,
+						paddingBottom: ITEM_HEIGHT * CENTER_INDEX,
+						textAlign: 'center',
 					}}
-					className='no-scrollbar'
 				>
-					<div
-						className='container-item-scroll'
-						style={{ paddingTop: ITEM_HEIGHT * CENTER_INDEX, paddingBottom: ITEM_HEIGHT * CENTER_INDEX, textAlign: 'center' }}
-					>
-						{timeRange.map((time, idx) => {
-							const isSelected = idx === selectedIndex
-							return (
-								<div
-									key={idx}
-									style={{
-										height: ITEM_HEIGHT,
-										lineHeight: `${ITEM_HEIGHT}px`,
-										scrollSnapAlign: 'center',
-										fontSize: 20,
-										padding: '0 10px',
-										fontWeight: isSelected ? '600' : '400',
-										color: isSelected ? 'rgba(0,0,0,0.88)' : 'rgba(30,30,44,0.5)',
-										userSelect: 'none',
-										textAlign: 'center',
-									}}
-									className='item-scroll'
-									onClick={() => setSelectedIndex(idx)}
-								>
-									{english2persian(`${time.minute} : ${time.hour}`)}
-								</div>
-							)
-						})}
-					</div>
+					{minuteRange.map((time, idx) => {
+						const isSelected = idx === selectedIndex
+						const minute = time.getMinutes().toString().padStart(2, '0')
+						return (
+							<div
+								key={idx}
+								style={{
+									height: ITEM_HEIGHT,
+									lineHeight: `${ITEM_HEIGHT}px`,
+									scrollSnapAlign: 'center',
+									fontSize: 20,
+									padding: '0 10px',
+									fontWeight: isSelected ? '600' : '400',
+									color: isSelected ? 'rgba(0,0,0,0.88)' : 'rgba(30,30,44,0.5)',
+									userSelect: 'none',
+									textAlign: 'center',
+								}}
+								className='item-scroll'
+								onClick={() => setSelectedIndex(idx)}
+							>
+								{english2persian(minute)}
+							</div>
+						)
+					})}
 				</div>
 			</div>
-		)
-	}
+		</div>
+	)
 
 	const handleSubmit = () => {
-		const selected = timeRange[selectedIndex]
-		const selectedTime = new Date(now)
-		selectedTime.setHours(parseInt(selected.hour))
-		selectedTime.setMinutes(parseInt(selected.minute))
-		selectedTime.setSeconds(0)
 		onSubmit && onSubmit(selectedTime)
 	}
 
@@ -141,10 +137,17 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 					<div
 						style={{
 							height: ITEM_HEIGHT * VISIBLE_COUNT,
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							gap: 8,
 						}}
-						className={styles.container_time}
 					>
-						{renderList()}
+						{renderMinuteList()}
+
+						<div className={styles.clone}>:</div>
+
+						<div className={styles.hour}>{english2persian(selectedTime.getHours().toString().padStart(2, '0'))}</div>
 					</div>
 				</div>
 

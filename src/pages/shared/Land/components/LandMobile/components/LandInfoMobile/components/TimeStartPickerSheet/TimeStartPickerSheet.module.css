@@ -51,19 +51,19 @@
 	margin-bottom: 24px;
 }
 
-.container_time {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	overflow: hidden;
-}
-
 .clone {
 	width: 20px;
 	font-size: 20px;
 	font-weight: 600;
 	text-align: center;
+}
+
+.hour {
+	font-size: 20px;
+	font-weight: 600;
+	text-align: center;
+	padding-right: 10px;
+	color: #000;
 }
 
 .container_buttons {
@@ -79,6 +79,7 @@
 .containerItemScroll:nth-child(1) {
 	background-color: red;
 }
+
 .itemList {
 	display: flex;
 	align-items: center;
