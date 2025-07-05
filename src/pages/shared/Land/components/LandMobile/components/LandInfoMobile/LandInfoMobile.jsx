@@ -29,20 +29,13 @@ const LandInfoMobile = ({ data }) => {
 
 	const startY = useRef(0)
 	const { elapsedTime, isIrrigating, startIrrigation, stopIrrigation, landID } = useIrrigationTimer()
-	const isCurrentLandIrrigating = isIrrigating && landID === api.data?.land?._id
+	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.land?._id === landID)
 
 	useEffect(() => {
-		if (api.data?.land?.logs) {
+		if (api.data?.land?.logs?.length && logs.length === 0) {
 			setLogs(api.data.land.logs)
 		}
 	}, [api.data?.land?.logs])
-
-	const refreshLogs = async () => {
-		await api.init(`lands/${landId}`, false, true)
-		if (api.data?.land?.logs) {
-			setLogs(api.data.land.logs)
-		}
-	}
 
 	const formatTime = seconds => {
 		const hrs = Math.floor(seconds / 3600)
@@ -69,18 +62,20 @@ const LandInfoMobile = ({ data }) => {
 		setShowStartDrawer(false)
 
 		try {
-			// ترکیب تاریخ امروز با زمان انتخاب شده (فرض شده selectedTime فرمت 'HH:mm' داره)
 			const now = moment()
 			const time = moment(selectedTime, 'HH:mm')
 			const combined = now.clone().hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
 
-			await api.post('irrigations', {
+			const response = await api.post('irrigations', {
 				landId,
 				wellId: data?.wells[0]?._id,
-				startTime: combined.toISOString(), // فرمت ISO کامل
+				startTime: combined.toISOString(),
 				isOngoing: true,
 			})
-			await refreshLogs()
+			setLogs(prevLogs => {
+				const updatedLogs = [response?.irrigation, ...prevLogs]
+				return updatedLogs
+			})
 		} catch (error) {
 			console.error('خطا در ارسال زمان شروع آبیاری:', error)
 		}
@@ -90,19 +85,22 @@ const LandInfoMobile = ({ data }) => {
 		setStartTime(time)
 		stopIrrigation()
 		setShowEndDrawer(false)
-
 		try {
-			const ongoing = api.data?.land?.logs?.find(item => item.isOngoing)
+			const ongoing = logs.find(item => item.isOngoing && item.land?._id === landId)
 			if (!ongoing) return
 
 			const now = moment()
 			const timeMoment = moment(time, 'HH:mm')
 			const combined = now.clone().hour(timeMoment.hour()).minute(timeMoment.minute()).second(0).millisecond(0)
 
-			await api.patch(`irrigations/${ongoing._id}`, {
+			const response = await api.patch(`irrigations/${ongoing._id}`, {
 				endTime: combined.toISOString(),
 			})
-			await refreshLogs()
+			setLogs(prevLogs => {
+				const updatedLogs = prevLogs.filter(log => log._id !== ongoing._id).concat(response?.irrigation)
+
+				return updatedLogs
+			})
 		} catch (error) {
 			console.error('خطا در ثبت زمان پایان آبیاری:', error)
 		}
