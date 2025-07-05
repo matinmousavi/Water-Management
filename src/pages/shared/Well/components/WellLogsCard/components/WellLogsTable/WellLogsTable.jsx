@@ -1,5 +1,5 @@
 import { Button, Modal, Space, Table } from 'antd'
-import { DeleteTwoTone, EditOutlined } from '@ant-design/icons'
+import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
@@ -15,6 +15,8 @@ const WellLogsTable = ({ data, setLogs }) => {
 
 	const deleteIdRef = useRef(null)
 	const [editableLog, setEditableLog] = useState(null)
+	const [viewableLog, setViewableLog] = useState(null)
+	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 
 	const handleDelete = async id => {
 		if (!id) return
@@ -37,14 +39,25 @@ const WellLogsTable = ({ data, setLogs }) => {
 		close()
 	}
 
+	const handleViewNote = log => {
+		setViewableLog(log)
+		setIsViewModalOpen(true)
+	}
+
 	const columns = [
 		{
 			title: 'تاریخ',
-			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : '--'),
+			render: record =>
+				record?.startedAt
+					? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY')
+					: '--',
 		},
 		{
 			title: 'ساعت شروع',
-			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('HH:mm') : '--'),
+			render: record =>
+				record?.startedAt
+					? moment(record.startedAt).locale('fa').format('HH:mm')
+					: '--',
 		},
 		{
 			title: 'مدت زمان آبیاری',
@@ -64,13 +77,31 @@ const WellLogsTable = ({ data, setLogs }) => {
 			title: 'نام مالک',
 			dataIndex: ['land', 'owner'],
 			key: 'landOwner',
-			render: owner => (owner ? `${owner.firstName} ${owner.lastName}` : '--'),
+			render: owner =>
+				owner ? (
+					<Link to={`/users/${owner?._id}`}>
+						{owner.firstName} {owner.lastName}
+					</Link>
+				) : (
+					<span>--</span>
+				),
 		},
 		{
-			title: 'نام ایجاد کننده لاگ',
-			dataIndex: ['createdBy'],
-			key: 'createdBy',
-			render: author => (author ? `${author.firstName} ${author.lastName}` : '--'),
+			title: 'توضیحات',
+			dataIndex: 'note',
+			key: 'note',
+			render: (_, record) =>
+				record?.note ? (
+					<Space>
+						<Button
+							type='link'
+							icon={<EyeOutlined />}
+							onClick={() => handleViewNote(record)}
+						/>
+					</Space>
+				) : (
+					'--'
+				),
 		},
 		{
 			title: 'عملیات',
@@ -117,7 +148,34 @@ const WellLogsTable = ({ data, setLogs }) => {
 				<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
 			</Modal>
 
-			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
+			{editableLog && (
+				<EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />
+			)}
+
+			{viewableLog && (
+				<Modal
+					title={`توضیحات لاگ توزیع آب ${viewableLog?.startedAt ? moment(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
+					open={isViewModalOpen}
+					onCancel={() => {
+						setIsViewModalOpen(false)
+						setViewableLog(null)
+					}}
+					footer={[
+						<Button
+							key="edit"
+							type="link"
+							onClick={() => {
+								setEditableLog(viewableLog)
+								setIsViewModalOpen(false)
+							}}
+						>
+							ویرایش کردن لاگ
+						</Button>,
+					]}
+				>
+					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
+				</Modal>
+			)}
 		</>
 	)
 }
