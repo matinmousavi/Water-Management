@@ -33,7 +33,7 @@ createRoot(document.getElementById('root')).render(
 						primaryShadow: 'rgba(5, 145, 255, 0.1)',
 						colorPrimary: '#0066EE',
 						defaultBorderColor: 'rgba(217, 217, 217, 1)',
-						colorLink: 'rgba(59, 143, 243, 1)',
+						colorLink: '#3b8ff3',
 						colorText: 'rgba(0, 0, 0, 0.85)',
 						controlHeight: 42,
 						borderRadius: 8,
