@@ -22,8 +22,7 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-		const wells = await Well.find(filter)
-			.populate('irrigator')
+		let wells = await Well.find(filter)
 			.populate({
 				path: 'lands',
 				populate: {
@@ -37,15 +36,36 @@ router.get('/', async (req, res) => {
 			})
 			.lean()
 
-		for (let well of wells) {
-			const irrigations = await Irrigation.find({ well: well._id })
-				.populate('land')
-				.populate('createdBy', 'firstName lastName')
-				.sort({ createdAt: -1 })
-				.lean()
+		wells = await Promise.all(
+			wells.map(async well => {
+				const logs = await Irrigation.find({ well: well._id })
+					.populate('land')
+					.populate('createdBy', 'firstName lastName')
+					.sort({ createdAt: -1 })
+					.lean()
+				well.logs = logs
 
-			well.logs = irrigations
-		}
+				well.lands = await Promise.all(
+					well.lands.map(async land => {
+						const last = await Irrigation.findOne({
+							well: well._id,
+							land: land._id,
+							endedAt: { $exists: true },
+						})
+							.sort({ endedAt: -1 })
+							.select('endedAt')
+							.lean()
+
+						return {
+							...land,
+							lastIrrigatedAt: last ? last.endedAt : null,
+						}
+					})
+				)
+
+				return well
+			})
+		)
 
 		return res.status(200).json({ wells })
 	} catch (err) {
@@ -59,7 +79,7 @@ router.get('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
 
-		const well = await Well.findById(wellId)
+		let well = await Well.findById(wellId)
 			.populate({
 				path: 'lands',
 				populate: {
@@ -77,7 +97,7 @@ router.get('/:wellId', async (req, res) => {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
 		}
 
-		const irrigations = await Irrigation.find({ well: wellId })
+		const logs = await Irrigation.find({ well: wellId })
 			.populate({
 				path: 'land',
 				populate: {
@@ -86,14 +106,29 @@ router.get('/:wellId', async (req, res) => {
 				},
 				select: 'title owner area location',
 			})
-			.populate({
-				path: 'createdBy',
-				select: 'firstName lastName',
-			})
+			.populate('createdBy', 'firstName lastName')
 			.sort({ createdAt: -1 })
 			.lean()
 
-		return res.status(200).json({ well: { ...well, logs: irrigations } })
+		well.lands = await Promise.all(
+			well.lands.map(async land => {
+				const last = await Irrigation.findOne({
+					well: wellId,
+					land: land._id,
+					endedAt: { $exists: true },
+				})
+					.sort({ endedAt: -1 })
+					.select('endedAt')
+					.lean()
+
+				return {
+					...land,
+					lastIrrigatedAt: last ? last.endedAt : null,
+				}
+			})
+		)
+
+		return res.status(200).json({ well: { ...well, logs } })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })

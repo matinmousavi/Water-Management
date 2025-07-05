@@ -1,21 +1,20 @@
-import { Card, Flex, Typography, Grid } from 'antd'
-import WellAddLog from './components/WellAddLog/WellAddLog'
+import { Card, Flex, Typography } from 'antd'
 import WellLogsTable from './components/WellLogsTable/WellLogsTable'
-import WellLogsMobile from '../WellLogsMobile/WellLogsMobile'
+import AddIrrigationLog from '../../../../../components/AddIrrigationLog/AddIrrigationLog'
 
 const { Title } = Typography
 
-const WellLogsCard = ({ wellLogs, wellId, setLogs }) => {
+const WellLogsCard = ({ data, wellId, setLogs }) => {
 	return (
 		<Card>
 			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-card-title'>
-						لاگ توزیع آب ({wellLogs.length})
+						لاگ توزیع آب ({data.length})
 					</Title>
-					<WellAddLog wellId={wellId} setLogs={setLogs} />
+					<AddIrrigationLog page='well' wellId={wellId} setLogs={setLogs} />
 				</Flex>
-				{wellLogs.length > 0 && <WellLogsTable data={wellLogs} setLogs={setLogs} wellId={wellId} />}
+				{data.length > 0 && <WellLogsTable data={data} setLogs={setLogs} wellId={wellId} />}
 			</Flex>
 		</Card>
 	)
