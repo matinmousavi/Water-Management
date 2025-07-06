@@ -32,7 +32,7 @@ const DescriptionModalCell = ({ record, onUpdateNotes }) => {
 			)}
 
 			<Modal
-				title={`توضیحات آبیاری (${moment(record.startedAt).format('dddd jD jMMMM jYYYY HH:mm')})`}
+				title={`توضیحات لاگ توزیع آب  ${moment(record.startedAt).format('dddd jD jMMMM jYYYY')}`}
 				open={openDescription}
 				onCancel={() => setOpenDescription(false)}
 				centered
