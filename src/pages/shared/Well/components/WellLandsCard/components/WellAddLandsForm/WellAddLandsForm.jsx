@@ -1,6 +1,8 @@
 import { Form, Select } from 'antd'
 
 const WellAddLandsForm = ({ form, lands = [] }) => {
+	const activeLands = lands.filter(land => land.status == "active");
+	
 	return (
 		<Form form={form} layout='horizontal' labelCol={{ flex: '160px' }} wrapperCol={{ flex: 'auto' }}>
 			<Form.Item name='lands' label='زمین'>
@@ -12,7 +14,7 @@ const WellAddLandsForm = ({ form, lands = [] }) => {
 					style={{ width: '100%' }}
 					size='large'
 					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-					options={lands.map(land => ({
+					options={activeLands.map(land => ({
 						value: land._id,
 						label: land.title,
 					}))}
