@@ -1,4 +1,4 @@
-import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography } from 'antd'
+import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography, Dropdown } from 'antd'
 import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
@@ -72,7 +72,13 @@ const Layouts = () => {
 			}
 		)
 	}
-
+	const itemUserButton = [
+		{
+			key: 'logout',
+			icon: <LogoutOutlined />,
+			label: <span onClick={logout}>خروج از برنامه</span>,
+		},
+	]
 	return (
 		<Layout className={styles.layout}>
 			<Header>
@@ -92,7 +98,9 @@ const Layouts = () => {
 					{!isMobile ? (
 						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
 					) : isIrrigator ? (
-						<Button type='text' icon={<UserOutlined />} onClick={() => setDrawerVisible(true)} />
+						<Dropdown menu={{ items: itemUserButton }} placement='bottomLeft' trigger={['click']}>
+							<Button className={styles.button} type='text' shape='circle' icon={<UserOutlined />} />
+						</Dropdown>
 					) : (
 						<Button type='text' color='default' icon={<MenuOutlined className={styles.menuIcon} />} onClick={() => setDrawerVisible(true)} />
 					)}
