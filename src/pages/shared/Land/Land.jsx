@@ -1,6 +1,4 @@
 import { Flex, Grid, Tag, Typography } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
-
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import LandInfo from './components/LandInfo/LandInfo'
@@ -43,8 +41,7 @@ const Land = () => {
 			openNotification('error', 'خطا در دریافت اطلاعات زمین')
 			console.error('خطا در دریافت اطلاعات زمین:', error)
 		}
-	}
-
+	}	
 	useEffect(() => {
 		if (landId) {
 			fetchLand()
@@ -71,7 +68,7 @@ const Land = () => {
 					</Flex>
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
 					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
-					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} />
+					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={landData?.status} />
 					{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}
