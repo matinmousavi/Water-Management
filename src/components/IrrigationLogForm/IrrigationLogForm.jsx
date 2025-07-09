@@ -2,7 +2,7 @@ import { Form, Select, Input, Row, Col, TimePicker, Checkbox } from 'antd'
 import FaDatePicker from '../FaDatePicker/FaDatePicker'
 import dayjs from 'dayjs'
 
-const IrrigationLogForm = ({ form, lands, mode, type = 'admin', page = 'well' }) => {
+const IrrigationLogForm = ({ form, lands = [], mode, type = 'admin', page = 'well' }) => {
 	const labelCol = { span: 8 }
 	const wrapperCol = { span: 18 }
 
@@ -26,6 +26,8 @@ const IrrigationLogForm = ({ form, lands, mode, type = 'admin', page = 'well' })
 		}
 	}
 
+	const activeLands = lands.filter(land => land.status == 'active')
+
 	return (
 		<Form form={form} layout='horizontal' labelAlign='left' labelCol={labelCol} wrapperCol={wrapperCol}>
 			{page === 'well' && (
@@ -38,13 +40,12 @@ const IrrigationLogForm = ({ form, lands, mode, type = 'admin', page = 'well' })
 						allowClear
 						disabled={mode === 'edit'}
 						size='large'
-					>
-						{lands?.map(land => (
-							<Select.Option key={land._id} value={land._id}>
-								{land.title}
-							</Select.Option>
-						))}
-					</Select>
+						options={activeLands.map(land => ({
+							key: land._id,
+							value: land._id,
+							label: land.title,
+						}))}
+					/>
 				</Form.Item>
 			)}
 
