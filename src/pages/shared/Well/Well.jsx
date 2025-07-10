@@ -48,7 +48,7 @@ const Well = () => {
 
 	return (
 		<>
-			<MetaTitle>چاه</MetaTitle>
+			<MetaTitle>{title || 'ویرایش چاه'}</MetaTitle>
 
 			<Flex vertical gap='large'>
 				{isMobile ? (
