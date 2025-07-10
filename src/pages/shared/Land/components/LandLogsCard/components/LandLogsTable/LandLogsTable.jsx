@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Button, Modal, Popconfirm, Space, Table } from 'antd'
 import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import useNotification from '../../../../../../../hooks/useNotification'
@@ -9,12 +9,13 @@ import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog
 
 const LandLogsTable = ({ data, setLogs }) => {
 	const wellApi = useAPI()
+	const deleteIdRef = useRef(null)
 	const { openNotification } = useNotification()
-	const { open, close } = useModal()
 	const [selectedLog, setSelectedLog] = useState(null)
 	const [viewableLog, setViewableLog] = useState(null)
 	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 	const [editableLog, setEditableLog] = useState(null)
+	const { open, close, isOpen, handleAfterChange } = useModal()
 
 	const handleDelete = async irrigationsId => {
 		try {
@@ -31,6 +32,10 @@ const LandLogsTable = ({ data, setLogs }) => {
 	const handleEditClick = record => {
 		setSelectedLog(record)
 		open()
+	}
+	const handleCancel = () => {
+		deleteIdRef.current = null
+		close()
 	}
 	const handleViewNote = log => {
 		setViewableLog(log)
@@ -58,17 +63,21 @@ const LandLogsTable = ({ data, setLogs }) => {
 			title: 'توضیحات',
 			dataIndex: ['note'],
 			key: 'note',
-			render: (_, record) => record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--',
+			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
 		{
 			title: 'عملیات',
 			key: 'action',
 			render: (_, record) => (
 				<Space>
-					<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
-						<DeleteTwoTone twoToneColor='#ff0000' />
-					</Popconfirm>
 					<Button type='link' icon={<EditOutlined />} onClick={() => handleEditClick(record)} />
+					<DeleteTwoTone
+						twoToneColor='#ff0000'
+						onClick={() => {
+							deleteIdRef.current = record._id
+							open()
+						}}
+					/>
 				</Space>
 			),
 		},
@@ -78,6 +87,23 @@ const LandLogsTable = ({ data, setLogs }) => {
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
 			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
+
+			<Modal
+				title='حذف لاگ توزیع آب'
+				open={isOpen}
+				onOk={() => handleDelete(deleteIdRef.current)}
+				onCancel={handleCancel}
+				afterOpenChange={handleAfterChange}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					danger: true,
+					type: 'primary',
+				}}
+				confirmLoading={wellApi.isLoading}
+			>
+				<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
+			</Modal>
 
 			{selectedLog && (
 				<EditIrrigationLog

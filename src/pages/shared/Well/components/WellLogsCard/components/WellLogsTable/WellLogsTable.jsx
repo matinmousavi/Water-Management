@@ -91,18 +91,18 @@ const WellLogsTable = ({ data, setLogs }) => {
 			key: 'action',
 			render: (_, record) => (
 				<Space>
-					<DeleteTwoTone
-						twoToneColor='#ff0000'
-						onClick={() => {
-							deleteIdRef.current = record._id
-							open()
-						}}
-					/>
 					<Button
 						type='link'
 						icon={<EditOutlined />}
 						onClick={() => {
 							setEditableLog(record)
+						}}
+					/>
+					<DeleteTwoTone
+						twoToneColor='#ff0000'
+						onClick={() => {
+							deleteIdRef.current = record._id
+							open()
 						}}
 					/>
 				</Space>
@@ -141,18 +141,18 @@ const WellLogsTable = ({ data, setLogs }) => {
 						setIsViewModalOpen(false)
 						setViewableLog(null)
 					}}
-					footer={[
-						<Button
-							key='edit'
-							type='link'
+					footer={
+						<div
+							className='footer-edit-log-modal'
 							onClick={() => {
 								setEditableLog(viewableLog)
 								setIsViewModalOpen(false)
 							}}
 						>
-							ویرایش کردن لاگ
-						</Button>,
-					]}
+							<EditOutlined />
+								<span>ویرایش کردن لاگ</span>
+						</div>
+					}
 				>
 					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
 				</Modal>
