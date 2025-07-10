@@ -25,7 +25,12 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 			title: 'تاریخ',
 			dataIndex: 'startedAt',
 			key: 'date',
-			render: value => moment(value).format('dddd jD jMMMM jYYYY'),
+			render: value => (
+				<p className={styles.date}>
+					<span>{moment(value).format('dddd ')}</span>
+					<span>{moment(value).format('jD jMMMM jYYYY ')}</span>
+				</p>
+			),
 		},
 		{
 			title: 'ساعت شروع',
@@ -50,19 +55,20 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 			render: record => <DescriptionModalCell record={record} />,
 		},
 	]
+
 	return (
 		<>
-			<Flex gap={16} vertical>
+			<Flex gap={20} vertical>
 				<Card className={styles.card}>
 					<Flex vertical gap={8}>
 						{listItems.map((item, idx) => (
 							<Flex className={styles.itemCard} key={idx} gap={10} align='center' justify='center'>
 								<Flex gap={8} className={styles.cardType}>
 									<img src={item.icon} alt='icon' />
-									<Text>{item.title}</Text>
+									<Text className={styles.label}>{item.title}</Text>
 								</Flex>
 								<Flex className={styles.cardRole}>
-									<Text>{item.value}</Text>
+									<Text className={styles.value}>{item.value}</Text>
 								</Flex>
 							</Flex>
 						))}
@@ -72,7 +78,15 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 				<Card>
 					<Flex vertical gap={8}>
 						<Text>لاگ توزیع آب ({logs?.length})</Text>
-						<Table rowKey='_id' scroll={{ x: 'max-content' }} pagination={false} className={styles.table} dataSource={logs} columns={columns} />
+						<Table
+							rowKey='_id'
+							bordered
+							scroll={{ x: 'max-content' }}
+							pagination={false}
+							className={styles.table}
+							dataSource={logs}
+							columns={columns}
+						/>
 					</Flex>
 				</Card>
 			</Flex>
