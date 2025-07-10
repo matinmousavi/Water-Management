@@ -5,6 +5,7 @@ import { EyeOutlined, EditOutlined } from '@ant-design/icons'
 import EditDescriptionLog from '../EditDescriptionLog/EditDescriptionLog'
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../../../hooks/useNotification'
+import styles from './DescriptionModalCell.module.css'
 
 const DescriptionModalCell = ({ record }) => {
 	const [openEdit, setOpenEdit] = useState(false)
@@ -42,9 +43,9 @@ const DescriptionModalCell = ({ record }) => {
 	return (
 		<Flex align='center' justify='center' gap={8}>
 			{isOlderThanOneDay ? (
-				<EyeOutlined onClick={() => setOpenDescription(true)} style={{ color: '#1890ff', cursor: 'pointer' }} />
+				<EyeOutlined onClick={() => setOpenDescription(true)} className={styles.icon} />
 			) : (
-				<EditOutlined onClick={onEditClick} style={{ color: '#1890ff', cursor: 'pointer' }} />
+				<EditOutlined onClick={onEditClick} className={styles.icon} />
 			)}
 
 			<Modal
@@ -54,7 +55,7 @@ const DescriptionModalCell = ({ record }) => {
 				centered
 				footer={null}
 			>
-				{record.note || 'بدون توضیحات'}
+				<p className={styles.text_note}>{record.note || 'بدون توضیحات'}</p>
 			</Modal>
 
 			<Drawer title={null} placement='bottom' height='auto' open={openEdit} onClose={() => setOpenEdit(false)} closable={false}>

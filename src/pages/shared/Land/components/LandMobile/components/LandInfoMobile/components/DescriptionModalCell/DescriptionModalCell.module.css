@@ -1,0 +1,10 @@
+.text_note {
+	font-size: 12px;
+	font-weight: 300;
+	color: rgba(0, 0, 0, 0.8);
+}
+
+.icon {
+	cursor: pointer;
+	color: #1890ff;
+}
