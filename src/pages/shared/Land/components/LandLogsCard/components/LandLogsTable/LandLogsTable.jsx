@@ -124,18 +124,18 @@ const LandLogsTable = ({ data, setLogs }) => {
 						setIsViewModalOpen(false)
 						setViewableLog(null)
 					}}
-					footer={[
-						<Button
-							key='edit'
-							type='link'
+					footer={
+						<div
+							className='footer-edit-log-modal'
 							onClick={() => {
 								setEditableLog(viewableLog)
 								setIsViewModalOpen(false)
 							}}
 						>
-							ویرایش کردن لاگ
-						</Button>,
-					]}
+							<EditOutlined />
+							<span>ویرایش کردن لاگ</span>
+						</div>
+					}
 				>
 					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
 				</Modal>
