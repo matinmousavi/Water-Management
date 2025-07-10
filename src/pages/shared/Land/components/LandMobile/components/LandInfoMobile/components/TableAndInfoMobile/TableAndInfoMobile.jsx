@@ -9,8 +9,8 @@ import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 
 const { Text } = Typography
 
-const TableAndInfoMobile = ({ data, logs, isIrrigating, landID, elapsedTime, time, handleStop, setShowStartDrawer }) => {
-	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.land?._id === landID)
+const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handleStop, setShowStartDrawer }) => {
+	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const listItems = [
 		{ icon: iconContacts, title: 'نام زمین', value: data?.title },
