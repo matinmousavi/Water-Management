@@ -105,10 +105,11 @@ router.post('/', async (req, res) => {
 		})
 
 		const irrigation = await Irrigation.findById(created._id)
-			.populate('createdBy', 'firstName lastName mobile')
 			.populate({ path: 'land', populate: { path: 'owner', select: 'firstName lastName mobile' }, select: 'title owner' })
+			.populate('well', 'title')
+			.populate('createdBy', 'firstName lastName mobile')
 
-		const land = await Land.findById(landId).populate('owner', 'firstName lastName mobile')
+		const land = irrigation.land
 		if (land?.owner?.mobile) {
 			const to = land.owner.mobile
 			const landName = land.title
@@ -121,7 +122,11 @@ router.post('/', async (req, res) => {
 				})
 			}
 			if (endedAt && irrigation.duration) {
-				await sendTemplatedSMS({ to, key: 'irrigation_end_irrigator', variables: { land_title: landName, duration: irrigation.duration } })
+				await sendTemplatedSMS({
+					to,
+					key: 'irrigation_end_irrigator',
+					variables: { land_title: landName, duration: irrigation.duration },
+				})
 			}
 		}
 
@@ -175,14 +180,11 @@ router.patch('/:irrigationId', async (req, res) => {
 		await irrigation.save()
 
 		const updated = await Irrigation.findById(irrigationId)
-			.populate({
-				path: 'land',
-				populate: [{ path: 'owner', select: 'firstName lastName mobile' }],
-			})
+			.populate({ path: 'land', populate: { path: 'owner', select: 'firstName lastName mobile' }, select: 'title owner' })
 			.populate('well', 'title')
-			.populate('createdBy', 'firstName lastName')
+			.populate('createdBy', 'firstName lastName mobile')
 
-		const land = await Land.findById(updated.land._id).populate('owner', 'mobile')
+		const land = updated.land
 		if (land?.owner?.mobile) {
 			const to = land.owner.mobile
 			const landName = land.title
