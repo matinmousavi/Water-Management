@@ -8,7 +8,7 @@ import moment from 'moment-jalaali'
 import { useRef, useState } from 'react'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const WellLogsTable = ({ data, setLogs }) => {
+const WellLogsTable = ({ data, setLogs , title }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
@@ -115,7 +115,7 @@ const WellLogsTable = ({ data, setLogs }) => {
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
 
 			<Modal
-				title='حذف لاگ توزیع آب'
+				title={`حذف لاگ توزیع آب چاه ${title}`}
 				open={isOpen}
 				onOk={() => handleDelete(deleteIdRef.current)}
 				onCancel={handleCancel}

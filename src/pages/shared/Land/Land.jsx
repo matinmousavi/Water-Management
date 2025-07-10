@@ -68,8 +68,8 @@ const Land = () => {
 					</Flex>
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
 					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
-					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={landData?.status} />
-					{isAdmin && <DeleteCard title='زمین' api={`lands/${landId}`} backTo='/lands' />}
+					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={landData?.status} title={pageTitle} />
+					{isAdmin && <DeleteCard title={`زمین ${pageTitle}`} api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}
 		</>

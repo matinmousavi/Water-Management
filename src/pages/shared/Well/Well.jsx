@@ -78,12 +78,12 @@ const Well = () => {
 				) : (
 					<>
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
-						<WellLandsCard wellLands={well?.lands} />
-						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} />
+						<WellLandsCard wellLands={well?.lands} title={title} />
+						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} />
 					</>
 				)}
 
-				{isAdmin && <DeleteCard title='چاه' api={`wells/${actualWellId}`} backTo='/wells' />}
+				{isAdmin && <DeleteCard title={`چاه ${title}`} api={`wells/${actualWellId}`} backTo='/wells' />}
 			</Flex>
 		</>
 	)

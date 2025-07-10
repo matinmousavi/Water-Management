@@ -253,7 +253,7 @@ label::after {
 }
 .hide-cancel-button {
 	display: none;
-}
+}صثمم
 .eye-icon {
 	color: #1677FF !important;
 }
@@ -263,6 +263,7 @@ label::after {
 	gap: 4px;
 	padding-bottom: 2px;
 	color: #0066EE !important;
+	cursor: pointer;
 }
 .footer-edit-log-modal span {
 	font-size: 13px;

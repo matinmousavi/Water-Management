@@ -7,7 +7,7 @@ import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const LandLogsTable = ({ data, setLogs }) => {
+const LandLogsTable = ({ data, setLogs, title }) => {
 	const wellApi = useAPI()
 	const deleteIdRef = useRef(null)
 	const { openNotification } = useNotification()
@@ -89,7 +89,7 @@ const LandLogsTable = ({ data, setLogs }) => {
 			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			<Modal
-				title='حذف لاگ توزیع آب'
+				title={`حذف لاگ توزیع آب زمین ${title}`}
 				open={isOpen}
 				onOk={() => handleDelete(deleteIdRef.current)}
 				onCancel={handleCancel}

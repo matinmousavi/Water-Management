@@ -58,7 +58,7 @@ const DeleteCard = ({ title, api , backTo }) => {
 				confirmLoading={deleteAPI.isLoading}
 				loading={deleteAPI.isLoading}
 			>
-				<p>آیا از حذف این {title} اطمینان دارید؟</p>
+				<p>آیا از حذف این {title.split(' ')[0]} اطمینان دارید؟</p>
 			</Modal>
 		</Card>
 	)

@@ -8,7 +8,7 @@ import useModal from '../../../../../../../hooks/useModal'
 import { useState } from 'react'
 import moment from 'moment-jalaali'
 
-const WellLandsTable = ({ data, setData, wellId }) => {
+const WellLandsTable = ({ data, setData, wellId , title}) => {	
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
@@ -95,7 +95,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 		<>
 			<Table dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
 			<Modal
-				title='حذف زمین'
+				title={`حذف زمین چاه ${title}`}
 				open={isOpen}
 				onOk={handleDelete}
 				onCancel={handleCancel}

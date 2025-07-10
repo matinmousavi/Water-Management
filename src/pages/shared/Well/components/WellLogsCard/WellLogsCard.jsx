@@ -4,7 +4,7 @@ import AddIrrigationLog from '../../../../../components/AddIrrigationLog/AddIrri
 
 const { Title } = Typography
 
-const WellLogsCard = ({ data, wellId, setLogs }) => {
+const WellLogsCard = ({ data, wellId, setLogs , title}) => {
 	return (
 		<Card>
 			<Flex vertical gap={36}>
@@ -14,7 +14,7 @@ const WellLogsCard = ({ data, wellId, setLogs }) => {
 					</Title>
 					<AddIrrigationLog page='well' wellId={wellId} setLogs={setLogs} />
 				</Flex>
-				{data.length > 0 && <WellLogsTable data={data} setLogs={setLogs} wellId={wellId} />}
+				{data.length > 0 && <WellLogsTable data={data} setLogs={setLogs} wellId={wellId} title={title} />}
 			</Flex>
 		</Card>
 	)
