@@ -46,7 +46,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 		},
 		{
 			title: 'توضیحات',
-			key: 'notes',
+			key: 'note',
 			render: record => <DescriptionModalCell record={record} />,
 		},
 	]
