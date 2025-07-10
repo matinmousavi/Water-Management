@@ -47,17 +47,11 @@ const WellLogsTable = ({ data, setLogs }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
-			render: record =>
-				record?.startedAt
-					? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY')
-					: '--',
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : '--'),
 		},
 		{
 			title: 'ساعت شروع',
-			render: record =>
-				record?.startedAt
-					? moment(record.startedAt).locale('fa').format('HH:mm')
-					: '--',
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('HH:mm') : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
@@ -90,18 +84,7 @@ const WellLogsTable = ({ data, setLogs }) => {
 			title: 'توضیحات',
 			dataIndex: 'note',
 			key: 'note',
-			render: (_, record) =>
-				record?.note ? (
-					<Space>
-						<Button
-							type='link'
-							icon={<EyeOutlined />}
-							onClick={() => handleViewNote(record)}
-						/>
-					</Space>
-				) : (
-					'--'
-				),
+			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
 		{
 			title: 'عملیات',
@@ -148,9 +131,7 @@ const WellLogsTable = ({ data, setLogs }) => {
 				<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
 			</Modal>
 
-			{editableLog && (
-				<EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />
-			)}
+			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			{viewableLog && (
 				<Modal
@@ -162,8 +143,8 @@ const WellLogsTable = ({ data, setLogs }) => {
 					}}
 					footer={[
 						<Button
-							key="edit"
-							type="link"
+							key='edit'
+							type='link'
 							onClick={() => {
 								setEditableLog(viewableLog)
 								setIsViewModalOpen(false)

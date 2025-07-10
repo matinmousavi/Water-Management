@@ -254,6 +254,9 @@ label::after {
 .hide-cancel-button {
 	display: none;
 }
+.eye-icon {
+	color: #1677FF !important;
+}
 /* --------------------------------------------
    4. Media Queries
 --------------------------------------------- */

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button, Popconfirm, Space, Table } from 'antd'
-import { DeleteTwoTone, EditOutlined, EyeTwoTone } from '@ant-design/icons'
+import { Button, Modal, Popconfirm, Space, Table } from 'antd'
+import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
@@ -12,6 +12,9 @@ const LandLogsTable = ({ data, setLogs }) => {
 	const { openNotification } = useNotification()
 	const { open, close } = useModal()
 	const [selectedLog, setSelectedLog] = useState(null)
+	const [viewableLog, setViewableLog] = useState(null)
+	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+	const [editableLog, setEditableLog] = useState(null)
 
 	const handleDelete = async irrigationsId => {
 		try {
@@ -28,6 +31,10 @@ const LandLogsTable = ({ data, setLogs }) => {
 	const handleEditClick = record => {
 		setSelectedLog(record)
 		open()
+	}
+	const handleViewNote = log => {
+		setViewableLog(log)
+		setIsViewModalOpen(true)
 	}
 
 	const columns = [
@@ -51,7 +58,7 @@ const LandLogsTable = ({ data, setLogs }) => {
 			title: 'توضیحات',
 			dataIndex: ['note'],
 			key: 'note',
-			render: () => <EyeTwoTone />,
+			render: (_, record) => record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--',
 		},
 		{
 			title: 'عملیات',
@@ -70,6 +77,7 @@ const LandLogsTable = ({ data, setLogs }) => {
 	return (
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
+			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			{selectedLog && (
 				<EditIrrigationLog
@@ -81,6 +89,30 @@ const LandLogsTable = ({ data, setLogs }) => {
 					}}
 					page='land'
 				/>
+			)}
+			{viewableLog && (
+				<Modal
+					title={`توضیحات لاگ توزیع آب ${viewableLog?.startedAt ? moment(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
+					open={isViewModalOpen}
+					onCancel={() => {
+						setIsViewModalOpen(false)
+						setViewableLog(null)
+					}}
+					footer={[
+						<Button
+							key='edit'
+							type='link'
+							onClick={() => {
+								setEditableLog(viewableLog)
+								setIsViewModalOpen(false)
+							}}
+						>
+							ویرایش کردن لاگ
+						</Button>,
+					]}
+				>
+					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
+				</Modal>
 			)}
 		</>
 	)
