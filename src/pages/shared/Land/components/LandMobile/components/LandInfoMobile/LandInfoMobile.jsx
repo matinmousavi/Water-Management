@@ -141,7 +141,7 @@ const LandInfoMobile = ({ data }) => {
 				data={data}
 				logs={logs}
 				time={formatTime(remainingTime || 0)}
-				elapsedTime={null}
+				elapsedTime={remainingTime}
 				handleStop={handleStop}
 				setShowStartDrawer={setShowStartDrawer}
 				isIrrigating={isIrrigating}

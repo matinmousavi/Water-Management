@@ -1,7 +1,7 @@
 import { Button, Input } from 'antd'
 import styles from './EditDescriptionLog.module.css'
 
-const EditDescriptionLog = ({ onSubmit, onClose, isOpen = true, notes, setNotes }) => {
+const EditDescriptionLog = ({ onSubmit, onClose, isOpen = true, note, setNotes }) => {
 	if (!isOpen) return null
 
 	return (
@@ -11,7 +11,7 @@ const EditDescriptionLog = ({ onSubmit, onClose, isOpen = true, notes, setNotes 
 
 				<div className={styles.title}>توضیحات لاگ</div>
 				<div className={styles.container_input}>
-					<Input.TextArea rows={4} value={notes} onChange={e => setNotes(e.target.value)} />
+					<Input.TextArea rows={4} value={note} onChange={e => setNotes(e.target.value)} />
 				</div>
 
 				<div className={styles.container_buttons}>
