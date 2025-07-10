@@ -12,6 +12,7 @@ const Layouts = () => {
 	const { isAdmin, isIrrigator, logout } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
+	const [logoutIcon, setLogoutIcon] = useState(false)
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
 
@@ -75,8 +76,12 @@ const Layouts = () => {
 	const itemUserButton = [
 		{
 			key: 'logout',
-			icon: <LogoutOutlined />,
-			label: <span onClick={logout}>خروج از برنامه</span>,
+			icon: <img src='./ExportOutlined.png' />,
+			label: (
+				<span onClick={logout} className={styles.text_export}>
+					خروج از برنامه
+				</span>
+			),
 		},
 	]
 	return (
@@ -99,7 +104,13 @@ const Layouts = () => {
 						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
 					) : isIrrigator ? (
 						<Dropdown menu={{ items: itemUserButton }} placement='bottomLeft' trigger={['click']}>
-							<Button className={styles.button} type='text' shape='circle' icon={<UserOutlined />} />
+							<Button
+								className={logoutIcon ? styles.button_click : styles.button}
+								onClick={() => setLogoutIcon(prev => !prev)}
+								type='text'
+								shape='circle'
+								icon={<UserOutlined />}
+							/>
 						</Dropdown>
 					) : (
 						<Button type='text' color='default' icon={<MenuOutlined className={styles.menuIcon} />} onClick={() => setDrawerVisible(true)} />

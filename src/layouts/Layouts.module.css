@@ -4,9 +4,11 @@
 	display: flex;
 	flex-direction: column;
 }
+
 .menuIcon {
 	color: #fff !important ;
 }
+
 .w-full {
 	width: 100%;
 }
@@ -14,11 +16,17 @@
 .flex {
 	flex: 1;
 }
+
 .title {
 	font-size: 14px !important;
+	color: white !important;
 }
-.title,
+
 .button {
+	color: #a3a3ae !important;
+}
+
+.button_click {
 	color: white !important;
 }
 
@@ -32,16 +40,26 @@
 	height: 100% !important;
 }
 
+.icons {
+	min-width: 18px !important;
+	font-size: 18px !important;
+}
+
+.icon_export {
+	color: #a3a3ae !important;
+}
+
+.text_export {
+	font-size: 14px;
+	color: rgba(0, 0, 0, 0.88);
+}
+
 @media (min-width: 1024px) {
 	.content {
 		padding: 0 60px 10px;
 	}
 }
 
-.icons {
-	min-width: 18px !important;
-	font-size: 18px !important;
-}
 @media (1024px <= width <1440px) {
 	:global(.ant-menu-title-content) {
 		font-size: 14px !important;
