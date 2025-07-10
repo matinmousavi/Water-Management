@@ -45,26 +45,34 @@ const WellLogsMobile = ({ data }) => {
 
 	return (
 		<Card>
-			<Flex vertical gap={18}>
+			<Flex vertical gap={24}>
 				<Flex gap={10} align='start'>
 					<Flex gap={8} className={styles.cardType}>
 						<img src={iconTree} alt='icon tree' />
-						<Text>نام زمین</Text>
+						<Text className={styles.label}>نام زمین</Text>
 					</Flex>
-					<Flex className={styles.cardRole}>{data?.land ? <Link to={`/lands/${data?.land?._id}`}>{data?.land?.title}</Link> : <Text>-</Text>}</Flex>
+					<Flex className={styles.cardRole}>
+						{data?.land ? (
+							<Link to={`/lands/${data?.land?._id}`} className={styles.land_name}>
+								{data?.land?.title}
+							</Link>
+						) : (
+							<Text>-</Text>
+						)}
+					</Flex>
 				</Flex>
 
 				<Flex gap={10}>
 					<Flex gap={8} className={styles.cardType}>
 						<img src={iconClock} alt='icon clock' />
-						<Text>آخرین زمان آبیاری</Text>
+						<Text className={styles.label}>آخرین زمان آبیاری</Text>
 					</Flex>
 					<Flex className={styles.cardRole}>
-						<Text>
+						<Text className={styles.text_irrigation}>
 							{isThisLogOngoing ? (
 								<span className={`${styles.timerText} ${remainingTime <= 900 ? styles.timerDanger : ''}`}>{formatTime(remainingTime)}</span>
 							) : (
-								moment(data?.endedAt).format('jYYYY/jMM/jDD-HH:mm') || '-'
+								moment(data?.endedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'
 							)}
 						</Text>
 					</Flex>
@@ -73,10 +81,10 @@ const WellLogsMobile = ({ data }) => {
 				<Flex gap={10}>
 					<Flex gap={8} className={styles.cardType}>
 						<img src={iconClock} alt='icon clock' />
-						<Text>زمان آبیاری بعدی</Text>
+						<Text className={styles.label}>زمان آبیاری بعدی</Text>
 					</Flex>
 					<Flex className={styles.cardRole}>
-						<Text>{moment(data?.updatedAt).format('dddd jD jMMMM jYYYY') || '-'}</Text>
+						<Text className={styles.text_irrigation}>{moment(data?.updatedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'}</Text>
 					</Flex>
 				</Flex>
 			</Flex>

@@ -70,7 +70,7 @@ const Well = () => {
 				)}
 
 				{isMobile ? (
-					<Flex vertical gap={12}>
+					<Flex vertical gap={16}>
 						{well?.logs?.map(log => (
 							<WellLogsMobile key={log._id} data={log} />
 						))}
