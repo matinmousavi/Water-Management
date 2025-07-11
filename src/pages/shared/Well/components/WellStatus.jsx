@@ -1,12 +1,10 @@
-import { useState } from 'react'
 import { Form, Modal, Select, Tag, Flex } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import useNotification from '../../../../hooks/useNotification'
 import useAPI from '../../../../hooks/useAPI'
 import useModal from '../../../../hooks/useModal'
 
-const WellStatus = ({ wellId, currentStatus }) => {
-	const [status, setStatus] = useState(currentStatus)
+const WellStatus = ({ wellId, status, setStatus }) => {
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
 	const wellApi = useAPI()

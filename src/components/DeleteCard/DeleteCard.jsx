@@ -35,7 +35,7 @@ const DeleteCard = ({ title, api , backTo }) => {
 		<Card className={style.card}>
 			<Flex justify='space-between' align='center'>
 				<Title level={2} className='text-card-title'>
-					حذف {title}
+					حذف چاه
 				</Title>
 				<Button danger onClick={() => open()} loading={deleteAPI.isLoading}>
 					<Flex align='center' gap={8}>
@@ -58,7 +58,7 @@ const DeleteCard = ({ title, api , backTo }) => {
 				confirmLoading={deleteAPI.isLoading}
 				loading={deleteAPI.isLoading}
 			>
-				<p>آیا از حذف این {title} اطمینان دارید؟</p>
+				<p>آیا از حذف این {title.split(' ')[0]} اطمینان دارید؟</p>
 			</Modal>
 		</Card>
 	)

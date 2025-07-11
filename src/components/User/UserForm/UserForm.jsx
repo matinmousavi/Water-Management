@@ -27,11 +27,13 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 	const [fileList, setFileList] = useState([])
 
 	useEffect(() => {
-		if (initialImage) {
+		setFileList([])
+
+		if (initialImage?.url && initialImage?.name) {
 			setFileList([
 				{
 					uid: '-1',
-					name: `${initialImage.name}`,
+					name: initialImage.name,
 					status: 'done',
 					url: initialImage.url,
 				},

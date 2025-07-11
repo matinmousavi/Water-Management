@@ -28,6 +28,7 @@ const Well = () => {
 
 	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
+	const [status, setStatus] = useState('')
 
 	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
 
@@ -36,6 +37,7 @@ const Well = () => {
 		if (fetchedWell) {
 			setTitle(fetchedWell.title)
 			setLogs(fetchedWell.logs || [])
+			setStatus(fetchedWell.status)
 		}
 	}, [api.data?.well])
 
@@ -48,7 +50,7 @@ const Well = () => {
 
 	return (
 		<>
-			<MetaTitle>چاه</MetaTitle>
+			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 
 			<Flex vertical gap='large'>
 				{isMobile ? (
@@ -64,7 +66,7 @@ const Well = () => {
 						<Flex align='center' gap={16}>
 							<BackButton backTo='/wells' />
 							<Typography.Title className='text-page-title'>{title}</Typography.Title>
-							<WellStatus wellId={wellId} currentStatus={well?.status} />
+							<WellStatus wellId={wellId} status={status} setStatus={setStatus} />
 						</Flex>
 					</>
 				)}
@@ -78,12 +80,12 @@ const Well = () => {
 				) : (
 					<>
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
-						<WellLandsCard wellLands={well?.lands} />
-						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} />
+						<WellLandsCard wellLands={well?.lands} wellStatus={status} />
+						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} />
 					</>
 				)}
 
-				{isAdmin && <DeleteCard title='چاه' api={`wells/${actualWellId}`} backTo='/wells' />}
+				{isAdmin && <DeleteCard title={`چاه ${title}`} api={`wells/${actualWellId}`} backTo='/wells' />}
 			</Flex>
 		</>
 	)

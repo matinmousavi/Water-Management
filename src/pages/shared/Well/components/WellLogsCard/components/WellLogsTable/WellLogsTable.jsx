@@ -1,4 +1,4 @@
-import { Button, Modal, Space, Table } from 'antd'
+import { Modal, Space, Table } from 'antd'
 import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
@@ -8,7 +8,7 @@ import moment from 'moment-jalaali'
 import { useRef, useState } from 'react'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const WellLogsTable = ({ data, setLogs }) => {
+const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
@@ -47,17 +47,11 @@ const WellLogsTable = ({ data, setLogs }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
-			render: record =>
-				record?.startedAt
-					? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY')
-					: '--',
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : '--'),
 		},
 		{
 			title: 'ساعت شروع',
-			render: record =>
-				record?.startedAt
-					? moment(record.startedAt).locale('fa').format('HH:mm')
-					: '--',
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('HH:mm') : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
@@ -90,24 +84,22 @@ const WellLogsTable = ({ data, setLogs }) => {
 			title: 'توضیحات',
 			dataIndex: 'note',
 			key: 'note',
-			render: (_, record) =>
-				record?.note ? (
-					<Space>
-						<Button
-							type='link'
-							icon={<EyeOutlined />}
-							onClick={() => handleViewNote(record)}
-						/>
-					</Space>
-				) : (
-					'--'
-				),
+			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
-		{
+	]
+
+	if (wellStatus === 'active') {
+		columns.push({
 			title: 'عملیات',
 			key: 'action',
 			render: (_, record) => (
-				<Space>
+				<Space size={8}>
+					<EditOutlined
+						className='edit-icon'
+						onClick={() => {
+							setEditableLog(record)
+						}}
+					/>
 					<DeleteTwoTone
 						twoToneColor='#ff0000'
 						onClick={() => {
@@ -115,18 +107,10 @@ const WellLogsTable = ({ data, setLogs }) => {
 							open()
 						}}
 					/>
-					<Button
-						type='link'
-						icon={<EditOutlined />}
-						onClick={() => {
-							setEditableLog(record)
-						}}
-					/>
 				</Space>
 			),
-		},
-	]
-
+		})
+	}
 	return (
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
@@ -148,9 +132,7 @@ const WellLogsTable = ({ data, setLogs }) => {
 				<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
 			</Modal>
 
-			{editableLog && (
-				<EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />
-			)}
+			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			{viewableLog && (
 				<Modal
@@ -160,18 +142,18 @@ const WellLogsTable = ({ data, setLogs }) => {
 						setIsViewModalOpen(false)
 						setViewableLog(null)
 					}}
-					footer={[
-						<Button
-							key="edit"
-							type="link"
+					footer={
+						<div
+							className='footer-edit-log-modal'
 							onClick={() => {
 								setEditableLog(viewableLog)
 								setIsViewModalOpen(false)
 							}}
 						>
-							ویرایش کردن لاگ
-						</Button>,
-					]}
+							<EditOutlined />
+							<span>ویرایش کردن لاگ</span>
+						</div>
+					}
 				>
 					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
 				</Modal>

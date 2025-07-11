@@ -6,7 +6,7 @@ import useNotification from '../../hooks/useNotification'
 import { useUser } from '../../contexts/UserContext'
 import IrrigationLogForm from '../IrrigationLogForm/IrrigationLogForm'
 
-const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', status }) => {
+const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well' }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [form] = Form.useForm()
 	const irrigationApi = useAPI()
@@ -96,32 +96,19 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', status }) =>
 					<span>افزودن لاگ</span>
 				</Flex>
 			</Button>
-			{status === 'active' ? (
-				<Modal
-					title='افزودن لاگ توزیع'
-					open={isOpen}
-					onOk={handleSubmit}
-					onCancel={handleCancel}
-					okText='ثبت'
-					cancelText='انصراف'
-					confirmLoading={irrigationApi.isLoading}
-					loading={landsApi.isLoading}
-					forceRender
-				>
-					<IrrigationLogForm page={page} mode='add' type={isAdmin ? 'admin' : 'irrigator'} form={form} lands={landsApi.data.lands} />
-				</Modal>
-			) : (
-				<Modal
-					title='افزودن لاگ توزیع آب'
-					open={isOpen}
-					onOk={close}
-					onCancel={close}
-					okText='تایید'
-					cancelButtonProps={{ className: 'hide-cancel-button' }}
-				>
-					<p>شما نمیتوانید برای این زمین لاگ توزیع آب ثبت کنید</p>
-				</Modal>
-			)}
+			<Modal
+				title='افزودن لاگ توزیع'
+				open={isOpen}
+				onOk={handleSubmit}
+				onCancel={handleCancel}
+				okText='ثبت'
+				cancelText='انصراف'
+				confirmLoading={irrigationApi.isLoading}
+				loading={landsApi.isLoading}
+				forceRender
+			>
+				<IrrigationLogForm page={page} mode='add' type={isAdmin ? 'admin' : 'irrigator'} form={form} lands={landsApi.data.lands} />
+			</Modal>
 		</>
 	)
 }

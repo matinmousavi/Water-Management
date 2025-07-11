@@ -78,8 +78,7 @@ const AddUser = ({ setUser }) => {
 				confirmLoading={userApi.isLoading}
 				okText='ثبت'
 				cancelText='انصراف'
-				forceRender
-				centered
+				destroyOnHidden
 			>
 				<UserForm form={form} setImageFile={setImageFile} />
 			</Modal>
