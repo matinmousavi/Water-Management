@@ -77,7 +77,7 @@ const Login = () => {
 	}
 
 	return (
-		<Flex className={styles.container} vertical align='center' justify='center'>
+		<Flex className={styles.container} vertical align='center' justify='flex-end'>
 			<Flex className={styles.wrapper} vertical align='center'>
 				<Flex vertical justify='center' align='center' gap={9}>
 					<img src={img} alt='Water Logo' width={24} />

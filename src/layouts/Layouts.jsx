@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
+import iconExit from '../../public/ExportOutlined.png'
 
 const { Header, Content } = Layout
 const { Title } = Typography
@@ -76,7 +77,7 @@ const Layouts = () => {
 	const itemUserButton = [
 		{
 			key: 'logout',
-			icon: <img src='./ExportOutlined.png' />,
+			icon: <img src={iconExit} alt='icon exit' />,
 			label: (
 				<span onClick={logout} className={styles.text_export}>
 					خروج از برنامه
