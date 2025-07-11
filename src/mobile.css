@@ -91,12 +91,15 @@ a {
 	border: none !important;
 	box-shadow: none !important;
 }
+
 .ant-tabs-nav-list {
 	gap: 25px;
 }
+
 .ant-tabs-tab {
 	margin: 0 !important;
 }
+
 .ant-tabs-tab-btn {
 	font-size: 14px;
 	font-weight: 400;

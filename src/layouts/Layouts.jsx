@@ -1,9 +1,10 @@
-import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography } from 'antd'
+import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography, Dropdown } from 'antd'
 import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
+import iconExit from '../../public/ExportOutlined.png'
 
 const { Header, Content } = Layout
 const { Title } = Typography
@@ -12,6 +13,7 @@ const Layouts = () => {
 	const { isAdmin, isIrrigator, logout } = useUser()
 	const location = useLocation()
 	const [drawerVisible, setDrawerVisible] = useState(false)
+	const [logoutIcon, setLogoutIcon] = useState(false)
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
 
@@ -72,7 +74,17 @@ const Layouts = () => {
 			}
 		)
 	}
-
+	const itemUserButton = [
+		{
+			key: 'logout',
+			icon: <img src={iconExit} alt='icon exit' />,
+			label: (
+				<span onClick={logout} className={styles.text_export}>
+					خروج از برنامه
+				</span>
+			),
+		},
+	]
 	return (
 		<Layout className={styles.layout}>
 			<Header>
@@ -92,7 +104,15 @@ const Layouts = () => {
 					{!isMobile ? (
 						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
 					) : isIrrigator ? (
-						<Button type='text' icon={<UserOutlined />} onClick={() => setDrawerVisible(true)} />
+						<Dropdown menu={{ items: itemUserButton }} placement='bottomLeft' trigger={['click']}>
+							<Button
+								className={logoutIcon ? styles.button_click : styles.button}
+								onClick={() => setLogoutIcon(prev => !prev)}
+								type='text'
+								shape='circle'
+								icon={<UserOutlined />}
+							/>
+						</Dropdown>
 					) : (
 						<Button type='text' color='default' icon={<MenuOutlined className={styles.menuIcon} />} onClick={() => setDrawerVisible(true)} />
 					)}

@@ -3,22 +3,39 @@ import { useState } from 'react'
 import moment from 'moment-jalaali'
 import { EyeOutlined, EditOutlined } from '@ant-design/icons'
 import EditDescriptionLog from '../EditDescriptionLog/EditDescriptionLog'
+import useAPI from '../../../../../../../../../hooks/useAPI'
+import useNotification from '../../../../../../../../../hooks/useNotification'
+import styles from './DescriptionModalCell.module.css'
 
-const DescriptionModalCell = ({ record, onUpdateNotes }) => {
+const DescriptionModalCell = ({ record }) => {
 	const [openEdit, setOpenEdit] = useState(false)
 	const [openDescription, setOpenDescription] = useState(false)
-	const [notes, setNotes] = useState(record.notes || '')
+	const [notes, setNotes] = useState(record.note || null)
+	const [initialNote, setInitialNote] = useState(record.note || null)
+
+	const { openNotification } = useNotification()
+	const api = useAPI()
 
 	const isOlderThanOneDay = moment().diff(moment(record.createdAt), 'hours') >= 24
 
-	const handleSave = () => {
-		onUpdateNotes(record._id, notes)
-		setOpen(false)
+	const onEditClick = () => {
+		setInitialNote(notes || null)
+		setOpenEdit(true)
 	}
+	const handleEditNotice = async () => {
+		const isEditing = Boolean(initialNote)
 
-	const handleEditNotice = () => {
+		const response = await api.patch(`irrigations/${record._id}`, { note: notes })
+		if (isEditing) {
+			setNotes(response.irrigation.note)
+			openNotification('success', 'ویرایش موفق', 'لاگ با موفقیت ویرایش شد')
+		} else {
+			setNotes(response.irrigation.note)
+			openNotification('success', 'ثبت موفق', ' لاگ با موفقیت ثبت شد')
+		}
 		setOpenEdit(false)
 	}
+
 	const cancelEdit = () => {
 		setOpenEdit(false)
 	}
@@ -26,9 +43,9 @@ const DescriptionModalCell = ({ record, onUpdateNotes }) => {
 	return (
 		<Flex align='center' justify='center' gap={8}>
 			{isOlderThanOneDay ? (
-				<EyeOutlined onClick={() => setOpenDescription(true)} style={{ color: '#1890ff', cursor: 'pointer' }} />
+				<EyeOutlined onClick={() => setOpenDescription(true)} className={styles.icon} />
 			) : (
-				<EditOutlined onClick={() => setOpenEdit(true)} style={{ color: '#1890ff', cursor: 'pointer' }} />
+				<EditOutlined onClick={onEditClick} className={styles.icon} />
 			)}
 
 			<Modal
@@ -38,12 +55,12 @@ const DescriptionModalCell = ({ record, onUpdateNotes }) => {
 				centered
 				footer={null}
 			>
-				{record.notes || 'بدون توضیحات'}
+				<p className={styles.text_note}>{record.note || 'بدون توضیحات'}</p>
 			</Modal>
 
 			<Drawer title={null} placement='bottom' height='auto' open={openEdit} onClose={() => setOpenEdit(false)} closable={false}>
 				<div>
-					<EditDescriptionLog onSubmit={handleEditNotice} setNotes={setNotes} notes={record?.notes} onClose={cancelEdit} />
+					<EditDescriptionLog onSubmit={handleEditNotice} setNotes={setNotes} note={notes} onClose={cancelEdit} />
 				</div>
 			</Drawer>
 		</Flex>

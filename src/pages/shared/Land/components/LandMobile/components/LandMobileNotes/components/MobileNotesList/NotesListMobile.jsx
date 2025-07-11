@@ -15,6 +15,7 @@ const NotesListMobile = ({ data }) => {
 								|{' '}
 								{new Date(note?.createdAt).toLocaleDateString('fa-IR', {
 									hour: 'numeric',
+									minute: 'numeric',
 									year: 'numeric',
 									month: 'long',
 									day: 'numeric',

@@ -4,7 +4,6 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: rgba(32, 34, 42, 0.56);
 	display: flex;
 	align-items: flex-end;
 	justify-content: center;
@@ -38,12 +37,16 @@
 	margin-bottom: 8px;
 }
 
+.wrapper_subtitle {
+	margin-top: 16px;
+	margin-bottom: 32px;
+}
+
 .subtitle {
 	text-align: center;
 	font-size: 14px;
 	font-weight: 600;
 	color: rgba(0, 0, 0, 0.88);
-	margin-bottom: 24px;
 }
 
 .container_buttons {

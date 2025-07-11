@@ -1,5 +1,5 @@
-import { Typography, Drawer } from 'antd'
 import moment from 'moment-jalaali'
+import { Drawer } from 'antd'
 import styles from './LandInfoMobile.module.css'
 import { useState, useEffect, useRef } from 'react'
 import TimeStartPickerSheet from './components/TimeStartPickerSheet/TimeStartPickerSheet'
@@ -7,30 +7,28 @@ import TimeEndPickerSheet from './components/TimeEndPickerSheet/TimeEndPickerShe
 import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useParams } from 'react-router'
-import { useIrrigationTimer } from '../../../../../../../contexts/IrrigationTimerContext'
 import TableAndInfoMobile from './components/TableAndInfoMobile/TableAndInfoMobile'
 
-const { Text } = Typography
+const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
 
 const LandInfoMobile = ({ data }) => {
 	const { landId } = useParams()
 	const api = useAPI()
-	api.init(`lands/${landId}`)
 
 	const [logs, setLogs] = useState([])
-	const [startTime, setStartTime] = useState(null)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
+	const [remainingTime, setRemainingTime] = useState(null)
+	const [isIrrigating, setIsIrrigating] = useState(false)
 
 	const startY = useRef(0)
-	const { elapsedTime, isIrrigating, startIrrigation, stopIrrigation, landID } = useIrrigationTimer()
 
 	useEffect(() => {
-		if (api.data?.land?.logs?.length && logs.length === 0) {
-			setLogs(api.data.land.logs)
+		if (data?.logs?.length && logs.length === 0) {
+			setLogs(data.logs)
 		}
-	}, [api.data?.land?.logs])
+	}, [data?.logs])
 
 	const formatTime = seconds => {
 		const hrs = Math.floor(seconds / 3600)
@@ -38,6 +36,32 @@ const LandInfoMobile = ({ data }) => {
 		const secs = seconds % 60
 		return `  ${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
 	}
+
+	useEffect(() => {
+		if (!logs || logs.length === 0) return
+
+		const ongoingLog = logs.find(log => log.isOngoing)
+		if (!ongoingLog || !ongoingLog.startedAt) {
+			setIsIrrigating(false)
+			setRemainingTime(0)
+			return
+		}
+
+		setIsIrrigating(true)
+		const startedAt = new Date(ongoingLog.startedAt).getTime()
+
+		const updateRemaining = () => {
+			const now = Date.now()
+			const elapsed = Math.floor((now - startedAt) / 1000)
+			const remaining = Math.max(0, TWO_HOURS_IN_SECONDS - elapsed)
+			setRemainingTime(remaining)
+		}
+
+		updateRemaining()
+		const interval = setInterval(updateRemaining, 1000)
+
+		return () => clearInterval(interval)
+	}, [logs])
 
 	const handleTouchStart = e => {
 		startY.current = e.touches[0].clientY
@@ -52,8 +76,6 @@ const LandInfoMobile = ({ data }) => {
 	}
 
 	const handleTimeStartSelected = async selectedTime => {
-		setStartTime(selectedTime)
-		startIrrigation(landId)
 		setShowStartDrawer(false)
 
 		try {
@@ -77,11 +99,9 @@ const LandInfoMobile = ({ data }) => {
 	}
 
 	const handleTimeEndSelected = async time => {
-		setStartTime(time)
-		stopIrrigation()
 		setShowEndDrawer(false)
 		try {
-			const ongoing = logs.find(item => item.isOngoing && item.land?._id === landId)
+			const ongoing = logs.find(item => item.isOngoing && item.startedAt)
 			if (!ongoing) return
 
 			const now = moment()
@@ -103,13 +123,11 @@ const LandInfoMobile = ({ data }) => {
 
 	const handleStop = () => {
 		setEndNoticeDrawer(true)
-		setStartTime(null)
 	}
 
 	const handleEndNotice = () => {
 		setEndNoticeDrawer(false)
 		setShowEndDrawer(true)
-		stopIrrigation(false)
 	}
 
 	const CancelTimeEnd = () => {
@@ -122,11 +140,10 @@ const LandInfoMobile = ({ data }) => {
 			<TableAndInfoMobile
 				data={data}
 				logs={logs}
-				elapsedTime={elapsedTime}
-				time={formatTime(elapsedTime)}
+				time={formatTime(remainingTime || 0)}
+				elapsedTime={remainingTime}
 				handleStop={handleStop}
 				setShowStartDrawer={setShowStartDrawer}
-				landID={landID}
 				isIrrigating={isIrrigating}
 			/>
 
@@ -144,7 +161,7 @@ const LandInfoMobile = ({ data }) => {
 
 			<Drawer title={null} placement='bottom' height='auto' open={endNoticeDrawer} onClose={() => setEndNoticeDrawer(false)} closable={false}>
 				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(elapsedTime)} onClose={CancelTimeEnd} />
+					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
 				</div>
 			</Drawer>
 		</div>
