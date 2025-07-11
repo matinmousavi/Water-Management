@@ -107,8 +107,6 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 				confirmLoading={userApi.isLoading}
 				okText='ثبت'
 				cancelText='انصراف'
-				forceRender
-				centered
 			>
 				<UserForm form={form} setImageFile={setImageFile} initialImage={initialImage} />
 			</Modal>

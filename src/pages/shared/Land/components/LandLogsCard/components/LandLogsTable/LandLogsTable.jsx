@@ -1,17 +1,21 @@
-import { useState } from 'react'
-import { Button, Popconfirm, Space, Table } from 'antd'
-import { DeleteTwoTone, EditOutlined, EyeTwoTone } from '@ant-design/icons'
+import { useRef, useState } from 'react'
+import { Modal, Space, Table } from 'antd'
+import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const LandLogsTable = ({ data, setLogs }) => {
+const LandLogsTable = ({ data, setLogs, status }) => {
 	const wellApi = useAPI()
+	const deleteIdRef = useRef(null)
 	const { openNotification } = useNotification()
-	const { open, close } = useModal()
 	const [selectedLog, setSelectedLog] = useState(null)
+	const [viewableLog, setViewableLog] = useState(null)
+	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+	const [editableLog, setEditableLog] = useState(null)
+	const { open, close, isOpen, handleAfterChange } = useModal()
 
 	const handleDelete = async irrigationsId => {
 		try {
@@ -28,6 +32,14 @@ const LandLogsTable = ({ data, setLogs }) => {
 	const handleEditClick = record => {
 		setSelectedLog(record)
 		open()
+	}
+	const handleCancel = () => {
+		deleteIdRef.current = null
+		close()
+	}
+	const handleViewNote = log => {
+		setViewableLog(log)
+		setIsViewModalOpen(true)
 	}
 
 	const columns = [
@@ -51,25 +63,50 @@ const LandLogsTable = ({ data, setLogs }) => {
 			title: 'توضیحات',
 			dataIndex: ['note'],
 			key: 'note',
-			render: () => <EyeTwoTone />,
+			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
-		{
+	]
+
+	if (status === 'active') {
+		columns.push({
 			title: 'عملیات',
 			key: 'action',
 			render: (_, record) => (
-				<Space>
-					<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
-						<DeleteTwoTone twoToneColor='#ff0000' />
-					</Popconfirm>
-					<Button type='link' icon={<EditOutlined />} onClick={() => handleEditClick(record)} />
+				<Space size={8}>
+					<EditOutlined className='edit-icon' onClick={() => handleEditClick(record)} />
+					<DeleteTwoTone
+						twoToneColor='#ff0000'
+						onClick={() => {
+							deleteIdRef.current = record._id
+							open()
+						}}
+					/>
 				</Space>
 			),
-		},
-	]
+		})
+	}
 
 	return (
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
+			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
+
+			<Modal
+				title='حذف لاگ توزیع آب'
+				open={isOpen}
+				onOk={() => handleDelete(deleteIdRef.current)}
+				onCancel={handleCancel}
+				afterOpenChange={handleAfterChange}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					danger: true,
+					type: 'primary',
+				}}
+				confirmLoading={wellApi.isLoading}
+			>
+				<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
+			</Modal>
 
 			{selectedLog && (
 				<EditIrrigationLog
@@ -81,6 +118,30 @@ const LandLogsTable = ({ data, setLogs }) => {
 					}}
 					page='land'
 				/>
+			)}
+			{viewableLog && (
+				<Modal
+					title={`توضیحات لاگ توزیع آب ${viewableLog?.startedAt ? moment(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
+					open={isViewModalOpen}
+					onCancel={() => {
+						setIsViewModalOpen(false)
+						setViewableLog(null)
+					}}
+					footer={
+						<div
+							className='footer-edit-log-modal'
+							onClick={() => {
+								setEditableLog(viewableLog)
+								setIsViewModalOpen(false)
+							}}
+						>
+							<EditOutlined />
+							<span>ویرایش کردن لاگ</span>
+						</div>
+					}
+				>
+					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
+				</Modal>
 			)}
 		</>
 	)

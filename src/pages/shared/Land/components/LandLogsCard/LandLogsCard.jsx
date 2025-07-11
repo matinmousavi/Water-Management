@@ -12,9 +12,9 @@ const LandLogsCard = ({ landLogs, setLogs, well, landId, status }) => {
 					<Title level={2} className='text-card-title'>
 						لاگ توزیع آب ({landLogs.length})
 					</Title>
-					<AddIrrigationLog page='land' wellId={well?.[0]?._id} landId={landId} setLogs={setLogs} status={status} />
+					{status === 'active' && <AddIrrigationLog page='land' wellId={well?.[0]?._id} landId={landId} setLogs={setLogs} />}{' '}
 				</Flex>
-				{landLogs.length > 0 && <LandLogsTable data={landLogs} setLogs={setLogs} wellId={well?.[0]?._id} />}
+				{landLogs.length > 0 && <LandLogsTable data={landLogs} setLogs={setLogs} wellId={well?.[0]?._id} status={status} />}
 			</Flex>
 		</Card>
 	)
