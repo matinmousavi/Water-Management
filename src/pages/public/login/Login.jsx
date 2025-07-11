@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Form, Input, Button, Typography, Flex } from 'antd'
+import { Form, Input, Button, Typography, Flex, Grid } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
@@ -13,7 +13,8 @@ const Login = () => {
 	const [expireDate, setExpireDate] = useState()
 	const [timeLeft, setTimeLeft] = useState(0)
 	const [form] = Form.useForm()
-
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 	const api = useAPI()
 	const { openNotification } = useNotification()
 	const { getMe } = useUser()
@@ -77,7 +78,7 @@ const Login = () => {
 	}
 
 	return (
-		<Flex className={styles.container} vertical align='center' justify='flex-end'>
+		<Flex className={styles.container} vertical align='center' justify={isMobile ? 'flex-end' : 'center'}>
 			<Flex className={styles.wrapper} vertical align='center'>
 				<Flex vertical justify='center' align='center' gap={9}>
 					<img src={img} alt='Water Logo' width={24} />
