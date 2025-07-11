@@ -257,6 +257,9 @@ label::after {
 .eye-icon {
 	color: #1677FF !important;
 }
+.edit-icon {
+	color: #0066EE !important;
+}
 .footer-edit-log-modal {
 	display: flex;
 	align-items: center;

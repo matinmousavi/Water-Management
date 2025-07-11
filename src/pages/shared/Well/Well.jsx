@@ -80,7 +80,7 @@ const Well = () => {
 				) : (
 					<>
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
-						<WellLandsCard wellLands={well?.lands} title={title} wellStatus={status} />
+						<WellLandsCard wellLands={well?.lands} wellStatus={status} />
 						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} />
 					</>
 				)}

@@ -1,4 +1,4 @@
-import { Card, Flex, Grid, Typography } from 'antd'
+import { Card, Flex, Typography } from 'antd'
 import useAPI from '../../../../../hooks/useAPI'
 import WellLandsTable from './components/WellLandsTable/WellLandsTable'
 import React from 'react'
@@ -7,7 +7,7 @@ import { useUser } from '../../../../../contexts/UserContext'
 import WellAddLand from './components/WellAddLand/WellAddLand'
 import WellLandsMobile from '../WellLogsMobile/WellLogsMobile'
 
-const WellLandsCard = ({ wellLands, title, wellStatus }) => {
+const WellLandsCard = ({ wellLands, wellStatus }) => {
 	const api = useAPI()
 	const { wellId } = useParams()
 	const { isAdmin } = useUser()
@@ -24,7 +24,7 @@ const WellLandsCard = ({ wellLands, title, wellStatus }) => {
 						</Typography.Title>
 						{isAdmin && wellStatus === 'active' && <WellAddLand currentLands={lands} setLandsData={api.setData} />}
 					</Flex>
-					{lands?.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} title={title} wellStatus={wellStatus} />}
+					{lands?.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} wellStatus={wellStatus} />}
 				</Flex>
 			</Card>
 		</>

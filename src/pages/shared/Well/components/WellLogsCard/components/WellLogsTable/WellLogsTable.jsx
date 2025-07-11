@@ -1,4 +1,4 @@
-import { Button, Modal, Space, Table } from 'antd'
+import { Modal, Space, Table } from 'antd'
 import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
@@ -8,7 +8,7 @@ import moment from 'moment-jalaali'
 import { useRef, useState } from 'react'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const WellLogsTable = ({ data, setLogs, title, wellStatus }) => {
+const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
@@ -93,10 +93,9 @@ const WellLogsTable = ({ data, setLogs, title, wellStatus }) => {
 			title: 'عملیات',
 			key: 'action',
 			render: (_, record) => (
-				<Space>
-					<Button
-						type='link'
-						icon={<EditOutlined />}
+				<Space size={8}>
+					<EditOutlined
+						className='edit-icon'
 						onClick={() => {
 							setEditableLog(record)
 						}}
@@ -117,7 +116,7 @@ const WellLogsTable = ({ data, setLogs, title, wellStatus }) => {
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
 
 			<Modal
-				title={`حذف لاگ توزیع آب چاه ${title}`}
+				title='حذف لاگ توزیع آب'
 				open={isOpen}
 				onOk={() => handleDelete(deleteIdRef.current)}
 				onCancel={handleCancel}

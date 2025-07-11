@@ -8,17 +8,17 @@ import useModal from '../../../../../../../hooks/useModal'
 import { useState } from 'react'
 import moment from 'moment-jalaali'
 
-const WellLandsTable = ({ data, setData, wellId, title, wellStatus }) => {
+const WellLandsTable = ({ data, setData, wellId, wellStatus }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
 	const { isOpen, open, close, handleAfterChange } = useModal()
-	const [selectedLandId, setSelectedLandId] = useState(null)
+	const [selectedLand, setSelectedLand] = useState(null)
 
 	const handleDelete = async () => {
-		if (!selectedLandId) return
+		if (!selectedLand?._id) return
 		try {
-			const updatedLands = data?.filter(item => item._id !== selectedLandId)
+			const updatedLands = data?.filter(item => item._id !== selectedLand._id)
 			const response = await wellApi.patch(`wells/${wellId}`, { lands: updatedLands })
 
 			if (!response?.error) {
@@ -26,16 +26,15 @@ const WellLandsTable = ({ data, setData, wellId, title, wellStatus }) => {
 				setData({ lands: response.well.lands })
 			}
 		} catch (error) {
-			console.error('Error:', error)
 			openNotification('error', error?.error?.message || 'خطا در حذف زمین')
 		} finally {
-			setSelectedLandId(null)
+			setSelectedLand(null)
 			close()
 		}
 	}
 
 	const handleCancel = () => {
-		setSelectedLandId(null)
+		setSelectedLand(null)
 		close()
 	}
 
@@ -78,11 +77,11 @@ const WellLandsTable = ({ data, setData, wellId, title, wellStatus }) => {
 			dataIndex: 'action',
 			key: 'action',
 			render: (_, record) => (
-				<Space>
+				<Space size="small">
 					<DeleteTwoTone
 						twoToneColor='#ff0000'
 						onClick={() => {
-							setSelectedLandId(record._id)
+							setSelectedLand(record)
 							open()
 						}}
 					/>
@@ -95,7 +94,7 @@ const WellLandsTable = ({ data, setData, wellId, title, wellStatus }) => {
 		<>
 			<Table dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
 			<Modal
-				title={`حذف زمین چاه ${title}`}
+				title={`حذف زمین ${selectedLand?.title || ''}`}
 				open={isOpen}
 				onOk={handleDelete}
 				onCancel={handleCancel}
@@ -107,7 +106,9 @@ const WellLandsTable = ({ data, setData, wellId, title, wellStatus }) => {
 					type: 'primary',
 				}}
 				confirmLoading={wellApi.isLoading}
-			/>
+			>
+				<p>آیا از حذف این زمین اطمینان دارید؟</p>
+			</Modal>
 		</>
 	)
 }

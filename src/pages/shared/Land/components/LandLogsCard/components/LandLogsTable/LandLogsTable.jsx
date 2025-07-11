@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Button, Modal, Popconfirm, Space, Table } from 'antd'
+import { Modal, Space, Table } from 'antd'
 import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
@@ -7,7 +7,7 @@ import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const LandLogsTable = ({ data, setLogs, title, status }) => {
+const LandLogsTable = ({ data, setLogs, status }) => {
 	const wellApi = useAPI()
 	const deleteIdRef = useRef(null)
 	const { openNotification } = useNotification()
@@ -72,8 +72,8 @@ const LandLogsTable = ({ data, setLogs, title, status }) => {
 			title: 'عملیات',
 			key: 'action',
 			render: (_, record) => (
-				<Space>
-					<Button type='link' icon={<EditOutlined />} onClick={() => handleEditClick(record)} />
+				<Space size={8}>
+					<EditOutlined className='edit-icon' onClick={() => handleEditClick(record)} />
 					<DeleteTwoTone
 						twoToneColor='#ff0000'
 						onClick={() => {
@@ -92,7 +92,7 @@ const LandLogsTable = ({ data, setLogs, title, status }) => {
 			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			<Modal
-				title={`حذف لاگ توزیع آب زمین ${title}`}
+				title='حذف لاگ توزیع آب'
 				open={isOpen}
 				onOk={() => handleDelete(deleteIdRef.current)}
 				onCancel={handleCancel}
