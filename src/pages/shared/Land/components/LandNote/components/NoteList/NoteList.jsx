@@ -2,7 +2,7 @@ import { Button, Flex, Space } from 'antd'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import styles from './NoteList.module.css'
 
-const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
+const NoteList = ({ data, handleDeleteClick, handleEditNote, status }) => {
 	return (
 		<Flex vertical gap={8}>
 			{data?.map(note => (
@@ -20,10 +20,12 @@ const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
 									})}
 								</span>
 							</Flex>
-							<Space className={styles.btns}>
-								<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
-								<Button type='link' icon={<DeleteOutlined />} danger onClick={() => handleDeleteClick(note)} />
-							</Space>
+							{status === 'active' && (
+								<Space className={styles.btns}>
+									<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
+									<Button type='link' icon={<DeleteOutlined />} danger onClick={() => handleDeleteClick(note)} />
+								</Space>
+							)}
 						</Flex>
 						<p className={styles.commentText}>{note?.text}</p>
 					</Flex>

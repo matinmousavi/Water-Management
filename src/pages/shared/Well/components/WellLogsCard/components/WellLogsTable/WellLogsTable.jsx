@@ -8,7 +8,7 @@ import moment from 'moment-jalaali'
 import { useRef, useState } from 'react'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const WellLogsTable = ({ data, setLogs , title }) => {
+const WellLogsTable = ({ data, setLogs, title, wellStatus }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
@@ -86,7 +86,10 @@ const WellLogsTable = ({ data, setLogs , title }) => {
 			key: 'note',
 			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
-		{
+	]
+
+	if (wellStatus === 'active') {
+		columns.push({
 			title: 'عملیات',
 			key: 'action',
 			render: (_, record) => (
@@ -107,9 +110,8 @@ const WellLogsTable = ({ data, setLogs , title }) => {
 					/>
 				</Space>
 			),
-		},
-	]
-
+		})
+	}
 	return (
 		<>
 			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
@@ -150,7 +152,7 @@ const WellLogsTable = ({ data, setLogs , title }) => {
 							}}
 						>
 							<EditOutlined />
-								<span>ویرایش کردن لاگ</span>
+							<span>ویرایش کردن لاگ</span>
 						</div>
 					}
 				>

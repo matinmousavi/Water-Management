@@ -7,7 +7,7 @@ import { useUser } from '../../../../../contexts/UserContext'
 import WellAddLand from './components/WellAddLand/WellAddLand'
 import WellLandsMobile from '../WellLogsMobile/WellLogsMobile'
 
-const WellLandsCard = ({ wellLands , title }) => {
+const WellLandsCard = ({ wellLands, title, wellStatus }) => {
 	const api = useAPI()
 	const { wellId } = useParams()
 	const { isAdmin } = useUser()
@@ -22,9 +22,9 @@ const WellLandsCard = ({ wellLands , title }) => {
 						<Typography.Title level={2} className='text-card-title'>
 							لیست زمین ها ({lands?.length})
 						</Typography.Title>
-						{isAdmin && <WellAddLand currentLands={lands} setLandsData={api.setData} />}
+						{isAdmin && wellStatus === 'active' && <WellAddLand currentLands={lands} setLandsData={api.setData} />}
 					</Flex>
-					{lands?.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} title={title} />}
+					{lands?.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} title={title} wellStatus={wellStatus} />}
 				</Flex>
 			</Card>
 		</>

@@ -21,6 +21,7 @@ const { Title } = Typography
 const Land = () => {
 	const [landData, setLandData] = useState(null)
 	const [logs, setLogs] = useState(null)
+	const [status, setStatus] = useState()
 	const { landId } = useParams()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
@@ -36,12 +37,13 @@ const Land = () => {
 				setLandData(response.land)
 				setPageTitle(response.land.title)
 				setLogs(response.land.logs || [])
+				setStatus(response.land.status)
 			}
 		} catch (error) {
 			openNotification('error', 'خطا در دریافت اطلاعات زمین')
 			console.error('خطا در دریافت اطلاعات زمین:', error)
 		}
-	}	
+	}
 	useEffect(() => {
 		if (landId) {
 			fetchLand()
@@ -52,7 +54,7 @@ const Land = () => {
 
 	return (
 		<>
-			<MetaTitle>{pageTitle || 'ویرایش زمین'}</MetaTitle>
+			<MetaTitle>{pageTitle ? `زمین ${pageTitle}` : 'جزئیات زمین'}</MetaTitle>
 
 			{isMobile ? (
 				<LandMobile landData={landData} />
@@ -64,11 +66,11 @@ const Land = () => {
 						<Title level={1} className='text-h3'>
 							{pageTitle}
 						</Title>
-						<LandStatus landId={landId} currentStatus={landData.status} landTitle={pageTitle} />
+						<LandStatus landId={landId} status={status} setStatus={setStatus} landTitle={pageTitle} />
 					</Flex>
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
-					<LandNote notesData={landData.notes} api={landApi} mainData={landData} setMainData={setLandData} />
-					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={landData?.status} title={pageTitle} />
+					<LandNote notesData={landData.notes} api={landApi} status={status} />
+					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={status} title={pageTitle} />
 					{isAdmin && <DeleteCard title={`زمین ${pageTitle}`} api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}

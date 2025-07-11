@@ -1,13 +1,11 @@
 // components/LandStatus.jsx
-import { useState } from 'react'
 import { Tag, Modal, Select, Form, Flex } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import useNotification from '../../../../hooks/useNotification'
 import useAPI from '../../../../hooks/useAPI'
 import useModal from '../../../../hooks/useModal'
 
-const LandStatus = ({ landId, currentStatus, landTitle }) => {
-	const [status, setStatus] = useState(currentStatus)
+const LandStatus = ({ landId, status, setStatus, landTitle }) => {
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
 	const landApi = useAPI()
@@ -56,7 +54,7 @@ const LandStatus = ({ landId, currentStatus, landTitle }) => {
 				afterOpenChange={handleAfterChange}
 				confirmLoading={landApi.isLoading}
 			>
-				<Form layout='vertical' form={form}>
+				<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
 					<Form.Item name='status' label='وضعیت' rules={[{ required: true, message: 'لطفا وضعیت را انتخاب کنید' }]}>
 						<Select
 							size='large'

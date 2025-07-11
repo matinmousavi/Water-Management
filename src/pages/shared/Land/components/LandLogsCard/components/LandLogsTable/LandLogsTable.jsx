@@ -7,7 +7,7 @@ import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 
-const LandLogsTable = ({ data, setLogs, title }) => {
+const LandLogsTable = ({ data, setLogs, title, status }) => {
 	const wellApi = useAPI()
 	const deleteIdRef = useRef(null)
 	const { openNotification } = useNotification()
@@ -65,7 +65,10 @@ const LandLogsTable = ({ data, setLogs, title }) => {
 			key: 'note',
 			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
-		{
+	]
+
+	if (status === 'active') {
+		columns.push({
 			title: 'عملیات',
 			key: 'action',
 			render: (_, record) => (
@@ -80,8 +83,8 @@ const LandLogsTable = ({ data, setLogs, title }) => {
 					/>
 				</Space>
 			),
-		},
-	]
+		})
+	}
 
 	return (
 		<>

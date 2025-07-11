@@ -8,7 +8,7 @@ import useModal from '../../../../../../../hooks/useModal'
 import { useState } from 'react'
 import moment from 'moment-jalaali'
 
-const WellLandsTable = ({ data, setData, wellId , title}) => {	
+const WellLandsTable = ({ data, setData, wellId, title, wellStatus }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
@@ -72,7 +72,7 @@ const WellLandsTable = ({ data, setData, wellId , title}) => {
 		},
 	]
 
-	if (isAdmin) {
+	if (isAdmin && wellStatus === 'active') {
 		columns.push({
 			title: 'عملیات',
 			dataIndex: 'action',
