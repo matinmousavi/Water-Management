@@ -4,6 +4,7 @@ import useAPI from '../../../../hooks/useAPI'
 import Loading from '../../../../components/Loading/Loading'
 import styles from './Notifications.module.css'
 import NotificationCard from './components/NotificationCard/NotificationCard'
+import BroadcastNotification from './components/BroadcastNotification/BroadcastNotification'
 
 const Notifications = () => {
 	const api = useAPI()
@@ -25,6 +26,7 @@ const Notifications = () => {
 					<NotificationCard key={index} data={template} />
 				))}
 			</Flex>
+			<BroadcastNotification />
 		</Flex>
 	)
 }
