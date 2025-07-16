@@ -55,25 +55,20 @@ const Layouts = () => {
 		{
 			key: '/profile',
 			icon: <UserOutlined className={styles.icons} onClick={() => navigate('/profile')} />,
-		},
-		{
-			key: '/bell',
-			icon: <BellOutlined className={styles.icons} />,
+			children: [
+				isAdmin && {
+					key: '/settings',
+					label: <span onClick={() => navigate('/settings')}>تنظیمات</span>,
+					icon: <SettingOutlined className={styles.icons} onClick={() => {navigate('/settings')}} />,
+				},
+				{
+					key: 'logout',
+					label: <span onClick={logout}>خروج</span>,
+					icon: <LogoutOutlined className={styles.icons} onClick={logout} />,
+				},
+			],
 		},
 	]
-
-	if (isAdmin) {
-		profileMenuItems.push(
-			{
-				key: '/settings',
-				icon: <SettingOutlined className={styles.icons} onClick={() => navigate('/settings')} />,
-			},
-			{
-				key: 'logout',
-				icon: <LogoutOutlined className={styles.icons} onClick={logout} />,
-			}
-		)
-	}
 	const itemUserButton = [
 		{
 			key: 'logout',

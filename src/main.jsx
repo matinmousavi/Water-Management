@@ -27,7 +27,8 @@ createRoot(document.getElementById('root')).render(
 						headerPadding: '0 20px',
 					},
 					Menu: {
-						itemMarginInline: 20,
+						itemMarginInline: 0,
+						itemMarginBlock: 0,
 					},
 					Button: {
 						primaryShadow: 'rgba(5, 145, 255, 0.1)',
