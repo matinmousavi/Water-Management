@@ -5,6 +5,7 @@ import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
 import iconExit from '../../public/ExportOutlined.png'
+import iconNotes from '../../public/myNotes.svg'
 
 const { Header, Content } = Layout
 const { Title } = Typography
@@ -76,15 +77,25 @@ const Layouts = () => {
 	}
 	const itemUserButton = [
 		{
+			key: 'my-notes',
+			icon: <img src={iconNotes} alt='icon note' />,
+			label: (
+				<span onClick={() => navigate('/my-notes')} className={styles.text_export}>
+					یادداشت‌های من
+				</span>
+			),
+		},
+		{
 			key: 'logout',
 			icon: <img src={iconExit} alt='icon exit' />,
 			label: (
 				<span onClick={logout} className={styles.text_export}>
-					خروج از برنامه
+					خروج
 				</span>
 			),
 		},
 	]
+
 	return (
 		<Layout className={styles.layout}>
 			<Header>
@@ -104,7 +115,14 @@ const Layouts = () => {
 					{!isMobile ? (
 						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
 					) : isIrrigator ? (
-						<Dropdown menu={{ items: itemUserButton }} placement='bottomLeft' trigger={['click']}>
+						<Dropdown
+							menu={{
+								items: itemUserButton,
+								style: { display: 'flex', alignItems: 'flex-start', width: 166, height: 92, gap: 4, flexDirection: 'column' },
+							}}
+							placement='bottomLeft'
+							trigger={['click']}
+						>
 							<Button
 								className={logoutIcon ? styles.button_click : styles.button}
 								onClick={() => setLogoutIcon(prev => !prev)}

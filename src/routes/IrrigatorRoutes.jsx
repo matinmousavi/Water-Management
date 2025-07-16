@@ -6,6 +6,7 @@ import Land from '../pages/shared/Land/Land'
 import Well from '../pages/shared/Well/Well'
 import Wells from '../pages/shared/Wells/Wells'
 import Lands from '../pages/shared/Lands/Lands'
+import MyNotes from '../pages/shared/MyNotes/MyNotes'
 
 const IrrigatorRoutes = () => (
 	<Routes>
@@ -22,6 +23,7 @@ const IrrigatorRoutes = () => (
 				<Route index element={<Wells />} />
 				<Route path=':wellId' element={<Well />} />
 			</Route>
+			<Route path='my-notes' element={<MyNotes />} />
 		</Route>
 	</Routes>
 )
