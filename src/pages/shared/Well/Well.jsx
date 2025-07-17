@@ -18,6 +18,8 @@ import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 
 import iconWell from '../../../assets/icons/Vector.svg'
 import WellStatus from './components/WellStatus'
+import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
+import WellsList from './components/WellsList/WellsList'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -29,6 +31,7 @@ const Well = () => {
 	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
 	const [status, setStatus] = useState('')
+	const [openWellList, setOpenWellList] = useState(false)
 
 	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
 
@@ -47,7 +50,9 @@ const Well = () => {
 
 	const well = api.data?.well || api.data?.wells?.[0]
 	const actualWellId = wellId || well?._id
-
+	const onCloseWellList = () => {
+		setOpenWellList(false)
+	}
 	return (
 		<>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
@@ -57,8 +62,14 @@ const Well = () => {
 					<Flex gap={8} justify='center' align='center'>
 						<img src={iconWell} alt='icon' />
 						<Typography.Title level={2} className='text-h2'>
-							چاه {well?.title}
+							چاه {well?.title}{' '}
 						</Typography.Title>
+						{openWellList ? (
+							<CaretUpOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+						) : (
+							<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+						)}
+						<WellsList onClose={onCloseWellList} open={openWellList} />
 					</Flex>
 				) : (
 					<>
