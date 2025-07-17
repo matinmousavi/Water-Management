@@ -1,5 +1,4 @@
 import { Button, Drawer, Flex, List, Typography } from 'antd'
-import { useState } from 'react'
 import styles from './WellsList.module.css'
 
 const WellsList = ({ open, onClose }) => {

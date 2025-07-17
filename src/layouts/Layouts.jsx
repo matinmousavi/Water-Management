@@ -4,7 +4,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
-import iconExit from '../../public/ExportOutlined.png'
+import iconExit from '../../public/Exit.svg'
 import iconNotes from '../../public/myNotes.svg'
 
 const { Header, Content } = Layout
