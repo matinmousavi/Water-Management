@@ -8,9 +8,8 @@ import Land from '../pages/shared/Land/Land'
 import Well from '../pages/shared/Well/Well'
 import Lands from '../pages/shared/Lands/Lands'
 import Wells from '../pages/shared/Wells/Wells'
-
 import Users from '../pages/admin/Users/Users'
-import Notifications from '../pages/admin/Settings/Notifications/Notifications'
+import Settings from '../pages/admin/Settings/Settings'
 
 const AdminRoutes = () => (
 	<Routes>
@@ -33,7 +32,7 @@ const AdminRoutes = () => (
 				<Route path=':wellId' element={<Well />} />
 			</Route>
 
-			<Route path='settings' element={<Notifications />} />
+			<Route path='settings' element={<Settings />} />
 		</Route>
 	</Routes>
 )

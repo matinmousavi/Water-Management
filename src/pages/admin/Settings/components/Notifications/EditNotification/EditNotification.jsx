@@ -1,10 +1,10 @@
 import { EditOutlined } from '@ant-design/icons'
 import { Button, Flex, Form, Modal, Typography } from 'antd'
-import useModal from '../../../../../../hooks/useModal'
 import { useForm } from 'antd/es/form/Form'
-import useAPI from '../../../../../../hooks/useAPI'
 import TextArea from 'antd/es/input/TextArea'
 import styles from './EditNotification.module.css'
+import useModal from '../../../../../../hooks/useModal'
+import useAPI from '../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../hooks/useNotification'
 
 const EditNotification = ({ template, setTemplate, title }) => {
