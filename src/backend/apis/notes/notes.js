@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
 			}))
 		)
 
-		return res.status(200).json({ data: processedNotes })
+		return res.status(200).json({ notes: processedNotes })
 	} catch (err) {
 		return res.status(500).json({ error: 'Server error', details: err.message })
 	}
@@ -80,7 +80,7 @@ router.get('/:id', async (req, res) => {
 			reference: await getReference(note.type, note.reference),
 		}
 
-		return res.status(200).json({ data: responseData })
+		return res.status(200).json({ note: responseData })
 	} catch (err) {
 		return res.status(500).json({ error: 'Server error', details: err.message })
 	}
