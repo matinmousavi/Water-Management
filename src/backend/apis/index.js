@@ -1,5 +1,4 @@
 import express, { Router } from 'express'
-import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import fileUpload from 'express-fileupload'
 
@@ -15,17 +14,7 @@ import irrigations from './irrigations/irrigations.js'
 import settings from './settings/settings.js'
 import notes from './notes/notes.js'
 
-const isProd = import.meta.env?.PROD
 const router = Router()
-
-if (!isProd) {
-	morgan.token('req-length', req => req.headers['content-length'] || '0')
-	morgan.token('res-length', (req, res) => res.getHeader('content-length') || '0')
-
-	const morganFormat = ':method :url :status - req: :req-length bytes - res: :res-length bytes - :response-time ms'
-
-	router.use(morgan(morganFormat))
-}
 
 router.use(cookieParser())
 

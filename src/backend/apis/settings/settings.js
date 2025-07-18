@@ -1,61 +1,26 @@
 import { Router } from 'express'
 import Setting from '../../models/Setting.model.js'
-import MessageTemplate from '../../models/messageTemplate.model.js'
-
+import irrigations from './irrigations.js'
 import notifications from './notifications/notifications.js'
+import broadcast from './broadcast.js'
 
 const router = Router()
 
-// GET all global settings
+// GET all global settings + templates
 router.get('/', async (req, res) => {
 	try {
-		const [settings, templates] = await Promise.all([Setting.findOne().lean(), MessageTemplate.find().lean()])
-
-		if (!settings) return res.status(404).json({ error: 'Settings not found' })
-
-		return res.status(200).json({
-			settings,
-			templates,
-		})
+		const settings = await Setting.findOne().lean()
+		if (!settings) return res.status(404).json({ error: 'تنظیمات یافت نشد' })
+		return res.status(200).json({ settings })
 	} catch (err) {
 		console.error(err)
-		return res.status(500).json({ error: 'Server error', details: err.message })
+		return res.status(500).json({ error: 'خطای سرور', details: err.message })
 	}
 })
 
-router.get('/irrigation-log', async (req, res) => {
-	try {
-		const settings = await Setting.findOne().lean()
-		if (!settings) return res.status(404).json({ error: 'Global settings not found' })
-		return res.status(200).json({ data: settings.irrigationLogSettings || {} })
-	} catch (err) {
-		return res.status(500).json({ error: 'Server error', details: err.message })
-	}
-})
-
-// PUT update irrigation log settings
-router.put('/irrigation-log', async (req, res) => {
-	try {
-		const updates = req.body
-		let settings = await Setting.findOne()
-
-		if (!settings) {
-			settings = new Setting({ irrigationLogSettings: updates })
-		} else {
-			settings.irrigationLogSettings = {
-				...settings.irrigationLogSettings,
-				...updates,
-			}
-		}
-
-		await settings.save()
-		return res.status(200).json({ data: settings.irrigationLogSettings })
-	} catch (err) {
-		return res.status(500).json({ error: 'Server error', details: err.message })
-	}
-})
-
+router.use('/irrigations', irrigations)
 router.use('/notifications', notifications)
+router.use('/broadcast', broadcast)
 
 // Fallback for unsupported methods
 router.all(/.*/, (req, res) => {

@@ -1,13 +1,13 @@
 import { Router } from 'express'
-import MessageTemplate from '../../../models/messageTemplate.model.js'
+import Setting from '../../../models/Setting.model.js'
 
 const router = Router()
 
 // GET all message templates
 router.get('/', async (req, res) => {
 	try {
-		const templates = await MessageTemplate.find()
-		res.json({ templates })
+		const setting = await Setting.findOne().lean()
+		res.json({ templates: setting?.messageTemplates || [] })
 	} catch (err) {
 		console.error(err.message)
 		res.status(500).json({ message: 'خطا در دریافت پیام‌ها' })
@@ -18,9 +18,12 @@ router.get('/', async (req, res) => {
 router.get('/:key', async (req, res) => {
 	try {
 		const { key } = req.params
-		const template = await MessageTemplate.findOne({ key })
+		const setting = await Setting.findOne().lean()
+		const template = setting?.messageTemplates?.find(t => t.key === key)
 
-		if (!template) return res.status(404).json({ message: 'پیام مورد نظر پیدا نشد' })
+		if (!template) {
+			return res.status(404).json({ message: 'پیام مورد نظر پیدا نشد' })
+		}
 
 		res.json({ template })
 	} catch (err) {
@@ -33,15 +36,31 @@ router.get('/:key', async (req, res) => {
 router.put('/:key', async (req, res) => {
 	try {
 		const { key } = req.params
-		const { text, description, placeholders, type } = req.body
+		const { text, title, placeholders, type } = req.body
 
-		const updated = await MessageTemplate.findOneAndUpdate({ key }, { $set: { text, description, placeholders, type } }, { new: true })
+		const setting = await Setting.findOne()
 
-		if (!updated) {
+		if (!setting || !Array.isArray(setting.messageTemplates)) {
+			return res.status(404).json({ message: 'تنظیمات یا پیام‌ها پیدا نشدند' })
+		}
+
+		const index = setting.messageTemplates.findIndex(t => t.key === key)
+
+		if (index === -1) {
 			return res.status(404).json({ message: 'پیام مورد نظر پیدا نشد' })
 		}
 
-		res.json({ message: 'پیام با موفقیت به‌روزرسانی شد', template: updated })
+		if (text !== undefined) setting.messageTemplates[index].text = text
+		if (title !== undefined) setting.messageTemplates[index].title = title
+		if (placeholders !== undefined) setting.messageTemplates[index].placeholders = placeholders
+		if (type !== undefined) setting.messageTemplates[index].type = type
+
+		await setting.save()
+
+		res.json({
+			message: 'پیام با موفقیت به‌روزرسانی شد',
+			template: setting.messageTemplates[index],
+		})
 	} catch (err) {
 		console.error(err.message)
 
