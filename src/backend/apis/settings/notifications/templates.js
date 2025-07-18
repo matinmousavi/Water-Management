@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import MessageTemplate from '../../models/messageTemplate.model.js'
+import MessageTemplate from '../../../models/messageTemplate.model.js'
 
 const router = Router()
 
@@ -7,7 +7,6 @@ const router = Router()
 router.get('/', async (req, res) => {
 	try {
 		const templates = await MessageTemplate.find()
-
 		res.json({ templates })
 	} catch (err) {
 		console.error(err.message)
