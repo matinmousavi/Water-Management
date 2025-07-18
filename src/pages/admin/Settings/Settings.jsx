@@ -5,6 +5,31 @@ import Notifications from './components/Notifications/Notifications'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 
+const titleMap = {
+	otp: 'اطلاع رسانی کد تایید',
+	irrigation_start_irrigator: 'اطلاع‌رسانی آب‌رسانی - شروع آب‌رسانی برای میرآب',
+	irrigation_end_irrigator: 'اطلاع‌رسانی آب‌رسانی - پایان آب‌رسانی برای میرآب',
+	irrigation_start_landowner: 'اطلاع‌رسانی آب‌رسانی - شروع آب‌رسانی برای مالک زمین',
+	irrigation_end_landowner: 'اطلاع‌رسانی آب‌رسانی - پایان آب‌رسانی برای مالک زمین',
+	log_change_description: 'امکان ویرایش توضیحات لاگ توسط میرآب',
+	log_operator_time_limit: 'محدودیت در زمان ثبت لاگ آبرسانی',
+}
+
+const mockLogs = [
+	{
+		key: 'log_change_description',
+		text: '۲۴ ساعت پس از ثبت لاگ',
+		placeholders: [],
+		time: '۲۴',
+	},
+	{
+		key: 'log_operator_time_limit',
+		text: '۳۰ دقیقه پیش از زمان ثبت لاگ',
+		placeholders: [],
+		time: '۳۰',
+	},
+]
+
 const Settings = () => {
 	const api = useAPI()
 	api.init('messageTemplates')
@@ -15,8 +40,8 @@ const Settings = () => {
 		<Flex vertical gap={16}>
 			<BreadCrumbs />
 			<Flex vertical gap={40}>
-				<Logging />
-				<Notifications api={api} />
+				<Logging mockLogs={mockLogs} titleMap={titleMap} />
+				<Notifications api={api} titleMap={titleMap} />
 			</Flex>
 		</Flex>
 	)

@@ -12,6 +12,9 @@
 .textPlaceholdersKey {
 	font-weight: 900 !important;
 }
-.textArea {
-	font-size: 12px;
+.form {
+	width: 120px !important;
+}
+.modal-content {
+	margin: 4px 0 !important;
 }

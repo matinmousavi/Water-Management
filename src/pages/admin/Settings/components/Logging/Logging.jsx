@@ -1,24 +1,16 @@
+import { useState } from 'react'
 import SettingsCard from '../SettingsSection/SettingsCard/SettingsCard'
 import SettingsSection from '../SettingsSection/SettingsSection'
+import EditLogging from './EditLogging/EditLogging'
 
-const mockLogs = [
-	{
-		key: 'log_change_description',
-		text: '۲۴ ساعت پس از ثبت لاگ',
-		placeholders: [],
-	},
-	{
-		key: 'log_operator_time_limit',
-		text: 'محدودیت در زمان ثبت لاگ آبرسانی',
-		placeholders: [],
-	},
-]
-
-const Logging = () => {
+const Logging = ({ mockLogs, titleMap }) => {
+	const [templates, setTemplates] = useState(mockLogs)
 	return (
 		<SettingsSection title='تنظیمات ثبت لاگ'>
-			{mockLogs.map((log, index) => (
-				<SettingsCard key={index} data={log} />
+			{templates.map((template, index) => (
+				<SettingsCard key={index} data={template} title={titleMap[template.key]}>
+					<EditLogging template={template} setTemplate={setTemplates} title={titleMap[template.key]} />
+				</SettingsCard>
 			))}
 		</SettingsSection>
 	)

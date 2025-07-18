@@ -81,6 +81,9 @@ a {
 	border: none !important;
 	box-shadow: none !important;
 }
+.ant-modal-header .ant-modal-title {
+	font-weight: 400 !important;
+}
 .ant-menu-title-content {
 	margin-inline-start: 0 !important;
 }
@@ -185,7 +188,16 @@ label::after {
 	color: rgba(0, 0, 0, 0.88);
 }
 .ant-menu-submenu-popup>.ant-menu li span svg {
-	color: rgba(0, 0, 0, 0.45);
+	color: #00000073;
+}
+.ant-input::placeholder {
+	color: rgba(0, 0, 0, 0.80) !important;
+}
+.ant-input-group .ant-input-group-addon {
+	width: 57px !important;
+}
+.ant-input-group-addon {
+	color: rgba(0, 0, 0, 0.50) !important;
 }
 /* --------------------------------------------
    3. Custom Utility / UI Classes

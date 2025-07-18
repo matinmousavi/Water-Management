@@ -43,6 +43,43 @@ const EditNotification = ({ template, setTemplate, title }) => {
 		}
 	}
 
+	const renderPlaceholders = () => {
+		if (template.key === 'otp') {
+			return (
+				<Flex vertical gap={5}>
+					<Flex align='center' gap={2}>
+						<Typography.Text className={styles.textPlaceholdersText}>کد تایید</Typography.Text>
+						<span>←</span>
+						<Typography.Text className={styles.textPlaceholdersKey}>
+							{'{'}
+							{'{'}code{'}'}
+							{'}'}
+						</Typography.Text>
+					</Flex>
+				</Flex>
+			)
+		} else {
+			return (
+				<Flex vertical gap={5}>
+					{template.placeholders.map((item, index) => (
+						<Flex key={index} align='center' gap={2}>
+							<Typography.Text className={styles.textPlaceholdersText}>{item.description}</Typography.Text>
+							<span>←</span>
+							<Typography.Text className={styles.textPlaceholdersKey}>{item.key}</Typography.Text>
+						</Flex>
+					))}
+				</Flex>
+			)
+		}
+	}
+
+	const renderDefaultText = () => {
+		if (template.key === 'otp') {
+			return 'کد تایید شما: {{code}}. لطفاً آن را به کسی ندهید.'
+		}
+		return 'آبیاری چاه {{well_name}} برای زمین {{land_owner_name}} از ساعت {{start_time}} آغاز شد.'
+	}
+
 	return (
 		<>
 			<Button onClick={() => open(handleOpen, 'before')} className='style-btn' size='middle' type='default'>
@@ -63,21 +100,17 @@ const EditNotification = ({ template, setTemplate, title }) => {
 				width={520}
 				onOk={handleOk}
 			>
-				<Flex vertical>
+				<Flex vertical gap={10}>
 					<Typography.Title level={5} className={styles.titlePlaceholders}>
-						متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:
+						{template.key === 'otp'
+							? 'متن پیامک را با در نظر گرفتن متغییر زیر وارد کنید:'
+							: 'متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:'}
 					</Typography.Title>
-					<Flex vertical gap={5}>
-						{template.placeholders.map((item, index) => (
-							<Flex key={index} align='center' gap={2}>
-								<Typography.Text className={styles.textPlaceholdersText}>{item.description}</Typography.Text>
-								<span>←</span>
-								<Typography.Text className={styles.textPlaceholdersKey}>{item.key}</Typography.Text>
-							</Flex>
-						))}
-					</Flex>
+
+					{renderPlaceholders()}
+
 					<Form form={form}>
-						<Form.Item name='text'>
+						<Form.Item name='text' initialValue={renderDefaultText()}>
 							<TextArea rows={4} className={styles.textArea} />
 						</Form.Item>
 					</Form>
