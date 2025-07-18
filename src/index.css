@@ -19,9 +19,6 @@
 .ant-card {
 	border-radius: 4px;
 }
-.ant-card-body {
-	padding: 1rem !important;
-}
 .ant-typography,
 a {
 	font-size: 0.875rem;
@@ -177,6 +174,9 @@ label::after {
 .ant-menu-vertical {
 	min-width: 120px !important;
 	height: 92px !important;
+}
+.ant-menu-submenu-popup {
+	top: 40px !important;
 }
 .ant-menu-submenu-popup>.ant-menu {
 	background-color: #fff !important;
