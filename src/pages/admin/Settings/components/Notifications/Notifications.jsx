@@ -4,14 +4,14 @@ import SettingsCard from '../SettingsSection/SettingsCard/SettingsCard'
 import SettingsSection from '../SettingsSection/SettingsSection'
 import EditNotification from './EditNotification/EditNotification'
 
-const Notifications = ({ api, titleMap }) => {
-	const [templates, setTemplates] = useState(api?.data?.templates || [])
-	if (api.isLoading || !api.data) return <Loading />
+const Notifications = ({ data, meta }) => {
+	const [templates, setTemplates] = useState(data || [])
+
 	return (
 		<SettingsSection title='تنظیمات اطلاع‌رسانی'>
 			{templates.map((template, index) => (
-				<SettingsCard key={index} data={template} title={titleMap[template.key]}>
-					<EditNotification template={template} setTemplate={setTemplates} title={titleMap[template.key]} />
+				<SettingsCard key={index} data={template} title={meta[template.key].title} description={meta[template.key].description}>
+					<EditNotification template={template} setTemplate={setTemplates} title={meta[template.key]} />
 				</SettingsCard>
 			))}
 		</SettingsSection>

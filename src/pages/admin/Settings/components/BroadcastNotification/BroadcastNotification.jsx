@@ -1,19 +1,21 @@
-import { useState } from 'react'
-import SettingsCard from '../SettingsSection/SettingsCard/SettingsCard'
-import SettingsSection from '../SettingsSection/SettingsSection'
-import { Button } from 'antd'
+import styles from '../SettingsSection/SettingsCard/SettingsCard.module.css'
+import { Button, Card, Flex, Input, Typography } from 'antd'
 
-const BroadcastNotification = ({ mockLogs, titleMap }) => {
-const publicInformationRegistration = mockLogs.filter(item => item.key === 'public_information_registration')
-	const [templates, setTemplates] = useState(publicInformationRegistration)
+const BroadcastNotification = ({ title }) => {
 	return (
-		<SettingsSection title='تنظیمات ثبت لاگ'>
-			{templates.map((template, index) => (
-				<SettingsCard key={index} data={template} title={titleMap[template.key]} setTemplates={setTemplates}>
-					<Button type='primary'>ارسال به همه</Button>
-					</SettingsCard>
-				))}
-		</SettingsSection>
+		<Card>
+			<Flex vertical gap={16}>
+				<Flex className='heading-container' align='center' justify='space-between'>
+					<Typography.Title className={styles['card-title']}>{title}</Typography.Title>
+					<Flex justify='end'>
+						<Button type='primary' onClick={() => {}}>
+							ارسال به همه
+						</Button>
+					</Flex>
+				</Flex>
+				<Input.TextArea rows={4} placeholder='متن پیام را وارد کنید' value='' onChange={() => {}} />
+			</Flex>
+		</Card>
 	)
 }
 

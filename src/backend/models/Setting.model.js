@@ -3,8 +3,23 @@ import mongoose from 'mongoose'
 const settingSchema = new mongoose.Schema(
 	{
 		irrigationLog: {
-			descriptionEdit: { type: Number, default: 24 },
-			timeMargin: { type: Number, default: 30 },
+			type: [
+				{
+					key: { type: String, required: true, trim: true },
+					text: { type: String, default: '', trim: true },
+					time: { type: Number, required: true },
+					placeholders: {
+						type: [
+							{
+								key: { type: String, required: true },
+								description: { type: String, default: '' },
+							},
+						],
+						default: [],
+					},
+				},
+			],
+			default: [],
 		},
 		messageTemplates: {
 			type: [
@@ -34,10 +49,20 @@ settingSchema.statics.initializeSettings = async function () {
 	const exists = await this.findOne()
 	if (!exists) {
 		const defaultSetting = {
-			irrigationLog: {
-				descriptionEdit: 24,
-				timeMargin: 30,
-			},
+			irrigationLog: [
+				{
+					key: 'descriptionEdit',
+					text: 'مدت زمان قابل ویرایش بودن لاگ',
+					time: 24,
+					placeholders: [],
+				},
+				{
+					key: 'log_operator_time_limit',
+					text: 'محدودیت زمانی برای ثبت لاگ توسط اپراتور',
+					time: 30,
+					placeholders: [],
+				},
+			],
 			messageTemplates: [
 				{
 					key: 'otp',
@@ -108,9 +133,6 @@ settingSchema.statics.initializeSettings = async function () {
 		}
 
 		await this.create(defaultSetting)
-		console.log('Default setting with message templates created.')
-	} else {
-		console.log('Setting already exists.')
 	}
 }
 
