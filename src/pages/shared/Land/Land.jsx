@@ -1,4 +1,4 @@
-import { Flex, Grid, Tag, Typography } from 'antd'
+import { Flex, Grid, Switch, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import LandInfo from './components/LandInfo/LandInfo'
@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import useNotification from '../../../hooks/useNotification'
 import LandStatus from './components/LandStatus'
+import { BellOutlined } from '@ant-design/icons'
 
 const { Title } = Typography
 
@@ -67,7 +68,13 @@ const Land = () => {
 							{pageTitle}
 						</Title>
 						<LandStatus landId={landId} status={status} setStatus={setStatus} landTitle={pageTitle} />
+						<Flex>
+							<Switch defaultChecked />
+							<span>اطلاع رسانی</span>
+							<BellOutlined />
+						</Flex>
 					</Flex>
+
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
 					<LandNote notesData={landData.notes} api={landApi} status={status} />
 					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={status} />
