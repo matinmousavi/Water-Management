@@ -209,6 +209,7 @@ const LandInfoMobile = ({ data }) => {
 					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
 				</div>
 			</Drawer>
+
 			<Drawer title={null} placement='bottom' height='auto' open={showWellInUseWarning} onClose={() => setEndNoticeDrawer(false)} closable={false}>
 				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 					<WarningModalInUse
