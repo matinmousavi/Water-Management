@@ -3,6 +3,7 @@ import mongoose from '../../config/database.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
+import Note from '../../models/Note.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
@@ -51,13 +52,14 @@ router.get('/:landId', async (req, res) => {
 			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
 		}
 
-		const land = await Land.findById(landId).populate('owner').populate({ path: 'notes.user', select: '_id firstName lastName' }).lean()
+		const land = await Land.findById(landId).populate('owner').lean()
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
 		}
 		const landWithWells = await attachWells(land)
 		const logs = await Irrigation.find({ land: land._id }).sort({ date: -1 }).lean()
-		return res.status(200).json({ land: { ...landWithWells, logs } })
+		const notes = await Note.find({ reference: land._id, type: 'land' }).populate('user', '_id firstName lastName').lean()
+		return res.status(200).json({ land: { ...landWithWells, logs, notes } })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
@@ -69,9 +71,12 @@ router.post('/', async (req, res) => {
 	try {
 		const { title, owner, area, kFactor, location, irrigationType, cropType, note, wellId } = req.body
 		const userId = req.user._id
-		const initialNote = note ? [{ user: userId, text: note }] : []
 
-		const newLand = await Land.create({ title, owner, area, kFactor, location, irrigationType, cropType, notes: initialNote })
+		const newLand = await Land.create({ title, owner, area, kFactor, location, irrigationType, cropType })
+
+		if (note) {
+			await Note.create({ user: userId, text: note, type: 'land', reference: newLand._id, typeRef: 'Land' })
+		}
 
 		if (wellId) {
 			const well = await Well.findById(wellId)
@@ -144,6 +149,7 @@ router.delete('/:landId', async (req, res) => {
 		const { landId } = req.params
 		const land = await Land.findByIdAndDelete(landId)
 		if (!land) return res.status(404).json({ message: 'زمین پیدا نشد.' })
+		await Note.deleteMany({ reference: landId, type: 'land' })
 		return res.status(200).json({ message: 'زمین با موفقیت حذف شد.' })
 	} catch (err) {
 		console.error('خطا در حذف زمین:', err.message)
@@ -161,14 +167,10 @@ router.post('/:landId/notes', async (req, res) => {
 		const land = await Land.findById(landId)
 		if (!land) return res.status(404).json({ message: 'زمین پیدا نشد.' })
 
-		if (!Array.isArray(land.notes)) land.notes = []
-		land.notes.push({ user: userId, text })
-		await land.save()
+		const newNote = await Note.create({ user: userId, text, type: 'land', reference: landId, typeRef: 'Land' })
+		await newNote.populate('user', '_id firstName lastName')
 
-		const lastNote = land.notes[land.notes.length - 1]
-		await land.populate({ path: 'notes.user', match: { _id: userId } })
-
-		return res.status(200).json({ message: 'یادداشت با موفقیت اضافه شد.', note: lastNote })
+		return res.status(200).json({ message: 'یادداشت با موفقیت اضافه شد.', note: newNote })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در افزودن یادداشت.' })
@@ -183,20 +185,16 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
 		const userId = req.user._id
 		const isAdmin = req.isAdmin
 
-		const land = await Land.findById(landId)
-		if (!land) return res.status(404).json({ message: 'زمین پیدا نشد.' })
-
-		const note = land.notes.id(noteId)
-		if (!note) return res.status(404).json({ message: 'یادداشت پیدا نشد.' })
+		const note = await Note.findById(noteId)
+		if (!note || note.reference.toString() !== landId) return res.status(404).json({ message: 'یادداشت پیدا نشد.' })
 
 		if (!note.user.equals(userId) && !isAdmin) {
 			return res.status(403).json({ message: 'دسترسی غیرمجاز به یادداشت.' })
 		}
 
 		note.text = text
-		await land.save()
-		await land.populate({ path: 'notes.user', match: { _id: note.user } })
-
+		await note.save()
+		await note.populate('user', '_id firstName lastName')
 		return res.status(200).json({ message: 'یادداشت به‌روزرسانی شد.', note })
 	} catch (err) {
 		console.error(err.message)
@@ -211,21 +209,15 @@ router.delete('/:landId/notes/:noteId', async (req, res) => {
 		const userId = req.user._id
 		const isAdmin = req.isAdmin
 
-		const land = await Land.findById(landId).populate('notes.user', '_id firstName lastName')
-		if (!land) return res.status(404).json({ message: 'زمین پیدا نشد.' })
-
-		const note = land.notes.id(noteId)
-		if (!note) return res.status(404).json({ message: 'یادداشت پیدا نشد.' })
+		const note = await Note.findById(noteId)
+		if (!note || note.reference.toString() !== landId) return res.status(404).json({ message: 'یادداشت پیدا نشد.' })
 
 		if (!note.user.equals(userId) && !isAdmin) {
 			return res.status(403).json({ message: 'شما اجازه حذف این یادداشت را ندارید.' })
 		}
 
-		land.notes.pull(noteId)
-		await land.save()
-		await land.populate('notes.user', '_id firstName lastName')
-
-		return res.status(200).json({ message: 'یادداشت با موفقیت حذف شد.', notes: land.notes })
+		await note.deleteOne()
+		return res.status(200).json({ message: 'یادداشت با موفقیت حذف شد.' })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطا در حذف یادداشت.' })
