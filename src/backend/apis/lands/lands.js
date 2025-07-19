@@ -56,10 +56,37 @@ router.get('/:landId', async (req, res) => {
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
 		}
+
 		const landWithWells = await attachWells(land)
+
+		// بررسی وضعیت آبیاری چاه‌ها
+		const wellIds = landWithWells.wells?.map(well => well._id) || []
+
+		const ongoingIrrigations = await Irrigation.find({
+			well: { $in: wellIds },
+			isOngoing: true,
+		}).select('well')
+
+		const ongoingWellIds = new Set(ongoingIrrigations.map(ir => ir.well.toString()))
+
+		// افزودن وضعیت isIrrigating به هر چاه
+		const wellsWithStatus =
+			landWithWells.wells?.map(well => ({
+				...well,
+				isIrrigating: ongoingWellIds.has(well._id.toString()),
+			})) || []
+
 		const logs = await Irrigation.find({ land: land._id }).sort({ date: -1 }).lean()
 		const notes = await Note.find({ reference: land._id, type: 'land' }).populate('user', '_id firstName lastName').lean()
-		return res.status(200).json({ land: { ...landWithWells, logs, notes } })
+
+		return res.status(200).json({
+			land: {
+				...landWithWells,
+				wells: wellsWithStatus, // اضافه کردن وضعیت آبیاری چاه‌ها
+				logs,
+				notes,
+			},
+		})
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
