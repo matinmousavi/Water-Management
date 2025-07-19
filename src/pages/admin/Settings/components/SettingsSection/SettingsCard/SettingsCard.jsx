@@ -1,4 +1,4 @@
-import { Card, Typography, Flex } from 'antd'
+import { Card, Typography, Flex, Input } from 'antd'
 import styles from './SettingsCard.module.css'
 
 const SettingsCard = ({ data, title, children }) => {
@@ -9,7 +9,11 @@ const SettingsCard = ({ data, title, children }) => {
 					<Typography.Title className={styles['card-title']}>{title}</Typography.Title>
 					{children}
 				</Flex>
-				<Typography.Text className={styles['card-text']}>{data.text}</Typography.Text>
+				{data.key === 'public_information_registration' ? (
+					<Input.TextArea rows={4} placeholder='متن پیام را وارد کنید' value={data.text} onChange={() => {}} />
+				) : (
+					<Typography.Text className={styles['card-text']}>{data.text}</Typography.Text>
+				)}
 			</Flex>
 		</Card>
 	)

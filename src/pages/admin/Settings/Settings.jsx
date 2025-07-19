@@ -4,6 +4,7 @@ import Logging from './components/Logging/Logging'
 import Notifications from './components/Notifications/Notifications'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
+import BroadcastNotification from './components/BroadcastNotification/BroadcastNotification'
 
 const titleMap = {
 	otp: 'اطلاع رسانی کد تایید',
@@ -13,6 +14,7 @@ const titleMap = {
 	irrigation_end_landowner: 'اطلاع‌رسانی آب‌رسانی - پایان آب‌رسانی برای مالک زمین',
 	log_change_description: 'امکان ویرایش توضیحات لاگ توسط میرآب',
 	log_operator_time_limit: 'محدودیت در زمان ثبت لاگ آبرسانی',
+	public_information_registration: 'ثبت اطلاع رسانی همگانی',
 }
 
 const mockLogs = [
@@ -28,6 +30,12 @@ const mockLogs = [
 		placeholders: [],
 		time: '۳۰',
 	},
+	{
+		key: 'public_information_registration',
+		text: 'متن تستی برای اطلاع رسانی همگانی',
+		placeholders: [],
+		time: '22',
+	},
 ]
 
 const Settings = () => {
@@ -42,6 +50,7 @@ const Settings = () => {
 			<Flex vertical gap={40}>
 				<Logging mockLogs={mockLogs} titleMap={titleMap} />
 				<Notifications api={api} titleMap={titleMap} />
+				<BroadcastNotification mockLogs={mockLogs} titleMap={titleMap} />
 			</Flex>
 		</Flex>
 	)
