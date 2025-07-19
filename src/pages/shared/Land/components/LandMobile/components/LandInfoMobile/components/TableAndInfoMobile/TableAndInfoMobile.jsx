@@ -9,7 +9,7 @@ import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 
 const { Text } = Typography
 
-const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handleStop, setShowStartDrawer }) => {
+const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handleStop, onStartClick }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const listItems = [
@@ -100,7 +100,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 						</Button>
 					</>
 				) : (
-					<Button type='primary' block onClick={() => setShowStartDrawer(true)}>
+					<Button type='primary' block onClick={onStartClick}>
 						شروع آبیاری
 					</Button>
 				)}

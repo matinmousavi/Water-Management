@@ -8,6 +8,7 @@ import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useParams } from 'react-router'
 import TableAndInfoMobile from './components/TableAndInfoMobile/TableAndInfoMobile'
+import WarningModalInUse from './components/WarningModalInUse/WarningModalInUse'
 
 const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
 
@@ -21,14 +22,39 @@ const LandInfoMobile = ({ data }) => {
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [remainingTime, setRemainingTime] = useState(null)
 	const [isIrrigating, setIsIrrigating] = useState(false)
+	const [showWellInUseWarning, setShowWellInUseWarning] = useState(false)
+	const [currentIrrigatingLand, setCurrentIrrigatingLand] = useState(null)
 
 	const startY = useRef(0)
+
+	console.log(data)
 
 	useEffect(() => {
 		if (data?.logs?.length && logs.length === 0) {
 			setLogs(data.logs)
 		}
 	}, [data?.logs])
+
+	useEffect(() => {
+		if (!data?.wells?.[0]?._id) return
+
+		const fetchWellData = async () => {
+			try {
+				const response = await api.get(`wells/${data.wells[0]._id}`)
+				const allLogs = response?.well?.logs || []
+
+				// بررسی لاگ فعال چاه برای استخراج زمین در حال آبیاری
+				const ongoing = allLogs.find(log => log.isOngoing)
+				if (ongoing?.land?.title) {
+					setCurrentIrrigatingLand(ongoing.land) // کل آبجکت land رو ذخیره می‌کنیم
+				}
+			} catch (error) {
+				console.error('خطا در دریافت اطلاعات چاه:', error)
+			}
+		}
+
+		fetchWellData()
+	}, [data?.wells])
 
 	const formatTime = seconds => {
 		const hrs = Math.floor(seconds / 3600)
@@ -46,8 +72,8 @@ const LandInfoMobile = ({ data }) => {
 			setRemainingTime(0)
 			return
 		}
-
 		setIsIrrigating(true)
+
 		const startedAt = new Date(ongoingLog.startedAt).getTime()
 
 		const updateRemaining = () => {
@@ -130,9 +156,26 @@ const LandInfoMobile = ({ data }) => {
 		setShowEndDrawer(true)
 	}
 
+	const handleEndIrrigation = () => {
+		setShowStartDrawer(true)
+		setShowWellInUseWarning(false)
+	}
+
 	const CancelTimeEnd = () => {
 		setEndNoticeDrawer(false)
 		setShowEndDrawer(false)
+	}
+
+	const CancelWarning = () => {
+		setShowWellInUseWarning(false)
+	}
+
+	const handleStartClick = () => {
+		if (data?.wells?.[0]?.isIrrigating) {
+			setShowWellInUseWarning(true)
+		} else {
+			setShowStartDrawer(true)
+		}
 	}
 
 	return (
@@ -143,7 +186,7 @@ const LandInfoMobile = ({ data }) => {
 				time={formatTime(remainingTime || 0)}
 				elapsedTime={remainingTime}
 				handleStop={handleStop}
-				setShowStartDrawer={setShowStartDrawer}
+				onStartClick={handleStartClick}
 				isIrrigating={isIrrigating}
 			/>
 
@@ -162,6 +205,16 @@ const LandInfoMobile = ({ data }) => {
 			<Drawer title={null} placement='bottom' height='auto' open={endNoticeDrawer} onClose={() => setEndNoticeDrawer(false)} closable={false}>
 				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
+				</div>
+			</Drawer>
+			<Drawer title={null} placement='bottom' height='auto' open={showWellInUseWarning} onClose={() => setEndNoticeDrawer(false)} closable={false}>
+				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
+					<WarningModalInUse
+						onSubmit={handleEndIrrigation}
+						time={formatTime(remainingTime || 0)}
+						onClose={CancelWarning}
+						land={currentIrrigatingLand}
+					/>
 				</div>
 			</Drawer>
 		</div>
