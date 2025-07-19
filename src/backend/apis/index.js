@@ -1,5 +1,4 @@
 import express, { Router } from 'express'
-import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import fileUpload from 'express-fileupload'
 
@@ -12,20 +11,10 @@ import upload from './upload/upload.js'
 import wells from './wells/wells.js'
 import lands from './lands/lands.js'
 import irrigations from './irrigations/irrigations.js'
-import messageTemplates from './messageTemplates/messageTemplates.js'
-import notifications from './notifications/notifications.js'
+import settings from './settings/settings.js'
+import notes from './notes/notes.js'
 
-const isProd = import.meta.env?.PROD
 const router = Router()
-
-if (!isProd) {
-	morgan.token('req-length', req => req.headers['content-length'] || '0')
-	morgan.token('res-length', (req, res) => res.getHeader('content-length') || '0')
-
-	const morganFormat = ':method :url :status - req: :req-length bytes - res: :res-length bytes - :response-time ms'
-
-	router.use(morgan(morganFormat))
-}
 
 router.use(cookieParser())
 
@@ -49,7 +38,7 @@ router.use('/upload', isLogin, upload)
 router.use('/wells', isLogin, wells)
 router.use('/lands', isLogin, lands)
 router.use('/irrigations', isLogin, irrigations)
-router.use('/messageTemplates', isAdmin, messageTemplates)
-router.use('/notifications', isAdmin, notifications)
+router.use('/settings', isAdmin, settings)
+router.use('/notes', isLogin, notes)
 
 export default router

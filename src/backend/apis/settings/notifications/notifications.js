@@ -1,6 +1,7 @@
 import { Router } from 'express'
-import User from '../../models/User.model.js'
-import sendSMS from '../../../services/sendSMS.js'
+import templates from './templates.js'
+import User from '../../../models/User.model.js'
+import sendSMS from '../../../../services/sendSMS.js'
 
 const router = Router()
 
@@ -41,6 +42,8 @@ router.post('/broadcast', async (req, res) => {
 		res.status(500).json({ message: 'خطا در ارسال پیام همگانی' })
 	}
 })
+
+router.use('/templates', templates)
 
 // Fallback for unsupported methods
 router.all(/.*/, (req, res) => {
