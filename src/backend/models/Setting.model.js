@@ -3,14 +3,14 @@ import mongoose from 'mongoose'
 const settingSchema = new mongoose.Schema(
 	{
 		irrigations: {
-			type: [
-				{
-					key: { type: String, required: true, trim: true },
-					time: { type: Number, required: true },
-				},
-			],
-			default: [],
+			descriptionEditHours: {
+				time: { type: Number, required: true, default: 24 },
+			},
+			logTimeMarginMinutes: {
+				time: { type: Number, required: true, default: 30 },
+			},
 		},
+
 		messageTemplates: {
 			type: [
 				{
@@ -38,16 +38,14 @@ settingSchema.statics.initializeSettings = async function () {
 	const exists = await this.findOne()
 	if (!exists) {
 		const defaultSetting = {
-			irrigations: [
-				{
-					key: 'description_edit_hours',
-					time: 24,
+			irrigations: {
+				descriptionEditHours: {
+					time: { type: Number, required: true, default: 24 },
 				},
-				{
-					key: 'log_time_margin_minutes',
-					time: 30,
+				logTimeMarginMinutes: {
+					time: { type: Number, required: true, default: 30 },
 				},
-			],
+			},
 			messageTemplates: [
 				{
 					key: 'otp',
