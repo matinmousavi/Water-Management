@@ -86,6 +86,36 @@ router.get('/:id', async (req, res) => {
 	}
 })
 
+// PATCH update a note
+router.patch('/:id', async (req, res) => {
+	try {
+		const { text } = req.body
+
+		if (typeof text !== 'string' || !text.trim()) {
+			return res.status(400).json({ error: 'متن یادداشت معتبر نیست' })
+		}
+
+		const updatedNote = await Note.findByIdAndUpdate(req.params.id, { text: text.trim() }, { new: true, runValidators: true }).lean()
+
+		if (!updatedNote) {
+			return res.status(404).json({ error: 'یادداشت پیدا نشد' })
+		}
+
+		const responseData = {
+			id: updatedNote._id,
+			text: updatedNote.text,
+			type: updatedNote.type,
+			createdAt: updatedNote.createdAt,
+			updatedAt: updatedNote.updatedAt,
+			reference: await getReference(updatedNote.type, updatedNote.reference),
+		}
+
+		return res.status(200).json({ note: responseData })
+	} catch (err) {
+		return res.status(500).json({ error: 'خطای سرور', details: err.message })
+	}
+})
+
 // Fallback for unsupported methods
 router.all(/.*/, (req, res) => {
 	return res.status(405).send({ error: 'Method Not Allowed' })
