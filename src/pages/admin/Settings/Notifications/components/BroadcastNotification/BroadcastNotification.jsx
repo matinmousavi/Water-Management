@@ -18,7 +18,7 @@ const BroadcastNotification = () => {
 
 		setLoading(true)
 		try {
-			const response = await api.post('notifications/broadcast', { text })
+			const response = await api.post('settings/notifications/broadcast', { text })
 
 			if (response.ok) {
 				openNotification('success', 'ارسال موفق', 'پیام با موفقیت برای همه کاربران ارسال شد')

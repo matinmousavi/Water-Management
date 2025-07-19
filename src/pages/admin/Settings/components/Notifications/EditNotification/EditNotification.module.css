@@ -1,0 +1,17 @@
+.titlePlaceholders {
+	font-size: 12px !important;
+	font-weight: 400 !important;
+	color: #000 !important;
+	line-height: 20;
+}
+.textPlaceholdersText,
+.textPlaceholdersKey {
+	font-size: 12px !important;
+	font-weight: 600 !important;
+}
+.textPlaceholdersKey {
+	font-weight: 900 !important;
+}
+.textArea {
+	font-size: 12px;
+}

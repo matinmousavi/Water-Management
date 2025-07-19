@@ -8,7 +8,6 @@ import fa_IR from 'antd/locale/fa_IR'
 
 import App from './App.jsx'
 import './index.css'
-//import './mobile.css'
 
 createRoot(document.getElementById('root')).render(
 	<StrictMode>
@@ -27,7 +26,8 @@ createRoot(document.getElementById('root')).render(
 						headerPadding: '0 20px',
 					},
 					Menu: {
-						itemMarginInline: 20,
+						itemMarginInline: 0,
+						itemMarginBlock: 0,
 					},
 					Button: {
 						primaryShadow: 'rgba(5, 145, 255, 0.1)',
@@ -41,6 +41,8 @@ createRoot(document.getElementById('root')).render(
 					Input: {
 						activeShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
 						borderRadiusLG: 4,
+						paddingBlock: 4,
+						paddingInline: 12,
 					},
 					Card: {
 						bodyPadding: 36,
