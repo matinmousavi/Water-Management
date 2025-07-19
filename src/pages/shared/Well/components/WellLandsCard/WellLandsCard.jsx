@@ -24,7 +24,7 @@ const WellLandsCard = ({ wellLands, wellStatus }) => {
 						</Typography.Title>
 						{isAdmin && wellStatus === 'active' && <WellAddLand currentLands={lands} setLandsData={api.setData} />}
 					</Flex>
-					{lands?.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} wellStatus={wellStatus} />}
+					{lands?.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} />}
 				</Flex>
 			</Card>
 		</>

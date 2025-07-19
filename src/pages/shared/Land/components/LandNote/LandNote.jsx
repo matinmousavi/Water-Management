@@ -9,7 +9,7 @@ import useNotification from '../../../../../hooks/useNotification'
 
 const { Title, Text } = Typography
 
-const LandNote = ({ notesData: initialNotes, status }) => {
+const LandNote = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
 	const cardRef = useRef()
 	const notesApi = useAPI()
@@ -102,12 +102,11 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 							<Title level={2} className='text-card-title'>
 								یادداشت زمین ({notes?.length})
 							</Title>
-							{status === 'active' && (
-								<Button className='style-btn' onClick={handleOpenAddNoteModal}>
-									<PlusCircleOutlined />
-									<span>افزودن یادداشت</span>
-								</Button>
-							)}
+
+							<Button className='style-btn' onClick={handleOpenAddNoteModal}>
+								<PlusCircleOutlined />
+								<span>افزودن یادداشت</span>
+							</Button>
 						</Flex>
 
 						<NoteList handleDeleteClick={handleDeleteClick} handleEditNote={handleEditNote} data={notes} status={status} />
