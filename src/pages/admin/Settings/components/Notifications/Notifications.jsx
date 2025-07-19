@@ -1,20 +1,35 @@
 import { useState } from 'react'
-import SettingsCard from '../SettingsSection/SettingsCard/SettingsCard'
-import SettingsSection from '../SettingsSection/SettingsSection'
+import { Flex, Typography } from 'antd'
 import EditNotification from './EditNotification/EditNotification'
+import SettingsCard from '../SettingsCard/SettingsCard'
 
-const Notifications = ({ data, meta }) => {
+const Notifications = ({ data }) => {
 	const [templates, setTemplates] = useState(data || [])
-console.log(templates);
+
+	const templateTitles = {
+		otp: 'اطلاع‌رسانی کد تایید',
+		irrigation_start_irrigator: 'اطلاع‌رسانی آب‌رسانی - شروع آب‌رسانی برای میرآب',
+		irrigation_end_irrigator: 'اطلاع‌رسانی آب‌رسانی - پایان آب‌رسانی برای میرآب',
+		irrigation_start_landowner: 'اطلاع‌رسانی آب‌رسانی - شروع آب‌رسانی برای مالک زمین',
+		irrigation_end_landowner: 'اطلاع‌رسانی آب‌رسانی - پایان آب‌رسانی برای مالک زمین',
+	}
 
 	return (
-		<SettingsSection title='تنظیمات اطلاع‌رسانی'>
+		<Flex vertical gap={16}>
+			<Typography.Title level={2} className='text-page-title'>
+				تنظیمات اطلاع‌رسانی
+			</Typography.Title>
+
 			{templates.map((template, index) => (
-				<SettingsCard key={index} data={template} title={meta[template.key]?.title} description={meta[template.key]?.description}>
-					<EditNotification template={template} setTemplate={setTemplates} title={meta[template.key]?.title} />
+				<SettingsCard
+					key={index}
+					title={templateTitles[template.key] || 'عنوان نامشخص'}
+					action={<EditNotification template={template} setTemplate={setTemplates} title={templateTitles[template.key]} />}
+				>
+					<Typography.Text className='text-paragraph'>{template.text}</Typography.Text>
 				</SettingsCard>
 			))}
-		</SettingsSection>
+		</Flex>
 	)
 }
 

@@ -4,10 +4,10 @@ const settingSchema = new mongoose.Schema(
 	{
 		irrigations: {
 			descriptionEditHours: {
-				time: { type: Number, required: true, default: 24 },
+				time: { type: Number, default: 24 },
 			},
 			logTimeMarginMinutes: {
-				time: { type: Number, required: true, default: 30 },
+				time: { type: Number, default: 30 },
 			},
 		},
 
@@ -40,10 +40,10 @@ settingSchema.statics.initializeSettings = async function () {
 		const defaultSetting = {
 			irrigations: {
 				descriptionEditHours: {
-					time: { type: Number, required: true, default: 24 },
+					time: 24,
 				},
 				logTimeMarginMinutes: {
-					time: { type: Number, required: true, default: 30 },
+					time: 30,
 				},
 			},
 			messageTemplates: [

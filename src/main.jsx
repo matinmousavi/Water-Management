@@ -8,7 +8,6 @@ import fa_IR from 'antd/locale/fa_IR'
 
 import App from './App.jsx'
 import './index.css'
-//import './mobile.css'
 
 createRoot(document.getElementById('root')).render(
 	<StrictMode>

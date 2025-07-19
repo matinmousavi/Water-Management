@@ -138,7 +138,7 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 							}}
 						>
 							<EditOutlined />
-							<span>ویرایش کردن لاگ</span>
+							<span>ویرایش</span>
 						</div>
 					}
 				>

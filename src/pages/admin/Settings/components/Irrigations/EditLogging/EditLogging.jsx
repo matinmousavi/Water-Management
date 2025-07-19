@@ -1,19 +1,19 @@
 import { EditOutlined } from '@ant-design/icons'
 import { useForm } from 'antd/es/form/Form'
 import useModal from '../../../../../../hooks/useModal'
-import styles from './EditLogging.module.css'
 import useAPI from '../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../hooks/useNotification'
-import { Button, Flex, Form, Input, Modal, Typography } from 'antd'
+import { Button, Flex, Form, InputNumber, Modal, Typography } from 'antd'
+import styles from './EditLogging.module.css'
 
-const EditLogging = ({ template, setTemplate, title }) => {
+const EditLogging = ({ value, setValues, title }) => {
 	const { open, close, isOpen } = useModal()
 	const [form] = useForm()
 	const api = useAPI()
-	const { openNotification } = useNotification()	
+	const { openNotification } = useNotification()
 
 	const handleOpen = () => {
-		form.setFieldsValue(template)
+		form.setFieldsValue({ time: value.time })
 	}
 
 	const handleCancel = () => {
@@ -21,25 +21,34 @@ const EditLogging = ({ template, setTemplate, title }) => {
 	}
 
 	const handleOk = async () => {
-		const values = form.getFieldsValue()
-
 		try {
-			const response = await api.put(`messageTemplates/${template.key}`, {
-				time: values.time,
+			const values = await form.validateFields()
+
+			const response = await api.patch('settings/irrigations', {
+				[value.key]: { time: values.time },
 			})
 
 			if (!response.error) {
-				setTemplate(prev => ({
-					...prev,
-					time: values.time,
-				}))
-				openNotification('success', 'ذخیره موفق', `پیام «${title}» با موفقیت ذخیره شد`)
+				setValues(prev => prev.map(t => (t.key === value.key ? { ...t, time: values.time } : t)))
+				openNotification('success', 'ذخیره موفق', `مقدار «${title}» با موفقیت ذخیره شد`)
 				close()
 			}
 		} catch (error) {
 			console.error(error)
 			openNotification(error)
 		}
+	}
+
+	const getTimeUnit = () => {
+		if (value.key.includes('Hours')) return 'ساعت'
+		if (value.key.includes('Minutes')) return 'دقیقه'
+		return ''
+	}
+
+	const getQuestion = () => {
+		if (value.key === 'descriptionEditHours') return 'میرآب تا چه زمانی پس از ثبت لاگ امکان ویرایش توضیحات دارد؟'
+		if (value.key === 'logTimeMarginMinutes') return 'میرآب تا چند دقیقه پیش از زمان لاگ می‌تواند آن را ثبت کند؟'
+		return 'مقدار زمان را وارد کنید'
 	}
 
 	return (
@@ -64,11 +73,11 @@ const EditLogging = ({ template, setTemplate, title }) => {
 			>
 				<Flex gap={10} justify='space-between' align='center' className={styles['modal-content']}>
 					<Typography.Title level={5} className={styles.titlePlaceholders}>
-						میرآب تا چه زمانی پس از ثبت لاگ امکان ویرایش توضیحات دارد؟
+						{getQuestion()}
 					</Typography.Title>
 					<Form form={form} className={styles.form}>
-						<Form.Item name='time'>
-							<Input addonAfter={template.key == 'log_change_description' ? 'ساعت' : 'دقیقه'} defaultValue='mysite' />
+						<Form.Item name='time' rules={[{ required: true, message: 'لطفاً مقدار زمان را وارد کنید' }]}>
+							<InputNumber addonAfter={getTimeUnit()} min={1} />
 						</Form.Item>
 					</Form>
 				</Flex>

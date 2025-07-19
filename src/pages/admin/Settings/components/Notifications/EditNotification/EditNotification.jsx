@@ -25,15 +25,12 @@ const EditNotification = ({ template, setTemplate, title }) => {
 		const values = form.getFieldsValue()
 
 		try {
-			const response = await api.put(`messageTemplates/${template.key}`, {
+			const response = await api.put(`settings/notifications/templates/${template.key}`, {
 				text: values.text,
 			})
 
 			if (!response.error) {
-				setTemplate(prev => ({
-					...prev,
-					text: values.text,
-				}))
+				setTemplate(prev => prev.map(item => (item.key === template.key ? { ...item, text: values.text } : item)))
 				openNotification('success', 'ذخیره موفق', `پیام «${title}» با موفقیت ذخیره شد`)
 				close()
 			}

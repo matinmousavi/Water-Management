@@ -1,4 +1,3 @@
-import styles from '../SettingsSection/SettingsCard/SettingsCard.module.css'
 import { Button, Card, Flex, Input, Typography } from 'antd'
 
 const BroadcastNotification = ({ title }) => {
@@ -6,7 +5,7 @@ const BroadcastNotification = ({ title }) => {
 		<Card>
 			<Flex vertical gap={16}>
 				<Flex className='heading-container' align='center' justify='space-between'>
-					<Typography.Title className={styles['card-title']}>{title}</Typography.Title>
+					<Typography.Title>{title}</Typography.Title>
 					<Flex justify='end'>
 						<Button type='primary' onClick={() => {}}>
 							ارسال به همه
