@@ -6,6 +6,7 @@ import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
+import { useUser } from '../../../../../../../contexts/UserContext'
 
 const LandLogsTable = ({ data, setLogs, status }) => {
 	const wellApi = useAPI()
@@ -16,6 +17,7 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 	const [editableLog, setEditableLog] = useState(null)
 	const { open, close, isOpen, handleAfterChange } = useModal()
+	const { isAdmin } = useUser()
 
 	const handleDelete = async irrigationsId => {
 		try {
@@ -67,7 +69,7 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 		},
 	]
 
-	if (status === 'active') {
+	if (isAdmin || status === 'active') {
 		columns.push({
 			title: 'عملیات',
 			key: 'action',

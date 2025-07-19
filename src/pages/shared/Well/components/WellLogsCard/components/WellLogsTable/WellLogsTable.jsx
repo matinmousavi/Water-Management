@@ -7,11 +7,13 @@ import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
 import { useRef, useState } from 'react'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
+import { useUser } from '../../../../../../../contexts/UserContext'
 
 const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
+	const { isAdmin } = useUser()
 
 	const deleteIdRef = useRef(null)
 	const [editableLog, setEditableLog] = useState(null)
@@ -88,7 +90,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		},
 	]
 
-	if (wellStatus === 'active') {
+	if (isAdmin || wellStatus === 'active') {
 		columns.push({
 			title: 'عملیات',
 			key: 'action',

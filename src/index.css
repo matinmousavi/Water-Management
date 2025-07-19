@@ -174,11 +174,6 @@ label::after {
 	border-radius: 4px !important;
 }
 
-.ant-select-arrow .anticon svg {
-	width: 18px !important;
-	height: 18px !important;
-}
-
 .ant-upload {
 	width: 100% !important;
 }
@@ -302,30 +297,21 @@ label::after {
 	height: 40px !important;
 }
 
-.anticon {
-	font-size: 1rem !important;
-}
-
-.anticon-arrow-right svg {
-	width: 12px !important;
-	height: 12px !important;
-}
-
 .hide-cancel-button {
 	display: none;
 }
 .eye-icon {
-	color: #1677FF !important;
+	color: #1677ff !important;
 }
 .edit-icon {
-	color: #0066EE !important;
+	color: #0066ee !important;
 }
 .footer-edit-log-modal {
 	display: flex;
 	align-items: center;
 	gap: 4px;
 	padding-bottom: 2px;
-	color: #0066EE !important;
+	color: #0066ee !important;
 	cursor: pointer;
 }
 .footer-edit-log-modal span {
@@ -356,11 +342,6 @@ label::after {
 
 	.ant-form {
 		width: 472px !important;
-	}
-
-	.anticon {
-		min-width: 14px;
-		font-size: 14px;
 	}
 
 	.ant-tag {
@@ -401,7 +382,9 @@ label::after {
 	.text-page-title,
 	.text-card-title,
 	.value .text,
-	.label .text {
+	.label .text,
+	.text-value,
+	.text-label {
 		font-size: 14px !important;
 	}
 
