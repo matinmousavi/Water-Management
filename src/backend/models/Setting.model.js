@@ -2,21 +2,11 @@ import mongoose from 'mongoose'
 
 const settingSchema = new mongoose.Schema(
 	{
-		irrigationLog: {
+		irrigations: {
 			type: [
 				{
 					key: { type: String, required: true, trim: true },
-					text: { type: String, default: '', trim: true },
 					time: { type: Number, required: true },
-					placeholders: {
-						type: [
-							{
-								key: { type: String, required: true },
-								description: { type: String, default: '' },
-							},
-						],
-						default: [],
-					},
 				},
 			],
 			default: [],
@@ -26,7 +16,6 @@ const settingSchema = new mongoose.Schema(
 				{
 					key: { type: String, required: true, trim: true },
 					text: { type: String, required: true, trim: true },
-					title: { type: String, default: '', trim: true },
 					type: { type: String, default: 'sms' },
 					placeholders: {
 						type: [
@@ -49,18 +38,14 @@ settingSchema.statics.initializeSettings = async function () {
 	const exists = await this.findOne()
 	if (!exists) {
 		const defaultSetting = {
-			irrigationLog: [
+			irrigations: [
 				{
-					key: 'descriptionEdit',
-					text: 'مدت زمان قابل ویرایش بودن لاگ',
+					key: 'description_edit_hours',
 					time: 24,
-					placeholders: [],
 				},
 				{
-					key: 'log_operator_time_limit',
-					text: 'محدودیت زمانی برای ثبت لاگ توسط اپراتور',
+					key: 'log_time_margin_minutes',
 					time: 30,
-					placeholders: [],
 				},
 			],
 			messageTemplates: [
