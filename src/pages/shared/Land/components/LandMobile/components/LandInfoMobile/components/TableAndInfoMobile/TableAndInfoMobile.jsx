@@ -9,7 +9,7 @@ import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 
 const { Text } = Typography
 
-const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handleStop, onStartClick }) => {
+const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handleStop, onStartClick, isOvertime }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const listItems = [
@@ -94,7 +94,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 			<div className={styles.footer}>
 				{isCurrentLandIrrigating ? (
 					<>
-						<Text className={`${styles.timerText} ${elapsedTime <= 900 ? styles.timerDanger : ''}`}>{time}</Text>
+						<Text className={`${styles.timerText} ${isOvertime ? styles.timerRed : styles.timerGreen}`}>{time}</Text>
 						<Button type='default' className={`${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
 							پایان آبیاری
 						</Button>

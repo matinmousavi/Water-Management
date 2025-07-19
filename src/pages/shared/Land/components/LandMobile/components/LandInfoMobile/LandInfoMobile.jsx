@@ -24,10 +24,9 @@ const LandInfoMobile = ({ data }) => {
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [showWellInUseWarning, setShowWellInUseWarning] = useState(false)
 	const [currentIrrigatingLand, setCurrentIrrigatingLand] = useState(null)
+	const [isOvertime, setIsOvertime] = useState(false)
 
 	const startY = useRef(0)
-
-	console.log(data)
 
 	useEffect(() => {
 		if (data?.logs?.length && logs.length === 0) {
@@ -43,10 +42,9 @@ const LandInfoMobile = ({ data }) => {
 				const response = await api.get(`wells/${data.wells[0]._id}`)
 				const allLogs = response?.well?.logs || []
 
-				// بررسی لاگ فعال چاه برای استخراج زمین در حال آبیاری
 				const ongoing = allLogs.find(log => log.isOngoing)
 				if (ongoing?.land?.title) {
-					setCurrentIrrigatingLand(ongoing.land) // کل آبجکت land رو ذخیره می‌کنیم
+					setCurrentIrrigatingLand(ongoing.land)
 				}
 			} catch (error) {
 				console.error('خطا در دریافت اطلاعات چاه:', error)
@@ -70,6 +68,7 @@ const LandInfoMobile = ({ data }) => {
 		if (!ongoingLog || !ongoingLog.startedAt) {
 			setIsIrrigating(false)
 			setRemainingTime(0)
+			setIsOvertime(false)
 			return
 		}
 		setIsIrrigating(true)
@@ -80,7 +79,9 @@ const LandInfoMobile = ({ data }) => {
 			const now = Date.now()
 			const elapsed = Math.floor((now - startedAt) / 1000)
 			const remaining = Math.max(0, TWO_HOURS_IN_SECONDS - elapsed)
-			setRemainingTime(remaining)
+
+			setRemainingTime(Math.abs(remaining))
+			setIsOvertime(remaining < 0)
 		}
 
 		updateRemaining()
@@ -188,6 +189,7 @@ const LandInfoMobile = ({ data }) => {
 				handleStop={handleStop}
 				onStartClick={handleStartClick}
 				isIrrigating={isIrrigating}
+				isOvertime={isOvertime}
 			/>
 
 			<Drawer title={null} placement='bottom' height='auto' open={showStartDrawer} onClose={() => setShowStartDrawer(false)} closable={false}>

@@ -51,8 +51,6 @@ const Well = () => {
 	const lands = api.data?.well?.lands || api.data?.wells?.[0]?.lands
 	const actualWellId = wellId || well?._id
 
-	console.log(api?.data)
-
 	return (
 		<>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
