@@ -5,7 +5,6 @@ import useModal from '../../../../../../../hooks/useModal'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
 import UserForm from '../../../../../../../components/User/UserForm/UserForm'
-import { useParams } from 'react-router'
 
 const EditUser = ({ initialValue, setData, setPageTitle }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
@@ -14,7 +13,7 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 	const [initialImage, setInitialImage] = useState(initialValue?.profilePicture || null)
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
-	const { userId } = useParams()
+	const userId = initialValue._id
 
 	const handleOpen = () => {
 		form.setFieldsValue(initialValue)
