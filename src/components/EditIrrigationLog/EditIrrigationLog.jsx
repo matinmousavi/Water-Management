@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Modal, Form } from 'antd'
-import moment from 'moment-jalaali'
 import { useUser } from '../../contexts/UserContext'
 import useAPI from '../../hooks/useAPI'
 import useNotification from '../../hooks/useNotification'
 import IrrigationLogForm from '../IrrigationLogForm/IrrigationLogForm'
+import dayjs from 'dayjs'
 
 const EditIrrigationLog = ({ data, setLogs, onClose, page = 'well' }) => {
 	const [isOpen, setIsOpen] = useState(true)
@@ -21,10 +21,10 @@ const EditIrrigationLog = ({ data, setLogs, onClose, page = 'well' }) => {
 			form.setFieldsValue({
 				...data,
 				landId: data.land?._id,
-				startTime: data.startedAt ? moment(data.startedAt) : null,
-				startDate: data.startedAt ? moment(data.startedAt) : null,
-				endTime: data.endedAt ? moment(data.endedAt) : null,
-				endDate: data.endedAt ? moment(data.endedAt) : null,
+				startTime: data.startedAt ? dayjs(data.startedAt) : null,
+				startDate: data.startedAt ? dayjs(data.startedAt) : null,
+				endTime: data.endedAt ? dayjs(data.endedAt) : null,
+				endDate: data.endedAt ? dayjs(data.endedAt) : null,
 			})
 		}
 	}, [isOpen, data, form])

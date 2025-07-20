@@ -25,6 +25,7 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 			if (!response?.error) {
 				openNotification('success', 'لاگ آبیاری با موفقیت حذف شد')
 				setLogs(prev => prev.filter(item => item._id !== irrigationsId))
+				close()
 			}
 		} catch (error) {
 			openNotification('error', error?.error?.message || 'خطا در حذف لاگ آبیاری')

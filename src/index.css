@@ -176,7 +176,8 @@ label::after {
 	height: 92px !important;
 }
 .ant-menu-submenu-popup {
-	top: 40px !important;
+	top: 60px !important;
+	left: 20px !important;
 }
 .ant-menu-submenu-popup > .ant-menu {
 	background-color: #fff !important;
@@ -194,9 +195,9 @@ label::after {
 .ant-input::placeholder {
 	color: rgba(0, 0, 0, 0.8) !important;
 }
-.ant-input-group .ant-input-group-addon {
+/* .ant-input-group .ant-input-group-addon {
 	width: 57px !important;
-}
+} */
 .ant-input-group-addon {
 	color: rgba(0, 0, 0, 0.5) !important;
 }
