@@ -19,6 +19,9 @@
 .ant-card {
 	border-radius: 4px;
 }
+.ant-card .ant-card-body {
+	padding: 16px !important;
+}
 .ant-typography,
 a {
 	font-size: 0.875rem;
