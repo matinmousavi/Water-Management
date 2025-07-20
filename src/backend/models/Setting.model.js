@@ -2,16 +2,20 @@ import mongoose from 'mongoose'
 
 const settingSchema = new mongoose.Schema(
 	{
-		irrigationLog: {
-			descriptionEdit: { type: Number, default: 24 },
-			timeMargin: { type: Number, default: 30 },
+		irrigations: {
+			descriptionEditHours: {
+				time: { type: Number, default: 24 },
+			},
+			logTimeMarginMinutes: {
+				time: { type: Number, default: 30 },
+			},
 		},
+
 		messageTemplates: {
 			type: [
 				{
 					key: { type: String, required: true, trim: true },
 					text: { type: String, required: true, trim: true },
-					title: { type: String, default: '', trim: true },
 					type: { type: String, default: 'sms' },
 					placeholders: {
 						type: [
@@ -34,9 +38,13 @@ settingSchema.statics.initializeSettings = async function () {
 	const exists = await this.findOne()
 	if (!exists) {
 		const defaultSetting = {
-			irrigationLog: {
-				descriptionEdit: 24,
-				timeMargin: 30,
+			irrigations: {
+				descriptionEditHours: {
+					time: 24,
+				},
+				logTimeMarginMinutes: {
+					time: 30,
+				},
 			},
 			messageTemplates: [
 				{
@@ -108,9 +116,6 @@ settingSchema.statics.initializeSettings = async function () {
 		}
 
 		await this.create(defaultSetting)
-		console.log('Default setting with message templates created.')
-	} else {
-		console.log('Setting already exists.')
 	}
 }
 
