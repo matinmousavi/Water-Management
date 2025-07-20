@@ -1,5 +1,5 @@
 import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography, Dropdown } from 'antd'
-import { UserOutlined, BellOutlined, MenuOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
+import { UserOutlined, MenuOutlined, SettingOutlined, LogoutOutlined, MailOutlined } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
@@ -54,9 +54,21 @@ const Layouts = () => {
 	const profileMenuItems = [
 		{
 			key: '/profile',
-			icon: <UserOutlined className={styles.icons} onClick={() => navigate('/profile')} />,
-			children: [
+			icon: <UserOutlined className={styles.icons} />,
+			children: [ 
 				isAdmin && {
+				key: '/profile',
+				label: <span onClick={() => navigate('/profile')}>حساب کاربری</span>,
+				icon: (
+					<UserOutlined
+						className={styles.icons}
+						onClick={() => {
+							navigate('/profile')
+						}}
+					/>
+				),
+			},
+				 {
 					key: '/settings',
 					label: <span onClick={() => navigate('/settings')}>تنظیمات</span>,
 					icon: (
@@ -64,6 +76,18 @@ const Layouts = () => {
 							className={styles.icons}
 							onClick={() => {
 								navigate('/settings')
+							}}
+						/>
+					),
+				},
+				{
+					key: '/message',
+					label: <span onClick={() => navigate('/message')}>ارسال پیامک</span>,
+					icon: (
+						<MailOutlined
+							className={styles.icons}
+							onClick={() => {
+								navigate('/message')
 							}}
 						/>
 					),

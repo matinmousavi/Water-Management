@@ -173,7 +173,7 @@ label::after {
 }
 .ant-menu-vertical {
 	min-width: 120px !important;
-	height: 92px !important;
+	/* height: 92px !important; */
 }
 .ant-menu-submenu-popup {
 	top: 60px !important;
