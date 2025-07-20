@@ -99,12 +99,12 @@ const Login = () => {
 										{ pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/, message: 'شماره موبایل معتبر نیست' },
 									]}
 								>
-									<Input autoFocus size='large' maxLength={11} inputMode='numeric' />
+									<Input autoFocus size='large' maxLength={11} inputMode='numeric' className={styles.input} />
 								</Form.Item>
 							</Flex>
 						) : (
-							<Flex vertical gap={50}>
-								<Flex vertical gap={20}>
+							<Flex vertical gap={32}>
+								<Flex vertical gap={16}>
 									<Typography.Text className={styles.containerMobile}>
 										کد تأیید ۴ رقمی به شماره <span className={styles.mobile}>{mobile}</span> ارسال شد.
 									</Typography.Text>

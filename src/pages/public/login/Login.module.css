@@ -51,6 +51,13 @@
 .resendCode {
 	color: rgba(0, 0, 0, 0.6);
 }
+.input {
+	border-radius: 6px;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	-ms-border-radius: 6px;
+	-o-border-radius: 6px;
+}
 
 /* ---------- Media Query ---------- */
 @media screen and (min-width: 768px) {
@@ -73,6 +80,6 @@
 	}
 
 	.form-wrapper {
-		gap: 36px !important;
+		gap: 32px !important;
 	}
 }
