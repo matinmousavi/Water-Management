@@ -93,3 +93,9 @@
 	-ms-overflow-style: none;
 	scrollbar-width: none;
 }
+
+.timePart {
+	font-size: 20px;
+	font-weight: 600;
+	user-select: none;
+}
