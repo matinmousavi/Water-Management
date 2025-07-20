@@ -32,8 +32,8 @@ const Well = () => {
 	const [logs, setLogs] = useState([])
 	const [status, setStatus] = useState('')
 	const [openWellList, setOpenWellList] = useState(false)
-
 	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
+	const [irrigatorWells, setIrrigatorWells] = useState()
 
 	useEffect(() => {
 		const fetchedWell = api.data?.well || api.data?.wells?.[0]
@@ -41,8 +41,15 @@ const Well = () => {
 			setTitle(fetchedWell.title)
 			setLogs(fetchedWell.logs || [])
 			setStatus(fetchedWell.status)
+			setIrrigatorWells(fetchedWell)
 		}
-	}, [api.data?.well])
+	}, [api.data?.well, api.data?.wells])
+
+	const wellsApi = useAPI()
+	const userApi = useAPI()
+	wellsApi.init('wells')
+	userApi.init('me')
+	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id == userApi.data?.user?._id)
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
@@ -53,6 +60,8 @@ const Well = () => {
 	const onCloseWellList = () => {
 		setOpenWellList(false)
 	}
+	console.log(irrigatorWells)
+
 	return (
 		<>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
@@ -62,14 +71,15 @@ const Well = () => {
 					<Flex gap={8} justify='center' align='center'>
 						<img src={iconWell} alt='icon' />
 						<Typography.Title level={2} className='text-h2'>
-							چاه {well?.title}{' '}
+							چاه {irrigatorWells?.title}{' '}
 						</Typography.Title>
-						{openWellList ? (
+
+						{filterWells?.length === 1 ? null : openWellList ? (
 							<CaretUpOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
 						) : (
 							<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
 						)}
-						<WellsList onClose={onCloseWellList} open={openWellList} />
+						<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
 					</Flex>
 				) : (
 					<>
@@ -84,7 +94,7 @@ const Well = () => {
 
 				{isMobile ? (
 					<Flex vertical gap={16}>
-						{well?.logs?.map(log => (
+						{irrigatorWells?.logs?.map(log => (
 							<WellLogsMobile key={log._id} data={log} />
 						))}
 					</Flex>

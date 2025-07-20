@@ -1,8 +1,9 @@
 import { Button, Drawer, Flex, List, Typography } from 'antd'
 import styles from './WellsList.module.css'
 
-const WellsList = ({ open, onClose }) => {
+const WellsList = ({ open, onClose, data, setData }) => {
 	const { Title } = Typography
+
 	return (
 		<Drawer
 			rootClassName={styles.customDrawerRoot}
@@ -21,26 +22,13 @@ const WellsList = ({ open, onClose }) => {
 					انتخاب چاه
 				</Title>
 				<List className={styles.list}>
-					<List.Item className={styles.listItem}>
-						<Button className={styles.listButton} type='text'>
-							الف
-						</Button>
-					</List.Item>
-					<List.Item className={styles.listItem}>
-						<Button className={styles.listButton} type='text'>
-							الف
-						</Button>
-					</List.Item>
-					<List.Item className={styles.listItem}>
-						<Button className={styles.listButton} type='text'>
-							الف
-						</Button>
-					</List.Item>
-					<List.Item className={styles.listItem}>
-						<Button className={styles.listButton} type='text'>
-							الف
-						</Button>
-					</List.Item>
+					{data?.map(well => (
+						<List.Item key={well?._id} className={styles.listItem}>
+							<Button onClick={() => setData(well)} className={styles.listButton} type='text'>
+								{well?.title}
+							</Button>
+						</List.Item>
+					))}
 				</List>
 			</Flex>
 		</Drawer>
