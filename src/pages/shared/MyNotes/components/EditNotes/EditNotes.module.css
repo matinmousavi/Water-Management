@@ -1,0 +1,42 @@
+.customDrawerRoot :global(.ant-drawer-body) {
+	padding-top: 0 !important;
+}
+
+.containerDrawer {
+	border-radius: 16px 16px 0 0 !important;
+}
+.contentDrawer {
+	height: 100%;
+	justify-content: space-between;
+}
+.drawerHeader {
+	min-height: 40px;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+.lineDrawer {
+	width: 24px;
+	border-top: 4px solid #afafaf;
+	border-radius: 2px;
+	margin: 0 16px;
+}
+.okButton,
+.returnButton {
+	margin-top: 0 !important;
+	flex-grow: 1;
+	width: 156px;
+}
+.returnButton {
+	border: 1px solid #0066ee;
+	color: #0066ee;
+	font-size: 16px;
+	font-weight: 500;
+}
+.wrapper {
+	margin-top: 1rem;
+}
+.form {
+	height: 100%;
+	justify-content: space-between;
+}

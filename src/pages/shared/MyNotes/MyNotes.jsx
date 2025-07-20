@@ -7,43 +7,52 @@ import Loading from '../../../components/Loading/Loading'
 import EditNotes from './components/EditNotes/EditNotes'
 import { useState } from 'react'
 import moment from 'moment-jalaali'
+
 const MyNotes = () => {
-	const [isOpen, setIsOpen] = useState(false)
+	const [editingNoteId, setEditingNoteId] = useState(null)
 	const { Title, Text } = Typography
 	const apiNotes = useAPI()
 	apiNotes.init('notes')
+
 	if (apiNotes.isLoading) return <Loading />
+
 	const onClose = () => {
-		setIsOpen(false)
+		setEditingNoteId(null)
 	}
+
 	return (
 		<Flex gap={20} vertical>
 			<Flex justify='center' gap={8}>
 				<img src={NotesIcon} alt='notes icon' />
 				<Title level={1} className={styles.headTitle}>
-					یادداشت های من
+					یادداشت‌های من
 				</Title>
 			</Flex>
+
 			<Flex vertical gap={8}>
-				{apiNotes.data?.notes?.map(notes => (
-					<Card key={notes?.id} rootClassName={styles.customCardRoot}>
-						<Flex align='center' justify='space-between'>
-							<Title className={styles.title} level={4}>
-								{notes?.reference?.title}
-							</Title>
-							<span className={styles.date}>| {moment(notes?.updatedAt).locale('fa').format('HH:mm dddd jD jMMMM jYYYY')}</span>
-						</Flex>
-						<Text className={styles.text}>{notes?.text}</Text>
-						<div>
-							<Button onClick={() => setIsOpen(true)} icon={<EditOutlined />} type='link'>
-								ویرایش
-							</Button>
-						</div>
-						<EditNotes text={notes?.text} open={isOpen} onClose={onClose} />
-					</Card>
-				))}
+				{apiNotes.data?.notes?.map(note => {
+					const isOpen = editingNoteId === note?.id
+					return (
+						<Card key={note?.id} rootClassName={styles.customCardRoot}>
+							<Flex align='center' justify='space-between'>
+								<Title className={styles.title} level={4}>
+									{note?.reference?.title}
+								</Title>
+								<span className={styles.date}>| {moment(note?.updatedAt).locale('fa').format('HH:mm dddd jD jMMMM jYYYY')}</span>
+							</Flex>
+							<Text className={styles.text}>{note?.text}</Text>
+							<div>
+								<Button onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
+									ویرایش
+								</Button>
+							</div>
+							<EditNotes setNotesData={apiNotes.setData} id={note?.id} text={note?.text} open={isOpen} onClose={onClose} />
+						</Card>
+					)
+				})}
 			</Flex>
 		</Flex>
 	)
 }
+
 export default MyNotes
