@@ -44,6 +44,7 @@ router.get('/', async (req, res) => {
 })
 
 // GET land by ID
+// GET land by ID
 router.get('/:landId', async (req, res) => {
 	try {
 		const { landId } = req.params
@@ -58,23 +59,43 @@ router.get('/:landId', async (req, res) => {
 		}
 
 		const landWithWells = await attachWells(land)
-
-		// بررسی وضعیت آبیاری چاه‌ها
 		const wellIds = landWithWells.wells?.map(well => well._id) || []
 
+		// دریافت آبیاری‌های فعال چاه‌ها
 		const ongoingIrrigations = await Irrigation.find({
 			well: { $in: wellIds },
 			isOngoing: true,
-		}).select('well')
+		})
+			.select('well land startedAt')
+			.populate('land', '_id title')
 
-		const ongoingWellIds = new Set(ongoingIrrigations.map(ir => ir.well.toString()))
+		// ساخت Map برای دسترسی سریع به اطلاعات آبیاری هر چاه
+		const ongoingMap = new Map()
+		for (const irrigation of ongoingIrrigations) {
+			ongoingMap.set(irrigation.well.toString(), {
+				land: irrigation.land,
+				startedAt: irrigation.startedAt,
+				irrigationId: irrigation._id,
+			})
+		}
 
-		// افزودن وضعیت isIrrigating به هر چاه
+		// افزودن وضعیت آبیاری به هر چاه
 		const wellsWithStatus =
-			landWithWells.wells?.map(well => ({
-				...well,
-				isIrrigating: ongoingWellIds.has(well._id.toString()),
-			})) || []
+			landWithWells.wells?.map(well => {
+				const irrigationInfo = ongoingMap.get(well._id.toString())
+				return {
+					...well,
+					isIrrigating: !!irrigationInfo,
+					irrigatingLand: irrigationInfo
+						? {
+								_id: irrigationInfo.land._id,
+								title: irrigationInfo.land.title,
+						  }
+						: null,
+					irrigationStartedAt: irrigationInfo?.startedAt || null,
+					ongoingIrrigationId: irrigationInfo?.irrigationId || null,
+				}
+			}) || []
 
 		const logs = await Irrigation.find({ land: land._id }).sort({ date: -1 }).lean()
 		const notes = await Note.find({ reference: land._id, type: 'land' }).populate('user', '_id firstName lastName').lean()
@@ -82,7 +103,7 @@ router.get('/:landId', async (req, res) => {
 		return res.status(200).json({
 			land: {
 				...landWithWells,
-				wells: wellsWithStatus, // اضافه کردن وضعیت آبیاری چاه‌ها
+				wells: wellsWithStatus,
 				logs,
 				notes,
 			},

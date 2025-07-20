@@ -53,15 +53,16 @@
 }
 
 .timerText {
-	color: rgba(82, 196, 26, 1);
 	font-weight: 500;
 	font-size: 20px;
 }
 
-.timerDanger {
+.timerRed {
 	color: rgba(245, 34, 45, 1);
-	font-weight: 500;
-	font-size: 20px;
+}
+
+.timerGreen {
+	color: rgba(82, 196, 26, 1);
 }
 
 .btnDanger {
