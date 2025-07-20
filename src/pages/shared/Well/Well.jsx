@@ -60,7 +60,6 @@ const Well = () => {
 	const onCloseWellList = () => {
 		setOpenWellList(false)
 	}
-	console.log(irrigatorWells)
 
 	return (
 		<>
