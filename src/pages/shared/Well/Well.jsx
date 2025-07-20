@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Typography, Grid, Flex } from 'antd'
+import { Typography, Grid, Flex, Card } from 'antd'
 
 import { useParams } from 'react-router'
 
@@ -20,6 +20,8 @@ import iconWell from '../../../assets/icons/Vector.svg'
 import WellStatus from './components/WellStatus'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
+
+import styles from './Well.module.css'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -56,6 +58,7 @@ const Well = () => {
 	}
 
 	const well = api.data?.well || api.data?.wells?.[0]
+	const lands = api.data?.well?.lands || api.data?.wells?.[0]?.lands
 	const actualWellId = wellId || well?._id
 	const onCloseWellList = () => {
 		setOpenWellList(false)
@@ -93,9 +96,35 @@ const Well = () => {
 
 				{isMobile ? (
 					<Flex vertical gap={16}>
+<<<<<<< HEAD
 						{irrigatorWells?.logs?.map(log => (
 							<WellLogsMobile key={log._id} data={log} />
 						))}
+=======
+						{!well?.logs
+							? lands?.map(land => (
+									<Card>
+										<Flex vertical gap={24}>
+											<Flex gap={10} align='start'>
+												<Flex gap={8} className={styles.cardType}>
+													<img src={iconTree} alt='icon tree' />
+													<Text className={styles.label}>نام زمین</Text>
+												</Flex>
+												<Flex className={styles.cardRole}>
+													{land ? (
+														<Link to={`/lands/${land?._id}`} className={styles.land_name}>
+															{land?.title}
+														</Link>
+													) : (
+														<Text>-</Text>
+													)}
+												</Flex>
+											</Flex>
+										</Flex>
+									</Card>
+							  ))
+							: well?.logs?.map(log => <WellLogsMobile key={log._id} data={log} />)}
+>>>>>>> ea9d2df4eb67d59bd96d676f099e89c645b355c6
 					</Flex>
 				) : (
 					<>

@@ -2,23 +2,22 @@ import { Button } from 'antd'
 import { useState, useRef, useEffect } from 'react'
 import english2persian from '../../../../../../../../../utils/english2persian'
 import styles from './TimeEndPickerSheet.module.css'
+import dayjs from 'dayjs'
 
 const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
-const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
-	const now = new Date()
+const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true, title = 'ثبت زمان پایان آبیاری', subtitle = 'ساعت پایان آبیاری را مشخص کنید.' }) => {
 	const [minuteRange, setMinuteRange] = useState([])
 	const [selectedIndex, setSelectedIndex] = useState(30)
 	const listRef = useRef(null)
 
 	useEffect(() => {
-		const base = new Date()
+		const base = dayjs()
 		const list = []
 		for (let i = -30; i <= 0; i++) {
-			const newTime = new Date(base.getTime() + i * 60000)
-			list.push(newTime)
+			list.push(base.add(i, 'minute'))
 		}
 		setMinuteRange(list)
 	}, [])
@@ -36,9 +35,8 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 		if (minuteRange[index]) setSelectedIndex(index)
 	}
 
-	const selectedTime = minuteRange[selectedIndex] || now
-	const selectedMinute = selectedTime.getMinutes().toString().padStart(2, '0')
-	const selectedHour = selectedTime.getHours().toString().padStart(2, '0')
+	const selectedTime = minuteRange[selectedIndex] || dayjs()
+	const selectedHour = selectedTime.hour().toString().padStart(2, '0')
 
 	const renderMinuteList = () => (
 		<div className='container-scroll'>
@@ -66,7 +64,7 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 				>
 					{minuteRange.map((time, idx) => {
 						const isSelected = idx === selectedIndex
-						const minute = time.getMinutes().toString().padStart(2, '0')
+						const minute = time.minute().toString().padStart(2, '0')
 						return (
 							<div
 								key={idx}
@@ -94,7 +92,8 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	)
 
 	const handleSubmit = () => {
-		onSubmit && onSubmit(selectedTime)
+		const timeToSend = selectedTime.second(0).millisecond(0)
+		onSubmit && onSubmit(timeToSend)
 	}
 
 	if (!isOpen) return null
@@ -103,8 +102,8 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
 				<div className={styles.btn_sheet} />
-				<div className={styles.title}>ثبت زمان پایان آبیاری</div>
-				<div className={styles.subtitle}>ساعت پایان آبیاری را مشخص کنید.</div>
+				<div className={styles.title}>{title}</div>
+				<div className={styles.subtitle}>{subtitle}</div>
 
 				<div className={styles.container_time_lines}>
 					<div
@@ -158,4 +157,4 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	)
 }
 
-export default TimeStartPickerSheet
+export default TimeEndPickerSheet
