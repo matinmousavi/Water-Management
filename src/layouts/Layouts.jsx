@@ -59,7 +59,14 @@ const Layouts = () => {
 				isAdmin && {
 					key: '/settings',
 					label: <span onClick={() => navigate('/settings')}>تنظیمات</span>,
-					icon: <SettingOutlined className={styles.icons} onClick={() => {navigate('/settings')}} />,
+					icon: (
+						<SettingOutlined
+							className={styles.icons}
+							onClick={() => {
+								navigate('/settings')
+							}}
+						/>
+					),
 				},
 				{
 					key: 'logout',
