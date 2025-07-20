@@ -3,6 +3,7 @@ import { Flex, Typography } from 'antd'
 import EditLogging from './EditLogging/EditLogging'
 import SettingsCard from '../SettingsCard/SettingsCard'
 import english2persian from '../../../../../utils/english2persian'
+import styles from '../SettingsCard/SettingsCard.module.css'
 
 const Irrigations = ({ data }) => {
 	const initialTemplates = useMemo(() => {
@@ -44,7 +45,7 @@ const Irrigations = ({ data }) => {
 					title={titles[value.key] || 'عنوان نامشخص'}
 					action={<EditLogging value={value} setValues={setValues} title={titles[value.key]} />}
 				>
-					<Typography.Text className='text-paragraph'>{renderDescription(value.key, value.time)}</Typography.Text>
+					<Typography.Text className={styles['card-text']}>{renderDescription(value.key, value.time)}</Typography.Text>
 				</SettingsCard>
 			))}
 		</Flex>

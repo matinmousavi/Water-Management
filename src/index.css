@@ -43,12 +43,12 @@ a {
 .ant-breadcrumb a:hover {
 	background-color: transparent !important;
 }
-.ant-breadcrumb-link > span,
-.ant-breadcrumb-link > a {
+.ant-breadcrumb-link>span,
+.ant-breadcrumb-link>a {
 	font-size: 14px !important;
 	font-weight: 400 !important;
 }
-.ant-breadcrumb > ol {
+.ant-breadcrumb>ol {
 	gap: 8px !important;
 }
 .ant-drawer-content {
@@ -141,7 +141,6 @@ label::after {
 .ant-select-selector {
 	border-radius: 4px !important;
 }
-
 .ant-upload {
 	width: 100% !important;
 }
@@ -153,7 +152,7 @@ label::after {
 	height: 16px !important;
 	border-radius: 4px !important;
 }
-.ant-checkbox-input:checked ~ .ant-checkbox-inner {
+.ant-checkbox-input:checked~.ant-checkbox-inner {
 	background-color: #0066ee !important;
 	border-color: #0066ee !important;
 }
@@ -179,18 +178,21 @@ label::after {
 	top: 60px !important;
 	left: 20px !important;
 }
-.ant-menu-submenu-popup > .ant-menu {
+.ant-menu-submenu-popup>.ant-menu {
 	background-color: #fff !important;
 }
-.ant-menu-submenu-popup > .ant-menu li span {
+.ant-menu-submenu-popup>.ant-menu li span {
 	color: rgba(0, 0, 0, 0.88);
 }
 .ant-menu-item-selected span,
 .ant-menu-item-selected span svg {
 	color: #fff !important;
 }
-.ant-menu-submenu-popup > .ant-menu li span svg {
+.ant-menu-submenu-popup>.ant-menu li span svg {
 	color: #00000073;
+}
+.ant-input {
+	line-height: 20px !important;
 }
 .ant-input::placeholder {
 	color: rgba(0, 0, 0, 0.8) !important;
@@ -274,7 +276,7 @@ label::after {
 	color: #000;
 	line-height: 22px !important;
 }
-.text-value > a {
+.text-value>a {
 	font-size: 14px !important;
 }
 .style-btn {
@@ -282,7 +284,6 @@ label::after {
 	color: #0066ee;
 	height: 40px !important;
 }
-
 .hide-cancel-button {
 	display: none;
 }
@@ -325,7 +326,6 @@ label::after {
 	.ant-form {
 		width: 472px !important;
 	}
-
 	.ant-tag {
 		padding: 4px 16px !important;
 	}

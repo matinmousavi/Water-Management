@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Flex, Typography } from 'antd'
 import EditNotification from './EditNotification/EditNotification'
 import SettingsCard from '../SettingsCard/SettingsCard'
+import styles from '../SettingsCard/SettingsCard.module.css'
 
 const Notifications = ({ data }) => {
 	const [templates, setTemplates] = useState(data || [])
@@ -26,7 +27,7 @@ const Notifications = ({ data }) => {
 					title={templateTitles[template.key] || 'عنوان نامشخص'}
 					action={<EditNotification template={template} setTemplate={setTemplates} title={templateTitles[template.key]} />}
 				>
-					<Typography.Text className='text-paragraph'>{template.text}</Typography.Text>
+					<Typography.Text className={styles['card-text']}>{template.text}</Typography.Text>
 				</SettingsCard>
 			))}
 		</Flex>
