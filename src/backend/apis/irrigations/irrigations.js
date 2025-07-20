@@ -1,24 +1,20 @@
 import { Router } from 'express'
 import mongoose from '../../config/database.js'
 import Irrigation from '../../models/Irrigation.model.js'
-import Land from '../../models/Land.model.js'
 import { sendTemplatedSMS } from '../../utils/sendTemplatedSMS.js'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc.js'
-import timezone from 'dayjs/plugin/timezone.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
 const router = Router()
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
-
 const mergeDateTime = (dateStr, timeStr) => {
 	const date = dayjs(dateStr)
 	const time = dayjs(timeStr)
+
 	const combined = date.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
-	return combined.utc().toDate()
+
+	return new Date(combined.format())
 }
 
 // GET all irrigations
