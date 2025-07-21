@@ -54,9 +54,16 @@
 	color: rgba(0, 0, 0, 0.88);
 }
 
+.logout_icon {
+	width: 22px;
+	height: 22px;
+	position: relative;
+	right: -3px;
+}
+
 @media (min-width: 1024px) {
 	.content {
-		padding: 0 60px 10px;
+		padding: 40px 60px 60px;
 	}
 }
 

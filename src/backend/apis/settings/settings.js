@@ -2,7 +2,6 @@ import { Router } from 'express'
 import Setting from '../../models/Setting.model.js'
 import irrigations from './irrigations.js'
 import notifications from './notifications/notifications.js'
-import broadcast from './broadcast.js'
 
 const router = Router()
 
@@ -20,7 +19,6 @@ router.get('/', async (req, res) => {
 
 router.use('/irrigations', irrigations)
 router.use('/notifications', notifications)
-router.use('/broadcast', broadcast)
 
 // Fallback for unsupported methods
 router.all(/.*/, (req, res) => {

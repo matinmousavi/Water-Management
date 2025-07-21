@@ -9,7 +9,6 @@ import { useUser } from '../../../contexts/UserContext'
 import Loading from '../../../components/Loading/Loading'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
-import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
 import WellInfoCard from './components/WellInfoCard/WellInfoCard'
 import WellLandsCard from './components/WellLandsCard/WellLandsCard'
@@ -84,14 +83,11 @@ const Well = () => {
 						<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
 					</Flex>
 				) : (
-					<>
-						<Breadcrumbs data={{ title }} />
-						<Flex align='center' gap={16}>
-							<BackButton backTo='/wells' />
-							<Typography.Title className='text-page-title'>{title}</Typography.Title>
-							<WellStatus wellId={wellId} status={status} setStatus={setStatus} />
-						</Flex>
-					</>
+					<Flex align='center' gap={16}>
+						<BackButton backTo='/wells' />
+						<Typography.Title className='text-page-title'>{title}</Typography.Title>
+						<WellStatus wellId={wellId} status={status} setStatus={setStatus} />
+					</Flex>
 				)}
 
 				{isMobile ? (

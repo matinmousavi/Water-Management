@@ -100,8 +100,8 @@ const EditNotification = ({ template, setTemplate, title }) => {
 				<Flex vertical gap={10}>
 					<Typography.Title level={5} className={styles.titlePlaceholders}>
 						{template.key === 'otp'
-							? 'متن پیامک را با در نظر گرفتن متغییر زیر وارد کنید:'
-							: 'متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:'}
+							? <p>متن پیامک را با در نظر گرفتن متغییر زیر وارد کنید:</p>
+							: <p>متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:</p>}
 					</Typography.Title>
 
 					{renderPlaceholders()}

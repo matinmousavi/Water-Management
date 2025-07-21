@@ -1,7 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 
 import Layouts from '../layouts/Layouts'
-import Profile from '../pages/shared/Profile/Profile'
 import Land from '../pages/shared/Land/Land'
 import Well from '../pages/shared/Well/Well'
 import Wells from '../pages/shared/Wells/Wells'
@@ -12,7 +11,6 @@ const IrrigatorRoutes = () => (
 	<Routes>
 		<Route element={<Layouts />}>
 			<Route index element={<Well />} />
-			<Route path='profile' element={<Profile />} />
 
 			<Route path='lands'>
 				<Route index element={<Lands />} />
