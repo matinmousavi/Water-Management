@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Typography, Grid, Flex, Card } from 'antd'
+import { Typography, Grid, Flex } from 'antd'
 
 import { useParams } from 'react-router'
 
@@ -19,8 +19,6 @@ import iconWell from '../../../assets/icons/Vector.svg'
 import WellStatus from './components/WellStatus'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
-
-import styles from './Well.module.css'
 
 const Well = () => {
 	const { wellId } = useParams()

@@ -27,6 +27,8 @@ h4 {
 }
 .date {
 	font-weight: 400 !important;
+	color: rgba(0, 0, 0, 0.6);
+	font-size: 12px;
 }
 .text {
 	font-weight: 300 !important;
