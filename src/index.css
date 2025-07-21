@@ -19,6 +19,9 @@
 .ant-card {
 	border-radius: 4px;
 }
+.ant-card .ant-card-body {
+	padding: 16px !important;
+}
 .ant-typography,
 a {
 	font-size: 0.875rem;
@@ -128,6 +131,15 @@ label::before {
 }
 label::after {
 	content: '' !important;
+}
+.ant-dropdown-menu {
+	display: flex !important;
+	flex-direction: column !important;
+	align-content: flex-start !important;
+	height: 92px !important;
+	gap: 4px;
+	width: 166px !important;
+	align-items: flex-start !important;
 }
 .ant-picker,
 .ant-picker-input input,

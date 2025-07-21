@@ -17,6 +17,8 @@ import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 
 import iconWell from '../../../assets/icons/Vector.svg'
 import WellStatus from './components/WellStatus'
+import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
+import WellsList from './components/WellsList/WellsList'
 
 import styles from './Well.module.css'
 
@@ -30,8 +32,9 @@ const Well = () => {
 	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
 	const [status, setStatus] = useState('')
-
+	const [openWellList, setOpenWellList] = useState(false)
 	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
+	const [irrigatorWells, setIrrigatorWells] = useState()
 
 	useEffect(() => {
 		const fetchedWell = api.data?.well || api.data?.wells?.[0]
@@ -39,8 +42,15 @@ const Well = () => {
 			setTitle(fetchedWell.title)
 			setLogs(fetchedWell.logs || [])
 			setStatus(fetchedWell.status)
+			setIrrigatorWells(fetchedWell)
 		}
-	}, [api.data?.well])
+	}, [api.data?.well, api.data?.wells])
+
+	const wellsApi = useAPI()
+	const userApi = useAPI()
+	wellsApi.init('wells')
+	userApi.init('me')
+	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id == userApi.data?.user?._id)
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
@@ -49,6 +59,9 @@ const Well = () => {
 	const well = api.data?.well || api.data?.wells?.[0]
 	const lands = api.data?.well?.lands || api.data?.wells?.[0]?.lands
 	const actualWellId = wellId || well?._id
+	const onCloseWellList = () => {
+		setOpenWellList(false)
+	}
 
 	return (
 		<>
@@ -59,8 +72,15 @@ const Well = () => {
 					<Flex gap={8} justify='center' align='center'>
 						<img src={iconWell} alt='icon' />
 						<Typography.Title level={2} className='text-h2'>
-							چاه {well?.title}
+							چاه {irrigatorWells?.title}{' '}
 						</Typography.Title>
+
+						{filterWells?.length === 1 ? null : openWellList ? (
+							<CaretUpOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+						) : (
+							<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+						)}
+						<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
 					</Flex>
 				) : (
 					<Flex align='center' gap={16}>
@@ -72,29 +92,9 @@ const Well = () => {
 
 				{isMobile ? (
 					<Flex vertical gap={16}>
-						{!well?.logs
-							? lands?.map(land => (
-									<Card>
-										<Flex vertical gap={24}>
-											<Flex gap={10} align='start'>
-												<Flex gap={8} className={styles.cardType}>
-													<img src={iconTree} alt='icon tree' />
-													<Text className={styles.label}>نام زمین</Text>
-												</Flex>
-												<Flex className={styles.cardRole}>
-													{land ? (
-														<Link to={`/lands/${land?._id}`} className={styles.land_name}>
-															{land?.title}
-														</Link>
-													) : (
-														<Text>-</Text>
-													)}
-												</Flex>
-											</Flex>
-										</Flex>
-									</Card>
-							  ))
-							: well?.logs?.map(log => <WellLogsMobile key={log._id} data={log} />)}
+						{irrigatorWells?.logs?.map(log => (
+							<WellLogsMobile key={log._id} data={log} />
+						))}
 					</Flex>
 				) : (
 					<>

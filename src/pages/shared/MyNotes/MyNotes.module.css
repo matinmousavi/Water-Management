@@ -1,0 +1,20 @@
+.headTitle {
+	font-weight: 500 !important;
+	font-size: 16px !important;
+}
+.title {
+	font-size: 14px !important;
+	font-weight: 400 !important;
+}
+.cardHeader {
+	height: 40px;
+}
+.date {
+	font-size: 12px !important;
+	font-weight: 400 !important;
+	color: #00000099;
+}
+.text {
+	font-size: 14px !important;
+	font-weight: 300 !important;
+}

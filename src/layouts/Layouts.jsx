@@ -4,7 +4,8 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
-import iconExit from '../../public/ExportOutlined.png'
+import iconExit from '../../public/Exit.svg'
+import iconNotes from '../../public/myNotes.svg'
 
 const { Header, Content } = Layout
 const { Title } = Typography
@@ -66,12 +67,24 @@ const Layouts = () => {
 				}
 			)
 		}
-
+		if (isIrrigator) {
+			items.push({
+				key: 'my-notes',
+				label: (
+					<Flex align='center' gap={3}>
+						<img src={iconNotes} className={styles.svg_icon} alt='icon note' />
+						<Link className={styles.text_export} to='/my-notes'>
+							یادداشت‌های من
+						</Link>
+					</Flex>
+				),
+			})
+		}
 		items.push({
 			key: 'logout',
 			label: (
 				<Flex align='center' gap={3} onClick={logout}>
-					<img src={iconExit} className={styles.logout_icon} alt='icon exit' />
+					<img src={iconExit} className={styles.svg_icon} alt='icon exit' />
 					خروج
 				</Flex>
 			),
@@ -107,7 +120,7 @@ const Layouts = () => {
 							</Menu.SubMenu>
 						</Menu>
 					) : (
-						<Dropdown menu={{ items: userMenuItems }} placement='bottomLeft' trigger={['click']}>
+						<Dropdown className={styles.dropdown} menu={{ items: userMenuItems }} placement='bottomLeft' trigger={['click']}>
 							<Button
 								className={logoutIcon ? styles.button_click : styles.button}
 								onClick={() => setLogoutIcon(prev => !prev)}

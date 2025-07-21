@@ -1,0 +1,27 @@
+.customDrawerRoot :global(.ant-drawer-body) {
+	padding-top: 0 !important;
+}
+
+.containerDrawer {
+	border-radius: 16px 16px 0 0 !important;
+}
+.contentDrawer {
+	height: 100%;
+	justify-content: space-between;
+}
+.drawerHeader {
+	min-height: 40px;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+.lineDrawer {
+	width: 24px;
+	border-top: 4px solid #afafaf;
+	border-radius: 2px;
+	margin: 0 16px;
+}
+
+.wrapper {
+	margin-top: 1rem;
+}
