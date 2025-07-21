@@ -37,16 +37,18 @@ const MyNotes = () => {
 							<Flex gap={5} vertical>
 								<Flex align='center' className={styles.cardHeader} justify='space-between'>
 									<Title className={styles.title} level={4}>
-										{note?.reference?.title}
+										چاه {note?.reference?.title}
 									</Title>
-									<span className={styles.date}>| {moment(note?.updatedAt).locale('fa').format('HH:mm dddd jD jMMMM jYYYY')}</span>
+									<span className={styles.date}>{moment(note?.updatedAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</span>
 								</Flex>
-								<Text className={styles.text}>{note?.text}</Text>
-								<div>
-									<Button onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
-										ویرایش
-									</Button>
-								</div>
+								<Flex gap={8} vertical>
+									<Text className={styles.text}>{note?.text}</Text>
+									<div>
+										<Button onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
+											ویرایش
+										</Button>
+									</div>
+								</Flex>
 							</Flex>
 							<EditNotes setNotesData={apiNotes.setData} id={note?.id} text={note?.text} open={isOpen} onClose={onClose} />
 						</Card>
