@@ -29,15 +29,17 @@ const ModalMobile = ({ open, title = '', onClose, children, handleSubmit, loadin
 			<div className={styles.touchesBox} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 				<Form className={styles.form} layout='vertical' size='large' onFinish={handleSubmit}>
 					<Flex className={styles.contentDrawer} vertical gap={10}>
-						<Flex vertical gap={10}>
-							<div className={styles.drawerHeader}>
-								<div onClick={onClose} className={styles.lineDrawer}></div>
-							</div>
-							<Title className={styles.title} level={3}>
-								{title}
-							</Title>
+						<Flex gap={24} flex={1} vertical>
+							<Flex vertical gap={10}>
+								<div className={styles.drawerHeader}>
+									<div onClick={onClose} className={styles.lineDrawer}></div>
+								</div>
+								<Title className={styles.title} level={3}>
+									{title}
+								</Title>
+							</Flex>
+							<div className={styles.mainContent}>{children}</div>
 						</Flex>
-						{children}
 						<Flex gap={16} justify='center'>
 							<Button onClick={onClose} className={styles.returnButton}>
 								بازگشت

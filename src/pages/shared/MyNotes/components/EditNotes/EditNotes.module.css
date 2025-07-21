@@ -25,3 +25,6 @@
 .wrapper {
 	margin-top: 1rem;
 }
+.textArea {
+	height: 100% !important;
+}
