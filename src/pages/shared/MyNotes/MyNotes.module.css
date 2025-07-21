@@ -6,6 +6,9 @@
 	font-size: 14px !important;
 	font-weight: 400 !important;
 }
+.cardHeader {
+	height: 40px;
+}
 .date {
 	font-size: 12px !important;
 	font-weight: 400 !important;

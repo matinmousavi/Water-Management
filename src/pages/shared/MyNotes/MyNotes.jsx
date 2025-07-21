@@ -34,18 +34,20 @@ const MyNotes = () => {
 					const isOpen = editingNoteId === note?.id
 					return (
 						<Card key={note?.id} rootClassName={styles.customCardRoot}>
-							<Flex align='center' justify='space-between'>
-								<Title className={styles.title} level={4}>
-									{note?.reference?.title}
-								</Title>
-								<span className={styles.date}>| {moment(note?.updatedAt).locale('fa').format('HH:mm dddd jD jMMMM jYYYY')}</span>
+							<Flex gap={5} vertical>
+								<Flex align='center' className={styles.cardHeader} justify='space-between'>
+									<Title className={styles.title} level={4}>
+										{note?.reference?.title}
+									</Title>
+									<span className={styles.date}>| {moment(note?.updatedAt).locale('fa').format('HH:mm dddd jD jMMMM jYYYY')}</span>
+								</Flex>
+								<Text className={styles.text}>{note?.text}</Text>
+								<div>
+									<Button onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
+										ویرایش
+									</Button>
+								</div>
 							</Flex>
-							<Text className={styles.text}>{note?.text}</Text>
-							<div>
-								<Button onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
-									ویرایش
-								</Button>
-							</div>
 							<EditNotes setNotesData={apiNotes.setData} id={note?.id} text={note?.text} open={isOpen} onClose={onClose} />
 						</Card>
 					)
