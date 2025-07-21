@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Button, Drawer, Flex, Form, Input, message, Typography } from 'antd'
+import { Input } from 'antd'
 import styles from './EditNotes.module.css'
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
 import ModalMobile from '../../../../../components/ModalMobile/ModalMobile'
+
 const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
-	const { Title } = Typography
 	const [editedText, setEditedText] = useState('')
 	const notesApi = useAPI()
 	useEffect(() => {
