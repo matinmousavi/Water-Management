@@ -11,18 +11,29 @@ const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
 const WarningModalInUse = ({ onSubmit, onClose, well }) => {
 	const [countdown, setCountdown] = useState('00 : 00 : 00')
 
+	const getLocalStorageKey = landId => `irrigation_start_${landId}`
+
 	useEffect(() => {
-		if (!well?.irrigationStartedAt) {
-			console.error('irrigationStartedAt is missing:', well?.irrigationStartedAt)
+		const landId = well?.land?._id
+		if (!landId) {
+			console.error('landId is missing:', landId)
 			return
 		}
 
-		const startTime = dayjs(well.irrigationStartedAt)
-		const endTime = startTime.add(TWO_HOURS_IN_SECONDS, 'second')
+		const localStorageKey = getLocalStorageKey(landId)
+		const irrigationStartTime = localStorage.getItem(localStorageKey)
+
+		if (!irrigationStartTime) {
+			console.error('irrigationStartTime not found in localStorage for landId:', landId)
+			return
+		}
+
+		const startTime = parseInt(irrigationStartTime, 10)
 
 		const updateCountdown = () => {
-			const now = dayjs()
-			const remainingSeconds = endTime.diff(now, 'second')
+			const now = Date.now()
+			const elapsedSeconds = Math.floor((now - startTime) / 1000)
+			const remainingSeconds = TWO_HOURS_IN_SECONDS - elapsedSeconds
 
 			const isOvertime = remainingSeconds < 0
 			const absRemaining = Math.abs(remainingSeconds)
@@ -42,7 +53,7 @@ const WarningModalInUse = ({ onSubmit, onClose, well }) => {
 		const interval = setInterval(updateCountdown, 1000)
 
 		return () => clearInterval(interval)
-	}, [well?.irrigationStartedAt])
+	}, [well?.land?._id])
 
 	return (
 		<div className={styles.container_fixed}>

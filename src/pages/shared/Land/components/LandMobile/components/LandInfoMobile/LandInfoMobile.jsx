@@ -3,7 +3,7 @@ import jalaliday from 'jalaliday'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { Drawer } from 'antd'
 import styles from './LandInfoMobile.module.css'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import TimeStartPickerSheet from './components/TimeStartPickerSheet/TimeStartPickerSheet'
 import TimeEndPickerSheet from './components/TimeEndPickerSheet/TimeEndPickerSheet'
 import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
@@ -32,7 +32,7 @@ const LandInfoMobile = ({ data }) => {
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
 	const [isOvertime, setIsOvertime] = useState(false)
 
-	const startY = useRef(0)
+	const getLocalStorageKey = () => `irrigation_start_${landId}`
 
 	useEffect(() => {
 		if (data?.logs?.length && logs.length === 0) {
@@ -79,20 +79,31 @@ const LandInfoMobile = ({ data }) => {
 		if (!logs || logs.length === 0) return
 
 		const ongoingLog = logs.find(log => log.isOngoing)
-		if (!ongoingLog || !ongoingLog.startedAt) {
+		if (!ongoingLog) {
 			setIsIrrigating(false)
 			setRemainingTime(0)
 			setIsOvertime(false)
+
+			localStorage.removeItem(getLocalStorageKey())
 			return
 		}
+
 		setIsIrrigating(true)
 
-		const startedAt = new Date(ongoingLog.startedAt).getTime()
+		const localStorageKey = getLocalStorageKey()
+		let irrigationStartTime = localStorage.getItem(localStorageKey)
+
+		if (!irrigationStartTime) {
+			irrigationStartTime = Date.now()
+			localStorage.setItem(localStorageKey, irrigationStartTime.toString())
+		} else {
+			irrigationStartTime = parseInt(irrigationStartTime, 10)
+		}
 
 		const updateRemaining = () => {
 			const now = Date.now()
-			const elapsed = Math.floor((now - startedAt) / 1000)
-			const remaining = Math.max(0, TWO_HOURS_IN_SECONDS - elapsed)
+			const elapsed = Math.floor((now - irrigationStartTime) / 1000)
+			const remaining = TWO_HOURS_IN_SECONDS - elapsed
 
 			setRemainingTime(Math.abs(remaining))
 			setIsOvertime(remaining < 0)
@@ -102,20 +113,7 @@ const LandInfoMobile = ({ data }) => {
 		const interval = setInterval(updateRemaining, 1000)
 
 		return () => clearInterval(interval)
-	}, [logs])
-
-	const handleTouchStart = e => {
-		startY.current = e.touches[0].clientY
-	}
-
-	const handleTouchMove = e => {
-		const deltaY = e.touches[0].clientY - startY.current
-		if (deltaY > 100) {
-			setShowStartDrawer(false)
-			setShowEndDrawer(false)
-			setShowEndOtherDrawer(false)
-		}
-	}
+	}, [logs, landId])
 
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
@@ -130,6 +128,9 @@ const LandInfoMobile = ({ data }) => {
 				startTime: combined.toISOString(),
 				isOngoing: true,
 			})
+
+			const localStorageKey = getLocalStorageKey()
+			localStorage.setItem(localStorageKey, Date.now().toString())
 
 			setLogs(prevLogs => [response?.irrigation, ...prevLogs])
 		} catch (error) {
@@ -150,6 +151,8 @@ const LandInfoMobile = ({ data }) => {
 			const response = await api.patch(`irrigations/${ongoing._id}`, {
 				endTime: combined.toISOString(),
 			})
+
+			localStorage.removeItem(getLocalStorageKey())
 
 			setLogs(prevLogs => prevLogs.filter(log => log._id !== ongoing._id).concat(response?.irrigation))
 		} catch (error) {
