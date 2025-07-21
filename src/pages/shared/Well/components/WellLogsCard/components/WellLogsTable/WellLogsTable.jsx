@@ -153,7 +153,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 							}}
 						>
 							<EditOutlined />
-							<span>ویرایش کردن لاگ</span>
+							<span>ویرایش</span>
 						</div>
 					}
 				>

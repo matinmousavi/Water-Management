@@ -23,16 +23,24 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: irrigator?.mobile || '--',
 			},
 			{
-				label: 'لایسنس کد',
+				label: 'License Code',
 				value: well?.licenseCode || '--',
-			},
-			{
-				label: 'روزهای چرخه',
-				value: well?.cycleDays ? `${well.cycleDays} روز` : '--',
 			},
 			{
 				label: 'مکان',
 				value: well?.location || '--',
+			},
+			{
+				label: 'Cycle Days',
+				value: well?.cycleDays ? `${well.cycleDays} روز` : '--',
+			},
+			{
+				label: 'تاریخ شروع سایکل',
+				value: '--',
+			},
+			{
+				label: 'ساعت کار',
+				value: '--',
 			},
 		]
 	}, [well])

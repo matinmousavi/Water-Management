@@ -34,16 +34,6 @@ const WellsTable = ({ WellsData }) => {
 			render: lands => (Array.isArray(lands) ? lands.length : 0),
 		},
 		{
-			title: 'لایسنس کد',
-			dataIndex: 'licenseCode',
-			key: 'licenseCode',
-		},
-		{
-			title: 'چرخه',
-			dataIndex: 'cycleDays',
-			key: 'cycleDays',
-		},
-		{
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
@@ -57,11 +47,15 @@ const WellsTable = ({ WellsData }) => {
 				columns={columns}
 				dataSource={WellsData}
 				rowKey={record => record._id}
-				pagination={{
-					position: ['bottomCenter'],
-					total: WellsData.length,
-					pageSize: 6,
-				}}
+				pagination={
+					WellsData.length > 6
+						? {
+								position: ['bottomCenter'],
+								total: WellsData.length,
+								pageSize: 6,
+						  }
+						: false
+				}
 				scroll={{ y: height }}
 				bordered
 			/>

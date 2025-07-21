@@ -49,6 +49,7 @@ const FaDatePicker = props => {
 			onPanelChange={handlePanelChange}
 			locale={{ lang: customDatePickerLang }}
 			cellRender={dateRender}
+			style={{ width: '100%' }}
 			format={date => {
 				if (!date) return ''
 				return dayjs(date).subtract(1, 'day').format('YYYY/MM/DD')
