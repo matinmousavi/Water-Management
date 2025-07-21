@@ -246,7 +246,7 @@ label::after {
 .text-card-title {
 	font-size: 1rem !important;
 	font-weight: 400 !important;
-	color: #000000e0 !important;
+	color: rgba(0, 0, 0, 0.88) !important;
 	margin-bottom: 0 !important;
 }
 .text-h1,
@@ -275,7 +275,7 @@ label::after {
 .text-label {
 	font-weight: 400;
 	font-size: 1rem !important;
-	color: #00000080;
+	color: #00000050;
 }
 .text-value {
 	font-weight: 500;

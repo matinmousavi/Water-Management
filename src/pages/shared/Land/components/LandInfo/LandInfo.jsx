@@ -68,10 +68,10 @@ const LandInfo = ({ landData, setPageTitle }) => {
 						<Col xs={24} md={12} key={index}>
 							<Row>
 								<Col xs={6} className='label'>
-									<Text className='text'>{item.label}</Text>
+									<Text className='text-label'>{item.label}</Text>
 								</Col>
 								<Col xs={18} className='value'>
-									<Text className='text'>{item.value}</Text>
+									<Text className='text-value'>{item.value}</Text>
 								</Col>
 							</Row>
 						</Col>
