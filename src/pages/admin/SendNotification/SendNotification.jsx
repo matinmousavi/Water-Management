@@ -7,7 +7,9 @@ import SentNotificationsTable from './components/SentNotificationsTable/SentNoti
 const SendNotification = () => {
 	const api = useAPI()
 
-	// if (api.isLoading || !api.data) return <Loading />
+	api.init('notifications')
+
+	if (api.isLoading) return <Loading />
 
 	return (
 		<Flex vertical className='main-container'>
@@ -18,7 +20,7 @@ const SendNotification = () => {
 				<MessageSender api={api} />
 			</Flex>
 
-			<SentNotificationsTable data={api.data} />
+			<SentNotificationsTable data={api.data.data} />
 		</Flex>
 	)
 }

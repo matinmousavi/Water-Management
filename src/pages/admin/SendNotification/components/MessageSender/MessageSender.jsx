@@ -27,7 +27,7 @@ const MessageSender = ({ api }) => {
 		try {
 			const values = await form.validateFields()
 
-			const response = await api.post('notifications/send', values, {
+			const response = await api.post('notifications', values, {
 				optimisticUpdate: current => current,
 				responseHandler: (current, res) => {
 					openNotification('success', 'عملیات موفق', 'پیام با موفقیت ارسال شد.')
@@ -80,19 +80,19 @@ const MessageSender = ({ api }) => {
 					colon={false}
 					labelAlign='left'
 				>
-					<Form.Item label='گروه مخاطبان' name='group' rules={[{ required: true, message: 'گروه مخاطبان را انتخاب کنید' }]}>
+					<Form.Item label='گروه مخاطبان' name='recipientGroup' rules={[{ required: true, message: 'گروه مخاطبان را انتخاب کنید' }]}>
 						<Select
 							placeholder='انتخاب'
 							options={[
 								{ value: 'all', label: 'همه' },
-								{ value: 'admins', label: 'ادمین‌ها' },
-								{ value: 'irrigators', label: 'میرآب‌ها' },
-								{ value: 'landOwners', label: 'مالکین زمین' },
+								{ value: 'admin', label: 'ادمین‌ها' },
+								{ value: 'irrigator', label: 'میرآب‌ها' },
+								{ value: 'landOwner', label: 'مالکین زمین' },
 							]}
 						/>
 					</Form.Item>
 
-					<Form.Item label='متن پیامک' name='text' rules={[{ required: true, message: 'متن پیامک الزامی است' }]}>
+					<Form.Item label='متن پیامک' name='message' rules={[{ required: true, message: 'متن پیامک الزامی است' }]}>
 						<TextArea rows={4} />
 					</Form.Item>
 				</Form>

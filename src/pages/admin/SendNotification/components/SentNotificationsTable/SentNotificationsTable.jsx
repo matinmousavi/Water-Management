@@ -1,47 +1,62 @@
 import React from 'react'
-import { Table } from 'antd'
-import { Link } from 'react-router-dom'
+import { Table, Tag } from 'antd'
+import moment from 'moment-jalaali'
+
+moment.loadPersian({ usePersianDigits: true })
+
+const recipientGroupLabels = {
+	all: 'همه',
+	admin: 'ادمین‌ها',
+	irrigator: 'میراب‌ها',
+	landOwner: 'مالکین زمین',
+}
 
 const SentNotificationsTable = ({ data }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
-			dataIndex: 'title',
+			dataIndex: 'sentAt',
 			key: 'date',
-			filterSearch: true,
-			render: (title, record) => <Link to={`/lands/${record._id}`}>{title || '-'}</Link>,
+			width: 180,
+			render: date => (date ? moment(date).format('jD jMMMM jYYYY') : '-'),
 		},
 		{
 			title: 'ساعت',
+			dataIndex: 'sentAt',
 			key: 'time',
-			render: (_, record) => {
-				const first = record.owner?.firstName || '-'
-				const last = record.owner?.lastName || ''
-				return record.owner?._id ? <Link to={`/users/${record.owner._id}`}>{`${first} ${last}`.trim()}</Link> : '-'
-			},
+			width: 180,
+			render: date => (date ? moment(date).format('HH:mm') : '-'),
+		},
+		{
+			title: 'ارسال‌کننده',
+			dataIndex: ['sentBy', 'fullName'],
+			key: 'sentBy',
+			width: 180,
+			render: (_, record) => record.sentBy?.fullName || '-',
 		},
 		{
 			title: 'گروه مخاطب',
-			dataIndex: ['owner', 'mobile'],
+			dataIndex: 'recipientGroup',
 			key: 'audienceGroup',
-			render: (_, record) => record.owner?.mobile || '-',
+			width: 180,
+			render: group => recipientGroupLabels[group] || '-',
 		},
 		{
 			title: 'محتوای پیامک',
 			dataIndex: 'message',
 			key: 'messageContent',
-			render: text => text || '-',
+			render: message => message || '-',
 		},
 	]
 
 	return (
 		<Table
 			columns={columns}
-			rowKey='_id'
+			rowKey='id'
 			dataSource={data}
 			pagination={{
 				position: ['bottomCenter'],
-				total: data.length,
+				total: data?.length,
 				pageSize: 6,
 			}}
 			scroll={{ x: 'max-content' }}

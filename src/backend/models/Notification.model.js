@@ -4,7 +4,7 @@ const notificationSchema = new mongoose.Schema(
 	{
 		recipientGroup: {
 			type: String,
-			enum: ['all', 'admins', 'irrigators', 'landOwners'],
+			enum: ['all', 'admin', 'irrigator', 'landOwner'],
 			required: true,
 		},
 		recipients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
