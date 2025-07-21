@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import User from '../../models/User.model.js'
 import Notification from '../../models/Notification.model.js'
+import sendSMS from '../../../services/sendSMS.js'
 
 const router = Router()
 
@@ -56,24 +57,34 @@ router.post('/', async (req, res) => {
 
 		const recipients = users.map(user => user._id)
 
+		let successCount = 0
+		let failCount = 0
+
+		if (medium === 'sms') {
+			for (const user of users) {
+				try {
+					await sendSMS({ to: user.mobile, message })
+					successCount++
+				} catch (err) {
+					console.error(`❌ ارسال پیامک به ${user.mobile} ناموفق بود:`, err.message)
+					failCount++
+				}
+			}
+		}
+
 		const notification = await Notification.create({
 			recipientGroup,
 			recipients,
 			message,
 			medium,
 			sentBy,
-			meta: {
-				successCount: recipients.length,
-				failCount: 0,
-			},
+			meta: { successCount, failCount },
 		})
 
 		const populated = await notification.populate('sentBy', 'firstName lastName')
 		const data = notificationRepresentation(populated)
 
-		res.status(201).json({
-			data,
-		})
+		res.status(201).json({ data })
 	} catch (err) {
 		console.error(err)
 		res.status(500).json({ error: 'خطا در ارسال پیام' })
