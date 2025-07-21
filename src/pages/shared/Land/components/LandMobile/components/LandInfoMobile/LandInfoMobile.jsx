@@ -186,8 +186,6 @@ const LandInfoMobile = ({ data }) => {
 		setShowEndDrawer(false)
 	}
 
-	const CancelWarning = () => setShowWellInUseWarning(false)
-
 	const handleStartClick = () => {
 		const wells = data?.wells || []
 		const isAnyWellUsedByOtherLand = wells.some(well => well.isIrrigating && well.irrigatingLand && well.irrigatingLand._id !== data?._id)
@@ -218,48 +216,87 @@ const LandInfoMobile = ({ data }) => {
 			/>
 
 			{/* کشوی انتخاب زمان شروع آبیاری زمین فعلی */}
-			<Drawer title={null} placement='bottom' height='auto' open={showStartDrawer} onClose={() => setShowStartDrawer(false)} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<TimeStartPickerSheet onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={385}
+				open={showStartDrawer}
+				onClose={() => setShowStartDrawer(false)}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<TimeStartPickerSheet onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 			</Drawer>
 
 			{/* کشوی انتخاب زمان پایان آبیاری زمین فعلی */}
-			<Drawer title={null} placement='bottom' height='auto' open={showEndDrawer} onClose={() => setShowEndDrawer(false)} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<TimeEndPickerSheet
-						title='پایان آبیاری زمین فعلی'
-						subtitle='ساعت پایان آبیاری را مشخص کنید.'
-						onSubmit={handleTimeEndSelected}
-						onClose={CancelTimeEnd}
-					/>
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={385}
+				open={showEndDrawer}
+				onClose={() => setShowEndDrawer(false)}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<TimeEndPickerSheet
+					title='ثبت زمان پایان آبیاری'
+					subtitle='ساعت پایان آبیاری را مشخص کنید.'
+					onSubmit={handleTimeEndSelected}
+					onClose={CancelTimeEnd}
+				/>
 			</Drawer>
 
 			{/* کشوی انتخاب زمان پایان آبیاری زمین دیگر */}
-			<Drawer title={null} placement='bottom' height='auto' open={showEndOtherDrawer} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<TimeEndPickerSheet
-						title='پایان آبیاری زمین دیگر'
-						subtitle='ساعت پایان آبیاری زمین دیگر را مشخص کنید.'
-						onSubmit={handleEndOtherSelected}
-						onClose={() => setShowEndOtherDrawer(false)}
-					/>
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={385}
+				open={showEndOtherDrawer}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<TimeEndPickerSheet
+					title='پایان آبیاری زمین دیگر'
+					subtitle='ساعت پایان آبیاری زمین دیگر را مشخص کنید.'
+					onSubmit={handleEndOtherSelected}
+					onClose={() => setShowEndOtherDrawer(false)}
+				/>
 			</Drawer>
 
 			{/* کشوی تایید پایان آبیاری زمین فعلی */}
-			<Drawer title={null} placement='bottom' height='auto' open={endNoticeDrawer} onClose={() => setEndNoticeDrawer(false)} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={230}
+				open={endNoticeDrawer}
+				onClose={() => setEndNoticeDrawer(false)}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
 			</Drawer>
 
 			{/* مودال هشدار استفاده چاه توسط زمین دیگر */}
-			<Drawer title={null} placement='bottom' height='auto' open={showWellInUseWarning} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<WarningModalInUse onSubmit={handleEndOtherIrrigation} onClose={CancelWarning} well={currentIrrigatingWell} />
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height='auto'
+				open={showWellInUseWarning}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+				onClose={() => setShowWellInUseWarning(false)}
+			>
+				<WarningModalInUse onSubmit={handleEndOtherIrrigation} onClose={() => setShowWellInUseWarning(false)} well={currentIrrigatingWell} />
 			</Drawer>
 		</div>
 	)

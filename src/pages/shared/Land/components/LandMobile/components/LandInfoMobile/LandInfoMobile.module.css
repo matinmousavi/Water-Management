@@ -3,3 +3,13 @@
 	position: relative;
 	min-height: 100vh;
 }
+
+.ModalMobileRoot :global(.ant-drawer-body) {
+	padding-top: 0 !important;
+}
+.containerDrawer {
+	border-radius: 16px 16px 0 0 !important;
+}
+.touchesBox {
+	height: 100%;
+}

@@ -8,7 +8,7 @@ dayjs.extend(utc)
 
 const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
 
-const WarningModalInUse = ({ onSubmit, onClose, isOpen = true, well }) => {
+const WarningModalInUse = ({ onSubmit, onClose, well }) => {
 	const [countdown, setCountdown] = useState('00 : 00 : 00')
 
 	useEffect(() => {
@@ -44,12 +44,10 @@ const WarningModalInUse = ({ onSubmit, onClose, isOpen = true, well }) => {
 		return () => clearInterval(interval)
 	}, [well?.irrigationStartedAt])
 
-	if (!isOpen) return null
-
 	return (
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
-				<div className={styles.btn_sheet} />
+				<div className={styles.btn_sheet} onClick={onClose} />
 
 				<div className={styles.title}>شما در حال آبیاری زمین {well?.land?.title} هستید!</div>
 

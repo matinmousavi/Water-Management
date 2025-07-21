@@ -7,7 +7,7 @@ const EndNoticeDrawer = ({ onSubmit, onClose, isOpen = true, time }) => {
 	return (
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
-				<div className={styles.btn_sheet} />
+				<div className={styles.btn_sheet} onClick={onClose} />
 
 				<div className={styles.title}>پایان آبیاری</div>
 

@@ -101,7 +101,7 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true, title = 'ثبت 
 	return (
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
-				<div className={styles.btn_sheet} />
+				<div className={styles.btn_sheet} onClick={onClose} />
 				<div className={styles.title}>{title}</div>
 				<div className={styles.subtitle}>{subtitle}</div>
 
