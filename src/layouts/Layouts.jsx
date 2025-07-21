@@ -1,6 +1,6 @@
 import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography, Dropdown } from 'antd'
-import { UserOutlined, MenuOutlined, SettingOutlined, LogoutOutlined, MailOutlined } from '@ant-design/icons'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { UserOutlined, SettingOutlined, MailOutlined } from '@ant-design/icons'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useMemo, useState } from 'react'
 import styles from './Layouts.module.css'
@@ -16,8 +16,6 @@ const Layouts = () => {
 	const [logoutIcon, setLogoutIcon] = useState(false)
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
-
-	const navigate = useNavigate()
 
 	const mainMenuItems = useMemo(() => {
 		const items = []
@@ -51,66 +49,37 @@ const Layouts = () => {
 		return items
 	}, [isAdmin, isIrrigator])
 
-	const profileMenuItems = [
-		{
-			key: '/profile',
-			icon: <UserOutlined className={styles.icons} />,
-			children: [ 
-				isAdmin && {
-				key: '/profile',
-				label: <span onClick={() => navigate('/profile')}>حساب کاربری</span>,
-				icon: (
-					<UserOutlined
-						className={styles.icons}
-						onClick={() => {
-							navigate('/profile')
-						}}
-					/>
-				),
-			},
-				 {
+	const userMenuItems = useMemo(() => {
+		const items = []
+
+		if (isAdmin) {
+			items.push(
+				{
 					key: '/settings',
-					label: <span onClick={() => navigate('/settings')}>تنظیمات</span>,
-					icon: (
-						<SettingOutlined
-							className={styles.icons}
-							onClick={() => {
-								navigate('/settings')
-							}}
-						/>
-					),
+					label: <Link to='/settings'>تنظیمات</Link>,
+					icon: <SettingOutlined className={styles.icons} />,
 				},
 				{
-					key: '/message',
-					label: <span onClick={() => navigate('/message')}>ارسال پیامک</span>,
-					icon: (
-						<MailOutlined
-							className={styles.icons}
-							onClick={() => {
-								navigate('/message')
-							}}
-						/>
-					),
-				},
-				{
-					key: 'logout',
-					label: <span onClick={logout}>خروج</span>,
-					icon: <LogoutOutlined className={styles.icons} onClick={logout} />,
-				},
-			],
-		},
-	]
-	const itemUserButton = [
-		{
+					key: '/notification',
+					label: <Link to='/send-notification'>ارسال پیامک</Link>,
+					icon: <MailOutlined className={styles.icons} />,
+				}
+			)
+		}
+
+		items.push({
 			key: 'logout',
-			icon: <img src={iconExit} alt='icon exit' />,
 			label: (
-				<span onClick={logout} className={styles.text_export}>
-					خروج از برنامه
-				</span>
+				<Flex align='center' gap={3} onClick={logout}>
+					<img src={iconExit} className={styles.logout_icon} alt='icon exit' />
+					خروج
+				</Flex>
 			),
-		},
-	]
+		})
+
+		return items
+	}, [isAdmin, logout])
+
 	return (
 		<Layout className={styles.layout}>
 			<Header>
@@ -128,9 +97,17 @@ const Layouts = () => {
 					</Flex>
 
 					{!isMobile ? (
-						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={profileMenuItems} />
-					) : isIrrigator ? (
-						<Dropdown menu={{ items: itemUserButton }} placement='bottomLeft' trigger={['click']}>
+						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]}>
+							<Menu.SubMenu key='profile' icon={<UserOutlined className={styles.icons} />}>
+								{userMenuItems.map(item => (
+									<Menu.Item key={item.key} icon={item.icon}>
+										{item.label}
+									</Menu.Item>
+								))}
+							</Menu.SubMenu>
+						</Menu>
+					) : (
+						<Dropdown menu={{ items: userMenuItems }} placement='bottomLeft' trigger={['click']}>
 							<Button
 								className={logoutIcon ? styles.button_click : styles.button}
 								onClick={() => setLogoutIcon(prev => !prev)}
@@ -139,8 +116,6 @@ const Layouts = () => {
 								icon={<UserOutlined />}
 							/>
 						</Dropdown>
-					) : (
-						<Button type='text' color='default' icon={<MenuOutlined className={styles.menuIcon} />} onClick={() => setDrawerVisible(true)} />
 					)}
 				</Flex>
 			</Header>
@@ -148,7 +123,13 @@ const Layouts = () => {
 			<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible}>
 				<Flex vertical justify='space-between' className={styles['drawer-menu']}>
 					<Menu mode='vertical' selectedKeys={[location.pathname]} items={mainMenuItems} onClick={() => setDrawerVisible(false)} />
-					<Menu mode='vertical' selectedKeys={[location.pathname]} items={profileMenuItems} />
+					<Menu mode='vertical' selectedKeys={[location.pathname]}>
+						{userMenuItems.map(item => (
+							<Menu.Item key={item.key} icon={item.icon} onClick={() => setDrawerVisible(false)}>
+								{item.label}
+							</Menu.Item>
+						))}
+					</Menu>
 				</Flex>
 			</Drawer>
 

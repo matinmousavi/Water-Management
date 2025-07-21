@@ -10,12 +10,12 @@ import Lands from '../pages/shared/Lands/Lands'
 import Wells from '../pages/shared/Wells/Wells'
 import Users from '../pages/admin/Users/Users'
 import Settings from '../pages/admin/Settings/Settings'
+import SendNotification from '../pages/admin/SendNotification/SendNotification'
 
 const AdminRoutes = () => (
 	<Routes>
 		<Route element={<Layouts />}>
 			<Route index element={<Dashboard />} />
-			<Route path='profile' element={<Profile />} />
 
 			<Route path='users'>
 				<Route index element={<Users />} />
@@ -33,6 +33,7 @@ const AdminRoutes = () => (
 			</Route>
 
 			<Route path='settings' element={<Settings />} />
+			<Route path='send-notification' element={<SendNotification />} />
 		</Route>
 	</Routes>
 )

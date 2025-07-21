@@ -7,7 +7,6 @@ import Loading from '../../../components/Loading/Loading'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
-import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
 import UserStatus from './components/UserStatus'
 
@@ -42,8 +41,6 @@ const Profile = () => {
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between'>
-				<Breadcrumbs data={{ title: pageTitle }} />
-
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/users' />
 
