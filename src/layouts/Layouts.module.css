@@ -54,11 +54,14 @@
 	color: rgba(0, 0, 0, 0.88);
 }
 
-.logout_icon {
+.svg_icon {
 	width: 22px;
 	height: 22px;
 	position: relative;
 	right: -3px;
+}
+.dropdown {
+	display: flex;
 }
 
 @media (min-width: 1024px) {
