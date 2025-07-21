@@ -33,7 +33,7 @@ const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
 
 	return (
 		<ModalMobile open={open} title='ویرایش یادداشت' onClose={onClose} handleSubmit={handleSubmit} loading={notesApi.isLoading}>
-			<Input.TextArea value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
+			<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
 		</ModalMobile>
 	)
 }
