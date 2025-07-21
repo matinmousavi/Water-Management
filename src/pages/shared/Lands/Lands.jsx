@@ -2,7 +2,6 @@ import { Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import LandsTable from './components/LandsTable/LandsTable'
-import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import { useUser } from '../../../contexts/UserContext'
 import AddLand from './components/AddLand/AddLand'
 

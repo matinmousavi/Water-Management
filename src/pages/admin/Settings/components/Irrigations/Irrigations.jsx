@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { Flex, Typography } from 'antd'
 import EditLogging from './EditLogging/EditLogging'
 import SettingsCard from '../SettingsCard/SettingsCard'
-import english2persian from '../../../../../utils/english2persian'
 import styles from '../SettingsCard/SettingsCard.module.css'
 
 const Irrigations = ({ data }) => {
@@ -22,12 +21,11 @@ const Irrigations = ({ data }) => {
 	}
 
 	const renderDescription = (key, time) => {
-		const timePersian = english2persian(String(time))
 		switch (key) {
 			case 'descriptionEditHours':
-				return `${timePersian} ساعت پس از ثبت لاگ`
+				return `${time} ساعت پس از ثبت لاگ`
 			case 'logTimeMarginMinutes':
-				return `${timePersian} دقیقه پیش از زمان ثبت لاگ`
+				return `${time} دقیقه پیش از زمان ثبت لاگ`
 			default:
 				return ''
 		}

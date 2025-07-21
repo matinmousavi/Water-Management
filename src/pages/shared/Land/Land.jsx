@@ -5,7 +5,6 @@ import LandInfo from './components/LandInfo/LandInfo'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import BackButton from '../../../components/BackButton/BackButton'
-import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import LandNote from './components/LandNote/LandNote'
 import LandLogsCard from './components/LandLogsCard/LandLogsCard'
 import { useUser } from '../../../contexts/UserContext'
@@ -60,7 +59,6 @@ const Land = () => {
 				<LandMobile landData={landData} />
 			) : (
 				<Flex vertical gap={16}>
-					<Breadcrumbs data={{ title: pageTitle }} />
 					<Flex className='heading-container' align='center' justify='space-between'>
 						<Flex align='center'>
 							<BackButton backTo={'lands'} />

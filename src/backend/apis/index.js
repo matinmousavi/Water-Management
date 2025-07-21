@@ -11,6 +11,7 @@ import upload from './upload/upload.js'
 import wells from './wells/wells.js'
 import lands from './lands/lands.js'
 import irrigations from './irrigations/irrigations.js'
+import notifications from './notifications/notifications.js'
 import settings from './settings/settings.js'
 import notes from './notes/notes.js'
 
@@ -38,6 +39,7 @@ router.use('/upload', isLogin, upload)
 router.use('/wells', isLogin, wells)
 router.use('/lands', isLogin, lands)
 router.use('/irrigations', isLogin, irrigations)
+router.use('/notifications', isAdmin, notifications)
 router.use('/settings', isAdmin, settings)
 router.use('/notes', isLogin, notes)
 
