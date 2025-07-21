@@ -1,4 +1,4 @@
-import { Form, Select, Input, Row, Col, TimePicker, Checkbox } from 'antd'
+import { Form, Select, Input, Row, Col, TimePicker, Checkbox, Flex } from 'antd'
 import FaDatePicker from '../FaDatePicker/FaDatePicker'
 import dayjs from 'dayjs'
 
@@ -64,38 +64,40 @@ const IrrigationLogForm = ({ form, lands = [], mode, type = 'admin', page = 'wel
 				</Row>
 			</Form.Item>
 
-			<Form.Item label='پایان آب‌رسانی'>
-				<Row gutter={16} align='middle'>
-					<Col span={13}>
-						<Form.Item name='endDate' noStyle>
-							<FaDatePicker
-								placeholder='تاریخ'
-								size='large'
-								disabled={isOngoing || (type === 'irrigator' && mode !== 'edit')}
-								disabledDate={current => startDate && current && current.isBefore(dayjs(startDate), 'day')}
-							/>
-						</Form.Item>
-					</Col>
-					<Col span={11}>
-						<Form.Item name='endTime' noStyle>
-							<TimePicker
-								placeholder='ساعت'
-								format='HH:mm'
-								size='large'
-								disabled={isOngoing || (type === 'irrigator' && mode !== 'edit')}
-								disabledTime={disabledEndTime}
-								hideDisabledOptions
-							/>
-						</Form.Item>
-					</Col>
-				</Row>
-			</Form.Item>
-
-			{type === 'admin' && (
-				<Form.Item name='isOngoing' valuePropName='checked' wrapperCol={{ offset: labelCol.span, span: wrapperCol.span }}>
-					<Checkbox>در حال آب‌رسانی</Checkbox>
+			<Flex vertical gap={5}>
+				<Form.Item label='پایان آب‌رسانی'>
+					<Row gutter={16} align='middle'>
+						<Col span={13}>
+							<Form.Item name='endDate' noStyle>
+								<FaDatePicker
+									placeholder='تاریخ'
+									size='large'
+									disabled={isOngoing || (type === 'irrigator' && mode !== 'edit')}
+									disabledDate={current => startDate && current && current.isBefore(dayjs(startDate), 'day')}
+								/>
+							</Form.Item>
+						</Col>
+						<Col span={11}>
+							<Form.Item name='endTime' noStyle>
+								<TimePicker
+									placeholder='ساعت'
+									format='HH:mm'
+									size='large'
+									disabled={isOngoing || (type === 'irrigator' && mode !== 'edit')}
+									disabledTime={disabledEndTime}
+									hideDisabledOptions
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
 				</Form.Item>
-			)}
+
+				{type === 'admin' && (
+					<Form.Item name='isOngoing' valuePropName='checked' wrapperCol={{ offset: labelCol.span, span: wrapperCol.span }}>
+						<Checkbox>در حال آب‌رسانی</Checkbox>
+					</Form.Item>
+				)}
+			</Flex>
 
 			<Form.Item name='note' label='توضیحات'>
 				<Input.TextArea rows={3} />

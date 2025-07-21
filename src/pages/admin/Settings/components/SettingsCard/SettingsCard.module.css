@@ -1,0 +1,10 @@
+.card-title {
+    color: rgba(0, 0, 0, 0.50) !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+}
+.card-text {
+    color: #000;
+    font-size: 14px;
+    font-weight: 400;
+}

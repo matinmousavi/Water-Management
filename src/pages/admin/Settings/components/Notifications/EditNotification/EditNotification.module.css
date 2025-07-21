@@ -4,6 +4,9 @@
 	color: #000 !important;
 	line-height: 20;
 }
+.titlePlaceholders p {
+	margin-bottom: 0;
+}
 .textPlaceholdersText,
 .textPlaceholdersKey {
 	font-size: 12px !important;

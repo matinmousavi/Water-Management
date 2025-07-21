@@ -1,5 +1,6 @@
-import { Form, Input, Select } from 'antd'
+import { Flex, Form, Input, Select, TimePicker } from 'antd'
 import { useUser } from '../../../contexts/UserContext'
+import FaDatePicker from '../../FaDatePicker/FaDatePicker'
 
 const { TextArea } = Input
 
@@ -29,16 +30,32 @@ const WellForm = ({ form, irrigators = [] }) => {
 				</Form.Item>
 			)}
 
-			<Form.Item label='لایسنس کد' name='licenseCode' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item label='License Code' name='licenseCode'>
 				<Input />
 			</Form.Item>
 
-			<Form.Item label='روزهای چرخه' name='cycleDays'>
+			<Form.Item label='مکان' name='location'>
+				<TextArea rows={4} />
+			</Form.Item>
+
+			<Form.Item label='Cycle Days' name='cycleDays' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input type='number' />
 			</Form.Item>
 
-			<Form.Item label='مکان' name='location' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<TextArea rows={4} />
+			<Form.Item label='تاریخ شروع سایکل' name='cycleDayDate' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<FaDatePicker placeholder='تاریخ' size='large' />
+			</Form.Item>
+
+			<Form.Item label='ساعت کار' required>
+				<Flex>
+					<Form.Item name='startTime' rules={[{ required: true, message: 'زمان شروع الزامی است' }]} style={{ flex: 1, marginBottom: 0 }}>
+						<TimePicker placeholder='شروع' format='HH:mm' size='large' style={{ width: '100%' }} />
+					</Form.Item>
+
+					<Form.Item name='endTime' rules={[{ required: true, message: 'زمان پایان الزامی است' }]} style={{ flex: 1, marginBottom: 0 }}>
+						<TimePicker placeholder='پایان' format='HH:mm' size='large' style={{ width: '100%' }} />
+					</Form.Item>
+				</Flex>
 			</Form.Item>
 		</Form>
 	)
