@@ -3,7 +3,6 @@ import { Link } from 'react-router'
 import { SearchOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons'
 import React from 'react'
 import useContainerHeight from '../../../../../hooks/useContainerHeight'
-
 import styles from './UsersTable.module.css'
 
 const handleSearch = confirm => {
@@ -22,28 +21,36 @@ const getColumnSearchProps = dataIndex => ({
 				placeholder={`جستجوی ${dataIndex}`}
 				value={selectedKeys[0]}
 				onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-				onPressEnter={() => handleSearch(selectedKeys, confirm)}
+				onPressEnter={() => handleSearch(confirm)}
 				style={{ marginBottom: 8, display: 'block' }}
 			/>
 			<div style={{ display: 'flex', gap: 8 }}>
-				<Button type='primary' onClick={() => handleSearch(selectedKeys, confirm)} icon={<SearchOutlined />} size='small'>
+				<Button type='primary' onClick={() => handleSearch(confirm)} size='small'>
 					جستجو
 				</Button>
-				<Button onClick={() => handleReset(clearFilters, confirm)} size='small' icon={<CloseOutlined />}>
+				<Button onClick={() => handleReset(clearFilters, confirm)} size='small'>
 					حذف فیلتر
 				</Button>
 			</div>
 		</div>
 	),
-	filterIcon: <SearchOutlined />,
-	onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+	onFilter: (value, record) =>
+		record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
 })
+
 
 const roleLabels = {
 	admin: 'مدیر',
 	irrigator: 'میراب',
 	landOwner: 'مالک زمین',
 }
+
+const roleFilters = Object.entries(roleLabels).map(([value, text]) => ({ text, value }))
+
+const statusFilters = [
+	{ text: 'فعال', value: 'active' },
+	{ text: 'غیرفعال', value: 'inactive' },
+]
 
 const columns = [
 	{
@@ -53,19 +60,21 @@ const columns = [
 		width: 52,
 		render: (_, record) => {
 			return record?.profilePicture?.url ? (
-				<Avatar src={record.profilePicture?.url} size={35} icon={<UserOutlined />} />
+				<Avatar src={record.profilePicture.url} size={35} icon={<UserOutlined />} />
 			) : (
 				<Avatar size={35} icon={<UserOutlined />} />
 			)
 		},
 	},
 	{
-		title: 'نام و نام خانوادگی',
+		title: 'نام و نام‌خانوادگی',
 		dataIndex: 'firstName',
 		key: 'firstName',
+		width: 211,
+		...getColumnSearchProps('firstName'),
 		render: (_, record) => (
 			<Link to={record._id}>
-				{record?.firstName} {record?.lastName}
+				{record.firstName} {record.lastName}
 			</Link>
 		),
 	},
@@ -73,31 +82,45 @@ const columns = [
 		title: 'نقش',
 		dataIndex: 'role',
 		key: 'role',
+		width: 211,
+		filters: roleFilters,
+		onFilter: (value, record) => record.role === value,
 		render: role => roleLabels[role] || role,
 	},
 	{
 		title: 'شماره تماس',
 		dataIndex: 'mobile',
 		key: 'mobile',
+		width: 211,
 		...getColumnSearchProps('mobile'),
 	},
 	{
 		title: 'آدرس ایمیل',
 		dataIndex: 'email',
 		key: 'email',
+		width: 211,
 		render: email => email || '--',
 	},
 	{
-		title: 'کد حسابداری',
+		title: 'کد حساب‌داری',
 		dataIndex: 'accountingCode',
 		key: 'accountingCode',
+		width: 211,
+		...getColumnSearchProps('accountingCode'),
 		render: accountingCode => accountingCode || '--',
 	},
 	{
 		title: 'وضعیت',
 		dataIndex: 'status',
 		key: 'status',
-		render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
+		width: 211,
+		filters: statusFilters,
+		onFilter: (value, record) => record.status === value,
+		render: status => (
+			<Tag color={status === 'active' ? 'green' : 'red'}>
+				{status === 'active' ? 'فعال' : 'غیرفعال'}
+			</Tag>
+		),
 	},
 ]
 

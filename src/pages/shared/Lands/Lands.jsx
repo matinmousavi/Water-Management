@@ -16,7 +16,6 @@ const Lands = () => {
 
 	return (
 		<Flex vertical className='main-container'>
-			<Breadcrumbs />
 			<Flex justify='space-between' align='center'>
 				<Typography.Title level={1} className='text-page-title'>
 					زمین‌ها ({api.data.lands.length}){' '}

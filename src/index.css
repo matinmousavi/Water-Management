@@ -203,6 +203,13 @@ label::after {
 .ant-input-group-addon {
 	color: rgba(0, 0, 0, 0.5) !important;
 }
+.anticon-filter svg {
+	width: 12px !important;
+	height: 12px !important;
+}
+.ant-table-filter-trigger {
+	margin: 0 !important;
+}
 /* --------------------------------------------
    3. Custom Utility / UI Classes
 --------------------------------------------- */

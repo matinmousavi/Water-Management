@@ -53,7 +53,6 @@ const Layouts = () => {
 
 	const profileMenuItems = [
 		{
-			key: '/profile',
 			icon: <UserOutlined className={styles.icons} />,
 			children: [ 
 				isAdmin && {

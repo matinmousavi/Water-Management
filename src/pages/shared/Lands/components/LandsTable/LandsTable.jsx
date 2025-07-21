@@ -4,18 +4,35 @@ import { Link } from 'react-router-dom'
 const LandsTable = ({ landsData = [] }) => {
 	const allIrrigators = Array.from(
 		new Set(
-			landsData.flatMap(land => (land.wells || []).filter(well => well.irrigator).map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`))
+			landsData.flatMap(land =>
+				(land.wells || [])
+					.filter(well => well.irrigator)
+					.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`)
+			)
 		)
 	).map(name => ({ text: name, value: name }))
 
-	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner?.firstName || '-'} ${land.owner?.lastName || ''}`.trim()))).map(name => ({
-		text: name,
-		value: name,
-	}))
+	const uniqueOwners = Array.from(
+		new Set(
+			landsData.map(land =>
+				`${land.owner?.firstName || '-'} ${land.owner?.lastName || ''}`.trim()
+			)
+		)
+	).map(name => ({ text: name, value: name }))
 
-	const uniqueLandNames = Array.from(new Set(landsData.map(land => land.title || '-'))).map(name => ({ text: name, value: name }))
+	const uniqueLandNames = Array.from(
+		new Set(landsData.map(land => land.title || '-'))
+	).map(name => ({ text: name, value: name }))
 
-	const ownerMobiles = Array.from(new Set(landsData.map(land => land.owner?.mobile || '-'))).map(mobile => ({ text: mobile, value: mobile }))
+	const ownerMobiles = Array.from(
+		new Set(landsData.map(land => land.owner?.mobile || '-'))
+	).map(mobile => ({ text: mobile, value: mobile }))
+
+	const allWellTitles = Array.from(
+		new Set(
+			landsData.flatMap(land => (land.wells || []).map(well => well.title || '-'))
+		)
+	).map(title => ({ text: title, value: title }))
 
 	const irrigationTypes = ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر']
 
@@ -24,6 +41,7 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'عنوان زمین',
 			dataIndex: 'title',
 			key: 'title',
+			width: 188,
 			filters: uniqueLandNames,
 			onFilter: (value, record) => (record.title || '').includes(value),
 			filterSearch: true,
@@ -32,18 +50,25 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'مالک زمین',
 			key: 'owner',
+			width: 188,
 			filters: uniqueOwners,
-			onFilter: (value, record) => `${record.owner?.firstName || '-'} ${record.owner?.lastName || ''}`.trim().includes(value),
+			onFilter: (value, record) =>
+				`${record.owner?.firstName || '-'} ${record.owner?.lastName || ''}`.trim().includes(value),
 			filterSearch: true,
 			render: (_, record) => {
 				const first = record.owner?.firstName || '-'
 				const last = record.owner?.lastName || ''
-				return record.owner?._id ? <Link to={`/users/${record.owner._id}`}>{`${first} ${last}`.trim()}</Link> : '-'
+				return record.owner?._id ? (
+					<Link to={`/users/${record.owner._id}`}>{`${first} ${last}`.trim()}</Link>
+				) : (
+					'-'
+				)
 			},
 		},
 		{
 			title: 'شماره تماس مالک زمین',
 			key: 'mobile',
+			width: 188,
 			filters: ownerMobiles,
 			onFilter: (value, record) => (record.owner?.mobile || '-') === value,
 			render: (_, record) => record.owner?.mobile || '-',
@@ -51,6 +76,11 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'عنوان چاه',
 			key: 'wellTitles',
+			width: 188,
+			filters: allWellTitles,
+			onFilter: (value, record) =>
+				(record.wells || []).some(well => (well.title || '-') === value),
+			filterSearch: true,
 			render: (_, record) => {
 				const wells = record.wells || []
 				if (!wells.length) return '-'
@@ -68,9 +98,15 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'میرآب',
 			key: 'irrigator',
+			width: 188,
 			filters: allIrrigators,
 			onFilter: (value, record) =>
-				(record.wells || []).some(well => well.irrigator && `${well.irrigator.firstName} ${well.irrigator.lastName}` === value),
+				(record.wells || []).some(
+					well =>
+						well.irrigator &&
+						`${well.irrigator.firstName} ${well.irrigator.lastName}` === value
+				),
+			filterSearch: true,
 			render: (_, record) => {
 				const wells = record.wells || []
 				if (!wells.length) return '-'
@@ -89,6 +125,7 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'نوع آبیاری',
 			dataIndex: 'irrigationType',
 			key: 'irrigationType',
+			width: 188,
 			filters: irrigationTypes.map(type => ({ text: type, value: type })),
 			onFilter: (value, record) => record.irrigationType === value,
 			render: type => type || '-',
@@ -97,7 +134,17 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
-			render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
+			width: 188,
+			filters: [
+				{ text: 'فعال', value: 'active' },
+				{ text: 'غیرفعال', value: 'inactive' },
+			],
+			onFilter: (value, record) => record.status === value,
+			render: status => (
+				<Tag color={status === 'active' ? 'green' : 'red'}>
+					{status === 'active' ? 'فعال' : 'غیرفعال'}
+				</Tag>
+			),
 		},
 	]
 
