@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Flex, Typography, Avatar } from 'antd'
+import { Row, Col, Typography, Avatar } from 'antd'
 import moment from 'moment-jalaali'
 import { UserOutlined } from '@ant-design/icons'
 import styles from './ContactInfoDisplay.module.css'
@@ -17,7 +17,7 @@ const ContactInfoDisplay = ({ userData }) => {
 
 	const contactInfo = [
 		{ label: 'نقش', value: getRoleLabel(userData?.role) },
-		{ label: 'کد حسابداری', value: userData?.accountingCode ? userData.accountingCode : '-' },
+		{ label: 'کد حساب‌داری', value: userData?.accountingCode ? userData.accountingCode : '-' },
 		{ label: 'شماره تماس', value: userData?.mobile ? userData.mobile : '-' },
 		{ label: 'آدرس ایمیل', value: userData?.email || '-' },
 		{ label: 'آدرس', value: userData?.address || '-' },
@@ -35,10 +35,10 @@ const ContactInfoDisplay = ({ userData }) => {
 						<Col xs={24} md={12} key={index}>
 							<Row>
 								<Col xs={8} className='label'>
-									<Typography.Text className='text'>{item.label}</Typography.Text>
+									<Typography.Text className='text-label'>{item.label}</Typography.Text>
 								</Col>
 								<Col xs={16} className='value'>
-									<Typography.Text className='text'>{item.value}</Typography.Text>
+									<Typography.Text className='text-value'>{item.value}</Typography.Text>
 								</Col>
 							</Row>
 						</Col>

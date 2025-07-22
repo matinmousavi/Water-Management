@@ -120,8 +120,12 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 					<Select placeholder='انتخاب' options={ROLES.map(r => ({ value: r.key, label: r.label }))} size='large' />
 				</Form.Item>
 
+				<Form.Item label='کد حساب‌داری' name='accountingCode'>
+					<Input size='large' />
+				</Form.Item>
+
 				<Form.Item
-					label='شماره همراه'
+					label='شماره تماس'
 					name='mobile'
 					rules={[
 						{ required: true, message: 'شماره موبایل الزامی است' },
@@ -133,9 +137,8 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 				>
 					<Input maxLength={11} inputMode='numeric' size='large' />
 				</Form.Item>
-
 				<Form.Item
-					label='ایمیل'
+					label='آدرس ایمیل'
 					name='email'
 					rules={[
 						{
@@ -146,14 +149,11 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 				>
 					<Input size='large' />
 				</Form.Item>
-
-				<Form.Item label='کد حسابداری' name='accountingCode'>
-					<Input size='large' />
-				</Form.Item>
-
 				<Form.Item label='آدرس' name='address'>
-					<Input.TextArea rows={1} size='large' />
+					<Input.TextArea rows={3} size='large' />
 				</Form.Item>
+
+
 			</Form>
 
 			<Modal open={previewVisible} title='پیش‌نمایش تصویر' footer={null} onCancel={() => setPreviewVisible(false)}>
