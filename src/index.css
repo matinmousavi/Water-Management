@@ -362,11 +362,11 @@ label::after {
 		padding: 3.75rem 0.625rem;
 		/* 60px 10px */
 	}
-	.ant-breadcrumb {
-		display: block;
-	}
 	.ant-picker {
 		height: 40px;
+	}
+	.ant-card .ant-card-body {
+		padding: 36px !important;
 	}
 }
 /* ---------- Medium Screens (1024px–1439px) ---------- */

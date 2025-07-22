@@ -82,6 +82,7 @@ const MessageSender = ({ api }) => {
 				>
 					<Form.Item label='گروه مخاطبان' name='recipientGroup' rules={[{ required: true, message: 'گروه مخاطبان را انتخاب کنید' }]}>
 						<Select
+							size='large'
 							placeholder='انتخاب'
 							options={[
 								{ value: 'all', label: 'همه' },
