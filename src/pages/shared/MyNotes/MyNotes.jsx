@@ -7,12 +7,16 @@ import Loading from '../../../components/Loading/Loading'
 import EditNotes from './components/EditNotes/EditNotes'
 import { useState } from 'react'
 import moment from 'moment-jalaali'
+import { useUser } from '../../../contexts/UserContext'
 
 const MyNotes = () => {
 	const [editingNoteId, setEditingNoteId] = useState(null)
 	const { Title, Text } = Typography
+	const { user } = useUser()
+	const userId = user._id
+
 	const apiNotes = useAPI()
-	apiNotes.init('notes')
+	apiNotes.init(`notes/user/${userId}`)
 
 	if (apiNotes.isLoading) return <Loading />
 
