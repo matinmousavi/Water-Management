@@ -9,7 +9,7 @@ import useNotification from '../../../../../hooks/useNotification'
 
 const { Title, Text } = Typography
 
-const LandNote = ({ notesData: initialNotes }) => {
+const LandNote = ({ notesData: initialNotes, status }) => {
 	const { landId } = useParams()
 	const cardRef = useRef()
 	const notesApi = useAPI()

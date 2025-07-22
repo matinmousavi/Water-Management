@@ -26,7 +26,7 @@ const LandInfo = ({ landData, setPageTitle }) => {
 		{ label: 'شماره تماس مالک', value: land?.owner?.mobile || '--' },
 		{ label: 'مساحت', value: land?.area ? `${land.area} متر مربع` : '--' },
 		{ label: 'K-factor', value: land?.kFactor || '--' },
-		{ label: 'نام محصول', value: land?.cropType || '--' },
+		{ label: 'محصول', value: land?.cropType || '--' },
 		{ label: 'نوع آبیاری', value: land?.irrigationType || '--' },
 		{ label: 'آدرس زمین', value: land?.location || '--' },
 		{
