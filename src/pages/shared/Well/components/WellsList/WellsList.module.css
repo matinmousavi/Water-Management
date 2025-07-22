@@ -1,33 +1,9 @@
-.customDrawerRoot :global(.ant-drawer-body) {
-	padding: 0 !important;
-}
-
-.containerDrawer {
-	border-radius: 16px 16px 0 0 !important;
-}
-.drawerHeader {
-	min-height: 40px;
-	align-items: center;
-	display: flex;
-	justify-content: center;
-}
-.lineDrawer {
-	width: 24px;
-	border-top: 4px solid #afafaf;
-	border-radius: 2px;
-	margin: 0 16px;
-}
-.title {
-	font-size: 14px !important;
-	font-weight: 500 !important;
-	text-align: center;
-}
 .list {
 	justify-content: center;
 }
 .listItem {
-	padding: 0;
-	height: 65px;
+	padding: 0 !important;
+	height: 65px !important;
 }
 .listButton {
 	width: 100%;

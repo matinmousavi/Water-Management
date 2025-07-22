@@ -2,7 +2,7 @@ import { Button, Drawer, Flex, Form, Typography } from 'antd'
 import styles from './ModalMobile.module.css'
 import { useRef } from 'react'
 
-const ModalMobile = ({ open, title = '', onClose, children, handleSubmit, loading, height = 322 }) => {
+const ModalMobile = ({ open, title = '', onClose, isList = false, children, handleSubmit, loading, height = 322 }) => {
 	const startY = useRef(0)
 	const { Title } = Typography
 	const handleTouchStart = e => {
@@ -28,7 +28,7 @@ const ModalMobile = ({ open, title = '', onClose, children, handleSubmit, loadin
 		>
 			<div className={styles.touchesBox} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 				<Form className={styles.form} layout='vertical' size='large' onFinish={handleSubmit}>
-					<Flex className={styles.contentDrawer} vertical gap={10}>
+					<Flex className={styles.contentDrawer} vertical gap={24}>
 						<Flex gap={24} flex={1} vertical>
 							<Flex vertical gap={10}>
 								<div className={styles.drawerHeader}>
@@ -40,14 +40,16 @@ const ModalMobile = ({ open, title = '', onClose, children, handleSubmit, loadin
 							</Flex>
 							<div className={styles.mainContent}>{children}</div>
 						</Flex>
-						<Flex gap={16} justify='center'>
-							<Button onClick={onClose} className={styles.returnButton}>
-								بازگشت
-							</Button>
-							<Button className={styles.okButton} type='primary' htmlType='submit' loading={loading}>
-								ثبت
-							</Button>
-						</Flex>
+						{isList ? null : (
+							<Flex gap={16} justify='center'>
+								<Button onClick={onClose} className={styles.returnButton}>
+									بازگشت
+								</Button>
+								<Button className={styles.okButton} type='primary' htmlType='submit' loading={loading}>
+									ثبت
+								</Button>
+							</Flex>
+						)}
 					</Flex>
 				</Form>
 			</div>

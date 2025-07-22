@@ -7,12 +7,16 @@ import Loading from '../../../components/Loading/Loading'
 import EditNotes from './components/EditNotes/EditNotes'
 import { useState } from 'react'
 import moment from 'moment-jalaali'
+import { useUser } from '../../../contexts/UserContext'
 
 const MyNotes = () => {
 	const [editingNoteId, setEditingNoteId] = useState(null)
 	const { Title, Text } = Typography
+	const { user } = useUser()
+	const userId = user._id
+
 	const apiNotes = useAPI()
-	apiNotes.init('notes')
+	apiNotes.init(`notes/user/${userId}`)
 
 	if (apiNotes.isLoading) return <Loading />
 
@@ -37,7 +41,7 @@ const MyNotes = () => {
 							<Flex gap={5} vertical>
 								<Flex align='center' className={styles.cardHeader} justify='space-between'>
 									<Title className={styles.title} level={4}>
-										چاه {note?.reference?.title}
+										زمین {note?.reference?.title}
 									</Title>
 									<span className={styles.date}>{moment(note?.updatedAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</span>
 								</Flex>
