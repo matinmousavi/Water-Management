@@ -1,26 +1,13 @@
 import { Button, Drawer, Flex, List, Typography } from 'antd'
 import styles from './WellsList.module.css'
+import ModalMobile from '../../../../../components/ModalMobile/ModalMobile'
 
 const WellsList = ({ open, onClose, data, setData }) => {
 	const { Title } = Typography
 
 	return (
-		<Drawer
-			rootClassName={styles.customDrawerRoot}
-			className={styles.containerDrawer}
-			placement='bottom'
-			closable={false}
-			height={322}
-			onClose={onClose}
-			open={open}
-		>
-			<div className={styles.drawerHeader}>
-				<div onClick={onClose} className={styles.lineDrawer}></div>
-			</div>
+		<ModalMobile open={open} isList title='انتخاب چاه' onClose={onClose} handleSubmit={setData}>
 			<Flex gap={8} vertical>
-				<Title className={styles.title} level={4}>
-					انتخاب چاه
-				</Title>
 				<List className={styles.list}>
 					{data?.map(well => (
 						<List.Item key={well?._id} className={styles.listItem}>
@@ -31,7 +18,7 @@ const WellsList = ({ open, onClose, data, setData }) => {
 					))}
 				</List>
 			</Flex>
-		</Drawer>
+		</ModalMobile>
 	)
 }
 

@@ -37,7 +37,7 @@ const MyNotes = () => {
 							<Flex gap={5} vertical>
 								<Flex align='center' className={styles.cardHeader} justify='space-between'>
 									<Title className={styles.title} level={4}>
-										چاه {note?.reference?.title}
+										زمین {note?.reference?.title}
 									</Title>
 									<span className={styles.date}>{moment(note?.updatedAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</span>
 								</Flex>
