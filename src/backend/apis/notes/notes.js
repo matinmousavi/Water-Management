@@ -28,7 +28,7 @@ const getReference = async (type, refId) => {
 	return { id: refId, title: doc.title }
 }
 
-// GET all notes
+// GET all notes (optional filters: user, type, reference)
 router.get('/', async (req, res) => {
 	try {
 		const { user, type, reference } = req.query
@@ -60,6 +60,34 @@ router.get('/', async (req, res) => {
 		return res.status(200).json({ notes: processedNotes })
 	} catch (err) {
 		return res.status(500).json({ error: 'Server error', details: err.message })
+	}
+})
+
+// GET notes for a specific user (with access control)
+router.get('/user/:userId', async (req, res) => {
+	try {
+		const { userId } = req.params
+
+		if (!req.isAdmin && req.user._id.toString() !== userId) {
+			return res.status(403).json({ error: 'دسترسی غیرمجاز' })
+		}
+
+		const notes = await Note.find({ user: userId }).sort({ createdAt: -1 }).lean()
+
+		const processedNotes = await Promise.all(
+			notes.map(async note => ({
+				id: note._id,
+				text: note.text,
+				type: note.type,
+				createdAt: note.createdAt,
+				updatedAt: note.updatedAt,
+				reference: await getReference(note.type, note.reference),
+			}))
+		)
+
+		return res.status(200).json({ notes: processedNotes })
+	} catch (err) {
+		return res.status(500).json({ error: 'خطای سرور', details: err.message })
 	}
 })
 

@@ -16,7 +16,7 @@ const beforeUpload = file => {
 }
 
 const ROLES = [
-	{ key: 'admin', label: 'مدیر' },
+	{ key: 'admin', label: 'ادمین' },
 	{ key: 'irrigator', label: 'میراب' },
 	{ key: 'landOwner', label: 'مالک زمین' },
 ]
@@ -121,12 +121,27 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 				</Form.Item>
 
 				<Form.Item label='کد حساب‌داری' name='accountingCode'>
-					<Input size='large' />
+					<Input
+						size='large'
+						inputMode='numeric'
+						pattern='[0-9]*'
+						onKeyPress={e => {
+							if (!/[0-9]/.test(e.key)) {
+								e.preventDefault()
+							}
+						}}
+					/>
 				</Form.Item>
 
 				<Form.Item
 					label='شماره تماس'
 					name='mobile'
+					inputMode='numeric'
+					onKeyPress={e => {
+						if (!/[0-9]/.test(e.key)) {
+							e.preventDefault()
+						}
+					}}
 					rules={[
 						{ required: true, message: 'شماره موبایل الزامی است' },
 						{
@@ -152,8 +167,6 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 				<Form.Item label='آدرس' name='address'>
 					<Input.TextArea rows={3} size='large' />
 				</Form.Item>
-
-
 			</Form>
 
 			<Modal open={previewVisible} title='پیش‌نمایش تصویر' footer={null} onCancel={() => setPreviewVisible(false)}>
