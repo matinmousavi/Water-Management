@@ -28,7 +28,7 @@ const ModalMobile = ({ open, title = '', onClose, isList = false, children, hand
 		>
 			<div className={styles.touchesBox} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
 				<Form className={styles.form} layout='vertical' size='large' onFinish={handleSubmit}>
-					<Flex className={styles.contentDrawer} vertical gap={10}>
+					<Flex className={styles.contentDrawer} vertical gap={24}>
 						<Flex gap={24} flex={1} vertical>
 							<Flex vertical gap={10}>
 								<div className={styles.drawerHeader}>

@@ -1,12 +1,11 @@
-import { Button, Drawer, Flex, Form, Input, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input } from 'antd'
 import styles from './LandNotesMobile.module.css'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
 import NotesListMobile from './components/MobileNotesList/NotesListMobile'
-
-const { Title } = Typography
+import ModalMobile from '../../../../../../../components/ModalMobile/ModalMobile'
 
 const LandNotesMobile = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
@@ -18,19 +17,6 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
 	const [selectedNote, setSelectedNote] = useState(null)
 	const [notes, setNotes] = useState(initialNotes || [])
-
-	const startY = useRef(0)
-
-	const handleTouchStart = e => {
-		startY.current = e.touches[0].clientY
-	}
-
-	const handleTouchMove = e => {
-		const deltaY = e.touches[0].clientY - startY.current
-		if (deltaY > 100) {
-			setOpen(false)
-		}
-	}
 
 	useEffect(() => {
 		setNotes(initialNotes || [])
@@ -115,37 +101,11 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				</div>
 			</div>
 
-			<Drawer
-				rootClassName={styles.customDrawerRoot}
-				className={styles.containerDrawer}
-				placement='bottom'
-				closable={false}
-				height={322}
-				onClose={onClose}
-				open={open}
-			>
-				<div className={styles.touchesBox} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<Flex className={styles.contentDrawer} vertical gap={10}>
-						<div className={styles.drawerHeader}>
-							<div onClick={() => setOpen(false)} className={styles.lineDrawer}></div>
-						</div>
-						<Form className={styles.form} form={noteForm} onFinish={handleSubmitNote} layout='vertical' size='large'>
-							<Title className='title-form'>افزودن یادداشت</Title>
-							<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-								<Input.TextArea rows={4} className={styles.textArea} />
-							</Form.Item>
-							<Flex gap={16} justify='center'>
-								<Button onClick={() => setOpen(false)} className={styles.returnButton}>
-									بازگشت
-								</Button>
-								<Button className={styles.okButton} type='primary' htmlType='submit' loading={notesApi.isLoading}>
-									ثبت
-								</Button>
-							</Flex>
-						</Form>
-					</Flex>
-				</div>
-			</Drawer>
+			<ModalMobile onClose={onClose} open={open} loading={notesApi.isLoading} handleSubmit={handleSubmitNote} title='افزودن یادداشت'>
+				<Form.Item className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+					<Input.TextArea rows={7} />
+				</Form.Item>
+			</ModalMobile>
 		</>
 	)
 }
