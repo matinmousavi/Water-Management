@@ -39,17 +39,19 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 				</Form.Item>
 			)}
 
-			<Form.Item
-				name='area'
-				label='مساحت' 
-			>
-				<Input />
+			<Form.Item name='area' label='مساحت'>
+				<Input
+					inputMode='numeric'
+					pattern='[0-9]*'
+					onKeyPress={e => {
+						if (!/[0-9]/.test(e.key)) {
+							e.preventDefault()
+						}
+					}}
+				/>
 			</Form.Item>
 
-			<Form.Item
-				name='kFactor'
-				label='K-factor'
-			>
+			<Form.Item name='kFactor' label='K-factor'>
 				<Input />
 			</Form.Item>
 
@@ -61,10 +63,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 				<Select options={irrigationOptions} placeholder='انتخاب' allowClear size='large' />
 			</Form.Item>
 
-			<Form.Item
-				name='location'
-				label='مکان'
-			>
+			<Form.Item name='location' label='مکان'>
 				<TextArea />
 			</Form.Item>
 			<Form.Item name='wellId' label='عنوان چاه'>
