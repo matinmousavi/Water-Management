@@ -26,7 +26,7 @@ const LandInfo = ({ landData, setPageTitle }) => {
 		{ label: 'شماره تماس مالک', value: land?.owner?.mobile || '--' },
 		{ label: 'مساحت', value: land?.area ? `${land.area} متر مربع` : '--' },
 		{ label: 'K-factor', value: land?.kFactor || '--' },
-		{ label: 'نام محصول', value: land?.cropType || '--' },
+		{ label: 'محصول', value: land?.cropType || '--' },
 		{ label: 'نوع آبیاری', value: land?.irrigationType || '--' },
 		{ label: 'آدرس زمین', value: land?.location || '--' },
 		{
@@ -68,10 +68,10 @@ const LandInfo = ({ landData, setPageTitle }) => {
 						<Col xs={24} md={12} key={index}>
 							<Row>
 								<Col xs={6} className='label'>
-									<Text className='text'>{item.label}</Text>
+									<Text className='text-label'>{item.label}</Text>
 								</Col>
 								<Col xs={18} className='value'>
-									<Text className='text'>{item.value}</Text>
+									<Text className='text-value'>{item.value}</Text>
 								</Col>
 							</Row>
 						</Col>

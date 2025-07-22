@@ -22,7 +22,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 			</Form.Item>
 
 			{isAdmin && (
-				<Form.Item name='owner' label='مالک زمین' rules={[{ required: true, message: 'مالک را وارد کنید' }]}>
+				<Form.Item name='owner' label='نام مالک' rules={[{ required: true, message: 'مالک را وارد کنید' }]}>
 					<Select
 						showSearch
 						placeholder='انتخاب'
@@ -41,22 +41,14 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 
 			<Form.Item
 				name='area'
-				label='مساحت'
-				rules={[
-					{ required: true, message: 'این فیلد الزامی است' },
-					{ pattern: /^[0-9]+$/, message: 'فرمت معتبر نیست' },
-				]}
+				label='مساحت' 
 			>
 				<Input />
 			</Form.Item>
 
 			<Form.Item
 				name='kFactor'
-				label='K-Factor'
-				rules={[
-					{ required: true, message: 'این فیلد الزامی است' },
-					{ pattern: /^[0-9.]+$/, message: 'فرمت معتبر نیست' },
-				]}
+				label='K-factor'
 			>
 				<Input />
 			</Form.Item>
@@ -72,16 +64,12 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 			<Form.Item
 				name='location'
 				label='مکان'
-				rules={[
-					{ required: true, message: 'این فیلد الزامی است' },
-					{ pattern: /^.+$/, message: 'فرمت معتبر نیست' },
-				]}
 			>
 				<TextArea />
 			</Form.Item>
-			<Form.Item name='wellId' label='چاه'>
+			<Form.Item name='wellId' label='عنوان چاه'>
 				<Select
-					showSearch
+					showSearch1
 					placeholder='انتخاب'
 					allowClear
 					style={{ width: '100%' }}

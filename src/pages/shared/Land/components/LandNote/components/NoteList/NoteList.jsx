@@ -1,8 +1,9 @@
 import { Button, Flex, Space } from 'antd'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import moment from 'moment-jalaali'
 import styles from './NoteList.module.css'
 
-const NoteList = ({ data, handleDeleteClick, handleEditNote, status }) => {
+const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
 	return (
 		<Flex vertical gap={8}>
 			{data?.map(note => (
@@ -12,20 +13,12 @@ const NoteList = ({ data, handleDeleteClick, handleEditNote, status }) => {
 						<Flex align='center' justify='space-between'>
 							<Flex align='center' gap={20}>
 								<h4 className={styles.userName}>{note?.user ? `${note?.user.firstName} ${note?.user.lastName}` : 'کاربر ناشناس'}</h4>
-								<span className={styles.date}>
-									{new Date(note?.createdAt).toLocaleDateString('fa-IR', {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-									})}
-								</span>
+								<span className={styles.date}>{moment(note?.createdAt).locale('fa').format('jD jMMMM jYYYY - ساعت HH:mm')}</span>
 							</Flex>
-							{status === 'active' && (
-								<Space className={styles.btns}>
-									<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
-									<Button type='link' icon={<DeleteOutlined />} danger onClick={() => handleDeleteClick(note)} />
-								</Space>
-							)}
+							<Space className={styles.btns}>
+								<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
+								<Button type='link' icon={<DeleteOutlined />} danger onClick={() => handleDeleteClick(note)} />
+							</Space>
 						</Flex>
 						<p className={styles.commentText}>{note?.text}</p>
 					</Flex>
@@ -34,4 +27,5 @@ const NoteList = ({ data, handleDeleteClick, handleEditNote, status }) => {
 		</Flex>
 	)
 }
+
 export default NoteList
