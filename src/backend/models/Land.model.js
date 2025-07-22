@@ -20,41 +20,23 @@ const landSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
-		location: {
+		cropType: {
 			type: String,
-			default: '',
+			trim: true,
 		},
 		irrigationType: {
 			type: String,
 			enum: ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر'],
 		},
-		cropType: {
+		location: {
 			type: String,
-			trim: true,
+			default: '',
 		},
 		status: {
 			type: String,
 			enum: ['active', 'inactive'],
 			default: 'active',
 		},
-		notes: [
-			{
-				user: {
-					type: mongoose.Schema.Types.ObjectId,
-					ref: 'User',
-					required: true,
-				},
-				text: {
-					type: String,
-					required: true,
-					trim: true,
-				},
-				createdAt: {
-					type: Date,
-					default: Date.now,
-				},
-			},
-		],
 	},
 	{
 		timestamps: true,

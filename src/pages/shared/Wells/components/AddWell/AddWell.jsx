@@ -14,6 +14,7 @@ const AddWell = ({ wellsApi }) => {
 
 	const handleOpen = () => {
 		irrigatorsApi.init('users', { role: 'irrigator' })
+		form.resetFields()
 	}
 
 	const handleCancel = () => {
@@ -23,12 +24,25 @@ const AddWell = ({ wellsApi }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
+
+			const formattedValues = {
+				...values,
+				cycleStartDate: values.cycleStartDate ? values.cycleStartDate.toDate() : null,
+				workTime: {
+					start: values.startTime ? values.startTime.toDate() : null,
+					end: values.endTime ? values.endTime.toDate() : null,
+				},
+			}
+
+			delete formattedValues.startTime
+			delete formattedValues.endTime
+
 			const tempId = 'temp-' + Date.now()
 
-			await wellsApi.post('wells', values, {
+			await wellsApi.post('wells', formattedValues, {
 				optimisticUpdate: prev => ({
 					...prev,
-					wells: [...(prev?.wells || []), { ...values, _id: tempId, status: 'active' }],
+					wells: [...(prev?.wells || []), { ...formattedValues, _id: tempId, status: 'active' }],
 				}),
 				rollback: prev => ({
 					...prev,
