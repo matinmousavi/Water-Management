@@ -16,6 +16,9 @@
 /* --------------------------------------------
    2. Ant Design Overrides
 --------------------------------------------- */
+.ant-input {
+	min-height: 40px !important;
+}
 .ant-card {
 	border-radius: 4px;
 }
@@ -209,15 +212,7 @@ label::after {
 .ant-menu-submenu-popup > .ant-menu li span svg {
 	color: #00000073;
 }
-.ant-input {
-	line-height: 20px !important;
-}
-.ant-input::placeholder {
-	color: rgba(0, 0, 0, 0.8) !important;
-}
-/* .ant-input-group .ant-input-group-addon {
-	width: 57px !important;
-} */
+
 .ant-input-group-addon {
 	color: rgba(0, 0, 0, 0.5) !important;
 }
@@ -227,6 +222,14 @@ label::after {
 }
 .ant-table-filter-trigger {
 	margin: 0 !important;
+}
+.ant-select-selector,
+.ant-input {
+	padding: 4px 12px !important;
+}
+
+.ant-input-lg {
+	font-size: 14px !important;
 }
 /* --------------------------------------------
    3. Custom Utility / UI Classes
@@ -332,9 +335,11 @@ label::after {
 	font-weight: 400;
 	line-height: 18px;
 }
+
 /* --------------------------------------------
    4. Media Queries
 --------------------------------------------- */
+
 /* ---------- Large Screens ---------- */
 @media (min-width: 1440px) {
 	.ant-modal {
@@ -345,9 +350,6 @@ label::after {
 	}
 	.ant-pagination {
 		gap: 8px !important;
-	}
-	.ant-input {
-		min-height: 40px !important;
 	}
 	.ant-form {
 		width: 472px !important;
@@ -367,6 +369,9 @@ label::after {
 	}
 	.ant-card .ant-card-body {
 		padding: 36px !important;
+	}
+	.ant-input-lg {
+		font-size: 1rem !important;
 	}
 }
 /* ---------- Medium Screens (1024px–1439px) ---------- */
@@ -404,8 +409,5 @@ label::after {
 	}
 	.ant-breadcrumb {
 		display: block !important;
-	}
-	.ant-input {
-		min-height: 40px !important;
 	}
 }

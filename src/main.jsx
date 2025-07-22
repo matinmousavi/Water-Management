@@ -39,10 +39,9 @@ createRoot(document.getElementById('root')).render(
 						borderRadius: 8,
 					},
 					Input: {
-						activeShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
 						borderRadiusLG: 4,
-						paddingBlock: 4,
-						paddingInline: 12,
+						paddingBlockLG: 4,
+						activeShadow: 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
 					},
 					Card: {
 						bodyPadding: 36,

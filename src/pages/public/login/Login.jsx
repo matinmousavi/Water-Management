@@ -49,6 +49,15 @@ const Login = () => {
 		}
 	}
 
+	const handleEditMobileClick = () => {
+		setStep(1)
+		form.resetFields()
+	}
+
+	const handleResendClick = () => {
+		resendOtp()
+	}
+
 	const handleSubmit = async values => {
 		if (step === 1) {
 			try {
@@ -99,7 +108,17 @@ const Login = () => {
 										{ pattern: /^(۰|0)(۹|9)[0-9۰-۹]{9}$/, message: 'شماره موبایل معتبر نیست' },
 									]}
 								>
-									<Input autoFocus size='large' maxLength={11} inputMode='numeric' className={styles.input} />
+									<Input
+										autoFocus
+										size='large'
+										maxLength={11}
+										inputMode='numeric'
+										onKeyPress={e => {
+											if (!/[0-9]/.test(e.key)) {
+												e.preventDefault()
+											}
+										}}
+									/>
 								</Form.Item>
 							</Flex>
 						) : (
@@ -108,7 +127,7 @@ const Login = () => {
 									<Typography.Text className={styles.containerMobile}>
 										کد تأیید ۴ رقمی به شماره <span className={styles.mobile}>{mobile}</span> ارسال شد.
 									</Typography.Text>
-									<Button className={styles['link-btn']} type='link' onClick={() => setStep(1)}>
+									<Button className={styles['link-btn']} type='link' onClick={handleEditMobileClick}>
 										<EditOutlined />
 										ویرایش شماره
 									</Button>
@@ -120,7 +139,7 @@ const Login = () => {
 											{ pattern: /^\d{4}$/, message: 'کد باید 4 رقم باشد.' },
 										]}
 									>
-										<Input.OTP length={4} autoFocus inputMode='numeric' style={{ direction: 'ltr' }} />
+										<Input.OTP size='large' length={4} autoFocus inputMode='numeric' style={{ direction: 'ltr' }} />
 									</Form.Item>
 								</Flex>
 
@@ -134,7 +153,7 @@ const Login = () => {
 									) : (
 										<Flex gap={5} justify='center' align='center'>
 											<Typography.Text className={styles.resendCode}>کد را دریافت نکرداید؟</Typography.Text>
-											<Button className={styles['link-btn']} type='link' onClick={resendOtp}>
+											<Button className={styles['link-btn']} type='link' onClick={handleResendClick}>
 												ارسال مجدد
 											</Button>
 										</Flex>
