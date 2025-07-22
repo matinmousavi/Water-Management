@@ -1,17 +1,26 @@
 import React, { useMemo } from 'react'
 import { Card, Col, Flex, Row, Typography } from 'antd'
 import { Link } from 'react-router'
+import moment from 'moment-jalaali'
 import useAPI from '../../../../../hooks/useAPI'
 import EditWell from './components/EditWell/EditWell'
 import { useUser } from '../../../../../contexts/UserContext'
 
 const WellInfoCard = ({ wellInfo, setPageTitle }) => {
+	console.log(wellInfo)
 	const api = useAPI()
 	const well = api.data.well || wellInfo
 	const { isAdmin } = useUser()
 
 	const wellInfoItems = useMemo(() => {
 		const irrigator = well?.irrigator
+
+		const cycleStartDateFormatted = well?.cycleStartDate ? moment(well.cycleStartDate).format('jYYYY/jMM/jDD') : '--'
+
+		const workTimeFormatted =
+			well?.workTime?.start && well?.workTime?.end
+				? `${moment(well.workTime.start).format('HH:mm')} - ${moment(well.workTime.end).format('HH:mm')}`
+				: '--'
 
 		return [
 			{
@@ -36,11 +45,11 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 			},
 			{
 				label: 'تاریخ شروع سایکل',
-				value: '--',
+				value: cycleStartDateFormatted,
 			},
 			{
 				label: 'ساعت کار',
-				value: '--',
+				value: workTimeFormatted,
 			},
 		]
 	}, [well])

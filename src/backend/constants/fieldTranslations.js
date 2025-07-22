@@ -6,7 +6,16 @@ export const fieldTranslations = {
 		lastName: 'نام خانوادگی',
 		accountingCode: 'کد حسابداری',
 	},
-	wells: { licenseCode: 'لایسنس کد', title: 'عنوان چاه', cycleDays: 'روزهای چرخه', irrigator: 'میرآب' },
+	wells: {
+		licenseCode: 'license Code',
+		title: 'عنوان چاه',
+		cycleDays: 'cycleDays',
+		cycleStartDate: 'تاریخ شروع سایکل',
+		workTime: 'زمان کاری',
+		start: 'زمان شروع',
+		end: 'زمان پایان',
+		irrigator: 'میرآب',
+	},
 	lands: {
 		title: 'عنوان زمین',
 		owner: 'مالک',

@@ -138,14 +138,39 @@ router.get('/:wellId', async (req, res) => {
 // POST create well
 router.post('/', async (req, res) => {
 	try {
-		const { title, licenseCode, cycleDays, location, irrigator, lands } = req.body
-		let newWell = await Well.create({ title, licenseCode, cycleDays, location, irrigator, lands })
+		const { title, licenseCode, cycleDays, cycleStartDate, location, irrigator, lands, workTime } = req.body
 
-		newWell = await newWell.populate('irrigator')
+		let newWell = await Well.create({
+			title,
+			licenseCode,
+			cycleDays,
+			cycleStartDate,
+			location,
+			irrigator,
+			lands,
+			workTime,
+			status: 'active',
+		})
+
+		newWell = await newWell.populate('irrigator', 'firstName lastName')
+
+		const representation = {
+			_id: newWell._id,
+			title: newWell.title,
+			status: newWell.status,
+			irrigator: newWell.irrigator
+				? {
+						_id: newWell.irrigator._id,
+						firstName: newWell.irrigator.firstName,
+						lastName: newWell.irrigator.lastName,
+				  }
+				: null,
+			landsCount: Array.isArray(newWell.lands) ? newWell.lands.length : 0,
+		}
 
 		return res.status(201).json({
 			message: 'چاه با موفقیت ایجاد شد.',
-			well: newWell,
+			well: representation,
 		})
 	} catch (err) {
 		console.error(err.message)
@@ -158,7 +183,7 @@ router.post('/', async (req, res) => {
 
 		if (err.name === 'ValidationError') {
 			const firstError = Object.values(err.errors)[0]
-			const field = firstError.path
+			const field = firstError.path.includes('.') ? firstError.path.split('.')[1] : firstError.path
 			const fieldName = fieldTranslations.wells[field] || field
 			return res.status(400).json({ message: `${fieldName} الزامی است.` })
 		}
@@ -179,6 +204,7 @@ router.patch('/:wellId', async (req, res) => {
 		}
 
 		Object.assign(well, updates)
+		await well.validate()
 		await well.save()
 
 		const updated = await Well.findById(wellId)
@@ -199,6 +225,13 @@ router.patch('/:wellId', async (req, res) => {
 			const field = Object.keys(err.keyValue)[0]
 			const fieldName = fieldTranslations.wells[field] || field
 			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
+		}
+
+		if (err.name === 'ValidationError') {
+			const firstError = Object.values(err.errors)[0]
+			const field = firstError.path.includes('.') ? firstError.path.split('.')[1] : firstError.path
+			const fieldName = fieldTranslations.wells[field] || field
+			return res.status(400).json({ message: `${fieldName} الزامی است.` })
 		}
 
 		return res.status(500).json({ message: 'خطا در ویرایش چاه.' })
