@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import english2persian from '../../../../../../../../../utils/english2persian'
 import styles from './TimeStartPickerSheet.module.css'
 import dayjs from 'dayjs'
+import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
 
 const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
@@ -101,8 +102,9 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	return (
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
-				<div className={styles.btn_sheet} />
+				<div className={styles.btn_sheet} onClick={onClose} />
 				<div className={styles.title}>ثبت زمان شروع آبیاری</div>
+
 				<div className={styles.subtitle}>ساعت شروع آبیاری را مشخص کنید.</div>
 
 				<div className={styles.container_time_lines}>

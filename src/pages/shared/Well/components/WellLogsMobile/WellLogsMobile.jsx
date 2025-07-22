@@ -10,6 +10,8 @@ moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
 const { Text } = Typography
 
+const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
+
 const formatTime = seconds => {
 	const safeSeconds = Math.max(0, seconds)
 	const hrs = Math.floor(safeSeconds / 3600)
@@ -18,30 +20,40 @@ const formatTime = seconds => {
 	return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
 }
 
-const getRemainingTime = startedAt => {
-	if (!startedAt) return 0
+const getRemainingTimeFromLocalStorage = landId => {
+	if (!landId) return 0
 
-	const started = new Date(startedAt).getTime()
+	const localStorageKey = `irrigation_start_${landId}`
+	const irrigationStartTime = localStorage.getItem(localStorageKey)
+
+	if (!irrigationStartTime) return 0
+
+	const startTime = parseInt(irrigationStartTime, 10)
 	const now = Date.now()
-	const elapsedSeconds = Math.floor((now - started) / 1000)
-	const totalSeconds = 2 * 3600
-	const remaining = totalSeconds - elapsedSeconds
-	return remaining > 0 ? remaining : 0
+	const elapsedSeconds = Math.floor((now - startTime) / 1000)
+	const remaining = TWO_HOURS_IN_SECONDS - elapsedSeconds
+
+	return Math.abs(remaining)
 }
 
 const WellLogsMobile = ({ data }) => {
 	const isThisLogOngoing = data?.isOngoing
-	const [remainingTime, setRemainingTime] = useState(() => (isThisLogOngoing ? getRemainingTime(data?.startedAt) : 0))
+	const landId = data?.land?._id
+
+	const [remainingTime, setRemainingTime] = useState(() => (isThisLogOngoing ? getRemainingTimeFromLocalStorage(landId) : 0))
 
 	useEffect(() => {
-		if (!isThisLogOngoing) return
+		if (!isThisLogOngoing || !landId) return
 
-		const interval = setInterval(() => {
-			setRemainingTime(getRemainingTime(data?.startedAt))
-		}, 1000)
+		const updateTimer = () => {
+			setRemainingTime(getRemainingTimeFromLocalStorage(landId))
+		}
+
+		updateTimer()
+		const interval = setInterval(updateTimer, 1000)
 
 		return () => clearInterval(interval)
-	}, [data?.startedAt, isThisLogOngoing])
+	}, [landId, isThisLogOngoing])
 
 	return (
 		<Card>

@@ -1,5 +1,7 @@
 import { Card, Flex, Typography } from 'antd'
 import styles from './NotesListMobile.module.css'
+import moment from 'moment-jalaali'
+
 const NotesListMobile = ({ data }) => {
 	const { Text, Title } = Typography
 	return (
@@ -11,16 +13,7 @@ const NotesListMobile = ({ data }) => {
 							<Title className={styles.title} level={4}>
 								{note?.user ? `${note?.user.firstName} ${note?.user.lastName}` : 'کاربر ناشناس'}
 							</Title>
-							<Text className={styles.date}>
-								|{' '}
-								{new Date(note?.createdAt).toLocaleDateString('fa-IR', {
-									hour: 'numeric',
-									minute: 'numeric',
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-								})}
-							</Text>
+							<Text className={styles.date}>| {moment(note?.createdAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</Text>
 						</Flex>
 						<Text className={styles.text}>{note?.text}</Text>
 					</Flex>

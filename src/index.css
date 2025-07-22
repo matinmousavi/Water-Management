@@ -73,8 +73,14 @@ a {
 	font-size: 14px;
 	font-weight: 400;
 }
+.ant-dropdown-menu-item {
+	width: 100%;
+}
 .ant-otp {
 	gap: 16px;
+}
+.ant-otp-input {
+	height: 40px;
 }
 .ant-otp .ant-otp-input-wrapper {
 	margin-left: 16px !important;
@@ -240,6 +246,7 @@ label::after {
 }
 .title-login {
 	text-align: right;
+	font-weight: 400;
 }
 .container-scroll:nth-child(1) .container-item-scroll .item-scroll {
 	text-align: left;

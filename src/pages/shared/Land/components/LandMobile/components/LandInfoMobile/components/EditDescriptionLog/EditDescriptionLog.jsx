@@ -7,7 +7,7 @@ const EditDescriptionLog = ({ onSubmit, onClose, isOpen = true, note, setNotes }
 	return (
 		<div className={styles.container_fixed}>
 			<div className={styles.container}>
-				<div className={styles.btn_sheet} />
+				<div className={styles.btn_sheet} onClick={onClose} />
 
 				<div className={styles.title}>توضیحات لاگ</div>
 				<div className={styles.container_input}>

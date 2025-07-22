@@ -3,7 +3,7 @@ import jalaliday from 'jalaliday'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { Drawer } from 'antd'
 import styles from './LandInfoMobile.module.css'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import TimeStartPickerSheet from './components/TimeStartPickerSheet/TimeStartPickerSheet'
 import TimeEndPickerSheet from './components/TimeEndPickerSheet/TimeEndPickerSheet'
 import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
@@ -32,7 +32,7 @@ const LandInfoMobile = ({ data }) => {
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
 	const [isOvertime, setIsOvertime] = useState(false)
 
-	const startY = useRef(0)
+	const getLocalStorageKey = () => `irrigation_start_${landId}`
 
 	useEffect(() => {
 		if (data?.logs?.length && logs.length === 0) {
@@ -79,20 +79,31 @@ const LandInfoMobile = ({ data }) => {
 		if (!logs || logs.length === 0) return
 
 		const ongoingLog = logs.find(log => log.isOngoing)
-		if (!ongoingLog || !ongoingLog.startedAt) {
+		if (!ongoingLog) {
 			setIsIrrigating(false)
 			setRemainingTime(0)
 			setIsOvertime(false)
+
+			localStorage.removeItem(getLocalStorageKey())
 			return
 		}
+
 		setIsIrrigating(true)
 
-		const startedAt = new Date(ongoingLog.startedAt).getTime()
+		const localStorageKey = getLocalStorageKey()
+		let irrigationStartTime = localStorage.getItem(localStorageKey)
+
+		if (!irrigationStartTime) {
+			irrigationStartTime = Date.now()
+			localStorage.setItem(localStorageKey, irrigationStartTime.toString())
+		} else {
+			irrigationStartTime = parseInt(irrigationStartTime, 10)
+		}
 
 		const updateRemaining = () => {
 			const now = Date.now()
-			const elapsed = Math.floor((now - startedAt) / 1000)
-			const remaining = Math.max(0, TWO_HOURS_IN_SECONDS - elapsed)
+			const elapsed = Math.floor((now - irrigationStartTime) / 1000)
+			const remaining = TWO_HOURS_IN_SECONDS - elapsed
 
 			setRemainingTime(Math.abs(remaining))
 			setIsOvertime(remaining < 0)
@@ -102,20 +113,7 @@ const LandInfoMobile = ({ data }) => {
 		const interval = setInterval(updateRemaining, 1000)
 
 		return () => clearInterval(interval)
-	}, [logs])
-
-	const handleTouchStart = e => {
-		startY.current = e.touches[0].clientY
-	}
-
-	const handleTouchMove = e => {
-		const deltaY = e.touches[0].clientY - startY.current
-		if (deltaY > 100) {
-			setShowStartDrawer(false)
-			setShowEndDrawer(false)
-			setShowEndOtherDrawer(false)
-		}
-	}
+	}, [logs, landId])
 
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
@@ -130,6 +128,9 @@ const LandInfoMobile = ({ data }) => {
 				startTime: combined.toISOString(),
 				isOngoing: true,
 			})
+
+			const localStorageKey = getLocalStorageKey()
+			localStorage.setItem(localStorageKey, Date.now().toString())
 
 			setLogs(prevLogs => [response?.irrigation, ...prevLogs])
 		} catch (error) {
@@ -150,6 +151,8 @@ const LandInfoMobile = ({ data }) => {
 			const response = await api.patch(`irrigations/${ongoing._id}`, {
 				endTime: combined.toISOString(),
 			})
+
+			localStorage.removeItem(getLocalStorageKey())
 
 			setLogs(prevLogs => prevLogs.filter(log => log._id !== ongoing._id).concat(response?.irrigation))
 		} catch (error) {
@@ -186,8 +189,6 @@ const LandInfoMobile = ({ data }) => {
 		setShowEndDrawer(false)
 	}
 
-	const CancelWarning = () => setShowWellInUseWarning(false)
-
 	const handleStartClick = () => {
 		const wells = data?.wells || []
 		const isAnyWellUsedByOtherLand = wells.some(well => well.isIrrigating && well.irrigatingLand && well.irrigatingLand._id !== data?._id)
@@ -218,48 +219,87 @@ const LandInfoMobile = ({ data }) => {
 			/>
 
 			{/* کشوی انتخاب زمان شروع آبیاری زمین فعلی */}
-			<Drawer title={null} placement='bottom' height='auto' open={showStartDrawer} onClose={() => setShowStartDrawer(false)} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<TimeStartPickerSheet onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={385}
+				open={showStartDrawer}
+				onClose={() => setShowStartDrawer(false)}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<TimeStartPickerSheet onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 			</Drawer>
 
 			{/* کشوی انتخاب زمان پایان آبیاری زمین فعلی */}
-			<Drawer title={null} placement='bottom' height='auto' open={showEndDrawer} onClose={() => setShowEndDrawer(false)} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<TimeEndPickerSheet
-						title='پایان آبیاری زمین فعلی'
-						subtitle='ساعت پایان آبیاری را مشخص کنید.'
-						onSubmit={handleTimeEndSelected}
-						onClose={CancelTimeEnd}
-					/>
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={385}
+				open={showEndDrawer}
+				onClose={() => setShowEndDrawer(false)}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<TimeEndPickerSheet
+					title='ثبت زمان پایان آبیاری'
+					subtitle='ساعت پایان آبیاری را مشخص کنید.'
+					onSubmit={handleTimeEndSelected}
+					onClose={CancelTimeEnd}
+				/>
 			</Drawer>
 
 			{/* کشوی انتخاب زمان پایان آبیاری زمین دیگر */}
-			<Drawer title={null} placement='bottom' height='auto' open={showEndOtherDrawer} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<TimeEndPickerSheet
-						title='پایان آبیاری زمین دیگر'
-						subtitle='ساعت پایان آبیاری زمین دیگر را مشخص کنید.'
-						onSubmit={handleEndOtherSelected}
-						onClose={() => setShowEndOtherDrawer(false)}
-					/>
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={385}
+				open={showEndOtherDrawer}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<TimeEndPickerSheet
+					title='پایان آبیاری زمین دیگر'
+					subtitle='ساعت پایان آبیاری زمین دیگر را مشخص کنید.'
+					onSubmit={handleEndOtherSelected}
+					onClose={() => setShowEndOtherDrawer(false)}
+				/>
 			</Drawer>
 
 			{/* کشوی تایید پایان آبیاری زمین فعلی */}
-			<Drawer title={null} placement='bottom' height='auto' open={endNoticeDrawer} onClose={() => setEndNoticeDrawer(false)} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height={230}
+				open={endNoticeDrawer}
+				onClose={() => setEndNoticeDrawer(false)}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+			>
+				<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
 			</Drawer>
 
 			{/* مودال هشدار استفاده چاه توسط زمین دیگر */}
-			<Drawer title={null} placement='bottom' height='auto' open={showWellInUseWarning} closable={false}>
-				<div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-					<WarningModalInUse onSubmit={handleEndOtherIrrigation} onClose={CancelWarning} well={currentIrrigatingWell} />
-				</div>
+			<Drawer
+				title={null}
+				placement='bottom'
+				height='auto'
+				open={showWellInUseWarning}
+				closable={false}
+				maskClosable={true}
+				rootClassName={styles.ModalMobileRoot}
+				className={styles.containerDrawer}
+				onClose={() => setShowWellInUseWarning(false)}
+			>
+				<WarningModalInUse onSubmit={handleEndOtherIrrigation} onClose={() => setShowWellInUseWarning(false)} well={currentIrrigatingWell} />
 			</Drawer>
 		</div>
 	)

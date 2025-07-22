@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Button, Drawer, Flex, Form, Input, message, Typography } from 'antd'
+import { Input } from 'antd'
 import styles from './EditNotes.module.css'
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
 import ModalMobile from '../../../../../components/ModalMobile/ModalMobile'
+
 const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
-	const { Title } = Typography
 	const [editedText, setEditedText] = useState('')
 	const notesApi = useAPI()
 	useEffect(() => {
@@ -33,7 +33,7 @@ const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
 
 	return (
 		<ModalMobile open={open} title='ویرایش یادداشت' onClose={onClose} handleSubmit={handleSubmit} loading={notesApi.isLoading}>
-			<Input.TextArea value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
+			<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
 		</ModalMobile>
 	)
 }
