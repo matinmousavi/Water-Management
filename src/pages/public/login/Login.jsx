@@ -89,7 +89,7 @@ const Login = () => {
 	return (
 		<Flex className={styles.container} vertical align='center' justify={isMobile ? 'flex-end' : 'center'}>
 			<Flex className={styles.wrapper} vertical align='center'>
-				<Flex vertical justify='center' align='center' gap={9}>
+				<Flex vertical justify='space-between' align='center' className={styles['brand-container']}>
 					<img src={img} alt='Water Logo' width={24} />
 					<Typography.Title className={styles.title} level={2}>
 						مدیریت آب
