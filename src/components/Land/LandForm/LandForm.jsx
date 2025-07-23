@@ -18,7 +18,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 	return (
 		<Form form={form} name='landForm' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
 			<Form.Item name='title' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input />
+				<Input size='large' />
 			</Form.Item>
 
 			{isAdmin && (
@@ -41,6 +41,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 
 			<Form.Item name='area' label='مساحت'>
 				<Input
+					size='large'
 					inputMode='numeric'
 					pattern='[0-9]*'
 					onKeyPress={e => {
@@ -52,11 +53,11 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 			</Form.Item>
 
 			<Form.Item name='kFactor' label='K-factor'>
-				<Input />
+				<Input size='large' />
 			</Form.Item>
 
 			<Form.Item name='cropType' label='محصول'>
-				<Input />
+				<Input size='large' />
 			</Form.Item>
 
 			<Form.Item name='irrigationType' label='نوع آبیاری'>

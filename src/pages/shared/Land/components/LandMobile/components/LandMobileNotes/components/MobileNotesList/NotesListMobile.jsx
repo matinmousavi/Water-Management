@@ -13,7 +13,7 @@ const NotesListMobile = ({ data }) => {
 							<Title className={styles.title} level={4}>
 								{note?.user ? `${note?.user.firstName} ${note?.user.lastName}` : 'کاربر ناشناس'}
 							</Title>
-							<Text className={styles.date}>| {moment(note?.createdAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</Text>
+							<Text className={styles.date}>{moment(note?.createdAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</Text>
 						</Flex>
 						<Text className={styles.text}>{note?.text}</Text>
 					</Flex>

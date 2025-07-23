@@ -55,13 +55,32 @@
 }
 
 .svg_icon {
-	width: 22px;
-	height: 22px;
+	width: 19px;
+	height: 19px;
 	position: relative;
-	right: -3px;
+	right: -1px;
 }
 .dropdown {
 	display: flex;
+}
+
+.exit {
+	font-size: 0.875rem;
+}
+
+.userMenu {
+	position: absolute;
+	top: 50px;
+	left: 0;
+	z-index: 1000;
+	border-radius: 4px;
+}
+.userMenu :global(.ant-menu-item-icon) {
+	font-size: 18px !important;
+}
+.userMenu :global(.ant-menu-title-content) {
+	padding: 0 !important;
+	margin: 2px !important;
 }
 
 @media (min-width: 1024px) {

@@ -43,7 +43,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 	return (
 		<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
 			<Form.Item label='عنوان چاه' name='title' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input />
+				<Input size='large' />
 			</Form.Item>
 
 			{isAdmin && (
@@ -64,7 +64,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 			)}
 
 			<Form.Item label='License Code' name='licenseCode'>
-				<Input {...numberOnlyProps} />
+				<Input size='large' {...numberOnlyProps} />
 			</Form.Item>
 
 			<Form.Item label='مکان' name='location'>
@@ -72,7 +72,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 			</Form.Item>
 
 			<Form.Item label='Cycle Days' name='cycleDays' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input {...numberOnlyProps} />
+				<Input size='large' {...numberOnlyProps} />
 			</Form.Item>
 
 			<Form.Item label='تاریخ شروع سایکل' name='cycleStartDate' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>

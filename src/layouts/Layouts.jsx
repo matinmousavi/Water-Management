@@ -1,11 +1,13 @@
-import { Drawer, Menu, Button, Image, Layout, Flex, Grid, Typography, Dropdown } from 'antd'
-import { UserOutlined, SettingOutlined, MailOutlined } from '@ant-design/icons'
+import React, { useMemo, useState } from 'react'
+import { Layout, Menu, Typography, Image, Grid, Flex, Button } from 'antd'
+import { SettingOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
-import { useMemo, useState } from 'react'
-import styles from './Layouts.module.css'
+
 import iconExit from '../../public/Exit.svg'
 import iconNotes from '../../public/myNotes.svg'
+
+import styles from './Layouts.module.css'
 
 const { Header, Content } = Layout
 const { Title } = Typography
@@ -13,40 +15,18 @@ const { Title } = Typography
 const Layouts = () => {
 	const { isAdmin, isIrrigator, logout } = useUser()
 	const location = useLocation()
-	const [drawerVisible, setDrawerVisible] = useState(false)
-	const [logoutIcon, setLogoutIcon] = useState(false)
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
 
+	const [menuOpen, setMenuOpen] = useState(false)
+
 	const mainMenuItems = useMemo(() => {
 		const items = []
+		if (isAdmin) items.push({ key: '/', label: <Link to='/'>داشبورد</Link> })
+		if (isAdmin || isIrrigator) items.push({ key: '/wells', label: <Link to='/wells'>چاه‌ها</Link> })
 		if (isAdmin) {
-			items.push({
-				key: '/',
-				label: <Link to='/'>داشبورد</Link>,
-			})
+			items.push({ key: '/lands', label: <Link to='/lands'>زمین‌ها</Link> }, { key: '/users', label: <Link to='/users'>کاربران</Link> })
 		}
-
-		if (isAdmin || isIrrigator) {
-			items.push({
-				key: '/wells',
-				label: <Link to='/wells'>چاه‌ها</Link>,
-			})
-		}
-
-		if (isAdmin) {
-			items.push(
-				{
-					key: '/lands',
-					label: <Link to='/lands'>زمین‌ها</Link>,
-				},
-				{
-					key: '/users',
-					label: <Link to='/users'>کاربران</Link>,
-				}
-			)
-		}
-
 		return items
 	}, [isAdmin, isIrrigator])
 
@@ -58,21 +38,22 @@ const Layouts = () => {
 				{
 					key: '/settings',
 					label: <Link to='/settings'>تنظیمات</Link>,
-					icon: <SettingOutlined className={styles.icons} />,
+					icon: <SettingOutlined style={{ color: '#00000073' }} />,
 				},
 				{
-					key: '/notification',
+					key: '/send-notification',
 					label: <Link to='/send-notification'>ارسال پیامک</Link>,
-					icon: <MailOutlined className={styles.icons} />,
+					icon: <MailOutlined style={{ color: '#00000073' }} />,
 				}
 			)
 		}
+
 		if (isIrrigator) {
 			items.push({
-				key: 'my-notes',
+				key: '/my-notes',
 				label: (
-					<Flex align='center' gap={3}>
-						<img src={iconNotes} className={styles.svg_icon} alt='icon note' />
+					<Flex align='center' gap={0}>
+						<img src={iconNotes} className={styles.svg_icon} alt='یادداشت‌های من' />
 						<Link className={styles.text_export} to='/my-notes'>
 							یادداشت‌های من
 						</Link>
@@ -80,71 +61,55 @@ const Layouts = () => {
 				),
 			})
 		}
+
 		items.push({
 			key: 'logout',
 			label: (
-				<Flex align='center' gap={3} onClick={logout}>
-					<img src={iconExit} className={styles.svg_icon} alt='icon exit' />
+				<Flex align='center' gap={8} className={styles.exit}>
+					<img src={iconExit} className={styles.svg_icon} alt='خروج' />
 					خروج
 				</Flex>
 			),
 		})
 
 		return items
-	}, [isAdmin, logout])
+	}, [isAdmin, isIrrigator])
+
+	const handleUserMenuClick = ({ key }) => {
+		if (key === 'logout') logout()
+		setMenuOpen(false)
+	}
 
 	return (
 		<Layout className={styles.layout}>
 			<Header>
 				<Flex align='center' justify='space-between'>
-					<Flex className={styles['w-full']} align='center' gap={10}>
+					<Flex align='center' gap={10} className={styles['w-full']}>
 						<Link to='/'>
-							<Image width={24} src='../assets/images/default-logo.png' preview={false} />
+							<Image src='../assets/images/default-logo.png' width={24} preview={false} />
 						</Link>
 						<Link to='/'>
 							<Title level={3} className={styles.title}>
 								مدیریت آب
 							</Title>
 						</Link>
-						{!isMobile && <Menu className={styles.flex} theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} />}
+
+						{!isMobile && <Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} className={styles.flex} />}
 					</Flex>
 
-					{!isMobile ? (
-						<Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]}>
-							<Menu.SubMenu key='profile' icon={<UserOutlined className={styles.icons} />}>
-								{userMenuItems.map(item => (
-									<Menu.Item key={item.key} icon={item.icon}>
-										{item.label}
-									</Menu.Item>
-								))}
-							</Menu.SubMenu>
-						</Menu>
-					) : (
-						<Dropdown className={styles.dropdown} menu={{ items: userMenuItems }} placement='bottomLeft' trigger={['click']}>
-							<Button
-								className={logoutIcon ? styles.button_click : styles.button}
-								onClick={() => setLogoutIcon(prev => !prev)}
-								type='text'
-								shape='circle'
-								icon={<UserOutlined />}
-							/>
-						</Dropdown>
-					)}
+					<div style={{ position: 'relative' }}>
+						<Button
+							type='text'
+							shape='circle'
+							icon={<UserOutlined style={{ color: '#FFFFFFA6', fontSize: 20, paddingTop: 60 }} />}
+							onClick={() => setMenuOpen(prev => !prev)}
+						/>
+						{menuOpen && (
+							<Menu mode='vertical' items={userMenuItems} onClick={handleUserMenuClick} className={styles.userMenu} selectable={false} />
+						)}
+					</div>
 				</Flex>
 			</Header>
-
-			<Drawer title='منو' placement='right' onClose={() => setDrawerVisible(false)} open={drawerVisible}>
-				<Flex vertical justify='space-between' className={styles['drawer-menu']}>
-					<Menu mode='vertical' selectedKeys={[location.pathname]} items={mainMenuItems} onClick={() => setDrawerVisible(false)} />
-					<Menu mode='vertical' selectedKeys={[location.pathname]}>
-						{userMenuItems.map(item => (
-							<Menu.Item key={item.key} icon={item.icon} onClick={() => setDrawerVisible(false)}>
-								{item.label}
-							</Menu.Item>
-						))}
-					</Menu>
-				</Flex>
-			</Drawer>
 
 			<Content className={styles.content}>
 				<Outlet />

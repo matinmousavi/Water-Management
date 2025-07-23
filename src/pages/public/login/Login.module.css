@@ -6,12 +6,15 @@
 
 .wrapper {
 	width: 100% !important;
-	max-width: 425px !important;
 	height: 100% !important;
-	max-height: 768px !important;
 	background-color: #fff !important;
 	padding: 100px 24px 24px !important;
 	gap: 56px !important;
+}
+
+.brand-container {
+	width: 100% !important;
+	height: 55px !important;
 }
 
 .form {
@@ -26,6 +29,14 @@
 	justify-content: space-between !important;
 	flex: 1 !important;
 	gap: 20px !important;
+}
+
+.form-wrapper :global(.ant-otp) {
+	gap: 16px !important;
+}
+.form-wrapper :global(.ant-otp-input) {
+	height: 40px !important;
+	width: 40px !important;
 }
 
 .title {
@@ -51,14 +62,6 @@
 .resendCode {
 	color: rgba(0, 0, 0, 0.6);
 }
-.input {
-	padding: 12px;
-	border-radius: 6px;
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	-ms-border-radius: 6px;
-	-o-border-radius: 6px;
-}
 
 /* ---------- Media Query ---------- */
 @media screen and (min-width: 768px) {
@@ -70,8 +73,8 @@
 		width: 400px !important;
 		height: initial !important;
 		gap: 32px !important;
-		padding: 29px !important;
-		border-radius: 5px !important;
+		padding: 36px !important;
+		border-radius: 4px !important;
 		filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1)) !important;
 	}
 

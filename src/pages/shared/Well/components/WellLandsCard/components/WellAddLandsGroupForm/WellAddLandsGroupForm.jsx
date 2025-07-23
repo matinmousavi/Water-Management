@@ -6,7 +6,7 @@ const WellAddLandsGroupForm = ({ form, lands = [] }) => {
 	return (
 		<Form form={form} layout='horizontal' labelCol={{ flex: '160px' }} wrapperCol={{ flex: 'auto' }}>
 			<Form.Item name='groupName' label='نام گروه'>
-				<Input />
+				<Input size='large' />
 			</Form.Item>
 			<Form.Item name='lands' label='زمین'>
 				<Select
