@@ -219,39 +219,16 @@ const LandInfoMobile = ({ data }) => {
 			/>
 
 			{/* کشوی انتخاب زمان شروع آبیاری زمین فعلی */}
-			<Drawer
-				title={null}
-				placement='bottom'
-				height={385}
-				open={showStartDrawer}
-				onClose={() => setShowStartDrawer(false)}
-				closable={false}
-				maskClosable={true}
-				rootClassName={styles.ModalMobileRoot}
-				className={styles.containerDrawer}
-			>
-				<TimeStartPickerSheet onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
-			</Drawer>
+			<TimeStartPickerSheet isOpen={showStartDrawer} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 
 			{/* کشوی انتخاب زمان پایان آبیاری زمین فعلی */}
-			<Drawer
-				title={null}
-				placement='bottom'
-				height={385}
-				open={showEndDrawer}
-				onClose={() => setShowEndDrawer(false)}
-				closable={false}
-				maskClosable={true}
-				rootClassName={styles.ModalMobileRoot}
-				className={styles.containerDrawer}
-			>
-				<TimeEndPickerSheet
-					title='ثبت زمان پایان آبیاری'
-					subtitle='ساعت پایان آبیاری را مشخص کنید.'
-					onSubmit={handleTimeEndSelected}
-					onClose={CancelTimeEnd}
-				/>
-			</Drawer>
+			<TimeEndPickerSheet
+				isOpen={showEndDrawer}
+				title='ثبت زمان پایان آبیاری'
+				subtitle='ساعت پایان آبیاری را مشخص کنید.'
+				onSubmit={handleTimeEndSelected}
+				onClose={CancelTimeEnd}
+			/>
 
 			{/* کشوی انتخاب زمان پایان آبیاری زمین دیگر */}
 			<Drawer
@@ -273,19 +250,7 @@ const LandInfoMobile = ({ data }) => {
 			</Drawer>
 
 			{/* کشوی تایید پایان آبیاری زمین فعلی */}
-			<Drawer
-				title={null}
-				placement='bottom'
-				height={230}
-				open={endNoticeDrawer}
-				onClose={() => setEndNoticeDrawer(false)}
-				closable={false}
-				maskClosable={true}
-				rootClassName={styles.ModalMobileRoot}
-				className={styles.containerDrawer}
-			>
-				<EndNoticeDrawer onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
-			</Drawer>
+			<EndNoticeDrawer isOpen={endNoticeDrawer} onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
 
 			{/* مودال هشدار استفاده چاه توسط زمین دیگر */}
 			<Drawer

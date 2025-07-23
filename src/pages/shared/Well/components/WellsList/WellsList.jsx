@@ -4,7 +4,7 @@ import ModalMobile from '../../../../../components/ModalMobile/ModalMobile'
 
 const WellsList = ({ open, onClose, data, setData }) => {
 	return (
-		<ModalMobile open={open} isList title='انتخاب چاه' onClose={onClose} handleSubmit={setData}>
+		<ModalMobile open={open} isButtons title='انتخاب چاه' onClose={onClose} handleSubmit={setData}>
 			<Flex gap={8} vertical>
 				<List className={styles.list}>
 					{data?.map(well => (

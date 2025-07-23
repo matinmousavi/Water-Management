@@ -100,7 +100,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 						</Button>
 					</>
 				) : (
-					<Button type='primary' block onClick={onStartClick}>
+					<Button type='primary' className='button-modal' block onClick={onStartClick}>
 						شروع آبیاری
 					</Button>
 				)}

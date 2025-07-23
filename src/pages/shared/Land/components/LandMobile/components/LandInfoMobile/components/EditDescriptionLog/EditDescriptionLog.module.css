@@ -40,3 +40,10 @@
 .btn {
 	width: 50%;
 }
+
+.itemForm {
+	height: 100%;
+}
+.textArea {
+	height: 100% !important;
+}

@@ -17,6 +17,9 @@
 /* --------------------------------------------
     Ant Design Overrides
 --------------------------------------------- */
+.ant-layout-header {
+	padding: 0 16px;
+}
 .ant-input,
 .ant-picker-input input,
 .ant-picker-input::placeholder,
@@ -321,11 +324,15 @@ label::after {
 .style-btn {
 	border-color: #0066ee;
 	color: #0066ee;
-	height: 40px !important;
+	height: 47px !important;
+	width: 156px !important;
 }
 
 .hide-cancel-button {
 	display: none;
+}
+.button-modal {
+	height: 47px !important;
 }
 
 .eye-icon {
@@ -393,7 +400,7 @@ label::after {
 	.ant-btn {
 		font-size: 14px !important;
 		padding: 0 12px !important;
-		height: 40px !important;
+		height: 47px !important;
 	}
 	.ant-table-wrapper .ant-table {
 		font-size: 13px !important;

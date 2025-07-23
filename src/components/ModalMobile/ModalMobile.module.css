@@ -16,7 +16,7 @@
 }
 .lineDrawer {
 	width: 24px;
-	border-top: 4px solid #afafaf;
+	border-top: 4px solid #d1d4dd;
 	border-radius: 2px;
 	margin: 0 16px;
 }
@@ -25,9 +25,9 @@
 }
 .okButton,
 .returnButton {
-	margin-top: 0 !important;
-	flex-grow: 1;
-	width: 156px;
+	padding: 11px;
+	height: 40px !important;
+	flex: 1;
 }
 .returnButton {
 	border: 1px solid #0066ee;
@@ -45,5 +45,5 @@
 	justify-content: space-between;
 }
 .mainContent {
-	flex: 1;
+	height: 100%;
 }

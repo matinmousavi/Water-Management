@@ -92,7 +92,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 			<div className={styles.commentContainer}>
 				<div className={styles.card}>
 					<Flex className={styles.buttonAddNote} align='center' justify='space-between'>
-						<Button type='default' onClick={handleOpenAddNoteModal}>
+						<Button type='default' className='button-modal' onClick={handleOpenAddNoteModal}>
 							افزودن یادداشت
 						</Button>
 					</Flex>
@@ -102,8 +102,8 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 			</div>
 
 			<ModalMobile onClose={onClose} open={open} loading={notesApi.isLoading} handleSubmit={handleSubmitNote} title='افزودن یادداشت'>
-				<Form.Item className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-					<Input.TextArea rows={7} />
+				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+					<Input.TextArea className={styles.textArea} />
 				</Form.Item>
 			</ModalMobile>
 		</>

@@ -81,19 +81,7 @@ const DescriptionModalCell = ({ record }) => {
 				<Text className={styles.text_note}>{notes || 'بدون توضیحات'}</Text>
 			</Modal>
 
-			<Drawer
-				title={null}
-				placement='bottom'
-				height='auto'
-				open={openEdit}
-				onClose={cancelEdit}
-				closable={false}
-				maskClosable={true}
-				rootClassName={styles.ModalMobileRoot}
-				className={styles.containerDrawer}
-			>
-				<EditDescriptionLog onSubmit={handleSubmit} setNotes={setNotes} note={notes} onClose={cancelEdit} />
-			</Drawer>
+			<EditDescriptionLog loading={api.isLoading} isOpen={openEdit} onSubmit={handleSubmit} setNotes={setNotes} note={notes} onClose={cancelEdit} />
 		</>
 	)
 }

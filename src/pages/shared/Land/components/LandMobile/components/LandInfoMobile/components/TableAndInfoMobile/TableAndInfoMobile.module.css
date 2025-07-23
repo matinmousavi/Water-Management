@@ -54,7 +54,10 @@
 
 .timerText {
 	font-weight: 500;
-	font-size: 20px;
+	font-size: 20px !important;
+	flex: 1;
+	display: flex;
+	justify-content: center;
 }
 
 .timerRed {
@@ -66,8 +69,10 @@
 }
 
 .btnDanger {
+	flex: 1 !important;
 	background-color: #0066ee;
 	color: #ffff;
+	height: 47px !important;
 }
 
 .value {

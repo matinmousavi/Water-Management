@@ -34,10 +34,13 @@
 .subtitle {
 	text-align: center;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 400;
 	color: rgba(0, 0, 0, 0.88);
+	margin-bottom: 0 !important;
 }
-
+.boldTime {
+	font-weight: 600;
+}
 .container_buttons {
 	display: flex;
 	gap: 16px;
