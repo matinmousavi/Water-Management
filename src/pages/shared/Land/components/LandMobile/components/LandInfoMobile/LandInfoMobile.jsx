@@ -231,41 +231,24 @@ const LandInfoMobile = ({ data }) => {
 			/>
 
 			{/* کشوی انتخاب زمان پایان آبیاری زمین دیگر */}
-			<Drawer
-				title={null}
-				placement='bottom'
-				height={385}
-				open={showEndOtherDrawer}
-				closable={false}
-				maskClosable={true}
-				rootClassName={styles.ModalMobileRoot}
-				className={styles.containerDrawer}
-			>
-				<TimeEndPickerSheet
-					title='پایان آبیاری زمین دیگر'
-					subtitle='ساعت پایان آبیاری زمین دیگر را مشخص کنید.'
-					onSubmit={handleEndOtherSelected}
-					onClose={() => setShowEndOtherDrawer(false)}
-				/>
-			</Drawer>
+			<TimeEndPickerSheet
+				isOpen={showEndOtherDrawer}
+				title='پایان آبیاری زمین دیگر'
+				subtitle='ساعت پایان آبیاری زمین دیگر را مشخص کنید.'
+				onSubmit={handleEndOtherSelected}
+				onClose={() => setShowEndOtherDrawer(false)}
+			/>
 
 			{/* کشوی تایید پایان آبیاری زمین فعلی */}
 			<EndNoticeDrawer isOpen={endNoticeDrawer} onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
 
 			{/* مودال هشدار استفاده چاه توسط زمین دیگر */}
-			<Drawer
-				title={null}
-				placement='bottom'
-				height='auto'
-				open={showWellInUseWarning}
-				closable={false}
-				maskClosable={true}
-				rootClassName={styles.ModalMobileRoot}
-				className={styles.containerDrawer}
+			<WarningModalInUse
+				isOpen={showWellInUseWarning}
+				onSubmit={handleEndOtherIrrigation}
 				onClose={() => setShowWellInUseWarning(false)}
-			>
-				<WarningModalInUse onSubmit={handleEndOtherIrrigation} onClose={() => setShowWellInUseWarning(false)} well={currentIrrigatingWell} />
-			</Drawer>
+				well={currentIrrigatingWell}
+			/>
 		</div>
 	)
 }
