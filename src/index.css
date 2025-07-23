@@ -1,5 +1,5 @@
 /* --------------------------------------------
-   1. Base Tags and Reset Styles
+    Base Tags and Reset Styles
 --------------------------------------------- */
 @import url('./assets/fonts/Vazirmatn/Vazirmatn-FD-font-face.css');
 :root {
@@ -15,25 +15,18 @@
 }
 
 /* --------------------------------------------
-   2. Ant Design Overrides
+    Ant Design Overrides
 --------------------------------------------- */
 .ant-input,
 .ant-picker-input input,
 .ant-picker-input::placeholder,
 .ant-select-selection-placeholder {
 	min-height: 40px !important;
-	font-size: 16px !important;
+	font-size: 1rem !important;
 }
 
 .ant-input-lg {
-	font-size: 14px !important;
-}
-
-.ant-card {
-	border-radius: 4px;
-}
-.ant-card .ant-card-body {
-	padding: 16px !important;
+	font-size: 0.875rem !important;
 }
 
 .ant-typography,
@@ -56,10 +49,6 @@ a,
 	height: initial !important;
 }
 
-.ant-layout-content {
-	padding: 1.5rem 1rem 1rem 1rem;
-}
-
 .ant-breadcrumb {
 	display: none;
 }
@@ -78,7 +67,7 @@ a,
 	border-radius: 0 !important;
 }
 .ant-drawer-body {
-	padding: 1rem !important;
+	padding: 16px !important;
 }
 
 .ant-tabs-nav-wrap {
@@ -94,16 +83,6 @@ a,
 .ant-dropdown-menu,
 .ant-dropdown-menu-item {
 	width: 100%;
-}
-
-.ant-otp {
-	gap: 16px;
-}
-.ant-otp-input {
-	height: 40px;
-}
-.ant-otp .ant-otp-input-wrapper {
-	margin-left: 16px !important;
 }
 
 .ant-menu {
@@ -249,7 +228,7 @@ label::after {
 }
 
 /* --------------------------------------------
-   3. Custom Utility / UI Classes
+		 Custom Utility / UI Classes
 --------------------------------------------- */
 .mobile-header h1,
 .title-h1,
@@ -372,7 +351,21 @@ label::after {
 }
 
 /* --------------------------------------------
-   4. Media Queries
+    Mobile First Styles
+--------------------------------------------- */
+.ant-card {
+	border-radius: 4px;
+}
+.ant-card .ant-card-body {
+	padding: 16px !important;
+}
+
+.ant-layout-content {
+	padding: 24px 16px 16px 16px;
+}
+
+/* --------------------------------------------
+    Media Queries
 --------------------------------------------- */
 
 /* ---------- Large Screens (1024px–1439px) ---------- */
@@ -434,7 +427,7 @@ label::after {
 		display: none;
 	}
 	.ant-layout-content {
-		padding: 3.75rem 0.625rem !important;
+		padding: 60px 10px !important;
 	}
 	.ant-picker {
 		height: 40px;
