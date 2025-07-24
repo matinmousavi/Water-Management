@@ -1,10 +1,14 @@
+import { useEffect, useState } from 'react'
 import { Card, Flex, Typography } from 'antd'
+
+import moment from 'moment-jalaali'
+
+import { Link } from 'react-router'
+
 import styles from './WellLogsMobile.module.css'
+
 import iconTree from '../../../../../assets/icons/ri_tree-line.svg'
 import iconClock from '../../../../../assets/icons/ClockCircleOutlined.svg'
-import moment from 'moment-jalaali'
-import { Link } from 'react-router'
-import { useEffect, useState } from 'react'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
@@ -20,7 +24,7 @@ const formatTime = seconds => {
 	return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
 }
 
-const getRemainingTimeFromLocalStorage = landId => {
+const getRemainingTimeFromLocalStorage = (landId, setIsOvertime) => {
 	if (!landId) return 0
 
 	const localStorageKey = `irrigation_start_${landId}`
@@ -32,7 +36,7 @@ const getRemainingTimeFromLocalStorage = landId => {
 	const now = Date.now()
 	const elapsedSeconds = Math.floor((now - startTime) / 1000)
 	const remaining = TWO_HOURS_IN_SECONDS - elapsedSeconds
-
+	setIsOvertime(remaining < 0)
 	return Math.abs(remaining)
 }
 
@@ -40,13 +44,14 @@ const WellLogsMobile = ({ data }) => {
 	const isThisLogOngoing = data?.isOngoing
 	const landId = data?.land?._id
 
-	const [remainingTime, setRemainingTime] = useState(() => (isThisLogOngoing ? getRemainingTimeFromLocalStorage(landId) : 0))
+	const [remainingTime, setRemainingTime] = useState(() => (isThisLogOngoing ? getRemainingTimeFromLocalStorage(landId, setIsOvertime) : 0))
+	const [isOvertime, setIsOvertime] = useState(false)
 
 	useEffect(() => {
 		if (!isThisLogOngoing || !landId) return
 
 		const updateTimer = () => {
-			setRemainingTime(getRemainingTimeFromLocalStorage(landId))
+			setRemainingTime(getRemainingTimeFromLocalStorage(landId, setIsOvertime))
 		}
 
 		updateTimer()
@@ -82,7 +87,7 @@ const WellLogsMobile = ({ data }) => {
 					<Flex className={styles.cardRole}>
 						<Text className={styles.text_irrigation}>
 							{isThisLogOngoing ? (
-								<span className={`${styles.timerText} ${remainingTime <= 900 ? styles.timerDanger : ''}`}>{formatTime(remainingTime)}</span>
+								<span className={`${styles.timerText} ${isOvertime ? styles.timerDanger : ''}`}>{formatTime(remainingTime)}</span>
 							) : (
 								moment(data?.endedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'
 							)}
