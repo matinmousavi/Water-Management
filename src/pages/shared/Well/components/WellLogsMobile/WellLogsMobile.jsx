@@ -44,8 +44,9 @@ const WellLogsMobile = ({ data }) => {
 	const isThisLogOngoing = data?.isOngoing
 	const landId = data?.land?._id
 
-	const [remainingTime, setRemainingTime] = useState(() => (isThisLogOngoing ? getRemainingTimeFromLocalStorage(landId, setIsOvertime) : 0))
 	const [isOvertime, setIsOvertime] = useState(false)
+
+	const [remainingTime, setRemainingTime] = useState(() => (isThisLogOngoing ? getRemainingTimeFromLocalStorage(landId, setIsOvertime) : 0))
 
 	useEffect(() => {
 		if (!isThisLogOngoing || !landId) return
