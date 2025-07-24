@@ -101,7 +101,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				</div>
 			</div>
 
-			<ModalMobile onClose={onClose} open={open} loading={notesApi.isLoading} handleSubmit={handleSubmitNote} title='افزودن یادداشت'>
+			<ModalMobile onClose={onClose} height={322} open={open} loading={notesApi.isLoading} handleSubmit={handleSubmitNote} title='افزودن یادداشت'>
 				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 					<Input.TextArea className={styles.textArea} />
 				</Form.Item>
