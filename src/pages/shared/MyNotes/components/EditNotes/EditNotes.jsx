@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Form, Input } from 'antd'
-import styles from './EditNotes.module.css'
+
 import useAPI from '../../../../../hooks/useAPI'
+
 import useNotification from '../../../../../hooks/useNotification'
 import ModalMobile from '../../../../../components/ModalMobile/ModalMobile'
+
+import styles from './EditNotes.module.css'
 
 const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
 	const [editedText, setEditedText] = useState('')
@@ -33,9 +36,11 @@ const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
 
 	return (
 		<ModalMobile height={322} open={open} title='ویرایش یادداشت' onClose={onClose} handleSubmit={handleSubmit} loading={notesApi.isLoading}>
-			<Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-				<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
-			</Form.Item>
+			<div className={styles.container}>
+				<Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+					<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
+				</Form.Item>
+			</div>
 		</ModalMobile>
 	)
 }

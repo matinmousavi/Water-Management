@@ -80,7 +80,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 
 				<Card>
 					<Flex vertical gap={8}>
-						<Text>لاگ توزیع آب ({logs?.length})</Text>
+						<Text className={styles.titleLogs}>لاگ توزیع آب ({logs?.length})</Text>
 						<Table
 							rowKey='_id'
 							bordered
@@ -98,7 +98,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 				{isCurrentLandIrrigating ? (
 					<>
 						<Text className={`${styles.timerText} ${isOvertime ? styles.timerRed : styles.timerGreen}`}>{time}</Text>
-						<Button type='default' className={`${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
+						<Button type='default' className={`${styles.textBtn} ${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>

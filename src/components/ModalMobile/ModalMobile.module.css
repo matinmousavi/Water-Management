@@ -1,4 +1,4 @@
-.ModalMobileRoot :global(.ant-drawer-body) {
+.ModalMobileRoot :global(.ant-drawer .ant-drawer-body) {
 	padding-top: 0 !important;
 }
 .containerDrawer {
@@ -28,12 +28,13 @@
 	padding: 11px;
 	height: 40px !important;
 	flex: 1;
+	font-size: 16px !important;
+	font-weight: 500 !important;
+	border-radius: 8px !important;
 }
 .returnButton {
-	border: 1px solid #0066ee;
-	color: #0066ee;
-	font-size: 16px;
-	font-weight: 500;
+	border: 1px solid #0066ee !important;
+	color: #0066ee !important;
 }
 .title {
 	font-size: 14px !important;
@@ -46,4 +47,7 @@
 }
 .mainContent {
 	height: 100%;
+}
+.containerBtn {
+	padding: 0 16px 16px 16px !important;
 }

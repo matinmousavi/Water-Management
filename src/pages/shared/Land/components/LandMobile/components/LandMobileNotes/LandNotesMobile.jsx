@@ -1,11 +1,14 @@
-import { Button, Drawer, Flex, Form, Input } from 'antd'
-import styles from './LandNotesMobile.module.css'
+import { Button, Flex, Form, Input } from 'antd'
 import { useEffect, useState } from 'react'
+
 import { useParams } from 'react-router'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
+
 import NotesListMobile from './components/MobileNotesList/NotesListMobile'
 import ModalMobile from '../../../../../../../components/ModalMobile/ModalMobile'
+
+import styles from './LandNotesMobile.module.css'
 
 const LandNotesMobile = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
@@ -92,7 +95,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 			<div className={styles.commentContainer}>
 				<div className={styles.card}>
 					<Flex className={styles.buttonAddNote} align='center' justify='space-between'>
-						<Button type='default' className='button-modal' onClick={handleOpenAddNoteModal}>
+						<Button type='default' className={`button-modal ${styles.addBtnNote}`} onClick={handleOpenAddNoteModal}>
 							افزودن یادداشت
 						</Button>
 					</Flex>

@@ -50,8 +50,9 @@
 }
 
 .text_export {
-	font-size: 14px;
-	color: rgba(0, 0, 0, 0.88);
+	font-size: 0.875rem !important;
+	color: rgba(0, 0, 0, 0.88) !important;
+	font-weight: 400 !important;
 }
 
 .svg_icon {
@@ -65,7 +66,9 @@
 }
 
 .exit {
-	font-size: 0.875rem;
+	font-size: 0.875rem !important;
+	font-weight: 400 !important;
+	color: rgba(0, 0, 0, 0.88) !important;
 }
 
 .userMenu {

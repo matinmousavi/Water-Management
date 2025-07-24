@@ -1,13 +1,18 @@
 import { Button, Card, Flex, Typography } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
-import styles from './MyNotes.module.css'
-import NotesIcon from '../../../assets/icons/NotesIcon.svg'
+import { useState } from 'react'
+
+import { useUser } from '../../../contexts/UserContext'
 import useAPI from '../../../hooks/useAPI'
+
+import moment from 'moment-jalaali'
+
 import Loading from '../../../components/Loading/Loading'
 import EditNotes from './components/EditNotes/EditNotes'
-import { useState } from 'react'
-import moment from 'moment-jalaali'
-import { useUser } from '../../../contexts/UserContext'
+
+import styles from './MyNotes.module.css'
+
+import { EditOutlined } from '@ant-design/icons'
+import NotesIcon from '../../../assets/icons/NotesIcon.svg'
 
 const MyNotes = () => {
 	const [editingNoteId, setEditingNoteId] = useState(null)
@@ -48,7 +53,7 @@ const MyNotes = () => {
 								<Flex gap={8} vertical>
 									<Text className={styles.text}>{note?.text}</Text>
 									<div>
-										<Button onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
+										<Button className={styles.btn} onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
 											ویرایش
 										</Button>
 									</div>

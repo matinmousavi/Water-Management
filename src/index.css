@@ -333,6 +333,7 @@ label::after {
 	color: #0066ee;
 	height: 47px !important;
 	width: 156px !important;
+	border-radius: 8px !important;
 }
 
 .hide-cancel-button {
@@ -376,6 +377,10 @@ label::after {
 
 .ant-layout-content {
 	padding: 24px 16px 16px 16px;
+}
+
+.ant-drawer .ant-drawer-body {
+	padding: 0 !important;
 }
 
 /* --------------------------------------------

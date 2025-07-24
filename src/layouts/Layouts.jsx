@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react'
 import { Layout, Menu, Typography, Image, Grid, Flex, Button } from 'antd'
-import { SettingOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
+
+import { SettingOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
 
 import iconExit from '../../public/Exit.svg'
 import iconNotes from '../../public/myNotes.svg'
@@ -52,7 +53,7 @@ const Layouts = () => {
 			items.push({
 				key: '/my-notes',
 				label: (
-					<Flex align='center' gap={0}>
+					<Flex align='center' gap={8}>
 						<img src={iconNotes} className={styles.svg_icon} alt='یادداشت‌های من' />
 						<Link className={styles.text_export} to='/my-notes'>
 							یادداشت‌های من

@@ -1,7 +1,10 @@
 import { Button, Flex, Space } from 'antd'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
+
 import moment from 'moment-jalaali'
+
 import styles from './NoteList.module.css'
+
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
 const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
 	return (

@@ -1,6 +1,7 @@
 import { Button, Drawer, Flex, Form, Typography } from 'antd'
-import styles from './ModalMobile.module.css'
 import { useRef } from 'react'
+
+import styles from './ModalMobile.module.css'
 
 const ModalMobile = ({
 	open,
@@ -53,7 +54,7 @@ const ModalMobile = ({
 							<div className={styles.mainContent}>{children}</div>
 						</Flex>
 						{isButtons ? null : (
-							<Flex gap={16} justify='center'>
+							<Flex gap={16} justify='center' className={styles.containerBtn}>
 								<Button onClick={onClose} className={styles.returnButton}>
 									{closeText}
 								</Button>

@@ -37,6 +37,10 @@
 	gap: 5px;
 }
 
+.titleLogs {
+	font-weight: 400;
+}
+
 .footer {
 	position: fixed;
 	height: 75px;
@@ -66,6 +70,11 @@
 
 .timerGreen {
 	color: rgba(82, 196, 26, 1);
+}
+
+.textBtn {
+	font-weight: 500 !important;
+	font-size: 1rem !important;
 }
 
 .btnDanger {

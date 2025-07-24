@@ -1,6 +1,8 @@
 import { Card, Flex, Typography } from 'antd'
-import styles from './NotesListMobile.module.css'
+
 import moment from 'moment-jalaali'
+
+import styles from './NotesListMobile.module.css'
 
 const NotesListMobile = ({ data }) => {
 	const { Text, Title } = Typography
