@@ -1,11 +1,14 @@
-import styles from './TableAndInfoMobile.module.css'
 import { Flex, Button, Typography, Card, Table } from 'antd'
 import moment from 'moment-jalaali'
+
+import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
+
+import styles from './TableAndInfoMobile.module.css'
+
 import iconClock from '../../../../../../../../../assets/icons/ClockCircleOutlined.svg'
 import iconLocation from '../../../../../../../../../assets/icons/EnvironmentOutlined.svg'
 import iconContacts from '../../../../../../../../../assets/icons/ContactsOutlined.svg'
 import iconPhone from '../../../../../../../../../assets/icons/PhoneOutlined.svg'
-import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 
 const { Text } = Typography
 
@@ -58,7 +61,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 
 	return (
 		<>
-			<Flex gap={20} vertical>
+			<Flex gap={16} vertical>
 				<Card className={styles.card}>
 					<Flex vertical gap={8}>
 						{listItems.map((item, idx) => (
@@ -100,7 +103,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 						</Button>
 					</>
 				) : (
-					<Button type='primary' className='button-modal' block onClick={onStartClick}>
+					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={onStartClick}>
 						شروع آبیاری
 					</Button>
 				)}
