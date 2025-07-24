@@ -1,18 +1,20 @@
 import { Flex, Typography } from 'antd'
 import { useEffect, useState } from 'react'
+
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import styles from './WarningModalInUse.module.css'
+
 import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
+import TimerDisplay from '../../../../../../../../../components/TimerDisplay/TimerDisplay'
+
+import styles from './WarningModalInUse.module.css'
 
 dayjs.extend(utc)
-
-const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
 
 const { Text } = Typography
 
 const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
-	const [countdown, setCountdown] = useState('00 : 00 : 00')
+	const [startedAt, setStartedAt] = useState('00 : 00 : 00')
 
 	const getLocalStorageKey = landId => `irrigation_start_${landId}`
 
@@ -31,31 +33,12 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 			return
 		}
 
-		const startTime = parseInt(irrigationStartTime, 10)
-
-		const updateCountdown = () => {
-			const now = Date.now()
-			const elapsedSeconds = Math.floor((now - startTime) / 1000)
-			const remainingSeconds = TWO_HOURS_IN_SECONDS - elapsedSeconds
-
-			const isOvertime = remainingSeconds < 0
-			const absRemaining = Math.abs(remainingSeconds)
-
-			const hrs = Math.floor(absRemaining / 3600)
-			const mins = Math.floor((absRemaining % 3600) / 60)
-			const secs = absRemaining % 60
-
-			const formattedTime = `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}${
-				isOvertime ? ' -' : ''
-			}`
-
-			setCountdown(formattedTime)
+		if (!irrigationStartTime) {
+			console.error('irrigationStartTime not found in localStorage for landId:', landId)
+			return
 		}
 
-		updateCountdown()
-		const interval = setInterval(updateCountdown, 1000)
-
-		return () => clearInterval(interval)
+		setStartedAt(parseInt(irrigationStartTime, 10))
 	}, [well?.land?._id])
 
 	return (
@@ -72,7 +55,10 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 				<Text className={styles.subtitle}>
 					<Text className={styles.subtitle}>
 						هنوز مدت زمان
-						<span className={styles.countdown}> {countdown} </span>
+						<span className={styles.countdown}>
+							{' '}
+							<TimerDisplay startedAt={startedAt} />{' '}
+						</span>
 						به پایان زمان آبیاری زمین {well?.land?.title} باقی مانده است.
 					</Text>
 				</Text>

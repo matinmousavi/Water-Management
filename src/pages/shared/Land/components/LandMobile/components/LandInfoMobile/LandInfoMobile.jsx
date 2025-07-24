@@ -1,21 +1,23 @@
+import { useState, useEffect } from 'react'
+
+import { useParams } from 'react-router'
+import useAPI from '../../../../../../../hooks/useAPI'
+
 import dayjs from 'dayjs'
 import jalaliday from 'jalaliday'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { Drawer } from 'antd'
-import styles from './LandInfoMobile.module.css'
-import { useState, useEffect } from 'react'
+
 import TimeStartPickerSheet from './components/TimeStartPickerSheet/TimeStartPickerSheet'
 import TimeEndPickerSheet from './components/TimeEndPickerSheet/TimeEndPickerSheet'
 import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
-import useAPI from '../../../../../../../hooks/useAPI'
-import { useParams } from 'react-router'
 import TableAndInfoMobile from './components/TableAndInfoMobile/TableAndInfoMobile'
 import WarningModalInUse from './components/WarningModalInUse/WarningModalInUse'
+import TimerDisplay from '../../../../../../../components/TimerDisplay/TimerDisplay'
+
+import styles from './LandInfoMobile.module.css'
 
 dayjs.extend(jalaliday)
 dayjs.extend(customParseFormat)
-
-const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
 
 const LandInfoMobile = ({ data }) => {
 	const { landId } = useParams()
@@ -26,11 +28,10 @@ const LandInfoMobile = ({ data }) => {
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [showEndOtherDrawer, setShowEndOtherDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
-	const [remainingTime, setRemainingTime] = useState(null)
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [showWellInUseWarning, setShowWellInUseWarning] = useState(false)
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
-	const [isOvertime, setIsOvertime] = useState(false)
+	const [startedAt, setStartedAt] = useState(null)
 
 	const getLocalStorageKey = () => `irrigation_start_${landId}`
 
@@ -68,22 +69,13 @@ const LandInfoMobile = ({ data }) => {
 		fetchCurrentIrrigatingLand()
 	}, [data?.wells])
 
-	const formatTime = seconds => {
-		const hrs = Math.floor(seconds / 3600)
-		const mins = Math.floor((seconds % 3600) / 60)
-		const secs = seconds % 60
-		return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
-	}
-
 	useEffect(() => {
 		if (!logs || logs.length === 0) return
 
 		const ongoingLog = logs.find(log => log.isOngoing)
 		if (!ongoingLog) {
 			setIsIrrigating(false)
-			setRemainingTime(0)
-			setIsOvertime(false)
-
+			setStartedAt(null)
 			localStorage.removeItem(getLocalStorageKey())
 			return
 		}
@@ -96,23 +88,9 @@ const LandInfoMobile = ({ data }) => {
 		if (!irrigationStartTime) {
 			irrigationStartTime = Date.now()
 			localStorage.setItem(localStorageKey, irrigationStartTime.toString())
-		} else {
-			irrigationStartTime = parseInt(irrigationStartTime, 10)
 		}
 
-		const updateRemaining = () => {
-			const now = Date.now()
-			const elapsed = Math.floor((now - irrigationStartTime) / 1000)
-			const remaining = TWO_HOURS_IN_SECONDS - elapsed
-
-			setRemainingTime(Math.abs(remaining))
-			setIsOvertime(remaining < 0)
-		}
-
-		updateRemaining()
-		const interval = setInterval(updateRemaining, 1000)
-
-		return () => clearInterval(interval)
+		setStartedAt(parseInt(irrigationStartTime, 10))
 	}, [logs, landId])
 
 	const handleTimeStartSelected = async selectedTime => {
@@ -177,8 +155,6 @@ const LandInfoMobile = ({ data }) => {
 		}
 	}
 
-	const handleStop = () => setEndNoticeDrawer(true)
-
 	const handleEndNotice = () => {
 		setEndNoticeDrawer(false)
 		setShowEndDrawer(true)
@@ -210,12 +186,10 @@ const LandInfoMobile = ({ data }) => {
 			<TableAndInfoMobile
 				data={data}
 				logs={logs}
-				time={formatTime(remainingTime || 0)}
-				elapsedTime={remainingTime}
-				handleStop={handleStop}
+				handleStop={() => setEndNoticeDrawer(true)}
 				onStartClick={handleStartClick}
 				isIrrigating={isIrrigating}
-				isOvertime={isOvertime}
+				timer={<TimerDisplay startedAt={startedAt} />}
 			/>
 
 			{/* کشوی انتخاب زمان شروع آبیاری زمین فعلی */}
@@ -240,7 +214,7 @@ const LandInfoMobile = ({ data }) => {
 			/>
 
 			{/* کشوی تایید پایان آبیاری زمین فعلی */}
-			<EndNoticeDrawer isOpen={endNoticeDrawer} onSubmit={handleEndNotice} time={formatTime(remainingTime || 0)} onClose={CancelTimeEnd} />
+			<EndNoticeDrawer isOpen={endNoticeDrawer} onSubmit={handleEndNotice} timer={<TimerDisplay startedAt={startedAt} />} onClose={CancelTimeEnd} />
 
 			{/* مودال هشدار استفاده چاه توسط زمین دیگر */}
 			<WarningModalInUse

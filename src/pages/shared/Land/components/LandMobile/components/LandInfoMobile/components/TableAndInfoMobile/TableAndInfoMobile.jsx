@@ -12,7 +12,7 @@ import iconPhone from '../../../../../../../../../assets/icons/PhoneOutlined.svg
 
 const { Text } = Typography
 
-const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handleStop, onStartClick, isOvertime }) => {
+const TableAndInfoMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartClick }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const listItems = [
@@ -97,8 +97,8 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 			<div className={styles.footer}>
 				{isCurrentLandIrrigating ? (
 					<>
-						<Text className={`${styles.timerText} ${isOvertime ? styles.timerRed : styles.timerGreen}`}>{time}</Text>
-						<Button type='default' className={`${styles.textBtn} ${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
+						<Text className={`${styles.timerText}`}>{timer}</Text>
+						<Button type='default' className={`${styles.textBtn} style-btn`} onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>

@@ -57,19 +57,14 @@
 }
 
 .timerText {
-	font-weight: 500;
-	font-size: 20px !important;
 	flex: 1;
 	display: flex;
 	justify-content: center;
 }
 
-.timerRed {
-	color: rgba(245, 34, 45, 1);
-}
-
-.timerGreen {
-	color: rgba(82, 196, 26, 1);
+.timerText > span {
+	font-weight: 500 !important;
+	font-size: 20px !important;
 }
 
 .textBtn {
