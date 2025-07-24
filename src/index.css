@@ -51,7 +51,9 @@ a,
 	padding: 0 !important;
 	height: initial !important;
 }
-
+.ant-table-cell {
+	padding: 12px !important;
+}
 .ant-breadcrumb {
 	display: none;
 }
