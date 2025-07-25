@@ -15,6 +15,7 @@ const ModalMobile = ({
 	handleSubmit,
 	loading,
 	errorText,
+	form,
 }) => {
 	const startY = useRef(0)
 	const { Title } = Typography
@@ -40,7 +41,7 @@ const ModalMobile = ({
 			open={open}
 		>
 			<div className={styles.touchesBox} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-				<Form className={styles.form} onFinish={handleSubmit}>
+				<Form className={styles.form} form={form} onFinish={handleSubmit}>
 					<Flex className={styles.contentDrawer} vertical gap={24}>
 						<Flex gap={24} flex={1} vertical>
 							<Flex vertical gap={10}>

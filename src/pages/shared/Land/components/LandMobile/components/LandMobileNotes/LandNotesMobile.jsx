@@ -75,10 +75,11 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 			}
 
 			setSelectedNote(null)
-			noteForm.resetFields()
 		} catch (error) {
 			console.error('Operation failed:', error)
 			openNotification('error', `خطا در ${isNoteEditMode ? 'ویرایش' : 'افزودن'} یادداشت`)
+		} finally {
+			noteForm.resetFields()
 		}
 	}
 
@@ -88,6 +89,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 
 	const onClose = () => {
 		setOpen(false)
+		noteForm.resetFields()
 	}
 
 	return (
@@ -104,9 +106,19 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				</div>
 			</div>
 
-			<ModalMobile onClose={onClose} height={322} open={open} loading={notesApi.isLoading} handleSubmit={handleSubmitNote} title='افزودن یادداشت'>
+			<ModalMobile
+				form={noteForm}
+				onClose={onClose}
+				height={322}
+				open={open}
+				loading={notesApi.isLoading}
+				handleSubmit={handleSubmitNote}
+				title='افزودن یادداشت'
+			>
 				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-					<Input.TextArea className={styles.textArea} />
+					<div className={styles.modalContainer}>
+						<Input.TextArea className={styles.textArea} />
+					</div>
 				</Form.Item>
 			</ModalMobile>
 		</>
