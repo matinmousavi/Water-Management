@@ -1,4 +1,4 @@
-.ModalMobileRoot :global(.ant-drawer-body) {
+.ModalMobileRoot :global(.ant-drawer .ant-drawer-body) {
 	padding-top: 0 !important;
 }
 .containerDrawer {
@@ -16,7 +16,7 @@
 }
 .lineDrawer {
 	width: 24px;
-	border-top: 4px solid #afafaf;
+	border-top: 4px solid #d1d4dd;
 	border-radius: 2px;
 	margin: 0 16px;
 }
@@ -25,15 +25,16 @@
 }
 .okButton,
 .returnButton {
-	margin-top: 0 !important;
-	flex-grow: 1;
-	width: 156px;
+	padding: 11px;
+	height: 40px !important;
+	flex: 1;
+	font-size: 16px !important;
+	font-weight: 500 !important;
+	border-radius: 8px !important;
 }
 .returnButton {
-	border: 1px solid #0066ee;
-	color: #0066ee;
-	font-size: 16px;
-	font-weight: 500;
+	border: 1px solid #0066ee !important;
+	color: #0066ee !important;
 }
 .title {
 	font-size: 14px !important;
@@ -45,5 +46,8 @@
 	justify-content: space-between;
 }
 .mainContent {
-	flex: 1;
+	height: 100%;
+}
+.containerBtn {
+	padding: 0 16px 16px 16px !important;
 }

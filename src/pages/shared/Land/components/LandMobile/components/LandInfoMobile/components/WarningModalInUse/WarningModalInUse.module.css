@@ -36,6 +36,7 @@
 	font-size: 14px;
 	font-weight: 600;
 	color: rgba(0, 0, 0, 0.88);
+	padding-bottom: 0 !important;
 }
 
 .container_buttons {

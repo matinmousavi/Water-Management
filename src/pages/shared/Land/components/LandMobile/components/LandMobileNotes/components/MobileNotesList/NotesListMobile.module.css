@@ -1,6 +1,7 @@
 h4 {
 	margin: 0;
 }
+
 .btns {
 	button {
 		width: fit-content;
@@ -8,31 +9,30 @@ h4 {
 }
 
 .wrapper {
-	margin-top: 1rem;
 	padding-bottom: 70px;
 }
-.text {
-	font-size: 12px;
-}
+
 .lineDrawer {
 	width: 24px;
 	border: 4px solid #d1d4dd;
 }
-.wrapper {
-	margin-top: 1rem;
-}
+
 .title {
 	font-size: 14px !important;
 	font-weight: 400 !important;
+	color: #000000 !important;
 }
+
 .date {
 	font-weight: 400 !important;
 	color: rgba(0, 0, 0, 0.6);
-	font-size: 12px;
+	font-size: 12px !important;
 }
+
 .text {
 	font-weight: 300 !important;
 }
+
 /* ------------- tablet ------------- */
 @media (min-width: 768px) {
 	.text {

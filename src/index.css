@@ -17,6 +17,9 @@
 /* --------------------------------------------
     Ant Design Overrides
 --------------------------------------------- */
+.ant-layout-header {
+	padding: 0 16px;
+}
 .ant-input,
 .ant-picker-input input,
 .ant-picker-input::placeholder,
@@ -48,7 +51,9 @@ a,
 	padding: 0 !important;
 	height: initial !important;
 }
-
+.ant-table-cell {
+	padding: 12px !important;
+}
 .ant-breadcrumb {
 	display: none;
 }
@@ -276,11 +281,16 @@ label::after {
 	margin-bottom: 0 !important;
 }
 
-.text-h1,
-.text-h2 {
+.text-h1 {
 	font-weight: 600;
 	color: #374151;
 	line-height: 1.3;
+}
+
+.text-h2 {
+	font-weight: 500 !important;
+	color: rgba(0, 0, 0, 0.88) !important;
+	line-height: 22px !important;
 }
 
 .text-h3 {
@@ -321,11 +331,16 @@ label::after {
 .style-btn {
 	border-color: #0066ee;
 	color: #0066ee;
-	height: 40px !important;
+	height: 47px !important;
+	width: 156px !important;
+	border-radius: 8px !important;
 }
 
 .hide-cancel-button {
 	display: none;
+}
+.button-modal {
+	height: 47px !important;
 }
 
 .eye-icon {
@@ -364,6 +379,10 @@ label::after {
 	padding: 24px 16px 16px 16px;
 }
 
+.ant-drawer .ant-drawer-body {
+	padding: 0 !important;
+}
+
 /* --------------------------------------------
     Media Queries
 --------------------------------------------- */
@@ -393,7 +412,6 @@ label::after {
 	.ant-btn {
 		font-size: 14px !important;
 		padding: 0 12px !important;
-		height: 40px !important;
 	}
 	.ant-table-wrapper .ant-table {
 		font-size: 13px !important;

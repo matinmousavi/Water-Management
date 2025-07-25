@@ -1,8 +1,8 @@
-import { Button } from 'antd'
 import { useState, useRef, useEffect } from 'react'
 import english2persian from '../../../../../../../../../utils/english2persian'
 import styles from './TimeEndPickerSheet.module.css'
 import dayjs from 'dayjs'
+import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
 
 const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
@@ -96,64 +96,49 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true, title = 'ثبت 
 		onSubmit && onSubmit(timeToSend)
 	}
 
-	if (!isOpen) return null
-
 	return (
-		<div className={styles.container_fixed}>
-			<div className={styles.container}>
-				<div className={styles.btn_sheet} onClick={onClose} />
-				<div className={styles.title}>{title}</div>
-				<div className={styles.subtitle}>{subtitle}</div>
+		<ModalMobile height={389} open={isOpen} onClose={onClose} title={title} okText='ثبت' closeText='بازگشت' handleSubmit={handleSubmit}>
+			<div className={styles.subtitle}>{subtitle}</div>
 
-				<div className={styles.container_time_lines}>
-					<div
-						style={{
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							height: 1,
-							backgroundColor: 'rgba(217, 217, 217, 1)',
-							zIndex: 10,
-							top: ITEM_HEIGHT * CENTER_INDEX,
-						}}
-					/>
-					<div
-						style={{
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							height: 1,
-							backgroundColor: 'rgba(217, 217, 217, 1)',
-							zIndex: 10,
-							top: ITEM_HEIGHT * (CENTER_INDEX + 1),
-						}}
-					/>
+			<div className={styles.container_time_lines}>
+				<div
+					style={{
+						position: 'absolute',
+						left: 0,
+						right: 0,
+						height: 1,
+						backgroundColor: 'rgba(217, 217, 217, 1)',
+						zIndex: 10,
+						top: ITEM_HEIGHT * CENTER_INDEX,
+					}}
+				/>
+				<div
+					style={{
+						position: 'absolute',
+						left: 0,
+						right: 0,
+						height: 1,
+						backgroundColor: 'rgba(217, 217, 217, 1)',
+						zIndex: 10,
+						top: ITEM_HEIGHT * (CENTER_INDEX + 1),
+					}}
+				/>
 
-					<div
-						style={{
-							height: ITEM_HEIGHT * VISIBLE_COUNT,
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							gap: 8,
-						}}
-					>
-						{renderMinuteList()}
-						<div className={styles.clone}>:</div>
-						<div className={styles.hour}>{english2persian(selectedHour)}</div>
-					</div>
-				</div>
-
-				<div className={styles.container_buttons}>
-					<Button onClick={onClose} className={styles.btn}>
-						بازگشت
-					</Button>
-					<Button onClick={handleSubmit} type='primary' className={styles.btn}>
-						ثبت
-					</Button>
+				<div
+					style={{
+						height: ITEM_HEIGHT * VISIBLE_COUNT,
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						gap: 8,
+					}}
+				>
+					{renderMinuteList()}
+					<div className={styles.clone}>:</div>
+					<div className={styles.hour}>{english2persian(selectedHour)}</div>
 				</div>
 			</div>
-		</div>
+		</ModalMobile>
 	)
 }
 

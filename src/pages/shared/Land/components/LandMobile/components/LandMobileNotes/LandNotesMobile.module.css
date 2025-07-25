@@ -16,12 +16,14 @@
 	background-color: #ffffff;
 	width: 100vw;
 	padding: 16px;
+
 	button {
 		width: 100%;
 		border: 1px solid #0066ee;
 		color: #0066ee;
-		font-size: 16px;
-		font-weight: 500;
+		font-size: 1rem !important;
+		font-weight: 500 !important;
+		border-radius: 8px !important;
 	}
 }
 
@@ -34,8 +36,12 @@
 .itemForm {
 	height: 100%;
 }
-.textArea {
+.modalContainer {
 	height: 100%;
+	padding: 0 16px;
+}
+.textArea {
+	height: 100% !important;
 	border-radius: 6px;
 }
 .touchesBox {

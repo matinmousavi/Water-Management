@@ -1,29 +1,18 @@
-import { Button, Input } from 'antd'
+import { Form, Input } from 'antd'
+
+import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
+
 import styles from './EditDescriptionLog.module.css'
 
-const EditDescriptionLog = ({ onSubmit, onClose, isOpen = true, note, setNotes }) => {
-	if (!isOpen) return null
-
+const EditDescriptionLog = ({ onSubmit, loading, onClose, isOpen = true, note, setNotes }) => {
 	return (
-		<div className={styles.container_fixed}>
-			<div className={styles.container}>
-				<div className={styles.btn_sheet} onClick={onClose} />
-
-				<div className={styles.title}>توضیحات لاگ</div>
-				<div className={styles.container_input}>
-					<Input.TextArea rows={4} value={note} onChange={e => setNotes(e.target.value)} />
-				</div>
-
-				<div className={styles.container_buttons}>
-					<Button onClick={onClose} className={`${styles.btn} style-btn`}>
-						بازگشت
-					</Button>
-					<Button onClick={onSubmit} type='primary' className={styles.btn}>
-						ثبت
-					</Button>
-				</div>
+		<ModalMobile height={322} loading={loading} open={isOpen} onClose={onClose} title='توضیحات لاگ' okText='ثبت' closeText='بازگشت' handleSubmit={onSubmit}>
+			<div className={styles.container} style={{ padding: '0 16px', height: '100%' }}>
+				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+					<Input.TextArea className={styles.textArea} value={note} onChange={e => setNotes(e.target.value)} />
+				</Form.Item>
 			</div>
-		</div>
+		</ModalMobile>
 	)
 }
 

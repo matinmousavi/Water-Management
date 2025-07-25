@@ -1,11 +1,16 @@
-import { Flex, Modal, Drawer, Typography } from 'antd'
+import { Flex, Modal, Typography } from 'antd'
 import { useState } from 'react'
-import moment from 'moment-jalaali'
-import { EyeOutlined, EditOutlined } from '@ant-design/icons'
-import EditDescriptionLog from '../EditDescriptionLog/EditDescriptionLog'
+
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../../../hooks/useNotification'
+
+import moment from 'moment-jalaali'
+
+import EditDescriptionLog from '../EditDescriptionLog/EditDescriptionLog'
+
 import styles from './DescriptionModalCell.module.css'
+
+import { EyeOutlined, EditOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 
@@ -77,23 +82,12 @@ const DescriptionModalCell = ({ record }) => {
 						</Flex>
 					)
 				}
+				className={styles.modal}
 			>
 				<Text className={styles.text_note}>{notes || 'بدون توضیحات'}</Text>
 			</Modal>
 
-			<Drawer
-				title={null}
-				placement='bottom'
-				height='auto'
-				open={openEdit}
-				onClose={cancelEdit}
-				closable={false}
-				maskClosable={true}
-				rootClassName={styles.ModalMobileRoot}
-				className={styles.containerDrawer}
-			>
-				<EditDescriptionLog onSubmit={handleSubmit} setNotes={setNotes} note={notes} onClose={cancelEdit} />
-			</Drawer>
+			<EditDescriptionLog loading={api.isLoading} isOpen={openEdit} onSubmit={handleSubmit} setNotes={setNotes} note={notes} onClose={cancelEdit} />
 		</>
 	)
 }

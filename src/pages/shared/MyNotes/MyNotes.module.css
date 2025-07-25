@@ -12,9 +12,15 @@
 .date {
 	font-size: 12px !important;
 	font-weight: 400 !important;
-	color: #00000099;
+	color: rgba(0, 0, 0, 0.6) !important;
 }
 .text {
 	font-size: 14px !important;
 	font-weight: 300 !important;
+	color: rgba(0, 0, 0, 0.88) !important;
+}
+.btn {
+	font-size: 12px !important;
+	color: rgba(0, 102, 238, 1) !important;
+	font-weight: 400;
 }

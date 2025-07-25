@@ -1,58 +1,49 @@
+import { useEffect, useState } from 'react'
 import { Card, Flex, Typography } from 'antd'
+
+import moment from 'moment-jalaali'
+
+import { Link } from 'react-router'
+
+import TimerDisplay from '../../../../../components/TimerDisplay/TimerDisplay'
+
 import styles from './WellLogsMobile.module.css'
+
 import iconTree from '../../../../../assets/icons/ri_tree-line.svg'
 import iconClock from '../../../../../assets/icons/ClockCircleOutlined.svg'
-import moment from 'moment-jalaali'
-import { Link } from 'react-router'
-import { useEffect, useState } from 'react'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
 const { Text } = Typography
 
-const TWO_HOURS_IN_SECONDS = 2 * 60 * 60
-
-const formatTime = seconds => {
-	const safeSeconds = Math.max(0, seconds)
-	const hrs = Math.floor(safeSeconds / 3600)
-	const mins = Math.floor((safeSeconds % 3600) / 60)
-	const secs = safeSeconds % 60
-	return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
-}
-
-const getRemainingTimeFromLocalStorage = landId => {
-	if (!landId) return 0
-
-	const localStorageKey = `irrigation_start_${landId}`
-	const irrigationStartTime = localStorage.getItem(localStorageKey)
-
-	if (!irrigationStartTime) return 0
-
-	const startTime = parseInt(irrigationStartTime, 10)
-	const now = Date.now()
-	const elapsedSeconds = Math.floor((now - startTime) / 1000)
-	const remaining = TWO_HOURS_IN_SECONDS - elapsedSeconds
-
-	return Math.abs(remaining)
-}
-
 const WellLogsMobile = ({ data }) => {
 	const isThisLogOngoing = data?.isOngoing
 	const landId = data?.land?._id
 
-	const [remainingTime, setRemainingTime] = useState(() => (isThisLogOngoing ? getRemainingTimeFromLocalStorage(landId) : 0))
+	const [startedAt, setStartedAt] = useState(null)
+
+	const getLocalStorageKey = landId => `irrigation_start_${landId}`
 
 	useEffect(() => {
-		if (!isThisLogOngoing || !landId) return
-
-		const updateTimer = () => {
-			setRemainingTime(getRemainingTimeFromLocalStorage(landId))
+		if (!landId) {
+			console.error('landId is missing:', landId)
+			return
 		}
 
-		updateTimer()
-		const interval = setInterval(updateTimer, 1000)
+		const localStorageKey = getLocalStorageKey(landId)
+		const irrigationStartTime = localStorage.getItem(localStorageKey)
 
-		return () => clearInterval(interval)
+		if (!irrigationStartTime) {
+			console.error('irrigationStartTime not found in localStorage for landId:', landId)
+			return
+		}
+
+		if (!irrigationStartTime) {
+			console.error('irrigationStartTime not found in localStorage for landId:', landId)
+			return
+		}
+
+		setStartedAt(parseInt(irrigationStartTime, 10))
 	}, [landId, isThisLogOngoing])
 
 	return (
@@ -82,7 +73,10 @@ const WellLogsMobile = ({ data }) => {
 					<Flex className={styles.cardRole}>
 						<Text className={styles.text_irrigation}>
 							{isThisLogOngoing ? (
-								<span className={`${styles.timerText} ${remainingTime <= 900 ? styles.timerDanger : ''}`}>{formatTime(remainingTime)}</span>
+								<span className={`${styles.timerText}`}>
+									{' '}
+									<TimerDisplay startedAt={startedAt} />
+								</span>
 							) : (
 								moment(data?.endedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'
 							)}

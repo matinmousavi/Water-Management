@@ -1,11 +1,14 @@
-import { Button, Drawer, Flex, Form, Input } from 'antd'
-import styles from './LandNotesMobile.module.css'
+import { Button, Flex, Form, Input } from 'antd'
 import { useEffect, useState } from 'react'
+
 import { useParams } from 'react-router'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
+
 import NotesListMobile from './components/MobileNotesList/NotesListMobile'
 import ModalMobile from '../../../../../../../components/ModalMobile/ModalMobile'
+
+import styles from './LandNotesMobile.module.css'
 
 const LandNotesMobile = ({ notesData: initialNotes }) => {
 	const { landId } = useParams()
@@ -72,10 +75,11 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 			}
 
 			setSelectedNote(null)
-			noteForm.resetFields()
 		} catch (error) {
 			console.error('Operation failed:', error)
 			openNotification('error', `خطا در ${isNoteEditMode ? 'ویرایش' : 'افزودن'} یادداشت`)
+		} finally {
+			noteForm.resetFields()
 		}
 	}
 
@@ -85,6 +89,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 
 	const onClose = () => {
 		setOpen(false)
+		noteForm.resetFields()
 	}
 
 	return (
@@ -92,7 +97,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 			<div className={styles.commentContainer}>
 				<div className={styles.card}>
 					<Flex className={styles.buttonAddNote} align='center' justify='space-between'>
-						<Button type='default' onClick={handleOpenAddNoteModal}>
+						<Button type='default' className={`button-modal ${styles.addBtnNote}`} onClick={handleOpenAddNoteModal}>
 							افزودن یادداشت
 						</Button>
 					</Flex>
@@ -101,9 +106,19 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				</div>
 			</div>
 
-			<ModalMobile onClose={onClose} open={open} loading={notesApi.isLoading} handleSubmit={handleSubmitNote} title='افزودن یادداشت'>
-				<Form.Item className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-					<Input.TextArea rows={7} />
+			<ModalMobile
+				form={noteForm}
+				onClose={onClose}
+				height={322}
+				open={open}
+				loading={notesApi.isLoading}
+				handleSubmit={handleSubmitNote}
+				title='افزودن یادداشت'
+			>
+				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+					<div className={styles.modalContainer}>
+						<Input.TextArea className={styles.textArea} />
+					</div>
 				</Form.Item>
 			</ModalMobile>
 		</>

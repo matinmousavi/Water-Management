@@ -1,31 +1,19 @@
-import { Button } from 'antd'
+import { Flex } from 'antd'
+
+import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
+
 import styles from './EndNoticeDrawer.module.css'
 
-const EndNoticeDrawer = ({ onSubmit, onClose, isOpen = true, time }) => {
-	if (!isOpen) return null
-
+const EndNoticeDrawer = ({ onSubmit, onClose, isOpen = true, timer }) => {
 	return (
-		<div className={styles.container_fixed}>
-			<div className={styles.container}>
-				<div className={styles.btn_sheet} onClick={onClose} />
-
-				<div className={styles.title}>پایان آبیاری</div>
-
-				<div className={styles.wrapper_subtitle}>
-					<p className={styles.subtitle}>هنوز مدت زمان {time} به پایان آبیاری باقی‌مانده است.</p>
-					<p className={styles.subtitle}>از پایان دادن به زمان‌ آبیاری اطمینان دارید؟ </p>
-				</div>
-
-				<div className={styles.container_buttons}>
-					<Button onClick={onClose} className={`${styles.btn_cancel} style-btn`}>
-						بازگشت
-					</Button>
-					<Button onClick={onSubmit} className={styles.btn_end}>
-						پایان آبیاری
-					</Button>
-				</div>
-			</div>
-		</div>
+		<ModalMobile height={233} open={isOpen} onClose={onClose} title='پایان آبیاری' okText='پایان آبیاری' closeText='بازگشت' handleSubmit={onSubmit}>
+			<Flex vertical gap={2}>
+				<p className={styles.subtitle}>
+					هنوز مدت زمان <span className={styles.boldTime}>{timer}</span> به پایان آبیاری باقی‌مانده است.
+				</p>
+				<p className={styles.subtitle}>از پایان دادن به زمان‌ آبیاری اطمینان دارید؟ </p>
+			</Flex>
+		</ModalMobile>
 	)
 }
 

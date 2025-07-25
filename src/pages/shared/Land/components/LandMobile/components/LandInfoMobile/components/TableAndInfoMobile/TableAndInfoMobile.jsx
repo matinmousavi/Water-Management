@@ -1,15 +1,18 @@
-import styles from './TableAndInfoMobile.module.css'
 import { Flex, Button, Typography, Card, Table } from 'antd'
 import moment from 'moment-jalaali'
+
+import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
+
+import styles from './TableAndInfoMobile.module.css'
+
 import iconClock from '../../../../../../../../../assets/icons/ClockCircleOutlined.svg'
 import iconLocation from '../../../../../../../../../assets/icons/EnvironmentOutlined.svg'
 import iconContacts from '../../../../../../../../../assets/icons/ContactsOutlined.svg'
 import iconPhone from '../../../../../../../../../assets/icons/PhoneOutlined.svg'
-import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 
 const { Text } = Typography
 
-const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handleStop, onStartClick, isOvertime }) => {
+const TableAndInfoMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartClick }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const listItems = [
@@ -58,7 +61,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 
 	return (
 		<>
-			<Flex gap={20} vertical>
+			<Flex gap={16} vertical>
 				<Card className={styles.card}>
 					<Flex vertical gap={8}>
 						{listItems.map((item, idx) => (
@@ -77,7 +80,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 
 				<Card>
 					<Flex vertical gap={8}>
-						<Text>لاگ توزیع آب ({logs?.length})</Text>
+						<Text className={styles.titleLogs}>لاگ توزیع آب ({logs?.length})</Text>
 						<Table
 							rowKey='_id'
 							bordered
@@ -94,13 +97,13 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, elapsedTime, time, handl
 			<div className={styles.footer}>
 				{isCurrentLandIrrigating ? (
 					<>
-						<Text className={`${styles.timerText} ${isOvertime ? styles.timerRed : styles.timerGreen}`}>{time}</Text>
-						<Button type='default' className={`${elapsedTime <= 900 ? styles.btnDanger : 'style-btn'}`} onClick={handleStop}>
+						<Text className={`${styles.timerText}`}>{timer}</Text>
+						<Button type='default' className={`${styles.textBtn} style-btn`} onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>
 				) : (
-					<Button type='primary' block onClick={onStartClick}>
+					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={onStartClick}>
 						شروع آبیاری
 					</Button>
 				)}

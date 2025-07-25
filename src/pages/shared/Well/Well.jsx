@@ -65,7 +65,7 @@ const Well = () => {
 		<>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 
-			<Flex vertical gap='large'>
+			<Flex vertical gap={20}>
 				{isMobile ? (
 					<Flex gap={8} justify='center' align='center'>
 						<img src={iconWell} alt='icon' />

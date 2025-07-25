@@ -1,42 +1,11 @@
-.container_fixed {
-	width: 100%;
-	height: auto;
-	position: relative;
+.itemForm {
+	height: 100%;
+}
+.textArea {
+	height: 100% !important;
 }
 
 .container {
-	width: 100%;
-	padding-top: 24px;
-	user-select: none;
-}
-
-.btn_sheet {
-	width: 24px;
-	height: 4px;
-	background-color: rgba(209, 212, 221, 1);
-	border-radius: 4px;
-	margin: 0 auto 24px;
-}
-
-.title {
-	text-align: center;
-	font-size: 14px;
-	font-weight: 500;
-	color: #3e3e3e;
-	padding-bottom: 32px;
-}
-
-.container_input {
 	padding: 0 16px;
-}
-
-.container_buttons {
-	display: flex;
-	gap: 16px;
-	padding: 0 16px;
-	padding-top: 2rem;
-}
-
-.btn {
-	width: 50%;
+	height: 100%;
 }

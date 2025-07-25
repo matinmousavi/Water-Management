@@ -68,7 +68,7 @@ const Land = () => {
 							<LandStatus landId={landId} status={status} setStatus={setStatus} landTitle={pageTitle} />
 						</Flex>
 						{isAdmin && (
-							<Flex align='center' g>
+							<Flex align='center'>
 								<Flex gap={5}>
 									<BellOutlined style={{ color: '#00000080', fontSize: '20px' }} />
 									<span className='text-label'>اطلاع رسانی</span>
