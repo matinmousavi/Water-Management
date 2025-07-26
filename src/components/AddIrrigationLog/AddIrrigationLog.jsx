@@ -91,7 +91,7 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well' }) => {
 	return (
 		<>
 			<Button className='style-btn' size='middle' onClick={open}>
-				<Flex gap={8}>
+				<Flex gap={8} align='center' justify='center'      >
 					<PlusCircleOutlined />
 					<span>افزودن لاگ</span>
 				</Flex>

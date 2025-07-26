@@ -420,7 +420,19 @@ label::after {
 		width: auto !important;
 		height: 47px !important;
 	}
+	.style-btn > .ant-flex {
+		width: auto !important;
+	}
 	.ant-input {
 		font-size: 12px !important;
 	}
-}
+	.ant-btn {
+		font-size: 14px !important;
+		border-radius: 8px;
+		height: 40px !important;
+	}
+	.ant-btn>.ant-flex {
+		width: 83px !important;
+		height: 100%;
+	}
+} 
