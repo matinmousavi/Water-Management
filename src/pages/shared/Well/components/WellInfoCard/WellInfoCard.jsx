@@ -7,7 +7,6 @@ import EditWell from './components/EditWell/EditWell'
 import { useUser } from '../../../../../contexts/UserContext'
 
 const WellInfoCard = ({ wellInfo, setPageTitle }) => {
-	console.log(wellInfo)
 	const api = useAPI()
 	const well = api.data.well || wellInfo
 	const { isAdmin } = useUser()

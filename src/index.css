@@ -293,7 +293,7 @@ label::after {
 	line-height: 22px !important;
 }
 .text-value>a {
-	font-size: 14px !important;
+	font-size: 16px !important;
 }
 .style-btn {
 	border-color: #0066ee;
@@ -420,7 +420,7 @@ label::after {
 		width: auto !important;
 		height: 47px !important;
 	}
-	.style-btn > .ant-flex {
+	.style-btn>.ant-flex {
 		width: auto !important;
 	}
 	.ant-input {
@@ -435,4 +435,8 @@ label::after {
 		width: 83px !important;
 		height: 100%;
 	}
-} 
+	.custom-select {
+		line-height: 32;
+		width: 100%;
+	}
+}

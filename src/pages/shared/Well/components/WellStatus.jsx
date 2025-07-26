@@ -54,7 +54,7 @@ const WellStatus = ({ wellId, status, setStatus }) => {
 				confirmLoading={wellApi.isLoading}
 			>
 				<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
-					<Form.Item name='status' label='وضعیت' rules={[{ required: true, message: 'لطفا وضعیت را انتخاب کنید' }]}>
+					<Form.Item name='status' label='وضعیت'>
 						<Select
 							size='large'
 							optionLabelProp='label'
