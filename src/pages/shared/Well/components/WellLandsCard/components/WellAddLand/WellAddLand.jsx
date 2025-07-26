@@ -28,31 +28,27 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-
+			const updatedLands = [...currentLands, ...values.lands.map(id => landApi.data.lands.find(land => land._id === id)).filter(Boolean)]
 			const response = await wellApi.patch(`wells/${wellId}`, {
-				lands: values.lands,
+				lands: updatedLands,
 			})
-
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', 'زمین با موفقیت به چاه اضافه شد')
-
 				if (typeof setLandsData === 'function') {
 					setLandsData({ lands: response.well.lands })
 				}
-
 				close(() => form.resetFields(), 'after')
 			}
 		} catch (err) {
-			console.error(err)
 			openNotification('error', 'خطا', err?.error?.message || 'خطا در افزودن زمین')
 		}
-	}, [form, wellApi, wellId, setLandsData, openNotification, close])
+	}, [form, wellApi, wellId, setLandsData, openNotification, close, currentLands, landApi.data.lands])
 
 	return (
 		<>
-			<Button type='default' size='middle' onClick={() => open(handleOpen, 'before')}>
+			<Button className='style-btn' size='middle' onClick={() => open(handleOpen, 'before')}>
 				<Flex gap={8}>
 					<PlusCircleOutlined />
 					<span>افزودن زمین</span>
@@ -60,7 +56,7 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 			</Button>
 
 			<Modal
-				title='افزودن زمین به چاه'
+				title='افزودن زمین'
 				open={isOpen}
 				onOk={handleSubmit}
 				onCancel={handleCancel}

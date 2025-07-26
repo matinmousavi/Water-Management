@@ -1,95 +1,164 @@
-import { useState } from 'react'
-import { Button, Popconfirm, Space, Table } from 'antd'
-import { DeleteTwoTone, EditOutlined } from '@ant-design/icons'
+import { Modal, Space, Table } from 'antd'
+import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
-import WellEditLog from '../WellEditLog/WellEditLog'
+import moment from 'moment-jalaali'
+import { useRef, useState } from 'react'
+import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
+import { useUser } from '../../../../../../../contexts/UserContext'
 
-const WellLogsTable = ({ data, setLogs }) => {
+const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
-	const { open, close, isOpen } = useModal()
-	const [selectedLog, setSelectedLog] = useState(null)
+	const { open, close, isOpen, handleAfterChange } = useModal()
+	const { isAdmin } = useUser()
 
-	const handleDelete = async irrigationsId => {
+	const deleteIdRef = useRef(null)
+	const [editableLog, setEditableLog] = useState(null)
+	const [viewableLog, setViewableLog] = useState(null)
+	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+
+	const handleDelete = async id => {
+		if (!id) return
 		try {
-			const response = await wellApi.delete(`irrigations/${irrigationsId}`)
+			const response = await wellApi.delete(`irrigations/${id}`)
 			if (!response?.error) {
 				openNotification('success', 'لاگ آبیاری با موفقیت حذف شد')
-				setLogs(prev => prev.filter(item => item._id !== irrigationsId))
+				setLogs(prev => prev.filter(item => item._id !== id))
 			}
 		} catch (error) {
 			openNotification('error', error?.error?.message || 'خطا در حذف لاگ آبیاری')
+		} finally {
+			deleteIdRef.current = null
+			close()
 		}
 	}
 
-	const handleEditClick = record => {
-		setSelectedLog(record)
-		open()
+	const handleCancel = () => {
+		deleteIdRef.current = null
+		close()
+	}
+
+	const handleViewNote = log => {
+		setViewableLog(log)
+		setIsViewModalOpen(true)
 	}
 
 	const columns = [
 		{
-			title: 'تاریخ شروع',
-			render: record => new Date(record.start).toLocaleDateString('fa-IR'),
+			title: 'تاریخ',
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : '--'),
 		},
 		{
 			title: 'ساعت شروع',
-			render: record => (record.start ? new Date(record.start).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '--'),
+			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('HH:mm') : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
 			render: (_, record) => {
-				if (!record.endTime) return 'در حال آبیاری'
-				const start = new Date(record.startTime)
-				const end = new Date(record.endTime)
-				const totalMinutes = Math.floor((end - start) / (1000 * 60))
-				const hours = Math.floor(totalMinutes / 60)
-				const minutes = totalMinutes % 60
-				return `${hours}:${minutes.toString().padStart(2, '0')}`
+				if (!record.endedAt) return 'در حال آبیاری'
+				return `${record.duration}`
 			},
 		},
 		{
 			title: 'عنوان زمین',
-			dataIndex: ['land', 'name'],
-			key: 'landName',
+			dataIndex: ['land', 'title'],
+			key: 'landTitle',
 			render: (text, record) => <Link to={`/lands/${record.land?._id}`}>{text}</Link> || '--',
 		},
 		{
-			title: 'نام ایجاد کننده لاگ',
-			dataIndex: ['createdBy'],
-			key: 'createdBy',
-			render: author => (author ? `${author.firstName} ${author.lastName}` : '--'),
+			title: 'نام مالک',
+			dataIndex: ['land', 'owner'],
+			key: 'landOwner',
+			render: owner =>
+				owner ? (
+					<Link to={`/users/${owner?._id}`}>
+						{owner.firstName} {owner.lastName}
+					</Link>
+				) : (
+					<span>--</span>
+				),
 		},
 		{
-			title: 'عملیات',
-			key: 'action',
-			render: (_, record) => (
-				<Space>
-					<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
-						<DeleteTwoTone twoToneColor='#ff0000' />
-					</Popconfirm>
-					<Button type='link' icon={<EditOutlined />} onClick={() => handleEditClick(record)} />
-				</Space>
-			),
+			title: 'توضیحات',
+			dataIndex: 'note',
+			key: 'note',
+			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
 	]
 
+	if (isAdmin || wellStatus === 'active') {
+		columns.push({
+			title: 'عملیات',
+			key: 'action',
+			render: (_, record) => (
+				<Space size={8}>
+					<EditOutlined
+						className='edit-icon'
+						onClick={() => {
+							setEditableLog(record)
+						}}
+					/>
+					<DeleteTwoTone
+						twoToneColor='#ff0000'
+						onClick={() => {
+							deleteIdRef.current = record._id
+							open()
+						}}
+					/>
+				</Space>
+			),
+		})
+	}
 	return (
 		<>
-			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} />
-			{selectedLog && isOpen && (
-				<WellEditLog
-					logData={selectedLog}
-					setLogs={setLogs}
-					onClose={() => {
-						close()
-						setSelectedLog(null)
+			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
+
+			<Modal
+				title='حذف لاگ توزیع آب'
+				open={isOpen}
+				onOk={() => handleDelete(deleteIdRef.current)}
+				onCancel={handleCancel}
+				afterOpenChange={handleAfterChange}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					danger: true,
+					type: 'primary',
+				}}
+				confirmLoading={wellApi.isLoading}
+			>
+				<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
+			</Modal>
+
+			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
+
+			{viewableLog && (
+				<Modal
+					title={`توضیحات لاگ توزیع آب ${viewableLog?.startedAt ? moment(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
+					open={isViewModalOpen}
+					onCancel={() => {
+						setIsViewModalOpen(false)
+						setViewableLog(null)
 					}}
-				/>
+					footer={
+						<div
+							className='footer-edit-log-modal'
+							onClick={() => {
+								setEditableLog(viewableLog)
+								setIsViewModalOpen(false)
+							}}
+						>
+							<EditOutlined />
+							<span>ویرایش</span>
+						</div>
+					}
+				>
+					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
+				</Modal>
 			)}
 		</>
 	)

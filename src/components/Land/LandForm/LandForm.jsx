@@ -15,18 +15,17 @@ const wrapperColSpan = 20
 
 const LandForm = ({ form, landOwners = [], wells = [] }) => {
 	const { isAdmin } = useUser()
-
 	return (
-		<Form form={form} layout='horizontal' name='landForm' labelCol={{ span: labelColSpan }} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
-			<Form.Item name='name' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input />
+		<Form form={form} name='landForm' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
+			<Form.Item name='title' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Input size='large' />
 			</Form.Item>
 
 			{isAdmin && (
-				<Form.Item name='owner' label='مالک زمین' rules={[{ required: true, message: 'مالک را وارد کنید' }]}>
+				<Form.Item name='owner' label='نام مالک' rules={[{ required: true, message: 'مالک را وارد کنید' }]}>
 					<Select
 						showSearch
-						placeholder='مالک را انتخاب کنید'
+						placeholder='انتخاب'
 						allowClear
 						style={{ width: '100%' }}
 						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -35,54 +34,43 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 							label: `${owner.firstName} ${owner.lastName}`,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
+						size='large'
 					/>
 				</Form.Item>
 			)}
 
-			<Form.Item
-				name='area'
-				label='مساحت (هکتار)'
-				rules={[
-					{ required: true, message: 'این فیلد الزامی است' },
-					{ pattern: /^[0-9]+$/, message: 'فرمت معتبر نیست' },
-				]}
-			>
-				<Input />
+			<Form.Item name='area' label='مساحت'>
+				<Input
+					size='large'
+					inputMode='numeric'
+					pattern='[0-9]*'
+					onKeyPress={e => {
+						if (!/[0-9]/.test(e.key)) {
+							e.preventDefault()
+						}
+					}}
+				/>
 			</Form.Item>
 
-			<Form.Item
-				name='kFactor'
-				label='K-Factor'
-				rules={[
-					{ required: true, message: 'این فیلد الزامی است' },
-					{ pattern: /^[0-9.]+$/, message: 'فرمت معتبر نیست' },
-				]}
-			>
-				<Input />
+			<Form.Item name='kFactor' label='K-factor'>
+				<Input size='large' />
 			</Form.Item>
 
-			<Form.Item name='cropType' label='نوع محصول' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input />
+			<Form.Item name='cropType' label='محصول'>
+				<Input size='large' />
 			</Form.Item>
 
-			<Form.Item name='irrigationType' label='نوع آبیاری' rules={[{ required: true, message: 'لطفاً نوع آبیاری را انتخاب کنید' }]}>
-				<Select options={irrigationOptions} placeholder='انتخاب نوع آبیاری' allowClear />
+			<Form.Item name='irrigationType' label='نوع آبیاری'>
+				<Select options={irrigationOptions} placeholder='انتخاب' allowClear size='large' />
 			</Form.Item>
 
-			<Form.Item
-				name='location'
-				label='مکان'
-				rules={[
-					{ required: true, message: 'این فیلد الزامی است' },
-					{ pattern: /^.+$/, message: 'فرمت معتبر نیست' },
-				]}
-			>
+			<Form.Item name='location' label='مکان'>
 				<TextArea />
 			</Form.Item>
-			<Form.Item name='wellId' label='چاه'>
+			<Form.Item name='wellId' label='عنوان چاه'>
 				<Select
-					showSearch
-					placeholder='چاه را انتخاب کنید'
+					showSearch1
+					placeholder='انتخاب'
 					allowClear
 					style={{ width: '100%' }}
 					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -91,6 +79,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 						label: well.title,
 					}))}
 					fieldNames={{ value: 'value', label: 'label' }}
+					size='large'
 				/>
 			</Form.Item>
 		</Form>

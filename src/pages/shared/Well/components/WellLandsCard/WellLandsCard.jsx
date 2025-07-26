@@ -5,8 +5,9 @@ import React from 'react'
 import { useParams } from 'react-router'
 import { useUser } from '../../../../../contexts/UserContext'
 import WellAddLand from './components/WellAddLand/WellAddLand'
+import WellAddLandsGroup from './components/WellAddLandsGroup/WellAddLandGroup'
 
-const WellLandsCard = ({ wellLands }) => {
+const WellLandsCard = ({ wellLands, wellStatus }) => {
 	const api = useAPI()
 	const { wellId } = useParams()
 	const { isAdmin } = useUser()
@@ -14,17 +15,24 @@ const WellLandsCard = ({ wellLands }) => {
 	const lands = api.data.lands || wellLands
 
 	return (
-		<Card>
-			<Flex vertical gap={(0, 40)}>
-				<Flex align='center' justify='space-between'>
-					<Typography.Title level={2} className='text-card-title'>
-						لیست زمین ها ({lands?.length})
-					</Typography.Title>
-					{isAdmin && <WellAddLand lands={lands} setLandsData={api.setData} />}
+		<>
+			<Card>
+				<Flex vertical gap={(0, 40)}>
+					<Flex align='center' justify='space-between'>
+						<Typography.Title level={2} className='text-card-title'>
+							لیست زمین ها ({lands?.length})
+						</Typography.Title>
+						{isAdmin && wellStatus === 'active' && (
+							<Flex>
+								<WellAddLandsGroup currentLands={lands} setLandsData={api.setData} />
+								<WellAddLand currentLands={lands} setLandsData={api.setData} />
+							</Flex>
+						)}
+					</Flex>
+					{lands?.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} />}
 				</Flex>
-				{lands.length > 0 && <WellLandsTable data={lands} setData={api.setData} wellId={wellId} />}
-			</Flex>
-		</Card>
+			</Card>
+		</>
 	)
 }
 export default React.memo(WellLandsCard)

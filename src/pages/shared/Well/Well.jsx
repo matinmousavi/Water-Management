@@ -1,61 +1,108 @@
 import { useEffect, useState } from 'react'
-import { Flex, Tag, Typography } from 'antd'
-import useAPI from '../../../hooks/useAPI'
+import { Typography, Grid, Flex } from 'antd'
+
 import { useParams } from 'react-router'
+
+import useAPI from '../../../hooks/useAPI'
+import { useUser } from '../../../contexts/UserContext'
+
 import Loading from '../../../components/Loading/Loading'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
-import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
 import WellInfoCard from './components/WellInfoCard/WellInfoCard'
 import WellLandsCard from './components/WellLandsCard/WellLandsCard'
 import WellLogCard from './components/WellLogsCard/WellLogsCard'
-import { useUser } from '../../../contexts/UserContext'
-import { EditOutlined } from '@ant-design/icons'
+import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
+
+import iconWell from '../../../assets/icons/Vector.svg'
+import WellStatus from './components/WellStatus'
+import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
+import WellsList from './components/WellsList/WellsList'
 
 const Well = () => {
 	const { wellId } = useParams()
 	const api = useAPI()
-	const { isAdmin } = useUser()
+	const { user, isAdmin } = useUser()
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 
-	const [title, setPageTitle] = useState('')
+	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
-
-	if (wellId) api.init(`wells/${wellId}`)
+	const [status, setStatus] = useState('')
+	const [openWellList, setOpenWellList] = useState(false)
+	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
+	const [irrigatorWells, setIrrigatorWells] = useState()
 
 	useEffect(() => {
-		if (api.data?.well) {
-			setPageTitle(api.data.well.title)
-			setLogs(api.data.well.logs || [])
+		const fetchedWell = api.data?.well || api.data?.wells?.[0]
+		if (fetchedWell) {
+			setTitle(fetchedWell.title)
+			setLogs(fetchedWell.logs || [])
+			setStatus(fetchedWell.status)
+			setIrrigatorWells(fetchedWell)
 		}
-	}, [api.data?.well])
+	}, [api.data?.well, api.data?.wells])
 
-	if (api.isLoading || !api.data?.well) return <Loading />
+	const wellsApi = useAPI()
+	const userApi = useAPI()
+	wellsApi.init('wells')
+	userApi.init('me')
+	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id == userApi.data?.user?._id)
+
+	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
+		return <Loading />
+	}
+
+	const well = api.data?.well || api.data?.wells?.[0]
+	const lands = api.data?.well?.lands || api.data?.wells?.[0]?.lands
+	const actualWellId = wellId || well?._id
+	const onCloseWellList = () => {
+		setOpenWellList(false)
+	}
 
 	return (
 		<>
-			<MetaTitle>ویرایش چاه</MetaTitle>
+			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 
-			<Flex vertical>
-				<Breadcrumbs data={api.data?.well} />
+			<Flex vertical gap={20}>
+				{isMobile ? (
+					<Flex gap={8} justify='center' align='center'>
+						<img src={iconWell} alt='icon' />
+						<Typography.Title level={2} className='text-h2'>
+							چاه {irrigatorWells?.title}{' '}
+						</Typography.Title>
 
-				<Flex align='center' gap={16}>
-					<BackButton backTo='/wells' />
-					<Typography.Title className='text-page-title'>{title}</Typography.Title>
-					<Tag color='green'>
-						<Flex align='center' gap={3}>
-							فعال <EditOutlined />
-						</Flex>
-					</Tag>
-				</Flex>
+						{filterWells?.length === 1 ? null : openWellList ? (
+							<CaretUpOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+						) : (
+							<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+						)}
+						<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
+					</Flex>
+				) : (
+					<Flex align='center' gap={16}>
+						<BackButton backTo='/wells' />
+						<Typography.Title className='text-page-title'>{title}</Typography.Title>
+						<WellStatus wellId={wellId} status={status} setStatus={setStatus} />
+					</Flex>
+				)}
 
-				<WellInfoCard wellInfo={api.data?.well} setPageTitle={setPageTitle} />
+				{isMobile ? (
+					<Flex vertical gap={16}>
+						{irrigatorWells?.logs?.map(log => (
+							<WellLogsMobile key={log._id} data={log} />
+						))}
+					</Flex>
+				) : (
+					<>
+						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
+						<WellLandsCard wellLands={well?.lands} wellStatus={status} />
+						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} />
+					</>
+				)}
 
-				<WellLandsCard wellLands={api.data?.well?.lands} />
-
-				<WellLogCard wellLogs={logs} setLogs={setLogs} />
-
-				{isAdmin && <DeleteCard title='چاه' api={`wells/${wellId}`} backTo='/wells' />}
+				{isAdmin && <DeleteCard title={`چاه ${title}`} api={`wells/${actualWellId}`} backTo='/wells' />}
 			</Flex>
 		</>
 	)

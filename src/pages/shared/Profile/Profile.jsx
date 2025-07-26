@@ -1,29 +1,26 @@
-import { Flex, Tag, Typography } from 'antd'
+import { Flex, Typography } from 'antd'
 import { useParams } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
-import ProfileImageCard from './components/ProfileImageCard/ProfileImageCard'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import { useUser } from '../../../contexts/UserContext'
-import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import BackButton from '../../../components/BackButton/BackButton'
-import { EditOutlined } from '@ant-design/icons'
+import UserStatus from './components/UserStatus'
 
 const { Title } = Typography
 
 const Profile = () => {
-	const [pageTitle, setPageTitle] = useState('')
+	const [pageTitle, setPageTitle] = useState('پروفایل')
 	const { user: currentUser } = useUser()
 	const { userId } = useParams()
-
 	const api = useAPI()
+
 	if (userId) api.init(`users/${userId}`)
 
 	const rawUserData = userId ? api.data?.user : currentUser
-
 	const userDataRef = useRef(null)
 
 	useEffect(() => {
@@ -44,8 +41,6 @@ const Profile = () => {
 			<MetaTitle>پروفایل</MetaTitle>
 
 			<Flex vertical justify='space-between'>
-				<Breadcrumbs data={{ title: pageTitle }} />
-
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/users' />
 
@@ -53,14 +48,8 @@ const Profile = () => {
 						{pageTitle}
 					</Title>
 
-					<Tag color='green'>
-						<Flex align='center' gap={3}>
-							فعال <EditOutlined />
-						</Flex>
-					</Tag>
+					<UserStatus userId={userData._id} currentStatus={userData.status} />
 				</Flex>
-
-				<ProfileImageCard pictureUrl={userData?.profilePicture?.url} />
 
 				<ContactInfoCard initialValue={userData} setPageTitle={setPageTitle} />
 			</Flex>

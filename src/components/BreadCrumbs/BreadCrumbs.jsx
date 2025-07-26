@@ -6,7 +6,8 @@ import styles from './BreadCrumbs.module.css'
 const routesConfig = [
 	{ path: '/', breadcrumb: 'خانه' },
 	{ path: '/users', breadcrumb: 'کاربران' },
-	{ path: '/notification-settings', breadcrumb: 'تنظیمات اطلاع رسانی' },
+	{ path: '/settings', breadcrumb: 'تنظیمات' },
+	{ path: '/profile', breadcrumb: data => data?.title || 'کاربر' },
 	{
 		path: '/users/:id',
 		breadcrumb: data => data?.title || 'کاربر',
@@ -75,7 +76,7 @@ const Breadcrumbs = ({ data }) => {
 
 	const breadcrumbItems = useMemo(() => findBreadcrumbs(location.pathname, data), [location.pathname, data])
 
-	return <Breadcrumb items={breadcrumbItems} />
+	return <Breadcrumb className={styles.breadcrumb} items={breadcrumbItems} />
 }
 
 export default Breadcrumbs

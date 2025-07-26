@@ -1,0 +1,14 @@
+.list {
+	justify-content: center;
+}
+.listItem {
+	padding: 0 !important;
+	height: 65px !important;
+}
+.listButton {
+	width: 100%;
+	background-color: transparent !important;
+	font-size: 20px !important;
+	font-weight: 400 !important;
+	height: 100%;
+}

@@ -2,7 +2,6 @@ import { Flex, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import UsersTable from './components/UsersTable/UsersTable'
 import Loading from '../../../components/Loading/Loading'
-import Breadcrumbs from '../../../components/BreadCrumbs/BreadCrumbs'
 import AddUser from './components/AddUser/AddUser'
 
 const Users = () => {
@@ -14,8 +13,6 @@ const Users = () => {
 
 	return (
 		<Flex vertical className='main-container'>
-			<Breadcrumbs />
-
 			<Flex align='center' justify='space-between'>
 				<Typography.Title level={1} className='text-page-title'>
 					لیست کاربران ({api.data.users.length})

@@ -1,0 +1,3 @@
+.message-sender-form :global(.ant-form-item) :global(.ant-form-item-label) > :global(label.ant-form-item-required)::before {
+	display: none !important;
+}

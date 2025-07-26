@@ -1,0 +1,23 @@
+.header {
+	display: none;
+}
+
+.text {
+	font-size: 12px;
+}
+
+.commentContainer {
+	position: relative;
+	z-index: 600;
+
+	.card {
+		height: auto;
+		height: 100%;
+	}
+}
+
+.deleteOkButton {
+	background-color: #f5222d;
+	color: #fff;
+	border-color: #f5222d;
+}

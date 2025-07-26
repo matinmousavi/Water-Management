@@ -7,25 +7,43 @@ const wellSchema = new mongoose.Schema(
 			required: true,
 			trim: true,
 		},
+		irrigator: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User',
+		},
 		licenseCode: {
 			type: String,
-			required: true,
 			trim: true,
 			unique: true,
+			sparse: true,
+		},
+		location: {
+			type: String,
+			trim: true,
 		},
 		cycleDays: {
 			type: Number,
 			required: true,
 			min: 1,
 		},
-		location: {
-			type: String,
-			trim: true,
-			default: '',
+		cycleStartDate: {
+			type: Date,
+			required: true,
 		},
-		irrigator: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'User',
+		workTime: {
+			start: {
+				type: Date,
+				required: true,
+			},
+			end: {
+				type: Date,
+				required: true,
+			},
+		},
+		status: {
+			type: String,
+			enum: ['active', 'inactive'],
+			default: 'active',
 		},
 		lands: [
 			{

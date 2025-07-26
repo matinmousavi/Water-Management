@@ -1,25 +1,31 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Button, Flex, Modal, Form } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import useModal from '../../../../../../../hooks/useModal'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
 import UserForm from '../../../../../../../components/User/UserForm/UserForm'
-import { useParams } from 'react-router'
 
 const EditUser = ({ initialValue, setData, setPageTitle }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
+	const [imageFile, setImageFile] = useState(null)
+	const [initialImage, setInitialImage] = useState(initialValue?.profilePicture || null)
 	const userApi = useAPI()
 	const { openNotification } = useNotification()
-	const { userId } = useParams()
+	const userId = initialValue._id
 
 	const handleOpen = () => {
 		form.setFieldsValue(initialValue)
+		setInitialImage(initialValue?.profilePicture || null)
+		setImageFile(null)
 	}
 
 	const handleCancel = () => {
-		close(() => form.resetFields(), 'after')
+		close(() => {
+			form.resetFields()
+			setImageFile(null)
+		}, 'after')
 	}
 
 	const handleSubmit = useCallback(async () => {
@@ -30,7 +36,25 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 				return
 			}
 
-			const response = await userApi.patch(`users/${userId}`, values)
+			const formData = new FormData()
+
+			Object.entries(values).forEach(([key, value]) => {
+				if (value !== undefined && value !== null && key !== 'image') {
+					formData.append(key, value)
+				}
+			})
+
+			if (imageFile && imageFile != 'delete') {
+				if (!initialImage || typeof initialImage !== 'object' || imageFile.name !== initialImage.name || imageFile.size !== initialImage.size) {
+					formData.append('image', imageFile)
+				}
+			} else if (imageFile === 'delete') {
+				formData.append('profilePicture', null)
+			}
+
+			const response = await userApi.patch(`users/${userId}`, formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			})
 
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
@@ -53,16 +77,20 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 					setPageTitle(prevTitle => (newTitle !== prevTitle ? newTitle : prevTitle))
 				}
 
-				close(() => form.resetFields(), 'after')
+				close(() => {
+					form.resetFields()
+					setImageFile(null)
+				}, 'after')
 			}
 		} catch (err) {
+			console.error('Submission error:', err)
 			openNotification('error', 'خطا', err?.error?.message || 'خطایی رخ داده است')
 		}
-	}, [form, userApi, close, initialValue, setData, setPageTitle, openNotification])
+	}, [form, userApi, close, initialValue, setData, setPageTitle, openNotification, imageFile, initialImage, userId])
 
 	return (
 		<>
-			<Button type='primary' onClick={() => open(handleOpen, 'before')}>
+			<Button className='style-btn' onClick={() => open(handleOpen, 'before')}>
 				<Flex gap={5} align='center' justify='center'>
 					<EditOutlined />
 					<span>ویرایش</span>
@@ -76,12 +104,10 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 				onCancel={handleCancel}
 				afterOpenChange={handleAfterChange}
 				confirmLoading={userApi.isLoading}
-				okText='ذخیره'
+				okText='ثبت'
 				cancelText='انصراف'
-				forceRender
-				centered
 			>
-				<UserForm form={form} />
+				<UserForm form={form} setImageFile={setImageFile} initialImage={initialImage} />
 			</Modal>
 		</>
 	)

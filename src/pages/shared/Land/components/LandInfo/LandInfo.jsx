@@ -1,6 +1,5 @@
 import { Card, Col, Flex, Row, Typography } from 'antd'
 import LandEdit from './components/LandEdit/LandEdit'
-import styles from './LandInfo.module.css'
 import useAPI from '../../../../../hooks/useAPI'
 import { Link } from 'react-router'
 import { useUser } from '../../../../../contexts/UserContext'
@@ -11,7 +10,7 @@ const LandInfo = ({ landData, setPageTitle }) => {
 	const land = api.data?.land || landData
 	const { Title, Text } = Typography
 
-	const rightColumnItems = [
+	const infoItems = [
 		{
 			label: 'نام مالک',
 			value: land?.owner ? (
@@ -24,11 +23,18 @@ const LandInfo = ({ landData, setPageTitle }) => {
 				'--'
 			),
 		},
+		{ label: 'شماره تماس مالک', value: land?.owner?.mobile || '--' },
 		{ label: 'مساحت', value: land?.area ? `${land.area} متر مربع` : '--' },
+		{ label: 'K-factor', value: land?.kFactor || '--' },
+		{ label: 'محصول', value: land?.cropType || '--' },
+		{ label: 'نوع آبیاری', value: land?.irrigationType || '--' },
 		{ label: 'آدرس زمین', value: land?.location || '--' },
-		{ label: 'نام محصول', value: land?.cropType || '--' },
 		{
-			label: 'نام میراب',
+			label: 'عنوان چاه',
+			value: land?.wells?.[0]?.title ? isAdmin ? <Link to={`/wells/${land.wells[0]._id}`}>{land.wells[0].title}</Link> : land.wells[0].title : '--',
+		},
+		{
+			label: 'نام میرآب',
 			value: land?.wells?.[0]?.irrigator ? (
 				isAdmin ? (
 					<Link to={`/users/${land.wells[0].irrigator._id}`}>
@@ -41,16 +47,9 @@ const LandInfo = ({ landData, setPageTitle }) => {
 				'--'
 			),
 		},
-	]
-
-	const leftColumnItems = [
-		{ label: 'شماره تماس مالک', value: land?.owner?.mobile || '--' },
-		{ label: 'K-factor', value: land?.kFactor || '--' },
-		{ label: 'نوع آبیاری', value: land?.irrigationType || '--' },
-		{ label: 'عنوان چاه', value: land?.wells?.[0]?.title || '--' },
 		{
-			label: 'شماره تماس میراب',
-			value: land?.wells?.[0]?.irrigator ? `${land.wells[0].irrigator.mobile}` : '--',
+			label: 'شماره تماس میرآب',
+			value: land?.wells?.[0]?.irrigator?.mobile || '--',
 		},
 	]
 
@@ -58,34 +57,25 @@ const LandInfo = ({ landData, setPageTitle }) => {
 		<Card>
 			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
-					<Title level={2} className='text-h2'>
+					<Title level={2} className='text-card-title'>
 						مشخصات زمین
 					</Title>
 					<LandEdit initialValue={land} setData={api.setData} setPageTitle={setPageTitle} />
 				</Flex>
 
-				<Row gutter={[36, 0]}>
-					<Col xs={24} md={10}>
-						<Flex vertical gap={20}>
-							{rightColumnItems.map((item, index) => (
-								<Flex key={index} justify='space-between' className={styles.line}>
-									<Text className={styles.labelText}>{item.label}</Text>
-									<Text className={styles.valueText}>{item.value}</Text>
-								</Flex>
-							))}
-						</Flex>
-					</Col>
-
-					<Col xs={24} md={10} offset={2}>
-						<Flex vertical gap={20}>
-							{leftColumnItems.map((item, index) => (
-								<Flex key={index} justify='space-between' className={styles.line}>
-									<Text className={styles.labelText}>{item.label}</Text>
-									<Text className={styles.valueText}>{item.value}</Text>
-								</Flex>
-							))}
-						</Flex>
-					</Col>
+				<Row gutter={[0, 36]}>
+					{infoItems.map((item, index) => (
+						<Col xs={24} md={12} key={index}>
+							<Row>
+								<Col xs={6} className='label'>
+									<Text className='text-label'>{item.label}</Text>
+								</Col>
+								<Col xs={18} className='value'>
+									<Text className='text-value'>{item.value}</Text>
+								</Col>
+							</Row>
+						</Col>
+					))}
 				</Row>
 			</Flex>
 		</Card>

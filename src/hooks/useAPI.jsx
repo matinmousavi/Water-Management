@@ -92,6 +92,35 @@ export default function useAPI() {
 		}
 	}
 
+	async function mutate({ requestUrl, method, params, optimisticUpdate, rollback }, responseHandler) {
+		let prevDataSnapshot = data
+
+		if (optimisticUpdate) {
+			setData(current => {
+				const optimisticState = optimisticUpdate(current)
+				prevDataSnapshot = current
+				return optimisticState
+			})
+		}
+
+		try {
+			const res = await getAPI({ requestUrl, method, params, setState: false })
+
+			if (responseHandler) {
+				setData(current => responseHandler(current, res))
+			} else {
+				setData(res)
+			}
+
+			return res
+		} catch (err) {
+			if (optimisticUpdate && rollback) {
+				setData(rollback(prevDataSnapshot))
+			}
+			throw err
+		}
+	}
+
 	useEffect(() => {
 		if (!request) return
 		const { requestUrl, params, forceRefresh } = request
@@ -104,15 +133,24 @@ export default function useAPI() {
 		init: (requestUrl, params = false, forceRefresh = false) => {
 			const last = lastRequestRef.current
 			if (last.requestUrl === requestUrl && JSON.stringify(last.params) === JSON.stringify(params) && last.forceRefresh === forceRefresh) return
-
 			lastRequestRef.current = { requestUrl, params, forceRefresh }
 			setRequest({ requestUrl, params, forceRefresh })
 		},
 		get: (requestUrl, params) => getAPI({ requestUrl, params }),
-		post: (requestUrl, params) => getAPI({ requestUrl, method: 'POST', params, setState: false }),
-		put: (requestUrl, params) => getAPI({ requestUrl, method: 'PUT', params, setState: false }),
-		delete: (requestUrl, params) => getAPI({ requestUrl, method: 'DELETE', params, setState: false }),
-		patch: (requestUrl, params) => getAPI({ requestUrl, method: 'PATCH', params, setState: false }),
+		post: (requestUrl, params, { optimisticUpdate, rollback, responseHandler } = {}) =>
+			mutate({ requestUrl, method: 'POST', params, optimisticUpdate, rollback }, responseHandler),
+		put: (requestUrl, params, { optimisticUpdate, rollback, responseHandler } = {}) =>
+			mutate({ requestUrl, method: 'PUT', params, optimisticUpdate, rollback }, responseHandler),
+		patch: (requestUrl, params, { optimisticUpdate, rollback, responseHandler } = {}) =>
+			mutate({ requestUrl, method: 'PATCH', params, optimisticUpdate, rollback }, responseHandler),
+		delete: (requestUrl, params, { optimisticUpdate, rollback, responseHandler } = {}) =>
+			mutate({ requestUrl, method: 'DELETE', params, optimisticUpdate, rollback }, responseHandler),
+		appendData: transformFn => {
+			setData(prev => {
+				if (!prev) return prev
+				return transformFn(prev)
+			})
+		},
 		setData,
 		data,
 		isLoading,

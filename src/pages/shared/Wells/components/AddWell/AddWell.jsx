@@ -6,15 +6,15 @@ import useAPI from '../../../../../hooks/useAPI'
 import WellForm from '../../../../../components/Well/WellForm/WellForm'
 import useNotification from '../../../../../hooks/useNotification'
 
-const AddWell = ({ setData }) => {
+const AddWell = ({ wellsApi }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
-	const wellApi = useAPI()
 	const irrigatorsApi = useAPI()
 	const { openNotification } = useNotification()
 
 	const handleOpen = () => {
 		irrigatorsApi.init('users', { role: 'irrigator' })
+		form.resetFields()
 	}
 
 	const handleCancel = () => {
@@ -24,23 +24,43 @@ const AddWell = ({ setData }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-			const response = await wellApi.post('wells', values)
 
-			if (response?.error) {
-				openNotification('error', 'خطا', response.message || 'خطایی در ثبت چاه رخ داده است.')
-			} else {
-				openNotification('success', 'عملیات موفق', 'چاه با موفقیت افزوده شد.')
-				setData(prev => ({
-					...prev,
-					wells: [...(prev?.wells || []), response.well],
-				}))
-				close(() => form.resetFields(), 'after')
+			const formattedValues = {
+				...values,
+				cycleStartDate: values.cycleStartDate ? values.cycleStartDate.toDate() : null,
+				workTime: {
+					start: values.startTime ? values.startTime.toDate() : null,
+					end: values.endTime ? values.endTime.toDate() : null,
+				},
 			}
+
+			delete formattedValues.startTime
+			delete formattedValues.endTime
+
+			const tempId = 'temp-' + Date.now()
+
+			await wellsApi.post('wells', formattedValues, {
+				optimisticUpdate: prev => ({
+					...prev,
+					wells: [...(prev?.wells || []), { ...formattedValues, _id: tempId, status: 'active' }],
+				}),
+				rollback: prev => ({
+					...prev,
+					wells: prev?.wells?.filter(w => w._id !== tempId) || [],
+				}),
+				responseHandler: (prev, res) => ({
+					...prev,
+					wells: prev.wells.map(w => (w._id === tempId ? res.well : w)),
+				}),
+			})
+
+			openNotification('success', 'عملیات موفق', 'چاه با موفقیت افزوده شد.')
+			close(() => form.resetFields(), 'after')
 		} catch (err) {
 			console.error(err)
 			openNotification('error', 'خطا', err?.error?.message || err?.message || 'خطایی رخ داده است')
 		}
-	}, [form, wellApi, close, setData, openNotification])
+	}, [form, wellsApi, close, openNotification])
 
 	return (
 		<>
@@ -57,9 +77,9 @@ const AddWell = ({ setData }) => {
 				onOk={handleSubmit}
 				onCancel={handleCancel}
 				afterOpenChange={handleAfterChange}
-				confirmLoading={wellApi.isLoading}
+				confirmLoading={wellsApi.isLoading}
 				loading={irrigatorsApi.isLoading}
-				okText='ذخیره'
+				okText='ثبت'
 				cancelText='انصراف'
 				forceRender
 			>

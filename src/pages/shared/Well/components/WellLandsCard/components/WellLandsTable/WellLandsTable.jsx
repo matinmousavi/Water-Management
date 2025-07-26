@@ -1,18 +1,24 @@
-import { Popconfirm, Space, Table } from 'antd'
+import { Modal, Space, Table } from 'antd'
 import { DeleteTwoTone } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import { useUser } from '../../../../../../../contexts/UserContext'
+import useModal from '../../../../../../../hooks/useModal'
+import { useState } from 'react'
+import moment from 'moment-jalaali'
 
 const WellLandsTable = ({ data, setData, wellId }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
+	const { isOpen, open, close, handleAfterChange } = useModal()
+	const [selectedLand, setSelectedLand] = useState(null)
 
-	const handleDelete = async landId => {
+	const handleDelete = async () => {
+		if (!selectedLand?._id) return
 		try {
-			const updatedLands = data?.filter(item => item._id !== landId)
+			const updatedLands = data?.filter(item => item._id !== selectedLand._id)
 			const response = await wellApi.patch(`wells/${wellId}`, { lands: updatedLands })
 
 			if (!response?.error) {
@@ -20,35 +26,42 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 				setData({ lands: response.well.lands })
 			}
 		} catch (error) {
-			console.error('Error:', error)
 			openNotification('error', error?.error?.message || 'خطا در حذف زمین')
+		} finally {
+			setSelectedLand(null)
+			close()
 		}
+	}
+
+	const handleCancel = () => {
+		setSelectedLand(null)
+		close()
 	}
 
 	const columns = [
 		{
 			title: 'عنوان زمین',
-			dataIndex: 'name',
-			key: 'name',
-			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.name}</Link>,
+			dataIndex: 'title',
+			key: 'title',
+			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.title}</Link>,
 		},
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: (_, record) => `${record.owner?.firstName} ${record.owner?.lastName}`,
+			render: (_, record) => <Link to={`/users/${record.owner?._id}`}>{`${record.owner?.firstName} ${record.owner?.lastName}`}</Link>,
 		},
 		{
-			title: 'شماره تماس',
+			title: 'شماره تماس مالک',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
 			render: (_, record) => (record?.owner?.mobile ? record?.owner?.mobile : '--'),
 		},
 		{
 			title: 'آخرین زمان آبیاری',
-			dataIndex: 'lastDateIrrigation',
-			key: 'lastDateIrrigation',
-			render: (_, record) => record?.logs || '--',
+			dataIndex: 'lastIrrigatedAt',
+			key: 'lastIrrigatedAt',
+			render: (_, record) => (record?.lastIrrigatedAt ? moment(record.lastIrrigatedAt).locale('fa').format('dddd jD jMMMM jYYYY - ساعت HH:mm') : '--'),
 		},
 		{
 			title: 'زمان آبیاری بعدی',
@@ -64,16 +77,40 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 			dataIndex: 'action',
 			key: 'action',
 			render: (_, record) => (
-				<Space>
-					<Popconfirm title='آیا اطمینان دارید؟' cancelText='خیر' okText='بله' onConfirm={() => handleDelete(record._id)}>
-						<DeleteTwoTone twoToneColor='#ff0000' />
-					</Popconfirm>
+				<Space size='small'>
+					<DeleteTwoTone
+						twoToneColor='#ff0000'
+						onClick={() => {
+							setSelectedLand(record)
+							open()
+						}}
+					/>
 				</Space>
 			),
 		})
 	}
 
-	return <Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} />
+	return (
+		<>
+			<Table dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
+			<Modal
+				title={`حذف زمین ${selectedLand?.title || ''}`}
+				open={isOpen}
+				onOk={handleDelete}
+				onCancel={handleCancel}
+				afterOpenChange={handleAfterChange}
+				okText='تایید'
+				cancelText='انصراف'
+				okButtonProps={{
+					danger: true,
+					type: 'primary',
+				}}
+				confirmLoading={wellApi.isLoading}
+			>
+				<p>آیا از حذف این زمین اطمینان دارید؟</p>
+			</Modal>
+		</>
+	)
 }
 
 export default WellLandsTable

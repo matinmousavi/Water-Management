@@ -1,0 +1,56 @@
+.container_fixed {
+	width: 100%;
+	height: auto;
+	position: relative;
+}
+
+.container {
+	width: 100%;
+	padding-top: 24px;
+	user-select: none;
+}
+
+.btn_sheet {
+	width: 24px;
+	height: 4px;
+	background-color: rgba(209, 212, 221, 1);
+	border-radius: 4px;
+	margin: 0 auto 24px;
+}
+
+.title {
+	text-align: center;
+	font-size: 14px;
+	font-weight: 500;
+	color: rgba(245, 34, 45, 1);
+	margin-bottom: 8px;
+}
+
+.wrapper_subtitle {
+	margin-top: 16px;
+	margin-bottom: 32px;
+}
+
+.subtitle {
+	text-align: center;
+	font-size: 14px;
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.88);
+	padding-bottom: 0 !important;
+}
+
+.container_buttons {
+	display: flex;
+	gap: 16px;
+	padding: 0 16px;
+}
+
+.btn_cancel {
+	width: 50%;
+}
+
+.btn_end {
+	width: 50%;
+	background-color: #f5222d;
+	color: #ffff;
+}

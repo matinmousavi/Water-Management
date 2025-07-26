@@ -2,89 +2,131 @@ import { Table, Tag } from 'antd'
 import { Link } from 'react-router-dom'
 
 const LandsTable = ({ landsData = [] }) => {
-	const allIrrigators = Array.from(new Set(landsData.flatMap(land => land.wells?.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`)))).map(
-		name => ({
-			text: name,
-			value: name,
-		})
-	)
-	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner.firstName} ${land.owner.lastName}`))).map(name => ({
-		text: name,
-		value: name,
-	}))
+	const allIrrigators = Array.from(
+		new Set(
+			landsData.flatMap(land =>
+				(land.wells || [])
+					.filter(well => well.irrigator)
+					.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`)
+			)
+		)
+	).map(name => ({ text: name, value: name }))
 
-	const uniqueLandNames = Array.from(new Set(landsData.map(land => land.name))).map(name => ({
-		text: name,
-		value: name,
-	}))
+	const uniqueOwners = Array.from(
+		new Set(
+			landsData.map(land =>
+				`${land.owner?.firstName || '-'} ${land.owner?.lastName || ''}`.trim()
+			)
+		)
+	).map(name => ({ text: name, value: name }))
 
-	const ownerMobiles = Array.from(new Set(landsData.map(land => land.owner.mobile))).map(mobile => ({
-		text: mobile,
-		value: mobile,
-	}))
+	const uniqueLandNames = Array.from(
+		new Set(landsData.map(land => land.title || '-'))
+	).map(name => ({ text: name, value: name }))
+
+	const ownerMobiles = Array.from(
+		new Set(landsData.map(land => land.owner?.mobile || '-'))
+	).map(mobile => ({ text: mobile, value: mobile }))
+
+	const allWellTitles = Array.from(
+		new Set(
+			landsData.flatMap(land => (land.wells || []).map(well => well.title || '-'))
+		)
+	).map(title => ({ text: title, value: title }))
 
 	const irrigationTypes = ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر']
 
 	const columns = [
 		{
 			title: 'عنوان زمین',
-			dataIndex: 'name',
-			key: 'name',
+			dataIndex: 'title',
+			key: 'title',
+			width: 188,
 			filters: uniqueLandNames,
-			onFilter: (value, record) => record.name.includes(value),
+			onFilter: (value, record) => (record.title || '').includes(value),
 			filterSearch: true,
-			render: (name, record) => <Link to={`/lands/${record._id}`}>{name}</Link>,
+			render: (title, record) => <Link to={`/lands/${record._id}`}>{title || '-'}</Link>,
 		},
-		// {
-		// 	title: 'محصول',
-		// 	dataIndex: 'cropType',
-		// 	key: 'cropType',
-		// },
 		{
 			title: 'مالک زمین',
-			dataIndex: 'owner',
 			key: 'owner',
+			width: 188,
 			filters: uniqueOwners,
-			onFilter: (value, record) => `${record.owner.firstName} ${record.owner.lastName}`.includes(value),
+			onFilter: (value, record) =>
+				`${record.owner?.firstName || '-'} ${record.owner?.lastName || ''}`.trim().includes(value),
 			filterSearch: true,
-			render: (_, record) => (
-				<Link to={`/users/${record.owner._id}`}>
-					{record.owner.firstName} {record.owner.lastName}
-				</Link>
-			),
+			render: (_, record) => {
+				const first = record.owner?.firstName || '-'
+				const last = record.owner?.lastName || ''
+				return record.owner?._id ? (
+					<Link to={`/users/${record.owner._id}`}>{`${first} ${last}`.trim()}</Link>
+				) : (
+					'-'
+				)
+			},
 		},
 		{
 			title: 'شماره تماس مالک زمین',
-			dataIndex: 'mobile',
 			key: 'mobile',
+			width: 188,
 			filters: ownerMobiles,
-			onFilter: (value, record) => record.owner.mobile === value,
-			render: (_, record) => record.owner.mobile,
+			onFilter: (value, record) => (record.owner?.mobile || '-') === value,
+			render: (_, record) => record.owner?.mobile || '-',
 		},
 		{
-			title: 'عنوان چاه‌',
+			title: 'عنوان چاه',
 			key: 'wellTitles',
-			render: (_, record) => record.wells?.map(well => well.title).join('-'),
+			width: 188,
+			filters: allWellTitles,
+			onFilter: (value, record) =>
+				(record.wells || []).some(well => (well.title || '-') === value),
+			filterSearch: true,
+			render: (_, record) => {
+				const wells = record.wells || []
+				if (!wells.length) return '-'
+				return wells.map(well =>
+					well._id ? (
+						<Link key={well._id} to={`/wells/${well._id}`}>
+							{well.title || '-'}
+						</Link>
+					) : (
+						<Tag key={Math.random()}>-</Tag>
+					)
+				)
+			},
 		},
 		{
 			title: 'میرآب',
 			key: 'irrigator',
+			width: 188,
 			filters: allIrrigators,
-			onFilter: (value, record) => {
-				return record.wells.some(well => `${well.irrigator.firstName} ${well.irrigator.lastName}` === value)
-			},
+			onFilter: (value, record) =>
+				(record.wells || []).some(
+					well =>
+						well.irrigator &&
+						`${well.irrigator.firstName} ${well.irrigator.lastName}` === value
+				),
+			filterSearch: true,
 			render: (_, record) => {
-				return record.wells?.map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`).join('-')
+				const wells = record.wells || []
+				if (!wells.length) return '-'
+				return wells.map(well =>
+					well.irrigator && well._id ? (
+						<Link key={well._id} to={`/wells/${well._id}`}>
+							{well.irrigator.firstName} {well.irrigator.lastName}
+						</Link>
+					) : (
+						<span>-</span>
+					)
+				)
 			},
 		},
 		{
 			title: 'نوع آبیاری',
 			dataIndex: 'irrigationType',
 			key: 'irrigationType',
-			filters: irrigationTypes.map(type => ({
-				text: type,
-				value: type,
-			})),
+			width: 188,
+			filters: irrigationTypes.map(type => ({ text: type, value: type })),
 			onFilter: (value, record) => record.irrigationType === value,
 			render: type => type || '-',
 		},
@@ -92,7 +134,17 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
-			render: () => <Tag color='green'>فعال</Tag>,
+			width: 188,
+			filters: [
+				{ text: 'فعال', value: 'active' },
+				{ text: 'غیرفعال', value: 'inactive' },
+			],
+			onFilter: (value, record) => record.status === value,
+			render: status => (
+				<Tag color={status === 'active' ? 'green' : 'red'}>
+					{status === 'active' ? 'فعال' : 'غیرفعال'}
+				</Tag>
+			),
 		},
 	]
 
@@ -103,10 +155,11 @@ const LandsTable = ({ landsData = [] }) => {
 			dataSource={landsData}
 			pagination={{
 				position: ['bottomCenter'],
-				total: landsData?.length,
+				total: landsData.length,
 				pageSize: 6,
 			}}
 			scroll={{ x: 'max-content' }}
+			bordered
 		/>
 	)
 }

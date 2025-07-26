@@ -1,0 +1,51 @@
+.cardContainer {
+	width: 100%;
+	direction: rtl;
+}
+
+.cardType {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	justify-content: flex-start;
+}
+
+.cardRole {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.label {
+	font-weight: 400;
+	color: rgba(30, 30, 44, 1);
+}
+
+.land_name {
+	font-weight: 500 !important;
+}
+
+.text_irrigation {
+	font-weight: 500 !important;
+	color: rgba(0, 0, 0, 1);
+}
+
+.timerText {
+	color: rgba(82, 196, 26, 1);
+	font-weight: 500;
+	font-size: 14px;
+}
+
+.timerDanger {
+	color: rgba(245, 34, 45, 1);
+	font-weight: 500;
+	font-size: 14px;
+}
+
+@media (min-width: 1280px) {
+	.cardContainer {
+		display: none;
+	}
+}

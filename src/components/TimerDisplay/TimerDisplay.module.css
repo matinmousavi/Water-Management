@@ -1,0 +1,11 @@
+.textGreen {
+	color: rgba(82, 196, 26, 1);
+	font-size: 14px !important;
+	font-weight: 500 !important;
+}
+
+.textRed {
+	color: rgba(245, 34, 45, 1);
+	font-size: 14px !important;
+	font-weight: 500 !important;
+}

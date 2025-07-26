@@ -1,23 +1,20 @@
 import { Card, Flex, Typography } from 'antd'
-import { useParams } from 'react-router'
-import WellAddLog from './components/WellAddLog/WellAddLog'
 import WellLogsTable from './components/WellLogsTable/WellLogsTable'
+import AddIrrigationLog from '../../../../../components/AddIrrigationLog/AddIrrigationLog'
 
 const { Title } = Typography
 
-const WellLogsCard = ({ wellLogs, setLogs }) => {
-	const { wellId } = useParams()
-
+const WellLogsCard = ({ data, wellId, setLogs, wellStatus }) => {
 	return (
 		<Card>
-			<Flex vertical gap={40}>
+			<Flex vertical gap={36}>
 				<Flex align='center' justify='space-between'>
 					<Title level={2} className='text-card-title'>
-						لاگ توزیع آب ({wellLogs.length})
+						لاگ توزیع آب ({data.length})
 					</Title>
-					<WellAddLog wellId={wellId} setLogs={setLogs} />
+					{wellStatus === 'active' && <AddIrrigationLog page='well' wellId={wellId} setLogs={setLogs} />}
 				</Flex>
-				{wellLogs.length > 0 && <WellLogsTable data={wellLogs} setLogs={setLogs} wellId={wellId} />}
+				{data.length > 0 && <WellLogsTable data={data} setLogs={setLogs} wellId={wellId} wellStatus={wellStatus} />}
 			</Flex>
 		</Card>
 	)

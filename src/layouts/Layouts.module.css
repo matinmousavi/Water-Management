@@ -5,6 +5,10 @@
 	flex-direction: column;
 }
 
+.menuIcon {
+	color: #fff !important ;
+}
+
 .w-full {
 	width: 100%;
 }
@@ -13,14 +17,88 @@
 	flex: 1;
 }
 
-.title,
+.title {
+	font-size: 14px !important;
+	color: white !important;
+}
+
 .button {
-	color: white;
+	color: #a3a3ae !important;
+}
+
+.button_click {
+	color: white !important;
 }
 
 .content {
 	flex: 1;
 	overflow: auto;
 	background: #f5f5f5;
-	padding: 10px 60px;
+}
+
+.drawer-menu {
+	height: 100% !important;
+}
+
+.icons {
+	min-width: 18px !important;
+	font-size: 18px !important;
+}
+
+.icon_export {
+	color: #a3a3ae !important;
+}
+
+.text_export {
+	font-size: 0.875rem !important;
+	color: rgba(0, 0, 0, 0.88) !important;
+	font-weight: 400 !important;
+}
+
+.svg_icon {
+	width: 19px;
+	height: 19px;
+	position: relative;
+	right: -1px;
+}
+.dropdown {
+	display: flex;
+}
+
+.exit {
+	font-size: 0.875rem !important;
+	font-weight: 400 !important;
+	color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.userMenu {
+	position: absolute;
+	top: 50px;
+	left: 0;
+	z-index: 1000;
+	border-radius: 4px;
+}
+.userMenu :global(.ant-menu-item-icon) {
+	font-size: 18px !important;
+}
+.userMenu :global(.ant-menu-title-content) {
+	padding: 0 !important;
+	margin: 2px !important;
+}
+
+@media (min-width: 1024px) {
+	.content {
+		padding: 40px 60px 60px;
+	}
+}
+
+@media (1024px <= width <1440px) {
+	:global(.ant-menu-title-content) {
+		font-size: 14px !important;
+	}
+
+	.icons {
+		min-width: 15px !important;
+		font-size: 15px !important;
+	}
 }

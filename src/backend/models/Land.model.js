@@ -2,7 +2,7 @@ import mongoose from '../config/database.js'
 
 const landSchema = new mongoose.Schema(
 	{
-		name: {
+		title: {
 			type: String,
 			required: true,
 			trim: true,
@@ -20,37 +20,23 @@ const landSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
-		location: {
-			type: String,
-			default: '',
-		},
-		irrigationType: {
-			type: String,
-			enum: ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر'],
-			required: true,
-		},
 		cropType: {
 			type: String,
 			trim: true,
 		},
-		notes: [
-			{
-				user: {
-					type: mongoose.Schema.Types.ObjectId,
-					ref: 'User',
-					required: true,
-				},
-				text: {
-					type: String,
-					required: true,
-					trim: true,
-				},
-				createdAt: {
-					type: Date,
-					default: Date.now,
-				},
-			},
-		],
+		irrigationType: {
+			type: String,
+			enum: ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر'],
+		},
+		location: {
+			type: String,
+			default: '',
+		},
+		status: {
+			type: String,
+			enum: ['active', 'inactive'],
+			default: 'active',
+		},
 	},
 	{
 		timestamps: true,
