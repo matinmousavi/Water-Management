@@ -1,5 +1,5 @@
 export default async function sendSMS({ to = '', message = '' }) {
-	const response = await armaghan({ to, message })
+	const response = await kavenegar({ to, message })
 	return response
 }
 
@@ -31,6 +31,24 @@ async function armaghan({ to = '', message = '' }) {
 		161: 'خطا در پارامترهای ورودی ارسال بر اساس الگو',
 	}
 	if (responseBody.errorModel.errorCode !== 0) throw new Error(errorCode[-responseBody.errorModel.errorCode])
+
+	return {}
+}
+
+async function kavenegar({ to = '', message = '' }) {
+	const url = `https://api.kavenegar.com/v1/${process.env.SMS_API_KEY}/sms/send.json`
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		body: new URLSearchParams({
+			receptor: to,
+			message: message,
+		}),
+	})
+	const responseBody = await response.json()
+	if (responseBody.return.status !== 200) throw new Error(responseBody.return.message)
 
 	return {}
 }
