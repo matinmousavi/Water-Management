@@ -66,15 +66,12 @@ const LandsTable = ({ landsData = [] }) => {
 			render: (_, record) => {
 				const wells = record.wells || []
 				if (!wells.length) return '-'
-				return wells.map(well =>
-					well._id ? (
-						<Link key={well._id} to={`/wells/${well._id}`}>
-							{well.title || '-'}
-						</Link>
-					) : (
-						<Tag key={Math.random()}>-</Tag>
-					)
-				)
+				return wells.map((well, index) => (
+					<span key={well._id || index}>
+						{well._id ? <Link to={`/wells/${well._id}`}>{well.title || '-'}</Link> : <span>-</span>}
+						{index < wells.length - 1 && ' - '}
+					</span>
+				))
 			},
 		},
 		{
@@ -88,15 +85,18 @@ const LandsTable = ({ landsData = [] }) => {
 			render: (_, record) => {
 				const wells = record.wells || []
 				if (!wells.length) return '-'
-				return wells.map(well =>
-					well.irrigator && well._id ? (
-						<Link key={well._id} to={`/wells/${well._id}`}>
-							{well.irrigator.firstName} {well.irrigator.lastName}
-						</Link>
-					) : (
-						<span>-</span>
-					)
-				)
+				return wells.map((well, index) => (
+					<span key={well._id || index}>
+						{well.irrigator && well._id ? (
+							<Link to={`/wells/${well._id}`}>
+								{well.irrigator.firstName} {well.irrigator.lastName}
+							</Link>
+						) : (
+							<span>-</span>
+						)}
+						{index < wells.length - 1 && ' - '}
+					</span>
+				))
 			},
 		},
 		{

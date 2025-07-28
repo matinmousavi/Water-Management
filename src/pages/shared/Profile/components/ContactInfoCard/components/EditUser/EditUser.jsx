@@ -90,7 +90,7 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 
 	return (
 		<>
-			<Button className='style-btn' onClick={() => open(handleOpen, 'before')}>
+			<Button color='primary' variant='outlined' onClick={() => open(handleOpen, 'before')}>
 				<Flex gap={5} align='center' justify='center'>
 					<EditOutlined />
 					<span>ویرایش</span>

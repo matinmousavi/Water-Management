@@ -292,13 +292,6 @@ label::after {
 .text-value > a {
 	font-size: 16px !important;
 }
-.style-btn {
-	border-color: #0066ee;
-	color: #0066ee;
-	height: 47px !important;
-	width: 156px !important;
-	border-radius: 8px !important;
-}
 .hide-cancel-button {
 	display: none;
 }
@@ -410,13 +403,6 @@ label::after {
 	.ant-input-lg {
 		font-size: 1rem !important;
 	}
-	.style-btn {
-		width: auto !important;
-		height: 47px !important;
-	}
-	.style-btn > .ant-flex {
-		width: auto !important;
-	}
 	.ant-input {
 		font-size: 12px !important;
 	}
@@ -468,13 +454,6 @@ label::after {
 	}
 	.ant-input-lg {
 		font-size: 1rem !important;
-	}
-	.style-btn {
-		width: auto !important;
-		height: 47px !important;
-	}
-	.style-btn > .ant-flex {
-		width: auto !important;
 	}
 	.ant-input {
 		font-size: 12px !important;
