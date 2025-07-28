@@ -91,7 +91,7 @@ const Well = () => {
 				{isMobile ? (
 					<Flex vertical gap={16}>
 						{irrigatorWells?.logs?.map(log => (
-							<WellLogsMobile key={log._id} data={log} />
+							<WellLogsMobile key={log?._id} data={log} />
 						))}
 					</Flex>
 				) : (

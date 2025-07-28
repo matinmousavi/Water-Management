@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Card, Flex, Typography } from 'antd'
-
 import moment from 'moment-jalaali'
-
 import { Link } from 'react-router'
 
 import TimerDisplay from '../../../../../components/TimerDisplay/TimerDisplay'
-
 import styles from './WellLogsMobile.module.css'
 
 import iconTree from '../../../../../assets/icons/ri_tree-line.svg'
 import iconClock from '../../../../../assets/icons/ClockCircleOutlined.svg'
+
+import { getIrrigationStartTime } from '../../../../../utils/irrigationStorage'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
@@ -22,28 +21,20 @@ const WellLogsMobile = ({ data }) => {
 
 	const [startedAt, setStartedAt] = useState(null)
 
-	const getLocalStorageKey = landId => `irrigation_start_${landId}`
-
 	useEffect(() => {
 		if (!landId) {
 			console.error('landId is missing:', landId)
 			return
 		}
 
-		const localStorageKey = getLocalStorageKey(landId)
-		const irrigationStartTime = localStorage.getItem(localStorageKey)
+		const irrigationStartTime = getIrrigationStartTime(landId)
 
 		if (!irrigationStartTime) {
 			console.error('irrigationStartTime not found in localStorage for landId:', landId)
 			return
 		}
 
-		if (!irrigationStartTime) {
-			console.error('irrigationStartTime not found in localStorage for landId:', landId)
-			return
-		}
-
-		setStartedAt(parseInt(irrigationStartTime, 10))
+		setStartedAt(irrigationStartTime)
 	}, [landId, isThisLogOngoing])
 
 	return (
@@ -56,8 +47,8 @@ const WellLogsMobile = ({ data }) => {
 					</Flex>
 					<Flex className={styles.cardRole}>
 						{data?.land ? (
-							<Link to={`/lands/${data?.land?._id}`} className={styles.land_name}>
-								{data?.land?.title}
+							<Link to={`/lands/${data.land._id}`} className={styles.land_name}>
+								{data.land.title}
 							</Link>
 						) : (
 							<Text>-</Text>
@@ -73,10 +64,13 @@ const WellLogsMobile = ({ data }) => {
 					<Flex className={styles.cardRole}>
 						<Text className={styles.text_irrigation}>
 							{isThisLogOngoing ? (
-								<span className={`${styles.timerText}`}>
-									{' '}
-									<TimerDisplay startedAt={startedAt} />
-								</span>
+								startedAt ? (
+									<span className={styles.timerText}>
+										<TimerDisplay startedAt={startedAt} />
+									</span>
+								) : (
+									<Text className={styles.text_irrigation}>-</Text>
+								)
 							) : (
 								moment(data?.endedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'
 							)}

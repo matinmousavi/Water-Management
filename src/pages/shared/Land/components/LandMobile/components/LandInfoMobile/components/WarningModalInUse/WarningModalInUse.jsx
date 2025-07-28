@@ -1,22 +1,17 @@
 import { Flex, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-
 import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
 import TimerDisplay from '../../../../../../../../../components/TimerDisplay/TimerDisplay'
 
-import styles from './WarningModalInUse.module.css'
+import { getIrrigationStartTime } from '../../../../../../../../../utils/irrigationStorage'
 
-dayjs.extend(utc)
+import styles from './WarningModalInUse.module.css'
 
 const { Text } = Typography
 
 const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
-	const [startedAt, setStartedAt] = useState('00 : 00 : 00')
-
-	const getLocalStorageKey = landId => `irrigation_start_${landId}`
+	const [startedAt, setStartedAt] = useState(null)
 
 	useEffect(() => {
 		const landId = well?.land?._id
@@ -25,20 +20,14 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 			return
 		}
 
-		const localStorageKey = getLocalStorageKey(landId)
-		const irrigationStartTime = localStorage.getItem(localStorageKey)
+		const irrigationStartTime = getIrrigationStartTime(landId)
 
 		if (!irrigationStartTime) {
-			console.error('irrigationStartTime not found in localStorage for landId:', landId)
+			console.warn('irrigationStartTime not found in localStorage for landId:', landId)
 			return
 		}
 
-		if (!irrigationStartTime) {
-			console.error('irrigationStartTime not found in localStorage for landId:', landId)
-			return
-		}
-
-		setStartedAt(parseInt(irrigationStartTime, 10))
+		setStartedAt(irrigationStartTime)
 	}, [well?.land?._id])
 
 	return (
@@ -53,14 +42,11 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 		>
 			<Flex vertical gap={2}>
 				<Text className={styles.subtitle}>
-					<Text className={styles.subtitle}>
-						هنوز مدت زمان
-						<span className={styles.countdown}>
-							{' '}
-							<TimerDisplay startedAt={startedAt} />{' '}
-						</span>
-						به پایان زمان آبیاری زمین {well?.land?.title} باقی مانده است.
-					</Text>
+					هنوز مدت زمان
+					<span className={styles.countdown}>
+						<TimerDisplay startedAt={startedAt} />
+					</span>
+					به پایان زمان آبیاری زمین {well?.land?.title} باقی مانده است.
 				</Text>
 				<Text className={styles.subtitle}>از پایان دادن به زمان‌ آبیاری اطمینان دارید؟ </Text>
 			</Flex>

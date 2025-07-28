@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-
 import { useParams } from 'react-router'
 import useAPI from '../../../../../../../hooks/useAPI'
 
@@ -15,6 +14,8 @@ import WarningModalInUse from './components/WarningModalInUse/WarningModalInUse'
 import TimerDisplay from '../../../../../../../components/TimerDisplay/TimerDisplay'
 
 import styles from './LandInfoMobile.module.css'
+
+import { getIrrigationStartTime, setIrrigationStartTime, removeIrrigationStartTime } from '../../../../../../../utils/irrigationStorage'
 
 dayjs.extend(jalaliday)
 dayjs.extend(customParseFormat)
@@ -32,8 +33,6 @@ const LandInfoMobile = ({ data }) => {
 	const [showWellInUseWarning, setShowWellInUseWarning] = useState(false)
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
 	const [startedAt, setStartedAt] = useState(null)
-
-	const getLocalStorageKey = () => `irrigation_start_${landId}`
 
 	useEffect(() => {
 		if (data?.logs?.length && logs.length === 0) {
@@ -76,18 +75,17 @@ const LandInfoMobile = ({ data }) => {
 		if (!ongoingLog) {
 			setIsIrrigating(false)
 			setStartedAt(null)
-			localStorage.removeItem(getLocalStorageKey())
+			removeIrrigationStartTime(landId)
 			return
 		}
 
 		setIsIrrigating(true)
 
-		const localStorageKey = getLocalStorageKey()
-		let irrigationStartTime = localStorage.getItem(localStorageKey)
+		let irrigationStartTime = getIrrigationStartTime(landId)
 
 		if (!irrigationStartTime) {
 			irrigationStartTime = Date.now()
-			localStorage.setItem(localStorageKey, irrigationStartTime.toString())
+			setIrrigationStartTime(landId, irrigationStartTime)
 		}
 
 		setStartedAt(parseInt(irrigationStartTime, 10))
@@ -107,9 +105,7 @@ const LandInfoMobile = ({ data }) => {
 				isOngoing: true,
 			})
 
-			const localStorageKey = getLocalStorageKey()
-			localStorage.setItem(localStorageKey, Date.now().toString())
-
+			setIrrigationStartTime(landId, Date.now())
 			setLogs(prevLogs => [response?.irrigation, ...prevLogs])
 		} catch (error) {
 			console.error('خطا در ارسال زمان شروع آبیاری:', error)
@@ -130,7 +126,7 @@ const LandInfoMobile = ({ data }) => {
 				endTime: combined.toISOString(),
 			})
 
-			localStorage.removeItem(getLocalStorageKey())
+			removeIrrigationStartTime(landId)
 
 			setLogs(prevLogs => prevLogs.filter(log => log._id !== ongoing._id).concat(response?.irrigation))
 		} catch (error) {
@@ -142,12 +138,10 @@ const LandInfoMobile = ({ data }) => {
 		setShowEndOtherDrawer(false)
 
 		try {
-			// پایان آبیاری زمین دیگر با زمان انتخابی کاربر
 			await api.patch(`irrigations/${currentIrrigatingWell.ongoingIrrigationId}`, {
 				endTime: selectedTime.toISOString(),
 			})
 
-			// نمایش کشوی انتخاب زمان شروع برای زمین فعلی
 			setShowStartDrawer(true)
 		} catch (error) {
 			console.error('خطا در پایان آبیاری زمین دیگر:', error)
@@ -192,10 +186,8 @@ const LandInfoMobile = ({ data }) => {
 				timer={<TimerDisplay startedAt={startedAt} />}
 			/>
 
-			{/* کشوی انتخاب زمان شروع آبیاری زمین فعلی */}
 			<TimeStartPickerSheet isOpen={showStartDrawer} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 
-			{/* کشوی انتخاب زمان پایان آبیاری زمین فعلی */}
 			<TimeEndPickerSheet
 				isOpen={showEndDrawer}
 				title='ثبت زمان پایان آبیاری'
@@ -204,7 +196,6 @@ const LandInfoMobile = ({ data }) => {
 				onClose={CancelTimeEnd}
 			/>
 
-			{/* کشوی انتخاب زمان پایان آبیاری زمین دیگر */}
 			<TimeEndPickerSheet
 				isOpen={showEndOtherDrawer}
 				title='پایان آبیاری زمین دیگر'
@@ -213,10 +204,8 @@ const LandInfoMobile = ({ data }) => {
 				onClose={() => setShowEndOtherDrawer(false)}
 			/>
 
-			{/* کشوی تایید پایان آبیاری زمین فعلی */}
 			<EndNoticeDrawer isOpen={endNoticeDrawer} onSubmit={handleEndNotice} timer={<TimerDisplay startedAt={startedAt} />} onClose={CancelTimeEnd} />
 
-			{/* مودال هشدار استفاده چاه توسط زمین دیگر */}
 			<WarningModalInUse
 				isOpen={showWellInUseWarning}
 				onSubmit={handleEndOtherIrrigation}
