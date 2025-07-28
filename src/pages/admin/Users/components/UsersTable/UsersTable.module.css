@@ -1,5 +1,7 @@
-.table tr > td:first-child {
-	display: flex !important;
-	justify-content: center !important;
-	align-items: center !important;
+.table :global(.ant-table-thead th.ant-table-cell:first-child) {
+	padding-block: 9px !important;
+}
+
+.table :global(.ant-table-tbody td.ant-table-cell:first-child) {
+	padding-block: 10px !important;
 }

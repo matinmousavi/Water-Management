@@ -111,6 +111,7 @@ const WellsTable = ({ WellsData }) => {
 	return (
 		<div ref={containerRef}>
 			<Table
+				size='middle'
 				columns={columns}
 				dataSource={WellsData}
 				rowKey={record => record._id}

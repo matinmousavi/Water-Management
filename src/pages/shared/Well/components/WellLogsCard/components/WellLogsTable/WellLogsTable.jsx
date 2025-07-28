@@ -115,7 +115,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	}
 	return (
 		<>
-			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
+			<Table size='middle' dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
 
 			<Modal
 				title='حذف لاگ توزیع آب'

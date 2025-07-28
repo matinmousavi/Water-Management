@@ -51,6 +51,7 @@ const SentNotificationsTable = ({ data }) => {
 
 	return (
 		<Table
+			size='middle'
 			columns={columns}
 			rowKey='id'
 			dataSource={data}

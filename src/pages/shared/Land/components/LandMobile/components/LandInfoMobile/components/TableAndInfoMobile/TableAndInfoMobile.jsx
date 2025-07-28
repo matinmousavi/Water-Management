@@ -82,6 +82,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, timer, handleStop, onSta
 					<Flex vertical gap={8}>
 						<Text className={styles.titleLogs}>لاگ توزیع آب ({logs?.length})</Text>
 						<Table
+							size='middle'
 							rowKey='_id'
 							bordered
 							scroll={{ x: 'max-content' }}
