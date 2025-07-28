@@ -3,10 +3,13 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
+	"main": "server.js",
 	"scripts": {
 		"nodemon": "nodemon --legacy-watch -w src/ src/server.js",
 		"dev": "vite",
-		"build": "vite build",
+		"build": "npm run build:client && npm run build:server && cp -r ./public ./dist/",
+		"build:client": "vite build --outDir dist",
+		"build:server": "vite build --outDir dist --ssr ./server.js --emptyOutDir false",
 		"lint": "eslint .",
 		"preview": "vite preview"
 	},

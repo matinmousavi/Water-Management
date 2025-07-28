@@ -1,0 +1,56 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+function push() {
+	systemctl is-active --quiet docker || sudo systemctl start docker
+
+	echo -e "${YELLOW}Push project to: ${GREEN}$REMOTE_SSH_SERVER${NC}"
+
+	echo_status "Build the Image"
+	hiderun docker build -t ${WEB_HOST} .
+	echo
+	echo_status "Build the Image" "Done"
+
+	echo_status "Export the Image"
+	mkdir -p builds
+	docker save ${WEB_HOST} | gzip >builds/${WEB_HOST}.tar.gz
+	echo -e "${GREEN}Done${NC}"
+
+	echo_status "Upload files"
+	hiderun rsync -avzh --inplace --info=progress2 --partial builds/${WEB_HOST}.tar.gz $REMOTE_SSH_SERVER:/tmp/builds/
+	echo_status "Upload files" "Done"
+
+	echo_status "Load the Image"
+	hiderun ssh $REMOTE_SSH_SERVER "docker load -i /tmp/builds/${WEB_HOST}.tar.gz"
+	echo_status "Load the Image" "Done"
+
+	echo_status "Upload Configs"
+	hiderun rsync -avzh --inplace --info=progress2 --rsync-path="mkdir -p $REMOTE_PROJECT_PATH && rsync" .env.production $REMOTE_SSH_SERVER:$REMOTE_PROJECT_PATH/.env
+	hiderun rsync -avzh --inplace --info=progress2 --rsync-path="mkdir -p $REMOTE_PROJECT_PATH && rsync" docker-compose-production.yml $REMOTE_SSH_SERVER:$REMOTE_PROJECT_PATH/docker-compose.yml
+	echo_status "Upload Configs" "Done"
+
+	echo_status "Run the Image"
+	hiderun ssh $REMOTE_SSH_SERVER "cd $REMOTE_PROJECT_PATH; docker compose up -d 2> /dev/null"
+	echo_status "Run the Image" "Done"
+}
+
+function echo_status() {
+	echo -en "${YELLOW}${1}: ${NC}"
+	[ -n "${2}" ] && echo -e "${GREEN}${2}${NC}"
+}
+function hiderun() {
+	echo
+	lines=$("$@" | tee /dev/stderr | wc -l)
+	sleep 1
+	tput cuu $lines
+	tput ed
+	tput cuu 1
+}
+
+source ./.env
+$@
