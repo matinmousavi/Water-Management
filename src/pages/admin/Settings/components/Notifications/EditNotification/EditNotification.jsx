@@ -79,7 +79,7 @@ const EditNotification = ({ template, setTemplate, title }) => {
 
 	return (
 		<>
-			<Button onClick={() => open(handleOpen, 'before')} className='style-btn' size='middle' type='default'>
+			<Button onClick={() => open(handleOpen, 'before')} size='middle' type='default'>
 				<Flex gap={8}>
 					<EditOutlined />
 					<span>ویرایش</span>
@@ -99,9 +99,11 @@ const EditNotification = ({ template, setTemplate, title }) => {
 			>
 				<Flex vertical gap={10}>
 					<Typography.Title level={5} className={styles.titlePlaceholders}>
-						{template.key === 'otp'
-							? <p>متن پیامک را با در نظر گرفتن متغییر زیر وارد کنید:</p>
-							: <p>متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:</p>}
+						{template.key === 'otp' ? (
+							<p>متن پیامک را با در نظر گرفتن متغییر زیر وارد کنید:</p>
+						) : (
+							<p>متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:</p>
+						)}
 					</Typography.Title>
 
 					{renderPlaceholders()}

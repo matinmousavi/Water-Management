@@ -92,7 +92,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 
 	return (
 		<>
-			<Table dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
+			<Table size='middle' dataSource={data} bordered columns={columns} rowKey={record => record._id} pagination={false} />
 			<Modal
 				title={`حذف زمین ${selectedLand?.title || ''}`}
 				open={isOpen}

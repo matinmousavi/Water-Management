@@ -82,6 +82,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, timer, handleStop, onSta
 					<Flex vertical gap={8}>
 						<Text className={styles.titleLogs}>لاگ توزیع آب ({logs?.length})</Text>
 						<Table
+							size='middle'
 							rowKey='_id'
 							bordered
 							scroll={{ x: 'max-content' }}
@@ -98,7 +99,7 @@ const TableAndInfoMobile = ({ data, logs, isIrrigating, timer, handleStop, onSta
 				{isCurrentLandIrrigating ? (
 					<>
 						<Text className={`${styles.timerText}`}>{timer}</Text>
-						<Button type='default' className={`${styles.textBtn} style-btn`} onClick={handleStop}>
+						<Button type='default' className={`${styles.textBtn}`} onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>

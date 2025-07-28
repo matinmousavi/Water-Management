@@ -10,8 +10,8 @@ const WellAddLandsForm = ({ form, lands = [] }) => {
 					mode='multiple'
 					showSearch
 					placeholder='انتخاب'
+					className='custom-select'
 					allowClear
-					style={{ width: '100%' }}
 					size='large'
 					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 					options={activeLands.map(land => ({

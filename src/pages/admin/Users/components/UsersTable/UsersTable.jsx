@@ -34,10 +34,8 @@ const getColumnSearchProps = dataIndex => ({
 			</div>
 		</div>
 	),
-	onFilter: (value, record) =>
-		record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+	onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
 })
-
 
 const roleLabels = {
 	admin: 'مدیر',
@@ -54,7 +52,6 @@ const statusFilters = [
 
 const columns = [
 	{
-		title: <Avatar size={35} icon={<UserOutlined />} style={{ visibility: 'hidden' }} />,
 		dataIndex: 'profilePicture',
 		key: 'profilePicture',
 		width: 52,
@@ -116,11 +113,7 @@ const columns = [
 		width: 211,
 		filters: statusFilters,
 		onFilter: (value, record) => record.status === value,
-		render: status => (
-			<Tag color={status === 'active' ? 'green' : 'red'}>
-				{status === 'active' ? 'فعال' : 'غیرفعال'}
-			</Tag>
-		),
+		render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
 	},
 ]
 
@@ -130,6 +123,7 @@ const UsersTable = ({ usersData }) => {
 	return (
 		<div ref={containerRef}>
 			<Table
+				size='middle'
 				pagination={{
 					position: ['bottomCenter'],
 					total: usersData.length,

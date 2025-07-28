@@ -91,7 +91,7 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 
 	return (
 		<>
-			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
+			<Table size='middle' dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
 			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			<Modal
