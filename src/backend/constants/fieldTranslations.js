@@ -2,8 +2,7 @@ export const fieldTranslations = {
 	users: {
 		mobile: 'شماره موبایل',
 		email: 'ایمیل',
-		firstName: 'نام',
-		lastName: 'نام خانوادگی',
+		fullName: 'نام و نام خانوادگی',
 		accountingCode: 'کد حسابداری',
 	},
 	wells: {

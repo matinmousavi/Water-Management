@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
 		const safeQuery = sanitizeQuery(req.query)
 		const filter = {}
 
-		const allowedFields = ['role', 'firstName', 'lastName', 'mobile', 'email', 'address', 'accountingCode']
+		const allowedFields = ['role', 'fullName', 'mobile', 'email', 'address', 'accountingCode']
 
 		allowedFields.forEach(field => {
 			if (safeQuery[field]) {
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
 // POST create a new user
 router.post('/', async (req, res) => {
 	try {
-		const { role, firstName, lastName, mobile, email, accountingCode, address } = req.body
+		const { role, fullName, mobile, email, accountingCode, address } = req.body
 
 		let profilePictureId = null
 
@@ -74,8 +74,7 @@ router.post('/', async (req, res) => {
 
 		const user = await User.create({
 			role,
-			firstName,
-			lastName,
+			fullName,
 			mobile,
 			email,
 			accountingCode,
