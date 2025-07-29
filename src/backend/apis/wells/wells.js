@@ -3,6 +3,9 @@ import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import landGroupsRouter from './landGroups.js'
+import schedulesRouter from './schedules.js'
+import snapshotsRouter from './snapshots.js'
 
 const router = Router()
 
@@ -254,6 +257,10 @@ router.delete('/:wellId', async (req, res) => {
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
 })
+
+router.use('/:wellId/land-groups', landGroupsRouter)
+router.use('/:wellId/schedules', schedulesRouter)
+router.use('/:wellId/snapshots', snapshotsRouter)
 
 // Fallback for unsupported methods
 router.all(/.*/, (req, res) => {

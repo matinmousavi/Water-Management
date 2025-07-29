@@ -30,7 +30,7 @@ const wellSchema = new mongoose.Schema(
 			type: Date,
 			required: true,
 		},
-		workTime: {
+		offTime: {
 			start: {
 				type: Date,
 				required: true,
@@ -49,6 +49,14 @@ const wellSchema = new mongoose.Schema(
 			{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: 'Land',
+			},
+		],
+		landGroups: [
+			{
+				_id: false,
+				groupId: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
+				title: { type: String, required: true },
+				lands: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Land' }],
 			},
 		],
 	},
