@@ -13,12 +13,13 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 
 	const wellInfoItems = useMemo(() => {
 		const irrigator = well?.irrigator
+		
 
 		const cycleStartDateFormatted = well?.cycleStartDate ? moment(well.cycleStartDate).format('jYYYY/jMM/jDD') : '--'
 
 		const workTimeFormatted =
-			well?.workTime?.start && well?.workTime?.end
-				? `${moment(well.workTime.start).format('HH:mm')} - ${moment(well.workTime.end).format('HH:mm')}`
+			well?.offTime?.start && well?.offTime?.end
+				? `${moment(well.offTime.start).format('HH:mm')} - ${moment(well.offTime.end).format('HH:mm')}`
 				: '--'
 
 		return [
@@ -47,7 +48,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: cycleStartDateFormatted,
 			},
 			{
-				label: 'ساعت کار',
+				label: 'ساعت خاموشی',
 				value: workTimeFormatted,
 			},
 		]
