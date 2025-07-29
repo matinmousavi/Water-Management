@@ -1,4 +1,4 @@
-import mongoose from '../config/database.js'
+import mongoose from 'mongoose'
 
 const wellSchema = new mongoose.Schema(
 	{
