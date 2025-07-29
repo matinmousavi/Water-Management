@@ -1,5 +1,5 @@
-import mongoose from '../config/database.js'
-import User from './User.js'
+import mongoose from 'mongoose'
+import User from './User.model.js'
 
 const landSchema = new mongoose.Schema(
 	{
