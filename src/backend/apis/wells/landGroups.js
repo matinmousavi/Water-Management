@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import Well from '../../models/Well.model.js'
+import mongoose from 'mongoose'
 
 const router = Router({ mergeParams: true })
 
@@ -23,7 +24,7 @@ router.post('/', async (req, res) => {
 		}
 
 		const group = {
-			groupId: new Well.schema.path('landGroups.0.groupId').defaultValue(),
+			groupId: new mongoose.Types.ObjectId(),
 			title,
 			lands,
 		}
