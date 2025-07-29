@@ -13,7 +13,7 @@ const notificationRepresentation = notification => ({
 	recipients: notification.recipients,
 	sentBy: notification.sentBy && {
 		id: notification.sentBy._id,
-		fullName: `${notification.sentBy.firstName} ${notification.sentBy.lastName}`,
+		fullName: notification.sentBy.fullName,
 	},
 	sentAt: notification.sentAt,
 	meta: {
@@ -24,7 +24,7 @@ const notificationRepresentation = notification => ({
 
 router.get('/', async (req, res) => {
 	try {
-		const notifications = await Notification.find().sort({ createdAt: -1 }).populate('sentBy', 'firstName lastName')
+		const notifications = await Notification.find().sort({ createdAt: -1 }).populate('sentBy', 'fullName')
 
 		const data = notifications.map(notificationRepresentation)
 
@@ -81,7 +81,7 @@ router.post('/', async (req, res) => {
 			meta: { successCount, failCount },
 		})
 
-		const populated = await notification.populate('sentBy', 'firstName lastName')
+		const populated = await notification.populate('sentBy', 'fullName')
 		const data = notificationRepresentation(populated)
 
 		res.status(201).json({ data })

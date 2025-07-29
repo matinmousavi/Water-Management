@@ -13,7 +13,7 @@ const getReference = async (type, refId) => {
 	const models = {
 		land: { model: Land, fields: 'title' },
 		well: { model: Well, fields: 'title' },
-		personal: { model: User, fields: 'firstName lastName' },
+		personal: { model: User, fields: 'fullName' },
 	}
 
 	const config = models[type]
@@ -23,7 +23,7 @@ const getReference = async (type, refId) => {
 	if (!doc) return null
 
 	if (type === 'personal') {
-		return { id: refId, firstName: doc.firstName, lastName: doc.lastName }
+		return { id: refId, fullName: doc.fullName }
 	}
 	return { id: refId, title: doc.title }
 }

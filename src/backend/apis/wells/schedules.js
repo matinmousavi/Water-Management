@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import Schedule from '../../models/scheduleSchema.model.js'
+import Schedule from '../../models/Schedule.model.js'
 
 const router = Router({ mergeParams: true })
 

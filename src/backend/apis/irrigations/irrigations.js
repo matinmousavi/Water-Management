@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
 		const irrigations = await Irrigation.find(filter)
 			.populate('land', 'title')
 			.populate('well', 'title')
-			.populate('createdBy', 'firstName lastName mobile')
+			.populate('createdBy', 'fullName mobile')
 			.sort({ createdAt: -1 })
 			.lean()
 
@@ -51,7 +51,7 @@ router.get('/:irrigationId', async (req, res) => {
 		const irrigation = await Irrigation.findById(irrigationId)
 			.populate('land', 'title')
 			.populate('well', 'title')
-			.populate('createdBy', 'firstName lastName mobile')
+			.populate('createdBy', 'fullName mobile')
 			.lean()
 
 		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
@@ -101,9 +101,9 @@ router.post('/', async (req, res) => {
 		})
 
 		const irrigation = await Irrigation.findById(created._id)
-			.populate({ path: 'land', populate: { path: 'owner', select: 'firstName lastName mobile' }, select: 'title owner' })
+			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
 			.populate('well', 'title')
-			.populate('createdBy', 'firstName lastName mobile')
+			.populate('createdBy', 'fullName mobile')
 
 		const land = irrigation.land
 		if (land?.owner?.mobile) {
@@ -176,9 +176,9 @@ router.patch('/:irrigationId', async (req, res) => {
 		await irrigation.save()
 
 		const updated = await Irrigation.findById(irrigationId)
-			.populate({ path: 'land', populate: { path: 'owner', select: 'firstName lastName mobile' }, select: 'title owner' })
+			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
 			.populate('well', 'title')
-			.populate('createdBy', 'firstName lastName mobile')
+			.populate('createdBy', 'fullName mobile')
 
 		const land = updated.land
 		if (land?.owner?.mobile) {
@@ -199,7 +199,7 @@ router.patch('/:irrigationId', async (req, res) => {
 					variables: {
 						land_title: landName,
 						duration: updated.duration,
-						well_irrigator: updated.createdBy.firstName + ' ' + updated.createdBy.lastName,
+						well_irrigator: updated.fullName,
 						well_title: updated.well.title,
 						end_time: updated.endedAt.toLocaleTimeString('fa-IR'),
 					},
