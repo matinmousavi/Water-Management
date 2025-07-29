@@ -28,23 +28,34 @@ const WellAddLandsGroup = ({ setLandsData, currentLands = [] }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-			const updatedLands = [...currentLands, ...values.lands.map(id => landApi.data.lands.find(land => land._id === id)).filter(Boolean)]
-			const response = await wellApi.patch(`wells/${wellId}`, {
-				lands: updatedLands,
+
+			const patchRes = await wellApi.patch(`wells/${wellId}`, {
+				lands: [...currentLands.map(land => land._id), ...values.lands],
 			})
+
+			if (patchRes?.error) {
+				openNotification('error', 'خطا', patchRes.message)
+				return
+			}
+
+			const response = await wellApi.post(`wells/${wellId}/land-groups/`, {
+				title: values.groupName,
+				lands: values.lands,
+			})
+
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
 			} else {
-				openNotification('success', 'عملیات موفق', 'زمین با موفقیت به چاه اضافه شد')
+				openNotification('success', 'عملیات موفق', 'زمین با موفقیت به گروه اضافه شد')
 				if (typeof setLandsData === 'function') {
-					setLandsData({ lands: response.well.lands })
+					setLandsData({ lands: response.group.lands })
 				}
 				close(() => form.resetFields(), 'after')
 			}
 		} catch (err) {
-			openNotification('error', 'خطا', err?.error?.message || 'خطا در افزودن زمین')
+			openNotification('error', 'خطا', err?.error?.message || 'خطا در افزودن گروه')
 		}
-	}, [form, wellApi, wellId, setLandsData, openNotification, close, currentLands, landApi.data.lands])
+	}, [form, wellApi, wellId, setLandsData, openNotification, close, currentLands])
 
 	return (
 		<>

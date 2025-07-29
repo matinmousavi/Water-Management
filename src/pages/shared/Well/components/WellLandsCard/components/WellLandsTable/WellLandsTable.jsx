@@ -57,7 +57,7 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: (_, record) => <Link to={`/users/${record.owner?._id}`}>{`${record.owner?.firstName} ${record.owner?.lastName}`}</Link>,
+			render: (_, record) => <Link to={`/users/${record.owner?._id}`}>{`${record.owner?.fullName}`}</Link>,
 		},
 		{
 			title: 'شماره تماس مالک',
