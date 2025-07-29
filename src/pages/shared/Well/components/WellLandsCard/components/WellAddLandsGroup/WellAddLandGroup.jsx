@@ -68,7 +68,7 @@ const WellAddLandsGroup = ({ setLandsData, currentLands = [] }) => {
 			>
 				<WellAddLandsGroupForm
 					form={form}
-					lands={(landApi.data?.lands || []).filter(land => !currentLands.some(selected => selected._id === land._id))}
+					lands={(landApi.data?.lands || []).filter(land => currentLands.some(selected => selected._id === land._id))}
 				/>
 			</Modal>
 		</>

@@ -55,7 +55,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 						options={irrigators?.map(irrigator => ({
 							value: irrigator._id,
-							label: `${irrigator.firstName} ${irrigator.lastName}`,
+							label: irrigator.fullName,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
 						size='large'

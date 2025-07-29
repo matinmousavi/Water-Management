@@ -13,6 +13,7 @@ const WellLandsCard = ({ wellLands, wellStatus }) => {
 	const { isAdmin } = useUser()
 
 	const lands = api.data.lands || wellLands
+	
 
 	return (
 		<>

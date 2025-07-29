@@ -39,6 +39,14 @@ const WellLandsTable = ({ data, setData, wellId }) => {
 	}
 
 	const columns = [
+		// {
+		// 	title: 'گروه',
+		// 	width: 120,
+		// 	render: (_, record) => `Group ${Math.floor(record.id / 4)}` || '-',
+		// 	onCell: record => ({
+		// 		rowSpan: record.id % 4 === 0 ? 4 : 0,
+		// 	}),
+		// },
 		{
 			title: 'عنوان زمین',
 			dataIndex: 'title',

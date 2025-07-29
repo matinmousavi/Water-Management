@@ -12,8 +12,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 	const { isAdmin } = useUser()
 
 	const wellInfoItems = useMemo(() => {
-		const irrigator = well?.irrigator
-		
+		const irrigator = well?.irrigator		
 
 		const cycleStartDateFormatted = well?.cycleStartDate ? moment(well.cycleStartDate).format('jYYYY/jMM/jDD') : '--'
 
@@ -25,7 +24,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 		return [
 			{
 				label: 'نام میرآب',
-				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.firstName} ${irrigator.lastName}`}</Link> : '--',
+				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.fullName}`}</Link> : '--',
 			},
 			{
 				label: 'شماره تماس میرآب',
