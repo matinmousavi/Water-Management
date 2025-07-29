@@ -10,10 +10,7 @@ import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 const router = Router()
 
 async function attachWells(land) {
-	const wells = await Well.find({ lands: land._id })
-		.select('_id title licenseCode cycleDays irrigator')
-		.populate('irrigator', '_id firstName lastName mobile')
-		.lean()
+	const wells = await Well.find({ lands: land._id }).select('_id title licenseCode cycleDays irrigator').populate('irrigator', '_id fullName mobile').lean()
 	return { ...land, wells }
 }
 
@@ -61,7 +58,6 @@ router.get('/:landId', async (req, res) => {
 		const landWithWells = await attachWells(land)
 		const wellIds = landWithWells.wells?.map(well => well._id) || []
 
-		// دریافت آبیاری‌های فعال چاه‌ها
 		const ongoingIrrigations = await Irrigation.find({
 			well: { $in: wellIds },
 			isOngoing: true,
@@ -69,7 +65,6 @@ router.get('/:landId', async (req, res) => {
 			.select('well land startedAt')
 			.populate('land', '_id title')
 
-		// ساخت Map برای دسترسی سریع به اطلاعات آبیاری هر چاه
 		const ongoingMap = new Map()
 		for (const irrigation of ongoingIrrigations) {
 			ongoingMap.set(irrigation.well.toString(), {
@@ -79,7 +74,6 @@ router.get('/:landId', async (req, res) => {
 			})
 		}
 
-		// افزودن وضعیت آبیاری به هر چاه
 		const wellsWithStatus =
 			landWithWells.wells?.map(well => {
 				const irrigationInfo = ongoingMap.get(well._id.toString())
@@ -98,7 +92,7 @@ router.get('/:landId', async (req, res) => {
 			}) || []
 
 		const logs = await Irrigation.find({ land: land._id }).sort({ date: -1 }).lean()
-		const notes = await Note.find({ reference: land._id, type: 'land' }).populate('user', '_id firstName lastName').lean()
+		const notes = await Note.find({ reference: land._id, type: 'land' }).populate('user', '_id fullName').lean()
 
 		return res.status(200).json({
 			land: {
@@ -216,7 +210,7 @@ router.post('/:landId/notes', async (req, res) => {
 		if (!land) return res.status(404).json({ message: 'زمین پیدا نشد.' })
 
 		const newNote = await Note.create({ user: userId, text, type: 'land', reference: landId, typeRef: 'Land' })
-		await newNote.populate('user', '_id firstName lastName')
+		await newNote.populate('user', '_id fullName')
 
 		return res.status(200).json({ message: 'یادداشت با موفقیت اضافه شد.', note: newNote })
 	} catch (err) {
@@ -242,7 +236,7 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
 
 		note.text = text
 		await note.save()
-		await note.populate('user', '_id firstName lastName')
+		await note.populate('user', '_id fullName')
 		return res.status(200).json({ message: 'یادداشت به‌روزرسانی شد.', note })
 	} catch (err) {
 		console.error(err.message)

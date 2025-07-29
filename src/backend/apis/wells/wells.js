@@ -30,22 +30,18 @@ router.get('/', async (req, res) => {
 				path: 'lands',
 				populate: {
 					path: 'owner',
-					select: 'firstName lastName mobile',
+					select: 'fullName mobile',
 				},
 			})
 			.populate({
 				path: 'irrigator',
-				select: 'firstName lastName mobile',
+				select: 'fullName mobile',
 			})
 			.lean()
 
 		wells = await Promise.all(
 			wells.map(async well => {
-				const logs = await Irrigation.find({ well: well._id })
-					.populate('land')
-					.populate('createdBy', 'firstName lastName')
-					.sort({ createdAt: -1 })
-					.lean()
+				const logs = await Irrigation.find({ well: well._id }).populate('land').populate('createdBy', 'fullName').sort({ createdAt: -1 }).lean()
 				well.logs = logs
 
 				well.lands = await Promise.all(
@@ -87,12 +83,12 @@ router.get('/:wellId', async (req, res) => {
 				path: 'lands',
 				populate: {
 					path: 'owner',
-					select: 'firstName lastName mobile',
+					select: 'fullName mobile',
 				},
 			})
 			.populate({
 				path: 'irrigator',
-				select: 'firstName lastName mobile',
+				select: 'fullName mobile',
 			})
 			.lean()
 
@@ -105,11 +101,11 @@ router.get('/:wellId', async (req, res) => {
 				path: 'land',
 				populate: {
 					path: 'owner',
-					select: 'firstName lastName mobile',
+					select: 'fullName mobile',
 				},
 				select: 'title owner area location',
 			})
-			.populate('createdBy', 'firstName lastName')
+			.populate('createdBy', 'fullName')
 			.sort({ createdAt: -1 })
 			.lean()
 
@@ -155,7 +151,7 @@ router.post('/', async (req, res) => {
 			status: 'active',
 		})
 
-		newWell = await newWell.populate('irrigator', 'firstName lastName')
+		newWell = await newWell.populate('irrigator', 'fullName')
 
 		const representation = {
 			_id: newWell._id,
@@ -164,8 +160,7 @@ router.post('/', async (req, res) => {
 			irrigator: newWell.irrigator
 				? {
 						_id: newWell.irrigator._id,
-						firstName: newWell.irrigator.firstName,
-						lastName: newWell.irrigator.lastName,
+						fullName: newWell.irrigator.fullName,
 				  }
 				: null,
 			landsCount: Array.isArray(newWell.lands) ? newWell.lands.length : 0,
