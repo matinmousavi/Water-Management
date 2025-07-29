@@ -7,12 +7,7 @@ const userSchema = new mongoose.Schema(
 			enum: ['admin', 'irrigator', 'landOwner'],
 			required: true,
 		},
-		firstName: {
-			type: String,
-			trim: true,
-			required: true,
-		},
-		lastName: {
+		fullName: {
 			type: String,
 			trim: true,
 			required: true,
@@ -57,23 +52,61 @@ const userSchema = new mongoose.Schema(
 	}
 )
 
-userSchema.statics.initializeAdmin = async function () {
-	const count = await this.countDocuments()
-	if (count === 0) {
-		await this.create({
-			role: 'admin',
-			firstName: 'مدیر',
-			lastName: 'سیستم',
-			mobile: '09123456789',
-			email: 'admin@example.com',
-			address: 'تهران، میدان آزادی',
-			accountingCode: 'ADM-001',
-			status: 'active',
-			profilePicture: null,
-		})
-		console.log('✅ Default admin user created from the model.')
+userSchema.statics.initializeDefaultUsers = async function () {
+	const adminData = {
+		role: 'admin',
+		fullName: 'مدیر سیستم',
+		mobile: '09123456789',
+		email: 'admin@example.com',
+		accountingCode: 'ADM-001',
+		address: 'تهران، میدان آزادی',
+		status: 'active',
+		profilePicture: null,
+	}
+
+	const adminExists = await this.findOne({ role: 'admin' })
+	if (!adminExists) {
+		await this.create(adminData)
+		console.log('✅ Default admin user created.')
 	} else {
-		console.log('ℹ️ Admin user already exists. No need to create one.')
+		console.log('ℹ️ Admin user already exists.')
+	}
+
+	if (process.env.NODE_ENV !== 'development') {
+		console.log('ℹ️ Not in development mode. Skipping other default users.')
+		return
+	}
+
+	const otherRoles = [
+		{
+			role: 'irrigator',
+			fullName: 'اپراتور آبیاری',
+			mobile: '09123456788',
+			email: 'irrigator@example.com',
+			accountingCode: 'IRR-001',
+		},
+		{
+			role: 'landOwner',
+			fullName: 'مالک زمین',
+			mobile: '09123456787',
+			email: 'landowner@example.com',
+			accountingCode: 'LND-001',
+		},
+	]
+
+	for (const userData of otherRoles) {
+		const exists = await this.findOne({ role: userData.role })
+		if (!exists) {
+			await this.create({
+				...userData,
+				address: 'تهران، میدان آزادی',
+				status: 'active',
+				profilePicture: null,
+			})
+			console.log(`✅ Default ${userData.role} user created.`)
+		} else {
+			console.log(`ℹ️ ${userData.role} user already exists.`)
+		}
 	}
 }
 
