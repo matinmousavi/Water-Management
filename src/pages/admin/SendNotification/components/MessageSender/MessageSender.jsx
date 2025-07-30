@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
-import { Button, Flex, Modal, Form, Input, Select } from 'antd'
+import { Button, Flex, Modal, Form, Input, Select, Checkbox, Row, Col } from 'antd'
 import { MailOutlined } from '@ant-design/icons'
 import useModal from '../../../../../hooks/useModal'
 import useNotification from '../../../../../hooks/useNotification'
 
 import styles from './MessageSender.module.css'
+import useAPI from '../../../../../hooks/useAPI'
 
 const { TextArea } = Input
 
@@ -12,6 +13,10 @@ const MessageSender = ({ api }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
+	const apiWells = useAPI()
+	apiWells.init('wells')
+	const wells = apiWells.data?.wells
+	console.log(apiWells.data?.wells)
 
 	const handleOpen = () => {
 		form.resetFields()
@@ -22,10 +27,17 @@ const MessageSender = ({ api }) => {
 			form.resetFields()
 		}, 'after')
 	}, [form, close])
+	const wellOptions = wells?.map(well => ({
+		label: well.title,
+		value: well._id,
+	}))
+
+	const selectOptions = [{ label: 'همه چاه‌ها', value: 'ALL_WELLS' }, ...(wellOptions || [])]
 
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
+			console.log(values)
 
 			const response = await api.post('notifications', values, {
 				optimisticUpdate: current => current,
@@ -42,6 +54,7 @@ const MessageSender = ({ api }) => {
 					}
 				},
 			})
+			console.log(response)
 
 			if (!response?.error) {
 				handleCancel()
@@ -80,17 +93,21 @@ const MessageSender = ({ api }) => {
 					colon={false}
 					labelAlign='left'
 				>
-					<Form.Item label='گروه مخاطبان' name='recipientGroup' rules={[{ required: true, message: 'گروه مخاطبان را انتخاب کنید' }]}>
-						<Select
-							size='large'
-							placeholder='انتخاب'
-							options={[
-								{ value: 'all', label: 'همه' },
-								{ value: 'admin', label: 'ادمین‌ها' },
-								{ value: 'irrigator', label: 'میرآب‌ها' },
-								{ value: 'landOwner', label: 'مالکین زمین' },
-							]}
-						/>
+					<Form.Item label='مخاطبین' name='recipientGroup' rules={[{ required: true, message: 'گروه مخاطبان را انتخاب کنید' }]}>
+						<Checkbox.Group>
+							<Row>
+								<Col span={22}>
+									<Checkbox value='landOwner'>مالکان زمین</Checkbox>
+								</Col>
+								<Col span={22}>
+									<Checkbox value='irrigator'>میرآب‌ها</Checkbox>
+								</Col>
+							</Row>
+						</Checkbox.Group>
+					</Form.Item>
+
+					<Form.Item label='چاه' name='wells' rules={[{ required: true, message: 'چاه ها را انتخاب کنید' }]}>
+						<Select mode='multiple' size='large' placeholder='انتخاب' options={selectOptions} />
 					</Form.Item>
 
 					<Form.Item label='متن پیامک' name='message' rules={[{ required: true, message: 'متن پیامک الزامی است' }]}>
