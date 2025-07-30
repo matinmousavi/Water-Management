@@ -10,6 +10,8 @@ import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog
 import { useUser } from '../../../../../../../contexts/UserContext'
 
 const WellLogsTable = ({ data, setLogs, wellStatus }) => {
+	console.log(data)
+
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
@@ -73,14 +75,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 			title: 'نام مالک',
 			dataIndex: ['land', 'owner'],
 			key: 'landOwner',
-			render: owner =>
-				owner ? (
-					<Link to={`/users/${owner?._id}`}>
-						{owner.firstName} {owner.lastName}
-					</Link>
-				) : (
-					<span>--</span>
-				),
+			render: owner => (owner ? <Link to={`/users/${owner?._id}`}>{owner.fullName}</Link> : <span>--</span>),
 		},
 		{
 			title: 'توضیحات',
