@@ -72,7 +72,19 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 
 	const openEditGroupModal = group => {
 		setEditGroupModalContent(
-			<EditLandGroupModal landGroup={group} activeLands={data} onClose={() => setEditGroupModalContent(null)} />
+			<EditLandGroupModal
+				landGroup={group}
+				activeLands={data}
+				landGroups={landGroups}
+				onClose={() => setEditGroupModalContent(null)}
+				wellId={wellId}
+				setData={groups =>
+					setData(prev => ({
+						...prev,
+						landGroups: typeof groups === 'function' ? groups(prev.landGroups) : groups,
+					}))
+				}
+			/>
 		)
 	}
 
@@ -121,10 +133,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 			title: 'آخرین زمان آبیاری',
 			dataIndex: 'lastIrrigatedAt',
 			key: 'lastIrrigatedAt',
-			render: (_, record) =>
-				record?.lastIrrigatedAt
-					? moment(record.lastIrrigatedAt).locale('fa').format('dddd jD jMMMM jYYYY - ساعت HH:mm')
-					: '--',
+			render: (_, record) => (record?.lastIrrigatedAt ? moment(record.lastIrrigatedAt).locale('fa').format('dddd jD jMMMM jYYYY - ساعت HH:mm') : '--'),
 			onCell: groupCell,
 		},
 		{
@@ -151,14 +160,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 
 	return (
 		<>
-			<Table
-				size='middle'
-				dataSource={finalData}
-				bordered
-				columns={columns}
-				rowKey={record => record._id}
-				pagination={false}
-			/>
+			<Table size='middle' dataSource={finalData} bordered columns={columns} rowKey={record => record._id} pagination={false} />
 
 			<Modal
 				title={`حذف زمین ${selectedLand?.title || ''}`}

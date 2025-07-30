@@ -10,8 +10,6 @@ import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog
 import { useUser } from '../../../../../../../contexts/UserContext'
 
 const WellLogsTable = ({ data, setLogs, wellStatus }) => {
-	console.log(data)
-
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
