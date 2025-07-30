@@ -60,7 +60,7 @@ const WellsTable = ({ WellsData }) => {
 			render: (irrigator, record) =>
 				irrigator?._id ? (
 					<Link to={isIrrigator ? `/wells/${record._id}` : `/users/${irrigator._id}`}>
-						{irrigator.firstName} {irrigator.lastName}
+						{irrigator.fullName}
 					</Link>
 				) : (
 					<span>-</span>
@@ -87,7 +87,7 @@ const WellsTable = ({ WellsData }) => {
 					</div>
 				</div>
 			),
-			onFilter: (value, record) => `${record.irrigator?.firstName ?? ''} ${record.irrigator?.lastName ?? ''}`.toLowerCase().includes(value.toLowerCase()),
+			onFilter: (value, record) => `${record.irrigator?.firstName ?? ''}`.toLowerCase().includes(value.toLowerCase()),
 		},
 		{
 			title: 'تعداد زمین',

@@ -12,6 +12,10 @@ const irrigationSchema = new mongoose.Schema(
 			ref: 'Well',
 			required: true,
 		},
+		landGroup: {
+			type: mongoose.Schema.Types.ObjectId,
+			default: null,
+		},
 		startedAt: {
 			type: Date,
 			required: true,
@@ -37,9 +41,7 @@ const irrigationSchema = new mongoose.Schema(
 			required: true,
 		},
 	},
-	{
-		timestamps: true,
-	}
+	{ timestamps: true }
 )
 
 // Automatically calculates duration in HH:mm format if endedAtAt is provided.

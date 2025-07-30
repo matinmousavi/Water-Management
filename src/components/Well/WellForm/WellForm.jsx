@@ -55,7 +55,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 						options={irrigators?.map(irrigator => ({
 							value: irrigator._id,
-							label: `${irrigator.firstName} ${irrigator.lastName}`,
+							label: irrigator.fullName,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
 						size='large'
@@ -79,7 +79,7 @@ const WellForm = ({ form, irrigators = [] }) => {
 				<FaDatePicker placeholder='تاریخ' size='large' />
 			</Form.Item>
 
-			<Form.Item label='ساعت کار' required>
+			<Form.Item label='ساعت خاموشی' required>
 				<Flex>
 					<Form.Item name='startTime' rules={[{ required: true, message: 'زمان شروع الزامی است' }]} style={{ flex: 1, marginBottom: 0 }}>
 						<TimePicker placeholder='شروع' format='HH:mm' size='large' style={{ width: '100%' }} onChange={value => setStartTime(value)} />
