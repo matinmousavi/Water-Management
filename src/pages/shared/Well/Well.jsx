@@ -96,13 +96,8 @@ const Well = () => {
 				) : (
 					<>
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
-						<WellLandsCard
-							wellLands={landsData.lands}
-							landGroups={landsData.landGroups}
-							setLandsData={setLandsData}
-							wellStatus={status}
-						/>
-						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} />
+						<WellLandsCard wellLands={landsData.lands} landGroups={landsData.landGroups} setLandsData={setLandsData} wellStatus={status} />
+						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} landsData={landsData} />
 					</>
 				)}
 
