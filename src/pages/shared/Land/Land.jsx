@@ -1,59 +1,80 @@
 import { Flex, Grid, Switch, Typography } from 'antd'
-import { useEffect } from 'react'
-import { useParams } from 'react-router'
-import { BellOutlined } from '@ant-design/icons'
 
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
-import MetaTitle from '../../../components/MetaTitle/MetaTitle'
-import BackButton from '../../../components/BackButton/BackButton'
-import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import LandInfo from './components/LandInfo/LandInfo'
+import MetaTitle from '../../../components/MetaTitle/MetaTitle'
+import DeleteCard from '../../../components/DeleteCard/DeleteCard'
+import BackButton from '../../../components/BackButton/BackButton'
+
 import LandNote from './components/LandNote/LandNote'
 import LandLogsCard from './components/LandLogsCard/LandLogsCard'
-import LandMobile from './components/LandMobile/LandMobile'
-import LandStatus from './components/LandStatus'
-
 import { useUser } from '../../../contexts/UserContext'
+import LandMobile from './components/LandMobile/LandMobile'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router'
+import useNotification from '../../../hooks/useNotification'
 import useNotificationToggle from '../../../hooks/useNotificationToggle'
+import LandStatus from './components/LandStatus'
+import { BellOutlined } from '@ant-design/icons'
 
 const { Title } = Typography
 
 const Land = () => {
+	const [landData, setLandData] = useState(null)
+	const [logs, setLogs] = useState(null)
+	const [status, setStatus] = useState()
 	const { landId } = useParams()
+	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
+	const landApi = useAPI()
+	const [pageTitle, setPageTitle] = useState('')
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
 
-	const landApi = useAPI()
-
-	if (landId) {
-		landApi.init(`lands/${landId}`)
+	const fetchLand = async () => {
+		try {
+			const response = await landApi.get(`lands/${landId}`)
+			if (response?.land) {
+				setLandData(response.land)
+				setPageTitle(response.land.title)
+				setLogs(response.land.logs || [])
+				setStatus(response.land.status)
+			}
+		} catch (error) {
+			openNotification('error', 'خطا در دریافت اطلاعات زمین')
+			console.error('خطا در دریافت اطلاعات زمین:', error)
+		}
 	}
 
-	const land = landApi.data?.land
+	useEffect(() => {
+		if (landId) {
+			fetchLand()
+		}
+	}, [landId])
+
 	const { enabled, loading, toggle } = useNotificationToggle({
 		landId,
-		initialValue: land?.notificationsEnabled,
+		initialValue: landData?.notificationsEnabled,
 	})
 
-	if (landApi.isLoading || !land) return <Loading />
+	if (landApi.isLoading || !landData) return <Loading />
 
 	return (
 		<>
-			<MetaTitle>{`زمین ${land.title}`}</MetaTitle>
+			<MetaTitle>{pageTitle ? `زمین ${pageTitle}` : 'جزئیات زمین'}</MetaTitle>
 
 			{isMobile ? (
-				<LandMobile landData={land} />
+				<LandMobile landData={landData} />
 			) : (
 				<Flex vertical gap={16}>
 					<Flex className='heading-container' align='center' justify='space-between'>
 						<Flex align='center'>
 							<BackButton backTo={'lands'} />
 							<Title level={1} className='text-h3'>
-								{land.title}
+								{pageTitle}
 							</Title>
-							<LandStatus landId={landId} status={land.status} setStatus={landApi.setData} landTitle={land.title} />
+							<LandStatus landId={landId} status={status} setStatus={setStatus} landTitle={pageTitle} />
 						</Flex>
 
 						{isAdmin && (
@@ -67,17 +88,10 @@ const Land = () => {
 						)}
 					</Flex>
 
-					<LandInfo landData={land} setPageTitle={title => landApi.setData(d => ({ ...d, land: { ...d.land, title } }))} />
-					<LandNote notesData={land.notes} api={landApi} status={land.status} />
-					<LandLogsCard
-						landLogs={land.logs || []}
-						setLogs={logs => landApi.setData(d => ({ ...d, land: { ...d.land, logs } }))}
-						well={land.wells}
-						landId={landId}
-						status={land.status}
-					/>
-
-					{isAdmin && <DeleteCard title={`زمین ${land.title}`} api={`lands/${landId}`} backTo='/lands' />}
+					<LandInfo landData={landData} setPageTitle={setPageTitle} />
+					<LandNote notesData={landData.notes} api={landApi} status={status} />
+					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={status} />
+					{isAdmin && <DeleteCard title={`زمین ${pageTitle}`} api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}
 		</>

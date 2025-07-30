@@ -7,7 +7,6 @@ export default function useNotificationToggle({ landId, initialValue }) {
 	const [enabled, setEnabled] = useState(initialValue)
 	const [loading, setLoading] = useState(false)
 	const api = useAPI()
-	console.log(enabled)
 
 	const toggle = useCallback(async () => {
 		const next = !enabled
