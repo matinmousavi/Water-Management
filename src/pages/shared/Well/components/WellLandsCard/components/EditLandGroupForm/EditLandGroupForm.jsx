@@ -6,7 +6,7 @@ const EditLandGroupForm = ({ form, activeLands }) => {
 			<Form.Item name='groupName' label='نام گروه'>
 				<Input size='large' />
 			</Form.Item>
-			<Form.Item name='lands' label='زمین'>
+			<Form.Item name='lands' label='انتخاب زمین'>
 				<Select
 					mode='multiple'
 					showSearch
