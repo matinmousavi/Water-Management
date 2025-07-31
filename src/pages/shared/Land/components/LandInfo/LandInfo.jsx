@@ -15,9 +15,9 @@ const LandInfo = ({ landData, setPageTitle }) => {
 			label: 'نام مالک',
 			value: land?.owner ? (
 				isAdmin ? (
-					<Link to={`/users/${land.owner._id}`}>{`${land.owner.firstName || ''} ${land.owner.lastName || ''}`}</Link>
+					<Link to={`/users/${land.owner._id}`}>{`${land.owner.fullName || ''}`}</Link>
 				) : (
-					`${land.owner.firstName || ''} ${land.owner.lastName || ''}`
+					`${land.owner.fullName || ''}`
 				)
 			) : (
 				'--'
@@ -37,11 +37,9 @@ const LandInfo = ({ landData, setPageTitle }) => {
 			label: 'نام میرآب',
 			value: land?.wells?.[0]?.irrigator ? (
 				isAdmin ? (
-					<Link to={`/users/${land.wells[0].irrigator._id}`}>
-						{`${land.wells[0].irrigator.firstName || ''} ${land.wells[0].irrigator.lastName || ''}`}
-					</Link>
+					<Link to={`/users/${land.wells[0].irrigator._id}`}>{`${land.wells[0].irrigator.fullName || ''}`}</Link>
 				) : (
-					`${land.wells[0].irrigator.firstName || ''} ${land.wells[0].irrigator.lastName || ''}`
+					`${land.wells[0].irrigator.fullName || ''}`
 				)
 			) : (
 				'--'

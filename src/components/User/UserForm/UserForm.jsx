@@ -108,11 +108,7 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 					</ImgCrop>
 				</Form.Item>
 
-				<Form.Item label='نام' name='firstName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-					<Input size='large' />
-				</Form.Item>
-
-				<Form.Item label='نام خانوادگی' name='lastName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Form.Item label='نام و نام خانوادگی' name='fullName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 					<Input size='large' />
 				</Form.Item>
 
