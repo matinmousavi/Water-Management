@@ -15,7 +15,7 @@ const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
 					<Flex gap={8} vertical>
 						<Flex align='center' justify='space-between'>
 							<Flex align='center' gap={20}>
-								<h4 className={styles.userName}>{note?.user ? `${note?.user.firstName} ${note?.user.lastName}` : 'کاربر ناشناس'}</h4>
+								<h4 className={styles.userName}>{note?.user ? `${note?.user.fullName}` : 'کاربر ناشناس'}</h4>
 								<span className={styles.date}>{moment(note?.createdAt).locale('fa').format('jD jMMMM jYYYY - ساعت HH:mm')}</span>
 							</Flex>
 							<Space className={styles.btns}>

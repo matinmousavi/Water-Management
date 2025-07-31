@@ -31,7 +31,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 						filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 						options={landOwners.map(owner => ({
 							value: owner._id,
-							label: `${owner.firstName} ${owner.lastName}`,
+							label: `${owner.fullName}`,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
 						size='large'

@@ -8,7 +8,7 @@ const LandsTable = ({ landsData = [] }) => {
 		)
 	).map(name => ({ text: name, value: name }))
 
-	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner?.firstName || '-'} ${land.owner?.lastName || ''}`.trim()))).map(name => ({
+	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner?.fullName || '-'}`.trim()))).map(name => ({
 		text: name,
 		value: name,
 	}))
@@ -40,12 +40,11 @@ const LandsTable = ({ landsData = [] }) => {
 			key: 'owner',
 			width: 188,
 			filters: uniqueOwners,
-			onFilter: (value, record) => `${record.owner?.firstName || '-'} ${record.owner?.lastName || ''}`.trim().includes(value),
+			onFilter: (value, record) => `${record.owner?.fullName || '-'}`.trim().includes(value),
 			filterSearch: true,
 			render: (_, record) => {
-				const first = record.owner?.firstName || '-'
-				const last = record.owner?.lastName || ''
-				return record.owner?._id ? <Link to={`/users/${record.owner._id}`}>{`${first} ${last}`.trim()}</Link> : '-'
+				const name = record.owner?.fullName || '-'
+				return record.owner?._id ? <Link to={`/users/${record.owner._id}`}>{`${name}`.trim()}</Link> : '-'
 			},
 		},
 		{

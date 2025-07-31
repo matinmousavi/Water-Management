@@ -24,6 +24,8 @@ const ContactInfoDisplay = ({ userData }) => {
 		{ label: 'تاریخ ثبت کاربر', value: moment(userData?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
 	]
 
+	console.log(userData)
+
 	return (
 		<Row gutter={[40, 0]} align='middle' wrap={false}>
 			<Col flex='none' className={styles.container_avatar}>
