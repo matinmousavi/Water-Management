@@ -1,12 +1,14 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import useAPI from './useAPI'
-
-// This is a debounc hook
 
 export default function useNotificationToggle({ landId, initialValue }) {
 	const [enabled, setEnabled] = useState(initialValue)
 	const [loading, setLoading] = useState(false)
 	const api = useAPI()
+
+	useEffect(() => {
+		setEnabled(initialValue)
+	}, [initialValue])
 
 	const toggle = useCallback(async () => {
 		const next = !enabled
