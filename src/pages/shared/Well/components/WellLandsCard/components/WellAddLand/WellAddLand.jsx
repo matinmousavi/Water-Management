@@ -32,12 +32,16 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 			const response = await wellApi.patch(`wells/${wellId}`, {
 				lands: updatedLands,
 			})
+
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', 'زمین با موفقیت به چاه اضافه شد')
 				if (typeof setLandsData === 'function') {
-					setLandsData({ lands: response.well.lands })
+					setLandsData({
+						lands: response.well.lands,
+						landGroups: response.well.landGroups,
+					})
 				}
 				close(() => form.resetFields(), 'after')
 			}

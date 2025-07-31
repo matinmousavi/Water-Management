@@ -1,14 +1,12 @@
 import { Form, Input, Select } from 'antd'
 
-const WellAddLandsGroupForm = ({ form, lands = [] }) => {
-	const activeLands = lands.filter(land => land.status === 'active')
-
+const EditLandGroupForm = ({ form, activeLands }) => {
 	return (
 		<Form form={form} layout='horizontal' labelCol={{ flex: '160px' }} wrapperCol={{ flex: 'auto' }}>
 			<Form.Item name='groupName' label='نام گروه'>
 				<Input size='large' />
 			</Form.Item>
-			<Form.Item name='lands' label='زمین'>
+			<Form.Item name='lands' label='انتخاب زمین'>
 				<Select
 					mode='multiple'
 					showSearch
@@ -27,4 +25,4 @@ const WellAddLandsGroupForm = ({ form, lands = [] }) => {
 	)
 }
 
-export default WellAddLandsGroupForm
+export default EditLandGroupForm
