@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import User from '../../models/User.model.js'
+import Well from '../../models/Well.model.js'
 import Notification from '../../models/Notification.model.js'
 import sendSMS from '../../../services/sendSMS.js'
 
@@ -41,21 +42,60 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
 	try {
-		const { recipientGroup, message, medium } = req.body
+		const { recipientGroup, message, medium, wellIds = [] } = req.body
 		const sentBy = req.user?._id
 
 		if (!sentBy) {
 			return res.status(401).json({ error: 'احراز هویت انجام نشده' })
 		}
 
-		const roleFilter = recipientGroup === 'all' ? {} : { role: recipientGroup }
-		const users = await User.find(roleFilter)
+		let users = []
+
+		if (wellIds.length > 0) {
+			const wells = await Well.find({ _id: { $in: wellIds } }).populate('lands')
+
+			const irrigatorIds = new Set()
+			const landOwnerIds = new Set()
+
+			for (const well of wells) {
+				if (well.irrigator) {
+					irrigatorIds.add(well.irrigator.toString())
+				}
+
+				for (const land of well.lands) {
+					if (land.owner) {
+						landOwnerIds.add(land.owner.toString())
+					}
+				}
+			}
+
+			switch (recipientGroup) {
+				case 'irrigator':
+					users = await User.find({ _id: { $in: Array.from(irrigatorIds) } })
+					break
+				case 'landOwner':
+					users = await User.find({ _id: { $in: Array.from(landOwnerIds) } })
+					break
+				case 'all':
+					users = await User.find()
+					break
+				default:
+					users = await User.find({ role: recipientGroup })
+					break
+			}
+		} else {
+			if (recipientGroup === 'all') {
+				users = await User.find()
+			} else {
+				users = await User.find({ role: recipientGroup })
+			}
+		}
 
 		if (!users.length) {
 			return res.status(404).json({ error: 'هیچ کاربری برای این گروه پیدا نشد.' })
 		}
 
-		const recipients = users.map(user => user._id)
+		const recipients = users.map(u => u._id)
 
 		let successCount = 0
 		let failCount = 0
