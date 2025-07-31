@@ -19,7 +19,7 @@ const ContactInfoCard = ({ initialValue, setPageTitle }) => {
 					<EditUser initialValue={initialValue} setData={api.setData} setPageTitle={setPageTitle} />
 				</Flex>
 
-				<ContactInfoDisplay userData={api.data.user || initialValue} />
+				<ContactInfoDisplay userData={api?.data?.user || initialValue} />
 			</Flex>
 		</Card>
 	)

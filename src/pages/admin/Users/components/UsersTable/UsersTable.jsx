@@ -65,15 +65,11 @@ const columns = [
 	},
 	{
 		title: 'نام و نام‌خانوادگی',
-		dataIndex: 'firstName',
-		key: 'firstName',
+		dataIndex: 'fullName',
+		key: 'fullName',
 		width: 211,
-		...getColumnSearchProps('firstName'),
-		render: (_, record) => (
-			<Link to={record._id}>
-				{record.firstName} {record.lastName}
-			</Link>
-		),
+		...getColumnSearchProps('fullName'),
+		render: (_, record) => <Link to={record._id}>{record.fullName}</Link>,
 	},
 	{
 		title: 'نقش',
