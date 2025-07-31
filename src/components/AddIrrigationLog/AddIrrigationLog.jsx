@@ -104,7 +104,7 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 				onCancel={handleCancel}
 				okText='ثبت'
 				cancelText='انصراف'
-				confirmLoading={irrigationApi.isLoading}
+				confirmLoading={irrigationApi?.isLoading}
 				forceRender
 			>
 				<IrrigationLogForm
@@ -112,8 +112,8 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 					mode='add'
 					type={isAdmin ? 'admin' : 'irrigator'}
 					form={form}
-					lands={landsData.lands || []}
-					landGroups={landsData.landGroups || []}
+					lands={landsData?.lands || []}
+					landGroups={landsData?.landGroups || []}
 				/>
 			</Modal>
 		</>
