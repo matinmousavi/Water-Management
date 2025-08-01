@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 const notificationSchema = new mongoose.Schema(
 	{
 		recipientGroup: {
-			type: String,
+			type: [String],
 			enum: ['all', 'admin', 'irrigator', 'landOwner'],
 			required: true,
 		},
