@@ -5,7 +5,7 @@ import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 import { useUser } from '../../../../../../../contexts/UserContext'
 
@@ -16,20 +16,62 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const { isAdmin } = useUser()
 
 	const deleteIdRef = useRef(null)
-	const [editableLog, setEditableLog] = useState(null)
+	const [editableGroup, setEditableGroup] = useState(null)
 	const [viewableLog, setViewableLog] = useState(null)
 	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 
-	const handleDelete = async id => {
-		if (!id) return
-		try {
-			const response = await wellApi.delete(`irrigations/${id}`)
-			if (!response?.error) {
-				openNotification('success', 'لاگ آبیاری با موفقیت حذف شد')
-				setLogs(prev => prev.filter(item => item._id !== id))
+	const groupedData = useMemo(() => {
+		const rows = []
+		const grouped = {}
+
+		data.forEach(log => {
+			const key = log.landGroup ? `${log.landGroup}_${moment(log.startedAt).format('YYYYMMDDHHmmss')}` : log._id
+
+			if (!grouped[key]) {
+				grouped[key] = {
+					...log,
+					logs: [],
+					landGroupTitle: log.landGroupTitle || 'نام گروه نامشخص',
+				}
 			}
+			grouped[key].logs.push(log)
+		})
+
+		Object.values(grouped).forEach(group => {
+			const sharedDate = group.startedAt
+			const sharedStartedAt = group.startedAt
+			const sharedDuration = group.duration
+			const sharedNote = group.note
+
+			group.logs.forEach((log, index) => {
+				rows.push({
+					...log,
+					groupKey: group.landGroup ? `${group.landGroup}_${moment(group.startedAt).format('YYYYMMDDHHmmss')}` : log._id,
+					logs: group.logs,
+					isFirstRow: index === 0,
+					groupSize: group.logs.length,
+					landGroupTitle: group.landGroupTitle,
+					sharedDate,
+					sharedStartedAt,
+					sharedDuration,
+					sharedNote,
+				})
+			})
+		})
+
+		return rows
+	}, [data])
+
+	const handleDelete = async group => {
+		try {
+			const ids = group.logs.map(log => log._id)
+			for (const id of ids) {
+				await wellApi.delete(`irrigations/${id}`)
+			}
+			openNotification('success', 'لاگ‌های گروهی با موفقیت حذف شدند')
+			setLogs(prev => prev.filter(item => !ids.includes(item._id)))
 		} catch (error) {
-			openNotification('error', error?.error?.message || 'خطا در حذف لاگ آبیاری')
+			openNotification('error', error?.error?.message || 'خطا در حذف لاگ‌ها')
 		} finally {
 			deleteIdRef.current = null
 			close()
@@ -49,44 +91,78 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
-			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : '--'),
+			render: (_, record) => {
+				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
+				return {
+					children: record.sharedDate ? moment(record.sharedDate).locale('fa').format('dddd jD jMMMM jYYYY') : '--',
+					props: {
+						rowSpan: record.groupSize,
+					},
+				}
+			},
+		},
+		{
+			title: 'نام گروه',
+			render: (_, record) => {
+				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
+				return {
+					children: record.landGroupTitle || 'نام گروه نامشخص',
+					props: {
+						rowSpan: record.groupSize,
+						style: { fontWeight: 'bold' },
+					},
+				}
+			},
 		},
 		{
 			title: 'ساعت شروع',
-			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('HH:mm') : '--'),
+			render: (_, record) => {
+				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
+				return {
+					children: record.sharedStartedAt ? moment(record.sharedStartedAt).locale('fa').format('HH:mm') : '--',
+					props: {
+						rowSpan: record.groupSize,
+					},
+				}
+			},
 		},
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
 			render: (_, record) => {
-				if (!record.endedAt) return 'در حال آبیاری'
-				return `${record.duration}`
+				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
+
+				const display = record.isOngoing ? 'در حال آبیاری' : record.sharedDuration || '--'
+
+				return {
+					children: display,
+					props: {
+						rowSpan: record.groupSize,
+					},
+				}
 			},
 		},
 		{
 			title: 'عنوان زمین',
-			dataIndex: ['land', 'title'],
-			key: 'landTitle',
-			render: (text, record) => <Link to={`/lands/${record.land?._id}`}>{text}</Link> || '--',
+			render: (_, record) => <Link to={`/lands/${record.land?._id}`}>{record.land?.title}</Link>,
 		},
 		{
-			title: 'نام مالک',
-			dataIndex: ['land', 'owner'],
-			key: 'landOwner',
-			render: owner =>
-				owner ? (
-					<Link to={`/users/${owner?._id}`}>
-						{owner.firstName} {owner.lastName}
-					</Link>
-				) : (
-					<span>--</span>
-				),
+			title: 'مالک زمین',
+			render: (_, record) => (record.land?.owner ? <Link to={`/users/${record.land.owner._id}`}>{record.land.owner.fullName}</Link> : '--'),
 		},
 		{
 			title: 'توضیحات',
-			dataIndex: 'note',
 			key: 'note',
-			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
+			render: (_, record) => {
+				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
+
+				return {
+					children: record.sharedNote ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--',
+					props: {
+						rowSpan: record.groupSize,
+					},
+				}
+			},
 		},
 	]
 
@@ -94,31 +170,36 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		columns.push({
 			title: 'عملیات',
 			key: 'action',
-			render: (_, record) => (
-				<Space size={8}>
-					<EditOutlined
-						className='edit-icon'
-						onClick={() => {
-							setEditableLog(record)
-						}}
-					/>
-					<DeleteTwoTone
-						twoToneColor='#ff0000'
-						onClick={() => {
-							deleteIdRef.current = record._id
-							open()
-						}}
-					/>
-				</Space>
-			),
+			render: (_, record) => {
+				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
+
+				return {
+					children: (
+						<Space size={8}>
+							<EditOutlined className='edit-icon' onClick={() => setEditableGroup(record)} />
+							<DeleteTwoTone
+								twoToneColor='#ff0000'
+								onClick={() => {
+									deleteIdRef.current = record
+									open()
+								}}
+							/>
+						</Space>
+					),
+					props: {
+						rowSpan: record.groupSize,
+					},
+				}
+			},
 		})
 	}
+
 	return (
 		<>
-			<Table dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
+			<Table size='middle' dataSource={groupedData} columns={columns} rowKey={record => record.groupKey || record._id} pagination={false} bordered />
 
 			<Modal
-				title='حذف لاگ توزیع آب'
+				title='حذف لاگ‌های گروهی'
 				open={isOpen}
 				onOk={() => handleDelete(deleteIdRef.current)}
 				onCancel={handleCancel}
@@ -131,14 +212,14 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 				}}
 				confirmLoading={wellApi.isLoading}
 			>
-				<p>آیا از حذف این لاگ توزیع آب اطمینان دارید؟</p>
+				<p>آیا از حذف این گروه لاگ‌های توزیع آب اطمینان دارید؟</p>
 			</Modal>
 
-			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
+			{editableGroup && <EditIrrigationLog data={editableGroup} setLogs={setLogs} onClose={() => setEditableGroup(null)} page='well' />}
 
 			{viewableLog && (
 				<Modal
-					title={`توضیحات لاگ توزیع آب ${viewableLog?.startedAt ? moment(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
+					title={`توضیحات لاگ ${viewableLog?.startedAt ? moment(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
 					open={isViewModalOpen}
 					onCancel={() => {
 						setIsViewModalOpen(false)
@@ -148,7 +229,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 						<div
 							className='footer-edit-log-modal'
 							onClick={() => {
-								setEditableLog(viewableLog)
+								setEditableGroup(viewableLog)
 								setIsViewModalOpen(false)
 							}}
 						>

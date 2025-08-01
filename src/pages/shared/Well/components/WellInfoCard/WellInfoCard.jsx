@@ -7,25 +7,24 @@ import EditWell from './components/EditWell/EditWell'
 import { useUser } from '../../../../../contexts/UserContext'
 
 const WellInfoCard = ({ wellInfo, setPageTitle }) => {
-	console.log(wellInfo)
 	const api = useAPI()
 	const well = api.data.well || wellInfo
 	const { isAdmin } = useUser()
 
 	const wellInfoItems = useMemo(() => {
-		const irrigator = well?.irrigator
+		const irrigator = well?.irrigator		
 
 		const cycleStartDateFormatted = well?.cycleStartDate ? moment(well.cycleStartDate).format('jYYYY/jMM/jDD') : '--'
 
 		const workTimeFormatted =
-			well?.workTime?.start && well?.workTime?.end
-				? `${moment(well.workTime.start).format('HH:mm')} - ${moment(well.workTime.end).format('HH:mm')}`
+			well?.offTime?.start && well?.offTime?.end
+				? `${moment(well.offTime.start).format('HH:mm')} - ${moment(well.offTime.end).format('HH:mm')}`
 				: '--'
 
 		return [
 			{
 				label: 'نام میرآب',
-				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.firstName} ${irrigator.lastName}`}</Link> : '--',
+				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.fullName}`}</Link> : '--',
 			},
 			{
 				label: 'شماره تماس میرآب',
@@ -48,7 +47,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: cycleStartDateFormatted,
 			},
 			{
-				label: 'ساعت کار',
+				label: 'ساعت خاموشی',
 				value: workTimeFormatted,
 			},
 		]

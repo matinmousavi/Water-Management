@@ -38,7 +38,7 @@ const DeleteCard = ({ title, api , backTo }) => {
 					حذف چاه
 				</Title>
 				<Button danger onClick={() => open()} loading={deleteAPI.isLoading}>
-					<Flex align='center' gap={8}>
+					<Flex gap={8} align='center' justify='center'>
 						<DeleteOutlined /> <span>حذف</span>
 					</Flex>
 				</Button>

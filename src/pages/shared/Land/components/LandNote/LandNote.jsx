@@ -103,7 +103,7 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 								یادداشت زمین ({notes?.length})
 							</Title>
 
-							<Button className='style-btn' onClick={handleOpenAddNoteModal}>
+							<Button color='primary' variant='outlined' onClick={handleOpenAddNoteModal}>
 								<PlusCircleOutlined />
 								<span>افزودن یادداشت</span>
 							</Button>

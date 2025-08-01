@@ -1,21 +1,24 @@
 import { Button, Flex, Form, Modal } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useParams } from 'react-router'
-
 import useModal from '../../../../../../../hooks/useModal'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
-
 import WellAddLandsGroupForm from '../WellAddLandsGroupForm/WellAddLandsGroupForm'
 
-const WellAddLandsGroup = ({ setLandsData, currentLands = [] }) => {
+const WellAddLandsGroup = ({ setLandsData, currentLands = [], landGroups = [] }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
 	const landApi = useAPI()
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { wellId } = useParams()
+
+	const ungroupedLands = useMemo(() => {
+		const groupedIds = new Set((landGroups || []).flatMap(g => g.lands))
+		return currentLands.filter(land => !groupedIds.has(land._id))
+	}, [currentLands, landGroups])
 
 	const handleOpen = () => {
 		landApi.init('lands')
@@ -28,28 +31,51 @@ const WellAddLandsGroup = ({ setLandsData, currentLands = [] }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-			const updatedLands = [...currentLands, ...values.lands.map(id => landApi.data.lands.find(land => land._id === id)).filter(Boolean)]
-			const response = await wellApi.patch(`wells/${wellId}`, {
-				lands: updatedLands,
+
+			const patchRes = await wellApi.patch(`wells/${wellId}`, {
+				lands: [...currentLands.map(land => land._id), ...values.lands],
 			})
+
+			if (patchRes?.error) {
+				openNotification('error', 'خطا', patchRes.message)
+				return
+			}
+
+			const response = await wellApi.post(`wells/${wellId}/land-groups/`, {
+				title: values.groupName,
+				lands: values.lands,
+			})
+
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
-			} else {
-				openNotification('success', 'عملیات موفق', 'زمین با موفقیت به چاه اضافه شد')
-				if (typeof setLandsData === 'function') {
-					setLandsData({ lands: response.well.lands })
-				}
-				close(() => form.resetFields(), 'after')
+				return
 			}
+
+			const updatedWell = await wellApi.get(`wells/${wellId}`)
+			if (updatedWell?.error) {
+				openNotification('error', 'خطا', updatedWell.message)
+				return
+			}
+
+			openNotification('success', 'عملیات موفق', 'زمین با موفقیت به گروه اضافه شد')
+
+			if (typeof setLandsData === 'function') {
+				setLandsData({
+					lands: updatedWell.well.lands,
+					landGroups: updatedWell.well.landGroups,
+				})
+			}
+
+			close(() => form.resetFields(), 'after')
 		} catch (err) {
-			openNotification('error', 'خطا', err?.error?.message || 'خطا در افزودن زمین')
+			openNotification('error', 'خطا', err?.error?.message || 'خطا در افزودن گروه')
 		}
-	}, [form, wellApi, wellId, setLandsData, openNotification, close, currentLands, landApi.data.lands])
+	}, [form, wellApi, wellId, setLandsData, openNotification, close, currentLands])
 
 	return (
 		<>
-			<Button className='style-btn' size='middle' onClick={() => open(handleOpen, 'before')}>
-				<Flex gap={8}>
+			<Button color='primary' variant='outlined' size='middle' onClick={() => open(handleOpen, 'before')}>
+				<Flex gap={8} align='center' justify='center'>
 					<PlusCircleOutlined />
 					<span>گروه‌بندی</span>
 				</Flex>
@@ -66,10 +92,7 @@ const WellAddLandsGroup = ({ setLandsData, currentLands = [] }) => {
 				confirmLoading={wellApi.isLoading}
 				loading={landApi.isLoading}
 			>
-				<WellAddLandsGroupForm
-					form={form}
-					lands={(landApi.data?.lands || []).filter(land => !currentLands.some(selected => selected._id === land._id))}
-				/>
+				<WellAddLandsGroupForm form={form} lands={ungroupedLands} />
 			</Modal>
 		</>
 	)

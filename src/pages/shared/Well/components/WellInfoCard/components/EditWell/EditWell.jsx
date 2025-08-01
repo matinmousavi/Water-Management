@@ -1,6 +1,7 @@
 import { Button, Flex, Form, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { useCallback } from 'react'
+import dayjs from 'dayjs'
 
 import WellForm from '../../../../../../../components/Well/WellForm/WellForm'
 import useModal from '../../../../../../../hooks/useModal'
@@ -21,6 +22,9 @@ const EditWell = ({ initialValue, setData, setPageTitle }) => {
 			form.setFieldsValue({
 				...initialValue,
 				irrigator: initialValue.irrigator?._id || null,
+				cycleStartDate: initialValue.cycleStartDate ? dayjs(initialValue.cycleStartDate) : null,
+				startTime: initialValue.offTime?.start ? dayjs(initialValue.offTime.start) : null,
+				endTime: initialValue.offTime?.end ? dayjs(initialValue.offTime.end) : null,
 			})
 		}
 	}
@@ -55,8 +59,8 @@ const EditWell = ({ initialValue, setData, setPageTitle }) => {
 
 	return (
 		<>
-			<Button className='style-btn' size='middle' onClick={() => open(handleOpen, 'before')}>
-				<Flex gap={8}>
+			<Button color='primary' variant='outlined' size='middle' onClick={() => open(handleOpen, 'before')}>
+				<Flex gap={8} align='center' justify='center'>
 					<EditOutlined />
 					<span>ویرایش</span>
 				</Flex>

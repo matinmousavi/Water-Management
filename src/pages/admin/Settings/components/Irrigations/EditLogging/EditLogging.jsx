@@ -53,7 +53,7 @@ const EditLogging = ({ value, setValues, title }) => {
 
 	return (
 		<>
-			<Button onClick={() => open(handleOpen, 'before')} className='style-btn' size='middle' type='default'>
+			<Button onClick={() => open(handleOpen, 'before')} size='middle' type='default'>
 				<Flex gap={8}>
 					<EditOutlined />
 					<span>ویرایش</span>

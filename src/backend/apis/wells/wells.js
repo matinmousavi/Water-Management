@@ -3,8 +3,18 @@ import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import landGroupsRouter from './landGroups.js'
+import schedulesRouter from './schedules.js'
+import snapshotsRouter from './snapshots.js'
 
 const router = Router()
+
+// Helper: Attach populated landGroup
+const getLandGroupTitle = (landGroupId, well) => {
+	if (!landGroupId || !well || !well.landGroups) return null
+	const group = well.landGroups.find(g => g.groupId.toString() === landGroupId.toString())
+	return group ? group.title : null
+}
 
 // GET all wells
 router.get('/', async (req, res) => {
@@ -25,25 +35,29 @@ router.get('/', async (req, res) => {
 		let wells = await Well.find(filter)
 			.populate({
 				path: 'lands',
-				populate: {
-					path: 'owner',
-					select: 'firstName lastName mobile',
-				},
+				populate: { path: 'owner', select: 'fullName mobile' },
 			})
-			.populate({
-				path: 'irrigator',
-				select: 'firstName lastName mobile',
-			})
+			.populate({ path: 'irrigator', select: 'fullName mobile' })
 			.lean()
 
 		wells = await Promise.all(
 			wells.map(async well => {
 				const logs = await Irrigation.find({ well: well._id })
-					.populate('land')
-					.populate('createdBy', 'firstName lastName')
+					.populate({
+						path: 'land',
+						populate: { path: 'owner', select: 'fullName mobile' },
+						select: 'title owner area location',
+					})
+					.populate('createdBy', 'fullName')
 					.sort({ createdAt: -1 })
 					.lean()
-				well.logs = logs
+
+				const logsWithGroups = logs.map(log => ({
+					...log,
+					landGroupTitle: getLandGroupTitle(log.landGroup, well),
+				}))
+
+				well.logs = logsWithGroups
 
 				well.lands = await Promise.all(
 					well.lands.map(async land => {
@@ -82,33 +96,29 @@ router.get('/:wellId', async (req, res) => {
 		let well = await Well.findById(wellId)
 			.populate({
 				path: 'lands',
-				populate: {
-					path: 'owner',
-					select: 'firstName lastName mobile',
-				},
+				populate: { path: 'owner', select: 'fullName mobile' },
 			})
-			.populate({
-				path: 'irrigator',
-				select: 'firstName lastName mobile',
-			})
+			.populate({ path: 'irrigator', select: 'fullName mobile' })
 			.lean()
 
 		if (!well) {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
 		}
 
-		const logs = await Irrigation.find({ well: wellId })
+		let logs = await Irrigation.find({ well: wellId })
 			.populate({
 				path: 'land',
-				populate: {
-					path: 'owner',
-					select: 'firstName lastName mobile',
-				},
+				populate: { path: 'owner', select: 'fullName mobile' },
 				select: 'title owner area location',
 			})
-			.populate('createdBy', 'firstName lastName')
+			.populate('createdBy', 'fullName')
 			.sort({ createdAt: -1 })
 			.lean()
+
+		logs = logs.map(log => ({
+			...log,
+			landGroupTitle: getLandGroupTitle(log.landGroup, well),
+		}))
 
 		well.lands = await Promise.all(
 			well.lands.map(async land => {
@@ -152,19 +162,13 @@ router.post('/', async (req, res) => {
 			status: 'active',
 		})
 
-		newWell = await newWell.populate('irrigator', 'firstName lastName')
+		newWell = await newWell.populate('irrigator', 'fullName')
 
 		const representation = {
 			_id: newWell._id,
 			title: newWell.title,
 			status: newWell.status,
-			irrigator: newWell.irrigator
-				? {
-						_id: newWell.irrigator._id,
-						firstName: newWell.irrigator.firstName,
-						lastName: newWell.irrigator.lastName,
-				  }
-				: null,
+			irrigator: newWell.irrigator ? { _id: newWell.irrigator._id, fullName: newWell.irrigator.fullName } : null,
 			landsCount: Array.isArray(newWell.lands) ? newWell.lands.length : 0,
 		}
 
@@ -254,6 +258,10 @@ router.delete('/:wellId', async (req, res) => {
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
 })
+
+router.use('/:wellId/land-groups', landGroupsRouter)
+router.use('/:wellId/schedules', schedulesRouter)
+router.use('/:wellId/snapshots', snapshotsRouter)
 
 // Fallback for unsupported methods
 router.all(/.*/, (req, res) => {

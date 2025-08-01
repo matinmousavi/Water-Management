@@ -32,12 +32,16 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 			const response = await wellApi.patch(`wells/${wellId}`, {
 				lands: updatedLands,
 			})
+
 			if (response?.error) {
 				openNotification('error', 'خطا', response.message)
 			} else {
 				openNotification('success', 'عملیات موفق', 'زمین با موفقیت به چاه اضافه شد')
 				if (typeof setLandsData === 'function') {
-					setLandsData({ lands: response.well.lands })
+					setLandsData({
+						lands: response.well.lands,
+						landGroups: response.well.landGroups,
+					})
 				}
 				close(() => form.resetFields(), 'after')
 			}
@@ -48,8 +52,8 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 
 	return (
 		<>
-			<Button className='style-btn' size='middle' onClick={() => open(handleOpen, 'before')}>
-				<Flex gap={8}>
+			<Button color='primary' variant='outlined' size='middle' onClick={() => open(handleOpen, 'before')}>
+				<Flex gap={8} align='center' justify='center'>
 					<PlusCircleOutlined />
 					<span>افزودن زمین</span>
 				</Flex>

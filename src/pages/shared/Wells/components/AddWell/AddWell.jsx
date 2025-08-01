@@ -65,7 +65,7 @@ const AddWell = ({ wellsApi }) => {
 	return (
 		<>
 			<Button type='primary' onClick={() => open(handleOpen, 'before')}>
-				<Flex gap={5} align='center' justify='center'>
+				<Flex gap={8} align='center' justify='center'>
 					<PlusOutlined />
 					<span>افزودن چاه</span>
 				</Flex>
