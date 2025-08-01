@@ -37,24 +37,24 @@ const MessageSender = ({ api }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-			console.log(values)
 
-			const response = await api.post('notifications', values, {
+			const payload = {
+				...values,
+				medium: 'sms',
+			}
+
+			console.log('📦 Payload to send:', payload)
+
+			const response = await api.post('notifications', payload, {
 				optimisticUpdate: current => current,
 				responseHandler: (current, res) => {
 					openNotification('success', 'عملیات موفق', 'پیام با موفقیت ارسال شد.')
-
-					if (!current?.notifications) {
-						return { notifications: [res.notification] }
-					}
-
 					return {
 						...current,
-						notifications: [res.notification, ...current.notifications],
+						notifications: [res.data, ...(current?.notifications || [])],
 					}
 				},
 			})
-			console.log(response)
 
 			if (!response?.error) {
 				handleCancel()
@@ -106,7 +106,7 @@ const MessageSender = ({ api }) => {
 						</Checkbox.Group>
 					</Form.Item>
 
-					<Form.Item label='چاه' name='wells' rules={[{ required: true, message: 'چاه ها را انتخاب کنید' }]}>
+					<Form.Item label='چاه' name='wellIds' rules={[{ required: true, message: 'چاه ها را انتخاب کنید' }]}>
 						<Select mode='multiple' size='large' placeholder='انتخاب' options={selectOptions} />
 					</Form.Item>
 
