@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, Tag } from 'antd'
+import { Table } from 'antd'
 import moment from 'moment-jalaali'
 
 moment.loadPersian({ usePersianDigits: true })
@@ -38,8 +38,8 @@ const SentNotificationsTable = ({ data }) => {
 			title: 'گروه مخاطب',
 			dataIndex: 'recipientGroup',
 			key: 'audienceGroup',
-			width: 180,
-			render: group => recipientGroupLabels[group] || '-',
+			width: 200,
+			render: groups => (Array.isArray(groups) && groups.length > 0 ? groups.map(g => recipientGroupLabels[g] || g).join(' - ') : '-'),
 		},
 		{
 			title: 'محتوای پیامک',

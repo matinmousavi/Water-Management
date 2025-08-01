@@ -1,10 +1,12 @@
-import { Flex, Grid, Space, Switch, Typography } from 'antd'
+import { Flex, Grid, Switch, Typography } from 'antd'
+
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import LandInfo from './components/LandInfo/LandInfo'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import BackButton from '../../../components/BackButton/BackButton'
+
 import LandNote from './components/LandNote/LandNote'
 import LandLogsCard from './components/LandLogsCard/LandLogsCard'
 import { useUser } from '../../../contexts/UserContext'
@@ -12,6 +14,7 @@ import LandMobile from './components/LandMobile/LandMobile'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import useNotification from '../../../hooks/useNotification'
+import useNotificationToggle from '../../../hooks/useNotificationToggle'
 import LandStatus from './components/LandStatus'
 import { BellOutlined } from '@ant-design/icons'
 
@@ -43,11 +46,17 @@ const Land = () => {
 			console.error('خطا در دریافت اطلاعات زمین:', error)
 		}
 	}
+
 	useEffect(() => {
 		if (landId) {
 			fetchLand()
 		}
 	}, [landId])
+
+	const { enabled, loading, toggle } = useNotificationToggle({
+		landId,
+		initialValue: landData?.notificationsEnabled,
+	})
 
 	if (landApi.isLoading || !landData) return <Loading />
 
@@ -67,13 +76,14 @@ const Land = () => {
 							</Title>
 							<LandStatus landId={landId} status={status} setStatus={setStatus} landTitle={pageTitle} />
 						</Flex>
+
 						{isAdmin && (
 							<Flex align='center'>
 								<Flex gap={5}>
 									<BellOutlined style={{ color: '#00000080', fontSize: '20px' }} />
 									<span className='text-label'>اطلاع رسانی</span>
 								</Flex>
-								<Switch defaultChecked />
+								<Switch checked={enabled} onChange={toggle} loading={loading} />
 							</Flex>
 						)}
 					</Flex>

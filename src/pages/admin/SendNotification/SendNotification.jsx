@@ -15,7 +15,7 @@ const SendNotification = () => {
 		<Flex vertical className='main-container'>
 			<Flex justify='space-between' align='center'>
 				<Typography.Title level={1} className='text-page-title'>
-					پیامک های ارسال شده
+					پیامک‌های ارسال‌شده
 				</Typography.Title>
 				<MessageSender api={api} />
 			</Flex>
