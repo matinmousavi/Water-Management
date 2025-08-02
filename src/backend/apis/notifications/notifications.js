@@ -29,27 +29,27 @@ router.get('/', async (req, res) => {
 
 		const data = notifications.map(notificationRepresentation)
 
-		res.status(200).json({
-			data,
-		})
+		res.status(200).json({ data })
 	} catch (err) {
 		console.error(err)
-		res.status(500).json({
-			error: 'خطا در دریافت نوتیفیکیشن‌ها',
-		})
+		res.status(500).json({ error: 'خطا در دریافت نوتیفیکیشن‌ها' })
 	}
 })
 
 router.post('/', async (req, res) => {
 	try {
-		const { recipientGroup, message, medium, wellIds = [] } = req.body
+		let { recipientGroup, message, medium, wellIds = [] } = req.body
 		const sentBy = req.user?._id
 
 		if (!sentBy) {
 			return res.status(401).json({ error: 'احراز هویت انجام نشده' })
 		}
 
-		let users = []
+		if (!Array.isArray(recipientGroup)) {
+			return res.status(400).json({ error: 'recipientGroup باید یک آرایه باشد' })
+		}
+
+		const usersMap = new Map()
 
 		if (wellIds.length > 0) {
 			const wells = await Well.find({ _id: { $in: wellIds } }).populate('lands')
@@ -61,7 +61,6 @@ router.post('/', async (req, res) => {
 				if (well.irrigator) {
 					irrigatorIds.add(well.irrigator.toString())
 				}
-
 				for (const land of well.lands) {
 					if (land.owner) {
 						landOwnerIds.add(land.owner.toString())
@@ -69,34 +68,43 @@ router.post('/', async (req, res) => {
 				}
 			}
 
-			switch (recipientGroup) {
-				case 'irrigator':
-					users = await User.find({ _id: { $in: Array.from(irrigatorIds) } })
-					break
-				case 'landOwner':
-					users = await User.find({ _id: { $in: Array.from(landOwnerIds) } })
-					break
-				case 'all':
-					users = await User.find()
-					break
-				default:
-					users = await User.find({ role: recipientGroup })
-					break
+			for (const group of recipientGroup) {
+				let foundUsers = []
+				switch (group) {
+					case 'irrigator':
+						foundUsers = await User.find({ _id: { $in: Array.from(irrigatorIds) } })
+						break
+					case 'landOwner':
+						foundUsers = await User.find({ _id: { $in: Array.from(landOwnerIds) } })
+						break
+					case 'all':
+						foundUsers = await User.find()
+						break
+					default:
+						foundUsers = await User.find({ role: group })
+						break
+				}
+				for (const user of foundUsers) {
+					usersMap.set(user._id.toString(), user)
+				}
 			}
 		} else {
-			if (recipientGroup === 'all') {
-				users = await User.find()
-			} else {
-				users = await User.find({ role: recipientGroup })
+			for (const group of recipientGroup) {
+				const foundUsers = group === 'all' ? await User.find() : await User.find({ role: group })
+
+				for (const user of foundUsers) {
+					usersMap.set(user._id.toString(), user)
+				}
 			}
 		}
 
+		const users = Array.from(usersMap.values())
+
 		if (!users.length) {
-			return res.status(404).json({ error: 'هیچ کاربری برای این گروه پیدا نشد.' })
+			return res.status(404).json({ error: 'هیچ کاربری برای این گروه‌ها پیدا نشد.' })
 		}
 
 		const recipients = users.map(u => u._id)
-
 		let successCount = 0
 		let failCount = 0
 
