@@ -1,0 +1,25 @@
+.footer {
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: white;
+	padding: 16px;
+}
+.buttonAdd {
+	width: 100%;
+	border: 1px solid #0066ee;
+	color: #0066ee;
+	font-size: 1rem !important;
+	font-weight: 500 !important;
+	border-radius: 8px !important;
+}
+.modalContainer {
+	height: 100%;
+	padding: 0 16px;
+}
+.textArea {
+	height: 100% !important;
+	border-radius: 6px;
+}
