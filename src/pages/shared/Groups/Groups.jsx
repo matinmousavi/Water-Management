@@ -3,12 +3,13 @@ import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import groupIcon from '../../../assets/icons/Group.svg'
 import LandsGroup from './components/LandsGroup/LandsGroup'
 import NotesGroup from './components/NotesGroup/NotesGroup'
+import LogsGroup from './components/LogsGroup/LogsGroup'
 const Groups = () => {
 	const items = [
 		{
 			key: 'logs',
 			label: 'لاگ توزیع',
-			children: <></>,
+			children: <LogsGroup />,
 		},
 		{
 			key: 'lands',
