@@ -15,6 +15,11 @@
 .textPlaceholdersKey {
 	font-weight: 900 !important;
 }
-.textArea {
-	font-size: 12px !important;
+
+/* deskop */
+@media (min-width: 1440px) {
+	.textArea {
+		font-size: 16px !important;
+		line-height: 24;
+	}
 }
