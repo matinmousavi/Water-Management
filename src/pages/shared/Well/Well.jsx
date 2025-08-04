@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Typography, Grid, Flex } from 'antd'
+import { Typography, Grid, Flex, Tabs } from 'antd'
 import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import { useUser } from '../../../contexts/UserContext'
@@ -15,6 +15,7 @@ import iconWell from '../../../assets/icons/Vector.svg'
 import WellStatus from './components/WellStatus'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
+import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -67,32 +68,42 @@ const Well = () => {
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
 				{isMobile ? (
-					<Flex gap={8} justify='center' align='center'>
-						<img src={iconWell} alt='icon' />
-						<Typography.Title level={2} className='text-h2'>
-							چاه {irrigatorWells?.title}
-						</Typography.Title>
-						{filterWells?.length === 1 ? null : openWellList ? (
-							<CaretUpOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
-						) : (
-							<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
-						)}
-						<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
-					</Flex>
-				) : (
-					<Flex align='center' gap={16}>
-						<BackButton backTo='/wells' />
-						<Typography.Title className='text-page-title'>{title}</Typography.Title>
-						<WellStatus wellId={wellId} status={status} setStatus={setStatus} />
-					</Flex>
-				)}
+					<>
+						<Flex gap={8} justify='center' align='center'>
+							<img src={iconWell} alt='icon' />
+							<Typography.Title level={2} className='text-h2'>
+								چاه {irrigatorWells?.title}
+							</Typography.Title>
+							{filterWells?.length === 1 ? null : openWellList ? (
+								<CaretUpOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+							) : (
+								<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
+							)}
+							<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
+						</Flex>
 
-				{isMobile ? (
-					<Flex vertical gap={16}>
-						{irrigatorWells?.logs?.map(log => (
-							<WellLogsMobile key={log?._id} data={log} />
-						))}
-					</Flex>
+						<Tabs
+							defaultActiveKey='logs'
+							items={[
+								{
+									key: 'logs',
+									label: 'نوبت آبیاری',
+									children: (
+										<Flex vertical gap={16}>
+											{irrigatorWells?.logs?.map(log => (
+												<WellLogsMobile key={log?._id} data={log} />
+											))}
+										</Flex>
+									),
+								},
+								{
+									key: 'notes',
+									label: 'یادداشت‌ها',
+									children: <WellNotesMobile />,
+								},
+							]}
+						/>
+					</>
 				) : (
 					<>
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
