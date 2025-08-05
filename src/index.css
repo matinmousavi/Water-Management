@@ -16,6 +16,9 @@
 /* --------------------------------------------
     Ant Design Overrides
 --------------------------------------------- */
+.ant-select-multiple {
+	font-size: 14px !important;
+}
 .ant-layout-header {
 	padding: 0 16px;
 }

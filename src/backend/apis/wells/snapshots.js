@@ -42,6 +42,7 @@ router.post('/', async (req, res) => {
 				startTime: s.startTime.toISOString(),
 				endTime: s.endTime.toISOString(),
 				title: s.title,
+				day: s.day,
 				color: s.color || null,
 			})),
 		})
@@ -73,6 +74,7 @@ router.post('/:snapshotId/restore', async (req, res) => {
 			endTime: new Date(s.endTime),
 			title: s.title,
 			color: s.color,
+			day: s.day,
 			status: 'active',
 		}))
 

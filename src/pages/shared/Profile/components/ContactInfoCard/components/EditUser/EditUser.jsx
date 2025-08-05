@@ -63,8 +63,8 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 
 				if (typeof setData === 'function') {
 					setData(({ user }) => {
-						const { firstName: _, lastName: __, ...newRest } = response.user
-						const { firstName: ___, lastName: ____, ...prevRest } = user || {}
+						const { fullName: __, ...newRest } = response.user
+						const { fullName: ____, ...prevRest } = user || {}
 
 						const hasOtherChanges = Object.keys(newRest).some(key => newRest[key] !== prevRest[key])
 
@@ -73,7 +73,7 @@ const EditUser = ({ initialValue, setData, setPageTitle }) => {
 				}
 
 				if (typeof setPageTitle === 'function') {
-					const newTitle = `${response.user.firstName} ${response.user.lastName}`
+					const newTitle = response.user.fullName
 					setPageTitle(prevTitle => (newTitle !== prevTitle ? newTitle : prevTitle))
 				}
 

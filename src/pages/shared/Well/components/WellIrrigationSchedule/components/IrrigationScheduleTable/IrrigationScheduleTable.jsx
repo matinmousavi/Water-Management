@@ -135,8 +135,16 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 	const handleTaskClick = task => {
 		setEditingTask(task)
 		setSelectedDay(task.day)
+
+		let targetValue = null
+		if (task.targetType === 'land' && task.land) {
+			targetValue = task.land._id
+		} else if (task.targetType === 'group' && task.landGroup) {
+			targetValue = task.landGroup._id
+		}
+
 		form.setFieldsValue({
-			target: task.targetId,
+			target: targetValue,
 			startTime: dayjs(task.startTime),
 			endTime: dayjs(task.endTime),
 			day: task.day ?? 0,
@@ -302,9 +310,6 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 														}}
 													>
 														<div className={styles['task-name']}>{task.title}</div>
-														<div className={styles['task-time']}>
-															{dayjs(task.startTime).format('HH:mm')} - {dayjs(task.endTime).format('HH:mm')}
-														</div>
 													</div>
 												)
 											})}
@@ -324,31 +329,37 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 					setEditingTask(null)
 					setSelectedDay(null)
 				}}
-				footer={[
-					<Button key='cancel' onClick={() => setIsModalVisible(false)}>
-						لغو
-					</Button>,
-					editingTask && (
-						<Popconfirm
-							key='delete'
-							title='حذف برنامه'
-							description='آیا مطمئن هستید که می‌خواهید این برنامه را حذف کنید؟'
-							onConfirm={handleDeleteTask}
-							okText='بله'
-							cancelText='خیر'
-						>
-							<Button danger icon={<DeleteOutlined />}>
-								حذف
+				footer={
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+						{editingTask ? (
+							<div
+								style={{ color: 'red', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 8 }}
+								onClick={handleDeleteTask}
+								role='button'
+								tabIndex={0}
+								onKeyDown={e => {
+									if (e.key === 'Enter' || e.key === ' ') handleDeleteTask()
+								}}
+							>
+								<DeleteOutlined />
+								حذف زمان بندی
+							</div>
+						) : (
+							<div />
+						)}
+						<div>
+							<Button key='cancel' onClick={() => setIsModalVisible(false)} style={{ marginLeft: 8 }}>
+								لغو
 							</Button>
-						</Popconfirm>
-					),
-					<Button key='submit' type='primary' loading={isLoading} onClick={handleModalOk}>
-						تایید
-					</Button>,
-				]}
+							<Button key='submit' type='primary' loading={isLoading} onClick={handleModalOk}>
+								تایید
+							</Button>
+						</div>
+					</div>
+				}
 			>
 				<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
-					<Form.Item label='زمین یا گروه' name='target' rules={[{ required: true, message: 'لطفا انتخاب کنید' }]}>
+					<Form.Item label='زمین' name='target' rules={[{ required: true, message: 'لطفا انتخاب کنید' }]}>
 						<Select size='large' placeholder='انتخاب' options={selectOptions} />
 					</Form.Item>
 
@@ -356,7 +367,14 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 						<Row gutter={16} align='middle'>
 							<Col span={12}>
 								<Form.Item name='startTime' noStyle rules={[{ required: true, message: 'ساعت شروع را انتخاب کنید' }]}>
-									<TimePicker placeholder='شروع' format='HH:mm' size='large' style={{ width: '100%' }} minuteStep={15} showNow={false} />
+									<TimePicker
+										placeholder='شروع'
+										format='HH:mm'
+										size='large'
+										style={{ width: '100%' }}
+										showNow={false}
+										// حذف minuteStep تا هر دقیقه قابل انتخاب باشه
+									/>
 								</Form.Item>
 							</Col>
 							<Col span={12}>
@@ -369,15 +387,30 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 										({ getFieldValue }) => ({
 											validator(_, value) {
 												const start = getFieldValue('startTime')
-												if (!start || !value || dayjs(value).isAfter(dayjs(start))) {
-													return Promise.resolve()
+												if (!start || !value) return Promise.resolve()
+
+												if (!dayjs(value).isAfter(dayjs(start))) {
+													return Promise.reject(new Error('زمان پایان باید بعد از زمان شروع باشد'))
 												}
-												return Promise.reject(new Error('زمان پایان باید بعد از زمان شروع باشد'))
+
+												const diffMinutes = dayjs(value).diff(dayjs(start), 'minute')
+												if (diffMinutes < 15) {
+													return Promise.reject(new Error('اختلاف زمان باید حداقل ۱۵ دقیقه باشد'))
+												}
+
+												return Promise.resolve()
 											},
 										}),
 									]}
 								>
-									<TimePicker placeholder='پایان' format='HH:mm' size='large' style={{ width: '100%' }} minuteStep={15} showNow={false} />
+									<TimePicker
+										placeholder='پایان'
+										format='HH:mm'
+										size='large'
+										style={{ width: '100%' }}
+										showNow={false}
+										// حذف minuteStep تا هر دقیقه قابل انتخاب باشه
+									/>
 								</Form.Item>
 							</Col>
 						</Row>

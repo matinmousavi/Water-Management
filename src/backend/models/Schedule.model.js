@@ -35,6 +35,9 @@ const scheduleSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		color: {
+			type: String,
+		},
 		status: {
 			type: String,
 			enum: ['active', 'inactive'],
