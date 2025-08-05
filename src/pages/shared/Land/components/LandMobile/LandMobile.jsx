@@ -3,9 +3,15 @@ import tree from '../../../../../assets/icons/tree_bold.svg'
 import styles from './LandMobile.module.css'
 import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
 import LandNotesMobile from './components/LandMobileNotes/LandNotesMobile'
+import LandLogsMobile from './components/LandLogsMobile/LandLogsMobile'
 
 const LandMobile = ({ landData }) => {
 	const items = [
+		{
+			key: 'logs',
+			label: 'لاگ توزیع',
+			children: <LandLogsMobile data={landData} />,
+		},
 		{
 			key: 'specifications',
 			label: 'مشخصات',
@@ -24,7 +30,7 @@ const LandMobile = ({ landData }) => {
 				<img src={tree} alt='tree icon' />
 				<Typography.Title className='title-h1'>زمین {landData?.title}</Typography.Title>
 			</Flex>
-			<Tabs defaultActiveKey='specifications' items={items} />
+			<Tabs defaultActiveKey='logs' items={items} />
 		</Flex>
 	)
 }

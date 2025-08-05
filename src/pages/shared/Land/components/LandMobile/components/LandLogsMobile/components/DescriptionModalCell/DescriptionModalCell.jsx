@@ -76,8 +76,8 @@ const DescriptionModalCell = ({ record }) => {
 				footer={
 					!isOlderThanOneDay &&
 					notes && (
-						<Flex align='center' justify='start'>
-							<EditOutlined onClick={openEditFromModal} className={styles.icon} />
+						<Flex align='center' justify='start' onClick={openEditFromModal}>
+							<EditOutlined className={styles.icon} />
 							<Text className={styles.icon}>ویرایش</Text>
 						</Flex>
 					)

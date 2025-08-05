@@ -1,22 +1,3 @@
-.itemCard {
-	height: 40px !important;
-}
-
-.cardType {
-	flex: 1;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	justify-content: flex-start;
-}
-
-.cardRole {
-	flex: 1;
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-}
-
 .table {
 	table {
 		width: 296px !important;
@@ -70,6 +51,8 @@
 .textBtn {
 	font-weight: 500 !important;
 	font-size: 1rem !important;
+	width: 156px !important;
+	height: 47px !important;
 }
 
 .btnDanger {
@@ -77,17 +60,6 @@
 	background-color: #0066ee;
 	color: #ffff;
 	height: 47px !important;
-}
-
-.value {
-	font-size: 14px;
-	font-weight: 500;
-}
-
-.label {
-	font-size: 14px;
-	font-weight: 400;
-	color: #1e1e2c;
 }
 
 .btnModal {
