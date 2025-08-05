@@ -460,7 +460,7 @@ label::after {
 		font-size: 1rem !important;
 	}
 	.ant-input {
-		font-size: 12px !important;
+		font-size: 16px !important;
 	}
 	.ant-btn {
 		font-size: 14px !important;
@@ -474,6 +474,9 @@ label::after {
 	.custom-select {
 		line-height: 32;
 		width: 100%;
+	}
+	.ant-modal-footer .ant-btn {
+		font-size: 16px !important;
 	}
 	.ant-select-selector {
 		height: 40px !important;

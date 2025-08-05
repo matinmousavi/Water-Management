@@ -1,4 +1,5 @@
 import { Modal, Space, Table } from 'antd'
+import styles from './WellLogsTable.module.css'
 import { DeleteTwoTone, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import { Link } from 'react-router'
 import useNotification from '../../../../../../../hooks/useNotification'
@@ -238,7 +239,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 						</div>
 					}
 				>
-					<p style={{ lineHeight: '2' }}>{viewableLog?.note}</p>
+					<p className={styles.note}>{viewableLog?.note}</p>
 				</Modal>
 			)}
 		</>
