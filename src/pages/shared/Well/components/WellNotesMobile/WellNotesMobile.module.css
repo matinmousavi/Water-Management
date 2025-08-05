@@ -1,0 +1,56 @@
+.buttonAddNote {
+	position: fixed;
+	height: 75px;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	z-index: 2;
+	background-color: #ffffff;
+	width: 100vw;
+	padding: 16px;
+
+	button {
+		width: 100%;
+		border: 1px solid #0066ee;
+		color: #0066ee;
+		font-size: 1rem !important;
+		font-weight: 500 !important;
+		border-radius: 8px !important;
+	}
+}
+
+.wrapper {
+	margin-top: 1rem;
+}
+.customDrawerRoot :global(.ant-drawer-body) {
+	padding-top: 0 !important;
+}
+.itemForm {
+	height: 100%;
+}
+.modalContainer {
+	height: 100%;
+	padding: 0 16px;
+}
+.textArea {
+	height: 100% !important;
+	border-radius: 6px;
+}
+.touchesBox {
+	height: 100%;
+}
+
+.title {
+	font-size: 14px !important;
+	font-weight: 400 !important;
+	color: #000000 !important;
+}
+.date {
+	font-weight: 400 !important;
+	color: rgba(0, 0, 0, 0.6);
+	font-size: 12px !important;
+}
+
+.text {
+	font-weight: 300 !important;
+}

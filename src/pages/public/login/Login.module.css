@@ -58,7 +58,9 @@
 	align-items: center !important;
 	margin-bottom: 0 !important;
 }
-
+.inputLogin {
+	height: 40px;
+}
 .resendCode {
 	color: rgba(0, 0, 0, 0.6);
 }
@@ -91,5 +93,4 @@
 /* ---------- Extra Large Screens (1440px and up) ---------- */
 
 @media (min-width: 1440px) {
-	
 }
