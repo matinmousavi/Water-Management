@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import Well from '../../models/Well.model.js'
+import Note from '../../models/Note.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
@@ -77,6 +78,9 @@ router.get('/', async (req, res) => {
 					})
 				)
 
+				const notes = await Note.find({ type: 'well', reference: well._id }).populate('user', 'fullName').lean()
+				well.notes = notes
+
 				return well
 			})
 		)
@@ -138,7 +142,9 @@ router.get('/:wellId', async (req, res) => {
 			})
 		)
 
-		return res.status(200).json({ well: { ...well, logs } })
+		const notes = await Note.find({ type: 'well', reference: wellId }).populate('user', 'fullName').lean()
+
+		return res.status(200).json({ well: { ...well, logs, notes } })
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
