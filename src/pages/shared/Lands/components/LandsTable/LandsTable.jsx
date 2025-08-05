@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom'
 
 const LandsTable = ({ landsData = [] }) => {
 	const allIrrigators = Array.from(
-		new Set(
-			landsData.flatMap(land => (land.wells || []).filter(well => well.irrigator).map(well => `${well.irrigator.firstName} ${well.irrigator.lastName}`))
-		)
+		new Set(landsData.flatMap(land => (land.wells || []).filter(well => well.irrigator).map(well => `${well.irrigator.fullName}`)))
 	).map(name => ({ text: name, value: name }))
 
 	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner?.fullName || '-'}`.trim()))).map(name => ({
@@ -78,21 +76,14 @@ const LandsTable = ({ landsData = [] }) => {
 			key: 'irrigator',
 			width: 188,
 			filters: allIrrigators,
-			onFilter: (value, record) =>
-				(record.wells || []).some(well => well.irrigator && `${well.irrigator.firstName} ${well.irrigator.lastName}` === value),
+			onFilter: (value, record) => (record.wells || []).some(well => well.irrigator && `${well.irrigator.fullName}` === value),
 			filterSearch: true,
 			render: (_, record) => {
 				const wells = record.wells || []
 				if (!wells.length) return '-'
 				return wells.map((well, index) => (
 					<span key={well._id || index}>
-						{well.irrigator && well._id ? (
-							<Link to={`/wells/${well._id}`}>
-								{well.irrigator.firstName} {well.irrigator.lastName}
-							</Link>
-						) : (
-							<span>-</span>
-						)}
+						{well.irrigator && well._id ? <Link to={`/wells/${well._id}`}>{well.irrigator.fullName}</Link> : <span>-</span>}
 						{index < wells.length - 1 && ' - '}
 					</span>
 				))

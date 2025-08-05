@@ -6,28 +6,25 @@ import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import ContactInfoCard from './components/ContactInfoCard/ContactInfoCard'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
-import { useUser } from '../../../contexts/UserContext'
 import BackButton from '../../../components/BackButton/BackButton'
 import UserStatus from './components/UserStatus'
 
 const { Title } = Typography
 
 const Profile = () => {
-	const [pageTitle, setPageTitle] = useState('پروفایل')
-	const { user: currentUser } = useUser()
 	const { userId } = useParams()
 	const api = useAPI()
 
 	if (userId) api.init(`users/${userId}`)
 
-	const rawUserData = userId ? api.data?.user : currentUser
+	const rawUserData = api.data?.user
 	const userDataRef = useRef(null)
+	const [pageTitle, setPageTitle] = useState('پروفایل')
 
 	useEffect(() => {
 		if (rawUserData && !userDataRef.current) {
 			userDataRef.current = rawUserData
-			const { firstName = '', lastName = '' } = rawUserData
-			const defaultTitle = firstName || lastName ? `${firstName} ${lastName}` : 'پروفایل'
+			const defaultTitle = rawUserData.fullName || 'پروفایل'
 			setPageTitle(defaultTitle)
 		}
 	}, [rawUserData])
@@ -38,7 +35,7 @@ const Profile = () => {
 
 	return (
 		<>
-			<MetaTitle>پروفایل</MetaTitle>
+			<MetaTitle>{pageTitle}</MetaTitle>
 
 			<Flex vertical justify='space-between'>
 				<Flex align='center' gap={16}>

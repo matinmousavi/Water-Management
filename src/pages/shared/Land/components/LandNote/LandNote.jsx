@@ -115,7 +115,7 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 			</div>
 
 			<Modal
-				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}` : 'افزودن یادداشت'}
+				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user.fullName}` : 'افزودن یادداشت'}
 				centered
 				open={isShowModalNote}
 				onCancel={() => {
@@ -139,7 +139,7 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 			</Modal>
 
 			<Modal
-				title={`حذف یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}`}
+				title={`حذف یادداشت ${selectedNote?.user.fullName}`}
 				open={isNoteDeleteMode}
 				onCancel={() => {
 					setIsNoteDeleteMode(false)
