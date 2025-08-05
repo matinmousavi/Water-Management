@@ -359,7 +359,7 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 				}
 			>
 				<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
-					<Form.Item label='زمین یا گروه' name='target' rules={[{ required: true, message: 'لطفا انتخاب کنید' }]}>
+					<Form.Item label='زمین' name='target' rules={[{ required: true, message: 'لطفا انتخاب کنید' }]}>
 						<Select size='large' placeholder='انتخاب' options={selectOptions} />
 					</Form.Item>
 

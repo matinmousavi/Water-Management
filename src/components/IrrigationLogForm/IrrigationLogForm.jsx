@@ -37,10 +37,10 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 	return (
 		<Form form={form} layout='horizontal' labelAlign='left' labelCol={labelCol} wrapperCol={wrapperCol}>
 			{page === 'well' && (
-				<Form.Item name='landId' label='زمین یا گروه' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+				<Form.Item name='landId' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 					<Select
 						showSearch
-						placeholder='انتخاب زمین یا گروه'
+						placeholder='انتخاب'
 						optionFilterProp='children'
 						filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}
 						allowClear
