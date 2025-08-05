@@ -38,7 +38,7 @@ const MyNotes = () => {
 				</Title>
 			</Flex>
 
-			<Flex vertical gap={8}>
+			<Flex vertical gap={16}>
 				{apiNotes.data?.notes?.map(note => {
 					const isOpen = editingNoteId === note?.id
 					return (
