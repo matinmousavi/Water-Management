@@ -9,8 +9,6 @@ const WellsTable = ({ WellsData }) => {
 	const [containerRef, height] = useContainerHeight(40)
 	const [searchedColumn, setSearchedColumn] = useState('')
 
-	console.log(WellsData)
-
 	const getColumnSearchProps = dataIndex => ({
 		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
 			<div style={{ padding: 8 }}>
