@@ -15,6 +15,8 @@ import iconWell from '../../../assets/icons/Vector.svg'
 import WellStatus from './components/WellStatus'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
+import WellIrrigationSchedule from './components/WellIrrigationSchedule/WellIrrigationSchedule'
+import WellNote from './components/WellNote/WellNote'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -48,6 +50,7 @@ const Well = () => {
 
 	const wellsApi = useAPI()
 	const userApi = useAPI()
+
 	wellsApi.init('wells')
 	userApi.init('me')
 	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id == userApi.data?.user?._id)
@@ -98,6 +101,15 @@ const Well = () => {
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
 						<WellLandsCard wellLands={landsData.lands} landGroups={landsData.landGroups} setLandsData={setLandsData} wellStatus={status} />
 						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} landsData={landsData} />
+						<WellNote notesData={well.notes} status={status} />
+						{landsData.lands.length > 0 && (
+							<WellIrrigationSchedule
+								wellId={actualWellId}
+								lands={landsData.lands}
+								landGroups={landsData.landGroups}
+								cycleDays={well.cycleDays}
+							/>
+						)}
 					</>
 				)}
 

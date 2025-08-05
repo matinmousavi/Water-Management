@@ -36,6 +36,7 @@ const EditWell = ({ initialValue, setData, setPageTitle }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
+
 			const response = await wellApi.patch(`wells/${initialValue._id}`, values)
 
 			if (response?.error) {

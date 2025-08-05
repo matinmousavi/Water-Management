@@ -16,29 +16,33 @@ router.get('/', async (req, res) => {
 	}
 })
 
-// POST create snapshot with title and schedules (include title)
+// POST create snapshot
 router.post('/', async (req, res) => {
 	try {
 		const { wellId } = req.params
 		const { title, description } = req.body
 
-		if (!title) {
+		if (!title?.trim()) {
 			return res.status(400).json({ message: 'عنوان اسنپ‌شات الزامی است.' })
 		}
 
 		const schedules = await Schedule.find({ well: wellId }).lean()
+		if (!schedules.length) {
+			return res.status(400).json({ message: 'هیچ زمان‌بندی فعالی برای ذخیره وجود ندارد.' })
+		}
 
 		const snapshot = await ScheduleSnapshot.create({
 			well: wellId,
 			title,
 			description,
-			schedules: schedules.map(schedule => ({
-				targetType: schedule.targetType,
-				land: schedule.land,
-				landGroup: schedule.landGroup,
-				startTime: schedule.startTime,
-				endTime: schedule.endTime,
-				title: schedule.title,
+			schedules: schedules.map(s => ({
+				targetType: s.targetType,
+				land: s.land,
+				landGroup: s.landGroup,
+				startTime: s.startTime.toISOString(),
+				endTime: s.endTime.toISOString(),
+				title: s.title,
+				color: s.color || null,
 			})),
 		})
 
@@ -49,27 +53,30 @@ router.post('/', async (req, res) => {
 	}
 })
 
-// POST restore schedules from snapshot
+// POST restore snapshot
 router.post('/:snapshotId/restore', async (req, res) => {
 	try {
 		const { wellId, snapshotId } = req.params
 		const snapshot = await ScheduleSnapshot.findById(snapshotId)
-		if (!snapshot) return res.status(404).json({ message: 'اسنپ‌شات پیدا نشد.' })
+		if (!snapshot) {
+			return res.status(404).json({ message: 'اسنپ‌شات پیدا نشد.' })
+		}
 
 		await Schedule.deleteMany({ well: wellId })
 
-		await Schedule.insertMany(
-			snapshot.schedules.map(schedule => ({
-				well: wellId,
-				targetType: schedule.targetType,
-				land: schedule.land,
-				landGroup: schedule.landGroup,
-				startTime: schedule.startTime,
-				endTime: schedule.endTime,
-				title: schedule.title,
-				status: 'active',
-			}))
-		)
+		const schedulesToInsert = snapshot.schedules.map(s => ({
+			well: wellId,
+			targetType: s.targetType,
+			land: s.land,
+			landGroup: s.landGroup,
+			startTime: new Date(s.startTime),
+			endTime: new Date(s.endTime),
+			title: s.title,
+			color: s.color,
+			status: 'active',
+		}))
+
+		await Schedule.insertMany(schedulesToInsert)
 
 		return res.status(200).json({ message: 'زمان‌بندی‌ها با موفقیت بازگردانی شدند.' })
 	} catch (err) {

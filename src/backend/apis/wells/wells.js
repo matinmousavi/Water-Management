@@ -206,7 +206,17 @@ router.post('/', async (req, res) => {
 router.patch('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
-		const updates = req.body
+		const updates = { ...req.body }
+
+		// تبدیل startTime و endTime به offTime
+		if (updates.startTime && updates.endTime) {
+			updates.offTime = {
+				start: new Date(updates.startTime),
+				end: new Date(updates.endTime),
+			}
+			delete updates.startTime
+			delete updates.endTime
+		}
 
 		const well = await Well.findById(wellId)
 		if (!well) {
