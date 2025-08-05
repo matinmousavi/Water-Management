@@ -99,7 +99,7 @@ const Login = () => {
 				<Form form={form} layout='vertical' className={styles.form} onFinish={handleSubmit} initialValues={{ mobile: '', otp: '' }}>
 					<Flex className={styles['form-wrapper']} vertical>
 						{step === 1 ? (
-							<Flex vertical gap={8}>
+							<Flex vertical gap={isMobile ? 20 : 8}>
 								<Typography.Text className='title-login'>شماره موبایل خود را وارد کنید.</Typography.Text>
 								<Form.Item
 									name='mobile'
@@ -118,6 +118,7 @@ const Login = () => {
 												e.preventDefault()
 											}
 										}}
+										className={styles.inputLogin}
 									/>
 								</Form.Item>
 							</Flex>

@@ -109,16 +109,14 @@ const WellNotesMobile = ({ wellId }) => {
 				))}
 			</Flex>
 
-			{/* ویرایش یادداشت */}
 			<ModalMobile height={322} open={openEdit} title='ویرایش یادداشت' onClose={onClose} handleSubmit={handleEditSubmit} loading={notesApi.isLoading}>
-				<div className={styles.container}>
+				<div className={styles.modalContainer}>
 					<Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 						<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
 					</Form.Item>
 				</div>
 			</ModalMobile>
 
-			{/* افزودن یادداشت */}
 			<ModalMobile
 				form={form}
 				onClose={onClose}
