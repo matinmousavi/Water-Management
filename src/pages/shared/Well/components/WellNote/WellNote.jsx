@@ -1,16 +1,16 @@
 import { Button, Card, Flex, Form, Input, Modal, Typography } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
-import styles from './LandNote.module.css'
-import useAPI from '../../../../../hooks/useAPI'
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router'
-import NoteList from './components/NoteList/NoteList'
+import styles from './WellNote.module.css'
+import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
+import NoteList from '../../../Land/components/LandNote/components/NoteList/NoteList'
 
 const { Title, Text } = Typography
 
-const LandNote = ({ notesData: initialNotes, status }) => {
-	const { landId } = useParams()
+const WellNote = ({ notesData: initialNotes, status }) => {
+	const { wellId } = useParams()
 	const cardRef = useRef()
 	const notesApi = useAPI()
 	const { openNotification } = useNotification()
@@ -48,7 +48,7 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 	const confirmDeleteNote = async () => {
 		if (!selectedNote?._id) return
 		try {
-			await notesApi.delete(`lands/${landId}/notes/${selectedNote._id}`)
+			await notesApi.delete(`notes/${selectedNote._id}`)
 			setNotes(prev => prev.filter(note => note._id !== selectedNote._id))
 			openNotification('success', 'یادداشت با موفقیت حذف شد')
 		} catch (error) {
@@ -63,24 +63,22 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 	const handleSubmitNote = async values => {
 		try {
 			if (isNoteEditMode && selectedNote?._id) {
-				const response = await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
+				const response = await notesApi.patch(`notes/${selectedNote._id}`, {
+					text: values.text,
+				})
 
-				const updatedData = response.data || response.note || response
-				if (!updatedData._id) {
-					throw new Error('Invalid response structure - missing _id')
-				}
-
-				setNotes(prev => prev.map(note => (note._id === updatedData._id ? updatedData : note)))
+				setNotes(prev => prev.map(note => (note._id === response.id ? response : note)))
 				openNotification('success', 'یادداشت با موفقیت ویرایش شد')
 			} else {
-				const response = await notesApi.post(`lands/${landId}/notes`, values)
+				const response = await notesApi.post('notes', {
+					type: 'well',
+					reference: wellId,
+					text: values.text,
+				})
 
-				const newData = response.data || response.note || response
-				if (!newData._id) {
-					throw new Error('Invalid response structure - missing _id')
-				}
+				if (!response.note?.id) throw new Error('Invalid response structure - missing _id')
 
-				setNotes(prev => [...prev, newData])
+				setNotes(prev => [...prev, response.note])
 				openNotification('success', 'یادداشت با موفقیت افزوده شد')
 			}
 
@@ -100,9 +98,8 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 					<Flex gap={36} vertical>
 						<Flex align='center' justify='space-between'>
 							<Title level={2} className='text-card-title'>
-								یادداشت زمین ({notes?.length})
+								یادداشت چاه ({notes?.length})
 							</Title>
-
 							<Button color='primary' variant='outlined' onClick={handleOpenAddNoteModal}>
 								<PlusCircleOutlined />
 								<span>افزودن یادداشت</span>
@@ -114,8 +111,9 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 				</Card>
 			</div>
 
+			{/* Add/Edit Modal */}
 			<Modal
-				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}` : 'افزودن یادداشت'}
+				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user?.fullName}` : 'افزودن یادداشت'}
 				centered
 				open={isShowModalNote}
 				onCancel={() => {
@@ -138,8 +136,9 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 				</Form>
 			</Modal>
 
+			{/* Delete Modal */}
 			<Modal
-				title={`حذف یادداشت ${selectedNote?.user.firstName} ${selectedNote?.user.lastName}`}
+				title={`حذف یادداشت ${selectedNote?.user?.fullName}`}
 				open={isNoteDeleteMode}
 				onCancel={() => {
 					setIsNoteDeleteMode(false)
@@ -158,4 +157,5 @@ const LandNote = ({ notesData: initialNotes, status }) => {
 		</>
 	)
 }
-export default LandNote
+
+export default WellNote

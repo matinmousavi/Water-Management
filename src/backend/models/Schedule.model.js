@@ -31,6 +31,10 @@ const scheduleSchema = new mongoose.Schema(
 			type: Date,
 			required: true,
 		},
+		day: {
+			type: Number,
+			required: true,
+		},
 		status: {
 			type: String,
 			enum: ['active', 'inactive'],
