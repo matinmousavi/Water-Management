@@ -52,6 +52,7 @@ const Well = () => {
 	wellsApi.init('wells')
 	userApi.init('me')
 	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id == userApi.data?.user?._id)
+	console.log(wellsApi.data.wells)
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
@@ -99,7 +100,7 @@ const Well = () => {
 								{
 									key: 'notes',
 									label: 'یادداشت‌ها',
-									children: <WellNotesMobile />,
+									children: <WellNotesMobile wellId={wellId} />,
 								},
 							]}
 						/>
