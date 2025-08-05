@@ -32,7 +32,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 				grouped[key] = {
 					...log,
 					logs: [],
-					landGroupTitle: log.landGroupTitle || 'نام گروه نامشخص',
+					landGroupTitle: log.landGroupTitle || '--',
 				}
 			}
 			grouped[key].logs.push(log)
@@ -107,7 +107,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
-					children: record.landGroupTitle || 'نام گروه نامشخص',
+					children: record.landGroupTitle || '--',
 					props: {
 						rowSpan: record.groupSize,
 						style: { fontWeight: 'bold' },

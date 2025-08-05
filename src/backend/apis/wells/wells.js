@@ -154,7 +154,12 @@ router.get('/:wellId', async (req, res) => {
 // POST create well
 router.post('/', async (req, res) => {
 	try {
-		const { title, licenseCode, cycleDays, cycleStartDate, location, irrigator, lands, workTime } = req.body
+		let { title, licenseCode, cycleDays, cycleStartDate, location, irrigator, lands, workTime } = req.body
+
+		// حذف زمین‌های تکراری
+		if (Array.isArray(lands)) {
+			lands = [...new Set(lands.map(id => id.toString()))]
+		}
 
 		let newWell = await Well.create({
 			title,
@@ -207,6 +212,11 @@ router.patch('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
 		const updates = { ...req.body }
+
+		// حذف زمین‌های تکراری اگر ارسال شده
+		if (updates.lands && Array.isArray(updates.lands)) {
+			updates.lands = [...new Set(updates.lands.map(id => id.toString()))]
+		}
 
 		// تبدیل startTime و endTime به offTime
 		if (updates.startTime && updates.endTime) {

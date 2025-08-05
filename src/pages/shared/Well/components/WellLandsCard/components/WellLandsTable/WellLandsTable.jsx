@@ -19,7 +19,11 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 	const handleDelete = async () => {
 		if (!selectedLand?._id) return
 		try {
+			// حذف زمین انتخاب شده از آرایه data
 			const updatedLands = data.filter(item => item._id !== selectedLand._id)
+			// فقط آرایه‌ی شناسه‌ها را ارسال کن
+			const updatedLandsIds = updatedLands.map(land => land._id)
+
 			const updatedGroups = landGroups
 				.map(group => ({
 					...group,
@@ -28,7 +32,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 				.filter(group => group.lands.length > 0)
 
 			const response = await wellApi.patch(`wells/${wellId}`, {
-				lands: updatedLands,
+				lands: updatedLandsIds,
 				landGroups: updatedGroups,
 			})
 
