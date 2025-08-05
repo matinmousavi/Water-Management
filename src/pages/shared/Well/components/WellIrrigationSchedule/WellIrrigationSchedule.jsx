@@ -7,7 +7,7 @@ import useNotification from '../../../../../hooks/useNotification'
 const { Title } = Typography
 const { Option } = Select
 
-export default function IrrigationSchedule({ wellId }) {
+export default function IrrigationSchedule({ wellId, lands = [], landGroups = [], cycleDays = 0 }) {
 	const [selectedSnapshot, setSelectedSnapshot] = useState(null)
 	const [snapshots, setSnapshots] = useState([])
 	const [isModalVisible, setIsModalVisible] = useState(false)
@@ -122,7 +122,7 @@ export default function IrrigationSchedule({ wellId }) {
 					</div>
 				</div>
 
-				<IrrigationScheduleTable wellId={wellId} selectedSnapshot={selectedSnapshot} />
+				<IrrigationScheduleTable wellId={wellId} selectedSnapshot={selectedSnapshot} lands={lands} landGroups={landGroups} cycleDays={cycleDays} />
 			</Card>
 
 			<Modal

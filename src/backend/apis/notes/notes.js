@@ -63,6 +63,55 @@ router.get('/', async (req, res) => {
 	}
 })
 
+// POST create a new note
+router.post('/', async (req, res) => {
+	try {
+		const { text, type, reference } = req.body
+
+		if (!text || typeof text !== 'string') {
+			return res.status(400).json({ error: 'متن یادداشت الزامی است' })
+		}
+
+		if (!['personal', 'well', 'land'].includes(type)) {
+			return res.status(400).json({ error: 'نوع یادداشت معتبر نیست' })
+		}
+
+		if (!reference) {
+			return res.status(400).json({ error: 'شناسه مرجع الزامی است' })
+		}
+
+		const typeRefMap = {
+			well: 'Well',
+			land: 'Land',
+			personal: 'User',
+		}
+
+		const note = await Note.create({
+			user: req.user._id,
+			type,
+			reference,
+			typeRef: typeRefMap[type],
+			text: text.trim(),
+		})
+
+		const refData = await getReference(type, reference)
+
+		const responseData = {
+			id: note._id,
+			text: note.text,
+			type: note.type,
+			createdAt: note.createdAt,
+			updatedAt: note.updatedAt,
+			reference: refData,
+			user: { id: req.user._id, fullName: req.user.fullName },
+		}
+
+		return res.status(201).json({ note: responseData })
+	} catch (err) {
+		return res.status(500).json({ error: 'خطای سرور', details: err.message })
+	}
+})
+
 // GET notes for a specific user (with access control)
 router.get('/user/:userId', async (req, res) => {
 	try {
