@@ -6,6 +6,7 @@ const scheduleSnapshotSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Well',
 			required: true,
+			index: true,
 		},
 		title: {
 			type: String,
@@ -30,13 +31,14 @@ const scheduleSnapshotSchema = new mongoose.Schema(
 					type: mongoose.Schema.Types.ObjectId,
 				},
 				startTime: {
-					type: Date,
+					type: String,
 					required: true,
 				},
 				endTime: {
-					type: Date,
+					type: String,
 					required: true,
 				},
+				color: { type: String },
 			},
 		],
 	},

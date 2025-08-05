@@ -15,6 +15,7 @@ import iconWell from '../../../assets/icons/Vector.svg'
 import WellStatus from './components/WellStatus'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
+import WellIrrigationSchedule from './components/WellIrrigationSchedule/WellIrrigationSchedule'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -62,6 +63,8 @@ const Well = () => {
 		setOpenWellList(false)
 	}
 
+	console.log(landsData)
+
 	return (
 		<>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
@@ -98,6 +101,7 @@ const Well = () => {
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
 						<WellLandsCard wellLands={landsData.lands} landGroups={landsData.landGroups} setLandsData={setLandsData} wellStatus={status} />
 						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} landsData={landsData} />
+						<WellIrrigationSchedule wellId={actualWellId} />
 					</>
 				)}
 
