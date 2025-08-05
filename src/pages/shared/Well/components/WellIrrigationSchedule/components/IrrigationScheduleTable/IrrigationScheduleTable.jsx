@@ -12,20 +12,20 @@ import useNotification from '../../../../../../../hooks/useNotification'
 dayjs.extend(isBetween)
 
 const colorPalette = [
-	'#e0f7e9',
-	'#fff4e5',
-	'#e6f7ff',
-	'#ffe6f0',
-	'#f3e5f5',
-	'#fff9c4',
-	'#e0f7fa',
-	'#ffebee',
-	'#fff3e0',
-	'#f3e5f5',
-	'#ffe0b2',
-	'#e1bee7',
-	'#ffccbc',
-	'#cfd8dc',
+	'#e0f7e980',
+	'#fff4e580',
+	'#e6f7ff80',
+	'#ffe6f080',
+	'#f3e5f580',
+	'#fff9c480',
+	'#e0f7fa80',
+	'#ffebee80',
+	'#fff3e080',
+	'#f3e5f580',
+	'#ffe0b280',
+	'#e1bee780',
+	'#ffccbc80',
+	'#cfd8dc80',
 ]
 
 function numberToPersianOrdinal(n) {
@@ -101,10 +101,14 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 	const timeSlots = generateTimeSlots()
 
 	const fetchSchedules = async () => {
+		console.log(tasks);
+
 		setLoadingTable(true)
 		try {
 			const res = await api.get(`/wells/${wellId}/schedules`)
 			setTasks(res.schedules || [])
+			console.log(tasks);
+			
 		} catch {
 			openNotification('error', 'خطا', 'خطا در دریافت زمان‌بندی‌ها')
 		} finally {
