@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
 	try {
 		const { wellId } = req.params
-		const { targetType, targetId, startTime, endTime, day } = req.body
+		const { targetType, targetId, startTime, endTime, day, color } = req.body
 
 		let title = ''
 		let land = null
@@ -54,6 +54,7 @@ router.post('/', async (req, res) => {
 			endTime,
 			title,
 			day,
+			color,
 			status: 'active',
 		})
 
@@ -68,7 +69,7 @@ router.post('/', async (req, res) => {
 router.patch('/:scheduleId', async (req, res) => {
 	try {
 		const { scheduleId, wellId } = req.params
-		const { targetType, targetId, startTime, endTime, day } = req.body
+		const { targetType, targetId, startTime, endTime, day, color } = req.body
 
 		let title = ''
 		let land = null
@@ -100,6 +101,7 @@ router.patch('/:scheduleId', async (req, res) => {
 			endTime,
 			title,
 			day,
+			color,
 		}
 
 		const schedule = await Schedule.findByIdAndUpdate(scheduleId, updates, { new: true })
