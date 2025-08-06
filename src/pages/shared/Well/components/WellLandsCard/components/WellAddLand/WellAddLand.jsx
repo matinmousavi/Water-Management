@@ -28,7 +28,9 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 	const handleSubmit = useCallback(async () => {
 		try {
 			const values = await form.validateFields()
-			const updatedLands = [...currentLands, ...values.lands.map(id => landApi.data.lands.find(land => land._id === id)).filter(Boolean)]
+
+			const updatedLands = [...currentLands.map(land => land._id), ...values.lands]
+
 			const response = await wellApi.patch(`wells/${wellId}`, {
 				lands: updatedLands,
 			})
@@ -48,7 +50,7 @@ const WellAddLand = ({ setLandsData, currentLands = [] }) => {
 		} catch (err) {
 			openNotification('error', 'خطا', err?.error?.message || 'خطا در افزودن زمین')
 		}
-	}, [form, wellApi, wellId, setLandsData, openNotification, close, currentLands, landApi.data.lands])
+	}, [form, wellApi, wellId, setLandsData, openNotification, close, currentLands])
 
 	return (
 		<>

@@ -17,6 +17,7 @@ import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
 import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 import WellNote from './components/WellNote/WellNote'
+import WellIrrigationSchedule from './components/WellIrrigationSchedule/WellIrrigationSchedule'
 
 const Well = () => {
 	const { wellId } = useParams()
@@ -108,6 +109,11 @@ const Well = () => {
 					</>
 				) : (
 					<>
+						<Flex align='center' gap={16}>
+							<BackButton backTo='/wells' />
+							<Typography.Title className='text-page-title'>{title}</Typography.Title>
+							<WellStatus wellId={wellId} status={status} setStatus={setStatus} />
+						</Flex>
 						<WellInfoCard wellInfo={well} setPageTitle={setTitle} />
 						<WellLandsCard wellLands={landsData?.lands} landGroups={landsData?.landGroups} setLandsData={setLandsData} wellStatus={status} />
 						<WellLogCard data={logs} wellId={actualWellId} setLogs={setLogs} title={title} wellStatus={status} landsData={landsData} />
