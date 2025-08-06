@@ -7,6 +7,7 @@ import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 import landGroupsRouter from './landGroups.js'
 import schedulesRouter from './schedules.js'
 import snapshotsRouter from './snapshots.js'
+import { pickFields } from '../../utils/pickFields.js'
 
 const router = Router()
 
@@ -15,16 +16,6 @@ const getLandGroupTitle = (landGroupId, well) => {
 	if (!landGroupId || !well || !well.landGroups) return null
 	const group = well.landGroups.find(g => g.groupId.toString() === landGroupId.toString())
 	return group ? group.title : null
-}
-
-// Helper: Pick only requested fields from object
-const pickFields = (obj, fields) => {
-	if (!fields) return obj
-	const selected = {}
-	fields.split(',').forEach(f => {
-		if (obj[f] !== undefined) selected[f] = obj[f]
-	})
-	return selected
 }
 
 // GET all wells with filters and fields query params
