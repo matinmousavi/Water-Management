@@ -5,10 +5,11 @@ import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 
-const WellMobileView = ({ irrigatorWells, filterWells }) => {
+const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
 
 	const onCloseWellList = () => setOpenWellList(false)
+	console.log(filterWells)
 
 	return (
 		<>
@@ -17,12 +18,12 @@ const WellMobileView = ({ irrigatorWells, filterWells }) => {
 				<Typography.Title level={2} className='text-h2'>
 					چاه {irrigatorWells?.title}
 				</Typography.Title>
-				{filterWells?.length === 1 ? null : openWellList ? (
+				{filterWells?.length <= 1 ? null : openWellList ? (
 					<CaretUpOutlined onClick={() => setOpenWellList(false)} style={{ color: '#00000073' }} />
 				) : (
 					<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
 				)}
-				<WellsList setData={() => {}} data={filterWells} onClose={onCloseWellList} open={openWellList} />
+				<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
 			</Flex>
 
 			<Tabs

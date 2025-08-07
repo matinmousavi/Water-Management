@@ -66,7 +66,7 @@ const Well = () => {
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
 				{isMobile ? (
-					<WellMobileView irrigatorWells={irrigatorWells} filterWells={filterWells} />
+					<WellMobileView setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
 				) : (
 					<WellDesktopView
 						title={title}
