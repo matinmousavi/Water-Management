@@ -6,10 +6,10 @@ export const fieldTranslations = {
 		accountingCode: 'کد حسابداری',
 	},
 	wells: {
-		licenseCode: 'license Code',
+		licenseCode: 'کد پروارنه',
 		title: 'عنوان چاه',
-		cycleDays: 'cycleDays',
-		cycleStartDate: 'تاریخ شروع سایکل',
+		cycleDays: 'دوره',
+		cycleStartDate: 'تاریخ شروع دوره',
 		workTime: 'زمان کاری',
 		start: 'زمان شروع',
 		end: 'زمان پایان',

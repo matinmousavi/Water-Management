@@ -29,7 +29,7 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: irrigator?.mobile || '--',
 			},
 			{
-				label: 'License Code',
+				label: 'کد پروانه',
 				value: well?.licenseCode || '--',
 			},
 			{
@@ -37,11 +37,11 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				value: well?.location || '--',
 			},
 			{
-				label: 'Cycle Days',
+				label: 'دوره',
 				value: well?.cycleDays ? `${well.cycleDays} روز` : '--',
 			},
 			{
-				label: 'تاریخ شروع سایکل',
+				label: 'تاریخ شروع دوره',
 				value: cycleStartDateFormatted,
 			},
 			{
