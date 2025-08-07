@@ -14,7 +14,7 @@ import { EyeOutlined, EditOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 
-const DescriptionModalCell = ({ record }) => {
+const DescriptionModalCell = ({ record, descriptionEditHours }) => {
 	const [openEdit, setOpenEdit] = useState(false)
 	const [openDescription, setOpenDescription] = useState(false)
 	const [notes, setNotes] = useState(record.note || null)
@@ -22,10 +22,11 @@ const DescriptionModalCell = ({ record }) => {
 	const { openNotification } = useNotification()
 	const api = useAPI()
 
-	const isOlderThanOneDay = moment().diff(moment(record.createdAt), 'hours') >= 24
+	// ✅ اجازه ویرایش اگر کمتر از N ساعت گذشته
+	const isEditAllowed = moment().diff(moment(record.createdAt), 'hours') < descriptionEditHours
 
 	const handleEditClick = () => {
-		if (!notes) {
+		if (!notes && isEditAllowed) {
 			setOpenEdit(true)
 		} else {
 			setOpenDescription(true)
@@ -61,11 +62,7 @@ const DescriptionModalCell = ({ record }) => {
 	return (
 		<>
 			<Flex align='center' justify='center' onClick={handleEditClick}>
-				{isOlderThanOneDay ? (
-					<EyeOutlined onClick={() => setOpenDescription(true)} className={styles.icon} />
-				) : (
-					<EditOutlined className={styles.icon} />
-				)}
+				{isEditAllowed ? <EditOutlined className={styles.icon} /> : <EyeOutlined onClick={() => setOpenDescription(true)} className={styles.icon} />}
 			</Flex>
 
 			<Modal
@@ -74,7 +71,7 @@ const DescriptionModalCell = ({ record }) => {
 				onCancel={() => setOpenDescription(false)}
 				centered
 				footer={
-					!isOlderThanOneDay &&
+					isEditAllowed &&
 					notes && (
 						<Flex align='center' justify='start' onClick={openEditFromModal}>
 							<EditOutlined className={styles.icon} />

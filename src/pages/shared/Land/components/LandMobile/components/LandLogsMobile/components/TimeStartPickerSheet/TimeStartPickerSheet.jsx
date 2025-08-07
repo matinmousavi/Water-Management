@@ -3,24 +3,30 @@ import english2persian from '../../../../../../../../../utils/english2persian'
 import styles from './TimeStartPickerSheet.module.css'
 import dayjs from 'dayjs'
 import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
+import useAPI from '../../../../../../../../../hooks/useAPI'
 
 const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
 const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
+	const apiTime = useAPI()
+	apiTime.init('settings/irrigations')
+
 	const [minuteRange, setMinuteRange] = useState([])
 	const [selectedIndex, setSelectedIndex] = useState(30)
 	const listRef = useRef(null)
 
 	useEffect(() => {
-		const base = dayjs()
+		const margin = apiTime.data?.data?.logTimeMarginMinutes?.time || 30
+		const base = dayjs().subtract(margin, 'minute')
 		const list = []
-		for (let i = -30; i <= 0; i++) {
+		for (let i = 0; i <= margin; i++) {
 			list.push(base.add(i, 'minute'))
 		}
 		setMinuteRange(list)
-	}, [])
+		setSelectedIndex(margin)
+	}, [apiTime.data])
 
 	useEffect(() => {
 		if (listRef.current && minuteRange.length > 0) {
