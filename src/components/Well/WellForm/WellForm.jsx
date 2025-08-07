@@ -27,7 +27,6 @@ const WellForm = ({ form, irrigators = [] }) => {
 	const disabledHours = () => {
 		if (!startTime) return []
 		const startHour = dayjs(startTime).hour()
-		// غیرفعال کردن تمام ساعت‌های قبل از ساعت شروع
 		return Array.from({ length: startHour }, (_, i) => i)
 	}
 
@@ -35,7 +34,6 @@ const WellForm = ({ form, irrigators = [] }) => {
 		if (!startTime) return []
 		const startHour = dayjs(startTime).hour()
 		const startMinute = dayjs(startTime).minute()
-		// فقط دقیقه‌های قبل یا مساوی دقیقه شروع برای همان ساعت غیرفعال می‌شوند
 		if (selectedHour !== startHour) return []
 		return Array.from({ length: startMinute + 1 }, (_, i) => i)
 	}
@@ -71,11 +69,11 @@ const WellForm = ({ form, irrigators = [] }) => {
 				<TextArea rows={4} />
 			</Form.Item>
 
-			<Form.Item label='Cycle Days' name='cycleDays' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item label='دوره' name='cycleDays' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<Input size='large' {...numberOnlyProps} />
 			</Form.Item>
 
-			<Form.Item label='تاریخ شروع سایکل' name='cycleStartDate' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
+			<Form.Item label='تاریخ شروع دوره' name='cycleStartDate' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
 				<FaDatePicker placeholder='تاریخ' size='large' />
 			</Form.Item>
 
