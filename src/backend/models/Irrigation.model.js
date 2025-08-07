@@ -5,7 +5,7 @@ const irrigationSchema = new mongoose.Schema(
 		land: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Land',
-			required: true,
+			default: null,
 		},
 		well: {
 			type: mongoose.Schema.Types.ObjectId,
@@ -15,6 +15,14 @@ const irrigationSchema = new mongoose.Schema(
 		landGroup: {
 			type: mongoose.Schema.Types.ObjectId,
 			default: null,
+		},
+		isGroupLog: {
+			type: Boolean,
+			default: false,
+		},
+		wasGroupLog: {
+			type: Boolean,
+			default: false,
 		},
 		startedAt: {
 			type: Date,
@@ -44,7 +52,7 @@ const irrigationSchema = new mongoose.Schema(
 	{ timestamps: true }
 )
 
-// Automatically calculates duration in HH:mm format if endedAtAt is provided.
+// Automatically calculates duration in HH:mm format if endedAt is provided.
 irrigationSchema.pre('save', function (next) {
 	if (this.endedAt && this.startedAt) {
 		const diffMs = this.endedAt - this.startedAt

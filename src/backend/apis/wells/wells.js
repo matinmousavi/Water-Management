@@ -272,6 +272,23 @@ router.patch('/:wellId', async (req, res) => {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
 		}
 
+		if (updates.lands && Array.isArray(updates.lands)) {
+			const removedLands = well.lands.filter(existingLand => !updates.lands.includes(existingLand.toString()))
+
+			if (removedLands.length > 0 && well.landGroups && well.landGroups.length > 0) {
+				removedLands.forEach(removedLandId => {
+					const groupIndex = well.landGroups.findIndex(g => g.lands.some(l => l.toString() === removedLandId.toString()))
+					if (groupIndex !== -1) {
+						well.landGroups[groupIndex].lands = well.landGroups[groupIndex].lands.filter(id => id.toString() !== removedLandId.toString())
+
+						if (well.landGroups[groupIndex].lands.length < 2) {
+							well.landGroups.splice(groupIndex, 1)
+						}
+					}
+				})
+			}
+		}
+
 		Object.assign(well, updates)
 		await well.validate()
 		await well.save()
