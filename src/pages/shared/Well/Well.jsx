@@ -24,7 +24,11 @@ const Well = () => {
 	const [irrigatorWells, setIrrigatorWells] = useState()
 	const [cycleDays, setCycleDays] = useState(0)
 
-	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
+	wellId
+		? api.init(`wells/${wellId}`)
+		: api.init('wells', {
+				filters: { irrigator: user._id },
+		  })
 
 	useEffect(() => {
 		const fetchedWell = api.data?.well || api.data?.wells?.[0]
@@ -42,12 +46,11 @@ const Well = () => {
 	}, [api.data])
 
 	const wellsApi = useAPI()
-	const userApi = useAPI()
+	console.log(user)
 
 	wellsApi.init('wells')
-	userApi.init('me')
 
-	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id === userApi.data?.user?._id)
+	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id === user._id)
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
@@ -60,6 +63,7 @@ const Well = () => {
 		cycleDays,
 		setCycleDays,
 	}
+	console.log(well)
 
 	return (
 		<WellProvider value={contextValue}>

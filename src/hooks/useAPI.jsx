@@ -18,17 +18,28 @@ export default function useAPI() {
 	const callsRef = useRef(0)
 	const { openNotification } = useNotification()
 
+	function buildQueryString(params) {
+		if (!params || typeof params !== 'object') return ''
+
+		const query = Object.entries(params)
+			.map(([key, value]) => {
+				if (typeof value === 'object') {
+					return `${key}=${encodeURIComponent(JSON.stringify(value))}`
+				}
+				return `${key}=${encodeURIComponent(value)}`
+			})
+			.join('&')
+
+		return query ? `?${query}` : ''
+	}
+
 	async function getAPI({ requestUrl, method = 'GET', setState = true, params, signal, resolve } = {}) {
 		const requestInit = { method, headers: {}, credentials: 'include', signal }
 		let querystring = ''
 
 		switch (method) {
 			case 'GET':
-				if (params && typeof params === 'object') {
-					querystring = '?' + new URLSearchParams(params).toString()
-				} else if (typeof params === 'string' && params.startsWith('?')) {
-					querystring = params
-				}
+				querystring = buildQueryString(params)
 				break
 			case 'DELETE':
 			case 'POST':

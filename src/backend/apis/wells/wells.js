@@ -37,8 +37,12 @@ router.get('/', async (req, res) => {
 		const mongoFilter = {}
 
 		Object.entries(filterObj).forEach(([key, value]) => {
-			if (allowedFilterFields.includes(key) && typeof value === 'string') {
-				mongoFilter[key] = { $regex: `^${value}$`, $options: 'i' }
+			if (allowedFilterFields.includes(key)) {
+				if (key === 'irrigator') {
+					mongoFilter[key] = value
+				} else if (typeof value === 'string') {
+					mongoFilter[key] = { $regex: `^${value}$`, $options: 'i' }
+				}
 			}
 		})
 
