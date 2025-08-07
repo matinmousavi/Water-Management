@@ -7,33 +7,45 @@ import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 import landGroupsRouter from './landGroups.js'
 import schedulesRouter from './schedules.js'
 import snapshotsRouter from './snapshots.js'
+import { pickFields } from '../../utils/pickFields.js'
 
 const router = Router()
 
-// Helper: Attach populated landGroup
+// Helper: Attach populated landGroup title
 const getLandGroupTitle = (landGroupId, well) => {
 	if (!landGroupId || !well || !well.landGroups) return null
 	const group = well.landGroups.find(g => g.groupId.toString() === landGroupId.toString())
 	return group ? group.title : null
 }
 
-// GET all wells
+// GET all wells with filters and fields query params
 router.get('/', async (req, res) => {
 	try {
-		const filter = {}
 		const safeQuery = sanitizeQuery(req.query)
-		const allowedFields = ['title', 'licenseCode', 'irrigator']
-		allowedFields.forEach(field => {
-			if (safeQuery[field]) {
-				if (field === 'irrigator') {
-					filter[field] = safeQuery[field]
-				} else {
-					filter[field] = { $regex: `^${safeQuery[field]}$`, $options: 'i' }
-				}
+		const { filters, fields } = safeQuery
+
+		let filterObj = {}
+		if (filters) {
+			try {
+				filterObj = JSON.parse(filters)
+			} catch {
+				return res.status(400).json({ message: 'پارامتر filters نامعتبر است.' })
+			}
+		}
+
+		const allowedFilterFields = ['title', 'licenseCode', 'irrigator', 'status']
+		const mongoFilter = {}
+
+		Object.entries(filterObj).forEach(([key, value]) => {
+			if (allowedFilterFields.includes(key) && typeof value === 'string') {
+				mongoFilter[key] = { $regex: `^${value}$`, $options: 'i' }
 			}
 		})
 
-		let wells = await Well.find(filter)
+		const projection = fields ? fields.replace(/,/g, ' ') : ''
+
+		let wells = await Well.find(mongoFilter)
+			.select(projection)
 			.populate({
 				path: 'lands',
 				populate: { path: 'owner', select: 'fullName mobile' },
@@ -43,45 +55,55 @@ router.get('/', async (req, res) => {
 
 		wells = await Promise.all(
 			wells.map(async well => {
-				const logs = await Irrigation.find({ well: well._id })
-					.populate({
-						path: 'land',
-						populate: { path: 'owner', select: 'fullName mobile' },
-						select: 'title owner area location',
-					})
-					.populate('createdBy', 'fullName')
-					.sort({ createdAt: -1 })
-					.lean()
+				const includeLogs = !fields || fields.split(',').includes('logs')
+				const includeNotes = !fields || fields.split(',').includes('notes')
+				const includeLands = !fields || fields.split(',').includes('lands')
 
-				const logsWithGroups = logs.map(log => ({
-					...log,
-					landGroupTitle: getLandGroupTitle(log.landGroup, well),
-				}))
-
-				well.logs = logsWithGroups
-
-				well.lands = await Promise.all(
-					well.lands.map(async land => {
-						const last = await Irrigation.findOne({
-							well: well._id,
-							land: land._id,
-							endedAt: { $exists: true },
+				if (includeLogs) {
+					const logs = await Irrigation.find({ well: well._id })
+						.populate({
+							path: 'land',
+							populate: { path: 'owner', select: 'fullName mobile' },
+							select: 'title owner area location',
 						})
-							.sort({ endedAt: -1 })
-							.select('endedAt')
-							.lean()
+						.populate('createdBy', 'fullName')
+						.sort({ createdAt: -1 })
+						.lean()
 
-						return {
-							...land,
-							lastIrrigatedAt: last ? last.endedAt : null,
-						}
-					})
-				)
+					const logsWithGroups = logs.map(log => ({
+						...log,
+						landGroupTitle: getLandGroupTitle(log.landGroup, well),
+					}))
 
-				const notes = await Note.find({ type: 'well', reference: well._id }).populate('user', 'fullName').lean()
-				well.notes = notes
+					well.logs = logsWithGroups
+				}
 
-				return well
+				if (includeLands) {
+					well.lands = await Promise.all(
+						well.lands.map(async land => {
+							const last = await Irrigation.findOne({
+								well: well._id,
+								land: land._id,
+								endedAt: { $exists: true },
+							})
+								.sort({ endedAt: -1 })
+								.select('endedAt')
+								.lean()
+
+							return {
+								...land,
+								lastIrrigatedAt: last ? last.endedAt : null,
+							}
+						})
+					)
+				}
+
+				if (includeNotes) {
+					const notes = await Note.find({ type: 'well', reference: well._id }).populate('user', 'fullName').lean()
+					well.notes = notes
+				}
+
+				return pickFields(well, fields)
 			})
 		)
 
@@ -92,15 +114,20 @@ router.get('/', async (req, res) => {
 	}
 })
 
-// GET single well
+// GET single well by ID, with optional fields param
 router.get('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
+		const { fields } = req.query
+
+		const projection = fields ? fields.replace(/,/g, ' ') : ''
 
 		let well = await Well.findById(wellId)
+			.select(projection)
 			.populate({
 				path: 'lands',
 				populate: { path: 'owner', select: 'fullName mobile' },
+				select: 'title owner area location',
 			})
 			.populate({ path: 'irrigator', select: 'fullName mobile' })
 			.lean()
@@ -109,42 +136,57 @@ router.get('/:wellId', async (req, res) => {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
 		}
 
-		let logs = await Irrigation.find({ well: wellId })
-			.populate({
-				path: 'land',
-				populate: { path: 'owner', select: 'fullName mobile' },
-				select: 'title owner area location',
-			})
-			.populate('createdBy', 'fullName')
-			.sort({ createdAt: -1 })
-			.lean()
+		const includeLogs = !fields || fields.split(',').includes('logs')
+		const includeNotes = !fields || fields.split(',').includes('notes')
+		const includeLands = !fields || fields.split(',').includes('lands')
 
-		logs = logs.map(log => ({
-			...log,
-			landGroupTitle: getLandGroupTitle(log.landGroup, well),
-		}))
-
-		well.lands = await Promise.all(
-			well.lands.map(async land => {
-				const last = await Irrigation.findOne({
-					well: wellId,
-					land: land._id,
-					endedAt: { $exists: true },
+		if (includeLogs) {
+			let logs = await Irrigation.find({ well: wellId })
+				.populate({
+					path: 'land',
+					populate: { path: 'owner', select: 'fullName mobile' },
+					select: 'title owner area location',
 				})
-					.sort({ endedAt: -1 })
-					.select('endedAt')
-					.lean()
+				.populate('createdBy', 'fullName')
+				.sort({ createdAt: -1 })
+				.lean()
 
-				return {
-					...land,
-					lastIrrigatedAt: last ? last.endedAt : null,
-				}
-			})
-		)
+			logs = logs.map(log => ({
+				...log,
+				landGroupTitle: getLandGroupTitle(log.landGroup, well),
+			}))
 
-		const notes = await Note.find({ type: 'well', reference: wellId }).populate('user', 'fullName').lean()
+			well.logs = logs
+		}
 
-		return res.status(200).json({ well: { ...well, logs, notes } })
+		if (includeLands) {
+			well.lands = await Promise.all(
+				well.lands.map(async land => {
+					const last = await Irrigation.findOne({
+						well: wellId,
+						land: land._id,
+						endedAt: { $exists: true },
+					})
+						.sort({ endedAt: -1 })
+						.select('endedAt')
+						.lean()
+
+					return {
+						...land,
+						lastIrrigatedAt: last ? last.endedAt : null,
+					}
+				})
+			)
+		}
+
+		if (includeNotes) {
+			const notes = await Note.find({ type: 'well', reference: wellId }).populate('user', 'fullName').lean()
+			well.notes = notes
+		}
+
+		return res.status(200).json({
+			well: pickFields(well, fields),
+		})
 	} catch (err) {
 		console.error(err.message)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
@@ -212,12 +254,10 @@ router.patch('/:wellId', async (req, res) => {
 		const { wellId } = req.params
 		const updates = { ...req.body }
 
-		// حذف زمین‌های تکراری و تبدیل به ID
 		if (updates.lands && Array.isArray(updates.lands)) {
 			updates.lands = [...new Set(updates.lands.map(item => (typeof item === 'string' ? item : item._id)))]
 		}
 
-		// تبدیل startTime و endTime به offTime
 		if (updates.startTime && updates.endTime) {
 			updates.offTime = {
 				start: new Date(updates.startTime),
@@ -230,6 +270,23 @@ router.patch('/:wellId', async (req, res) => {
 		const well = await Well.findById(wellId)
 		if (!well) {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
+		}
+
+		if (updates.lands && Array.isArray(updates.lands)) {
+			const removedLands = well.lands.filter(existingLand => !updates.lands.includes(existingLand.toString()))
+
+			if (removedLands.length > 0 && well.landGroups && well.landGroups.length > 0) {
+				removedLands.forEach(removedLandId => {
+					const groupIndex = well.landGroups.findIndex(g => g.lands.some(l => l.toString() === removedLandId.toString()))
+					if (groupIndex !== -1) {
+						well.landGroups[groupIndex].lands = well.landGroups[groupIndex].lands.filter(id => id.toString() !== removedLandId.toString())
+
+						if (well.landGroups[groupIndex].lands.length < 2) {
+							well.landGroups.splice(groupIndex, 1)
+						}
+					}
+				})
+			}
 		}
 
 		Object.assign(well, updates)

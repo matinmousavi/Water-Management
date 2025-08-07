@@ -42,6 +42,15 @@ const landSchema = new mongoose.Schema(
 			type: Boolean,
 			default: true,
 		},
+		groupMemberships: [
+			{
+				wellId: { type: mongoose.Schema.Types.ObjectId, ref: 'Well', required: true },
+				groupId: { type: mongoose.Schema.Types.ObjectId, required: true },
+				groupTitle: { type: String, required: true },
+				startDate: { type: Date, required: true, default: Date.now },
+				endDate: { type: Date, default: null },
+			},
+		],
 	},
 	{
 		timestamps: true,
@@ -97,6 +106,7 @@ landSchema.statics.initializeDefaultLands = async function () {
 				...landData,
 				owner: owner._id,
 				status: 'active',
+				groupMemberships: [],
 			})
 			console.log(`✅ Default land "${landData.title}" created.`)
 		} else {
