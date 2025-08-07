@@ -403,7 +403,7 @@ label::after {
 		padding: 40px 60px !important;
 	}
 	.ant-picker {
-		height: 40px;
+		min-height: 40px;
 	}
 	.ant-card .ant-card-body {
 		padding: 36px !important;
@@ -428,10 +428,10 @@ label::after {
 		width: 100%;
 	}
 	.ant-select-selector {
-		height: 40px !important;
+		min-height: 40px !important;
 	}
 	.ant-input-lg {
-		height: 40px !important;
+		min-height: 40px !important;
 		border-radius: 4px !important;
 	}
 }
