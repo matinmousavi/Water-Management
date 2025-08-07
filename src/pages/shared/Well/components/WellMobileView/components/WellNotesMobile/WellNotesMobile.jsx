@@ -78,35 +78,39 @@ const WellNotesMobile = ({ wellId }) => {
 			</div>
 
 			<Flex vertical gap={16}>
-				{notesApi.data?.notes?.map(note => (
-					<Card key={note.id}>
-						<Flex gap={8} vertical>
-							<Flex align='center' justify='space-between' gap={20}>
-								<Title className={styles.title} level={4}>
-									{note?.user ? `${note?.user?.fullName}` : 'کاربر ناشناس'}
-								</Title>
-								<Text className={styles.date}>{moment(note?.createdAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</Text>
-							</Flex>
+				{notesApi?.data?.notes?.length == 0 ? (
+					<Empty />
+				) : (
+					notesApi.data?.notes?.map(note => (
+						<Card key={note.id}>
 							<Flex gap={8} vertical>
-								<Text className={styles.text}>{note?.text}</Text>
-								<div>
-									<Button
-										className={styles.btn}
-										onClick={() => {
-											setOpenEdit(true)
-											setEditingNoteId(note.id)
-											setEditedText(note.text)
-										}}
-										icon={<EditOutlined />}
-										type='link'
-									>
-										ویرایش
-									</Button>
-								</div>
+								<Flex align='center' justify='space-between' gap={20}>
+									<Title className={styles.title} level={4}>
+										{note?.user ? `${note?.user?.fullName}` : 'کاربر ناشناس'}
+									</Title>
+									<Text className={styles.date}>{moment(note?.createdAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</Text>
+								</Flex>
+								<Flex gap={8} vertical>
+									<Text className={styles.text}>{note?.text}</Text>
+									<div>
+										<Button
+											className={styles.btn}
+											onClick={() => {
+												setOpenEdit(true)
+												setEditingNoteId(note.id)
+												setEditedText(note.text)
+											}}
+											icon={<EditOutlined />}
+											type='link'
+										>
+											ویرایش
+										</Button>
+									</div>
+								</Flex>
 							</Flex>
-						</Flex>
-					</Card>
-				))}
+						</Card>
+					))
+				)}
 			</Flex>
 
 			<ModalMobile height={322} open={openEdit} title='ویرایش یادداشت' onClose={onClose} handleSubmit={handleEditSubmit} loading={notesApi.isLoading}>

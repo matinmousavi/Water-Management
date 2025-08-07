@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Typography } from 'antd'
+import { Button, Card, Empty, Flex, Typography } from 'antd'
 import { useState } from 'react'
 
 import { useUser } from '../../../contexts/UserContext'
@@ -39,30 +39,34 @@ const MyNotes = () => {
 			</Flex>
 
 			<Flex vertical gap={16}>
-				{apiNotes.data?.notes?.map(note => {
-					const isOpen = editingNoteId === note?.id
-					return (
-						<Card key={note?.id} rootClassName={styles.customCardRoot}>
-							<Flex gap={5} vertical>
-								<Flex align='center' className={styles.cardHeader} justify='space-between'>
-									<Title className={styles.title} level={4}>
-										زمین {note?.reference?.title}
-									</Title>
-									<span className={styles.date}>{moment(note?.updatedAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</span>
+				{apiNotes.data?.notes?.length == 0 ? (
+					<Empty />
+				) : (
+					apiNotes.data?.notes?.map(note => {
+						const isOpen = editingNoteId === note?.id
+						return (
+							<Card key={note?.id} rootClassName={styles.customCardRoot}>
+								<Flex gap={5} vertical>
+									<Flex align='center' className={styles.cardHeader} justify='space-between'>
+										<Title className={styles.title} level={4}>
+											زمین {note?.reference?.title}
+										</Title>
+										<span className={styles.date}>{moment(note?.updatedAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</span>
+									</Flex>
+									<Flex gap={8} vertical>
+										<Text className={styles.text}>{note?.text}</Text>
+										<div>
+											<Button className={styles.btn} onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
+												ویرایش
+											</Button>
+										</div>
+									</Flex>
 								</Flex>
-								<Flex gap={8} vertical>
-									<Text className={styles.text}>{note?.text}</Text>
-									<div>
-										<Button className={styles.btn} onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
-											ویرایش
-										</Button>
-									</div>
-								</Flex>
-							</Flex>
-							<EditNotes setNotesData={apiNotes.setData} id={note?.id} text={note?.text} open={isOpen} onClose={onClose} />
-						</Card>
-					)
-				})}
+								<EditNotes setNotesData={apiNotes.setData} id={note?.id} text={note?.text} open={isOpen} onClose={onClose} />
+							</Card>
+						)
+					})
+				)}
 			</Flex>
 		</Flex>
 	)

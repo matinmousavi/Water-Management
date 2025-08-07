@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Typography, Flex, Tabs } from 'antd'
+import { Typography, Flex, Tabs, Empty } from 'antd'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
@@ -9,7 +9,6 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
 
 	const onCloseWellList = () => setOpenWellList(false)
-	console.log(filterWells)
 
 	return (
 		<>
@@ -34,9 +33,7 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 						label: 'نوبت آبیاری',
 						children: (
 							<Flex vertical gap={16}>
-								{irrigatorWells?.logs?.map(log => (
-									<WellLogsMobile key={log?._id} data={log} />
-								))}
+								{irrigatorWells?.logs?.length == 0 ? <Empty /> : irrigatorWells?.logs?.map(log => <WellLogsMobile key={log?._id} data={log} />)}
 							</Flex>
 						),
 					},
