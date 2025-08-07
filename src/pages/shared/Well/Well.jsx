@@ -24,8 +24,11 @@ const Well = () => {
 	const [irrigatorWells, setIrrigatorWells] = useState()
 	const [cycleDays, setCycleDays] = useState(0)
 
-	wellId ? api.init(`wells/${wellId}`) : api.init('wells', { irrigator: user._id })
-
+	wellId
+		? api.init(`wells/${wellId}`)
+		: api.init('wells', {
+				filters: { irrigator: user._id },
+		  })
 	useEffect(() => {
 		const fetchedWell = api.data?.well || api.data?.wells?.[0]
 		if (fetchedWell) {
@@ -42,12 +45,10 @@ const Well = () => {
 	}, [api.data])
 
 	const wellsApi = useAPI()
-	const userApi = useAPI()
 
 	wellsApi.init('wells')
-	userApi.init('me')
 
-	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id === userApi.data?.user?._id)
+	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id === user._id)
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
 		return <Loading />
@@ -66,7 +67,7 @@ const Well = () => {
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
 				{isMobile ? (
-					<WellMobileView irrigatorWells={irrigatorWells} filterWells={filterWells} />
+					<WellMobileView setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
 				) : (
 					<WellDesktopView
 						title={title}

@@ -4,11 +4,17 @@ import moment from 'moment-jalaali'
 import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 
 import styles from './TableLogsMobile.module.css'
+import useAPI from '../../../../../../../../../hooks/useAPI'
 
 const { Text } = Typography
 
 const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartClick }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
+
+	const apiTime = useAPI()
+	apiTime.init('settings/irrigations')
+
+	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
 
 	const columns = [
 		{
@@ -42,7 +48,7 @@ const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartC
 		{
 			title: 'توضیحات',
 			key: 'note',
-			render: record => <DescriptionModalCell record={record} />,
+			render: record => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
 		},
 	]
 
