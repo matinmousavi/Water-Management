@@ -10,8 +10,8 @@ const Wells = () => {
 
 	const wellsApi = useAPI()
 	isAdmin
-		? api.init(`wells/${wellId}`)
-		: api.init('wells', {
+		? wellsApi.init(`wells`)
+		: wellsApi.init('wells', {
 				filters: { irrigator: user._id },
 		  })
 	if (!wellsApi.data) return <Loading />
