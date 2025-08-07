@@ -40,7 +40,7 @@ router.use('/wells', isLogin, wells)
 router.use('/lands', isLogin, lands)
 router.use('/irrigations', isLogin, irrigations)
 router.use('/notifications', isAdmin, notifications)
-router.use('/settings', isAdmin, settings)
+router.use('/settings', isLogin, settings)
 router.use('/notes', isLogin, notes)
 
 export default router

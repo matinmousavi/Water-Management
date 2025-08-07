@@ -6,8 +6,11 @@ const router = Router()
 router.get('/', async (req, res) => {
 	try {
 		const settings = await Setting.findOne().lean()
+
+		console.log(settings)
 		if (!settings) return res.status(404).json({ error: 'تنظیمات یافت نشد' })
-		return res.status(200).json({ data: settings.irrigationLog || {} })
+
+		return res.status(200).json({ data: settings.irrigations || {} })
 	} catch (err) {
 		console.log(err)
 		return res.status(500).json({ error: 'خطای سرور', details: err.message })
