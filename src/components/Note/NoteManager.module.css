@@ -1,0 +1,71 @@
+.header {
+	display: none;
+}
+
+.text {
+	font-size: 12px;
+}
+
+.commentContainer {
+	position: relative;
+	z-index: 600;
+
+	.card {
+		height: auto;
+		height: 100%;
+	}
+}
+
+h4 {
+	margin: 0;
+}
+.btns {
+	button {
+		width: fit-content;
+	}
+}
+.userName {
+	font-size: 14px;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 1);
+}
+.date {
+	font-size: 14px;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 0.5);
+}
+.fakePopoverBox {
+	position: relative;
+	background: #fff;
+	box-shadow: -2px 4px 12px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	padding: 16px;
+	width: 100%;
+}
+.arrowLeft {
+	position: absolute;
+	right: -8px;
+	bottom: 20px;
+	width: 0;
+	height: 0;
+	border-top: 8px solid transparent;
+	border-bottom: 8px solid transparent;
+	border-left: 8px solid #fff;
+	filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.08));
+}
+.popConfirm {
+	background-color: red;
+}
+.commentText {
+	font-size: 14px;
+	font-weight: 400;
+	color: rgba(0, 0, 0, 0.88);
+}
+/* ------------- desktop ------------- */
+@media (min-width: 1440px) {
+	.commentText,
+	.date,
+	.userName {
+		font-size: 14px;
+	}
+}

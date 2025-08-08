@@ -17,6 +17,7 @@ import useNotification from '../../../hooks/useNotification'
 import useNotificationToggle from '../../../hooks/useNotificationToggle'
 import LandStatus from './components/LandStatus'
 import { BellOutlined } from '@ant-design/icons'
+import NoteManager from '../../../components/Note/NoteManager'
 
 const { Title } = Typography
 
@@ -87,9 +88,8 @@ const Land = () => {
 							</Flex>
 						)}
 					</Flex>
-
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
-					<LandNote notesData={landData.notes} api={landApi} status={status} />
+					<NoteManager entityType='land' notesData={landData?.notes} status={status} />{' '}
 					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={status} />
 					{isAdmin && <DeleteCard title={`زمین ${pageTitle}`} api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
