@@ -3,10 +3,12 @@ import Note from '../../models/Note.model.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import User from '../../models/User.model.js'
+import { pickFields } from '../../utils/pickFields.js'
+import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 
 const router = Router()
 
-// Get reference data for note
+// Helper: Get reference data for note
 const getReference = async (type, refId) => {
 	if (!type || !refId) return null
 
@@ -28,38 +30,45 @@ const getReference = async (type, refId) => {
 	return { id: refId, title: doc.title }
 }
 
-// GET all notes (optional filters: user, type, reference)
+// GET all notes with filters and fields
 router.get('/', async (req, res) => {
 	try {
-		const { user, type, reference } = req.query
-		const query = {}
+		const safeQuery = sanitizeQuery(req.query)
+		const { filters, fields } = safeQuery
 
-		if (type) {
-			if (!['personal', 'well', 'land'].includes(type)) {
-				return res.status(400).json({ error: 'Invalid note type' })
+		let filterObj = {}
+		if (filters) {
+			try {
+				filterObj = JSON.parse(filters)
+			} catch {
+				return res.status(400).json({ error: 'پارامتر filters نامعتبر است.' })
 			}
-			query.type = type
 		}
 
-		if (user) query.user = user
-		if (reference) query.reference = reference
+		const allowedFilterFields = ['type', 'user', 'reference']
+		const mongoFilter = {}
 
-		const notes = await Note.find(query).sort({ createdAt: -1 }).lean()
+		Object.entries(filterObj).forEach(([key, value]) => {
+			if (allowedFilterFields.includes(key)) {
+				mongoFilter[key] = value
+			}
+		})
 
-		const processedNotes = await Promise.all(
+		const projection = fields ? fields.replace(/,/g, ' ') : ''
+
+		let notes = await Note.find(mongoFilter).select(projection).populate('user', 'fullName').sort({ createdAt: -1 }).lean()
+
+		notes = await Promise.all(
 			notes.map(async note => ({
-				id: note._id,
-				text: note.text,
-				type: note.type,
-				createdAt: note.createdAt,
-				updatedAt: note.updatedAt,
+				...note,
 				reference: await getReference(note.type, note.reference),
 			}))
 		)
 
-		return res.status(200).json({ notes: processedNotes })
+		return res.status(200).json({ notes: notes.map(note => pickFields(note, fields)) })
 	} catch (err) {
-		return res.status(500).json({ error: 'Server error', details: err.message })
+		console.error(err.message)
+		return res.status(500).json({ error: 'خطا در دریافت یادداشت‌ها.' })
 	}
 })
 
@@ -108,45 +117,52 @@ router.post('/', async (req, res) => {
 
 		return res.status(201).json({ note: responseData })
 	} catch (err) {
+		console.error(err.message)
 		return res.status(500).json({ error: 'خطای سرور', details: err.message })
 	}
 })
 
-// GET notes for a specific user (with access control)
-router.get('/user/:userId', async (req, res) => {
+// GET single note by ID, with optional fields
+router.get('/:noteId', async (req, res) => {
 	try {
-		const { userId } = req.params
+		const { fields } = req.query
+		const projection = fields ? fields.replace(/,/g, ' ') : ''
 
-		if (!req.isAdmin && req.user._id.toString() !== userId) {
-			return res.status(403).json({ error: 'دسترسی غیرمجاز' })
-		}
+		let note = await Note.findById(req.params.id).select(projection).populate('user', 'fullName').lean()
 
-		const notes = await Note.find({ user: userId }).sort({ createdAt: -1 }).lean()
-
-		const processedNotes = await Promise.all(
-			notes.map(async note => ({
-				id: note._id,
-				text: note.text,
-				type: note.type,
-				createdAt: note.createdAt,
-				updatedAt: note.updatedAt,
-				reference: await getReference(note.type, note.reference),
-			}))
-		)
-
-		return res.status(200).json({ notes: processedNotes })
-	} catch (err) {
-		return res.status(500).json({ error: 'خطای سرور', details: err.message })
-	}
-})
-
-// GET single note
-router.get('/:id', async (req, res) => {
-	try {
-		const note = await Note.findById(req.params.id).lean()
 		if (!note) {
-			return res.status(404).json({ error: 'Note not found' })
+			return res.status(404).json({ error: 'یادداشت پیدا نشد.' })
 		}
+
+		note.reference = await getReference(note.type, note.reference)
+
+		return res.status(200).json({ note: pickFields(note, fields) })
+	} catch (err) {
+		console.error(err)
+		return res.status(500).json({ error: 'خطا در دریافت یادداشت.' })
+	}
+})
+
+// PATCH update a note
+router.patch('/:noteId', async (req, res) => {
+	try {
+		const { text } = req.body
+
+		if (typeof text !== 'string' || !text.trim()) {
+			return res.status(400).json({ error: 'متن یادداشت معتبر نیست' })
+		}
+
+		const note = await Note.findById(req.params.noteId)
+		if (!note) {
+			return res.status(404).json({ error: 'یادداشت پیدا نشد' })
+		}
+
+		if (!req.isAdmin && note.user.toString() !== req.user._id.toString()) {
+			return res.status(403).json({ error: 'شما اجازه ویرایش این یادداشت را ندارید' })
+		}
+
+		note.text = text.trim()
+		await note.save()
 
 		const responseData = {
 			id: note._id,
@@ -159,36 +175,28 @@ router.get('/:id', async (req, res) => {
 
 		return res.status(200).json({ note: responseData })
 	} catch (err) {
-		return res.status(500).json({ error: 'Server error', details: err.message })
+		console.error(err)
+		return res.status(500).json({ error: 'خطای سرور', details: err.message })
 	}
 })
 
-// PATCH update a note
-router.patch('/:id', async (req, res) => {
+// DELETE remove a note
+router.delete('/:noteId', async (req, res) => {
 	try {
-		const { text } = req.body
-
-		if (typeof text !== 'string' || !text.trim()) {
-			return res.status(400).json({ error: 'متن یادداشت معتبر نیست' })
-		}
-
-		const updatedNote = await Note.findByIdAndUpdate(req.params.id, { text: text.trim() }, { new: true, runValidators: true }).lean()
-
-		if (!updatedNote) {
+		const note = await Note.findById(req.params.noteId)
+		if (!note) {
 			return res.status(404).json({ error: 'یادداشت پیدا نشد' })
 		}
 
-		const responseData = {
-			id: updatedNote._id,
-			text: updatedNote.text,
-			type: updatedNote.type,
-			createdAt: updatedNote.createdAt,
-			updatedAt: updatedNote.updatedAt,
-			reference: await getReference(updatedNote.type, updatedNote.reference),
+		if (!req.isAdmin && note.user.toString() !== req.user._id.toString()) {
+			return res.status(403).json({ error: 'شما اجازه حذف این یادداشت را ندارید' })
 		}
 
-		return res.status(200).json({ note: responseData })
+		await note.deleteOne()
+
+		return res.status(200).json({ message: 'یادداشت با موفقیت حذف شد' })
 	} catch (err) {
+		console.error(err)
 		return res.status(500).json({ error: 'خطای سرور', details: err.message })
 	}
 })
