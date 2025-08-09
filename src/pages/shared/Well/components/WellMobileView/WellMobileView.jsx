@@ -8,11 +8,10 @@ import useAPI from '../../../../../hooks/useAPI'
 
 const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
-	console.log(irrigatorWells)
 	const schedulesApi = useAPI()
 	schedulesApi.init(`wells/${irrigatorWells?._id}/schedules`)
 	const schedules = schedulesApi.data?.schedules || []
-	console.log(schedules)
+
 	const onCloseWellList = () => setOpenWellList(false)
 
 	return (
@@ -38,7 +37,7 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 						label: 'نوبت آبیاری',
 						children: (
 							<Flex vertical gap={16}>
-								{irrigatorWells?.logs?.length == 0 ? <Empty /> : irrigatorWells?.logs?.map(log => <WellLogsMobile key={log?._id} data={log} />)}
+								{schedules?.length == 0 ? <Empty /> : schedules?.map(log => <WellLogsMobile key={log?._id} data={log} />)}
 							</Flex>
 						),
 					},

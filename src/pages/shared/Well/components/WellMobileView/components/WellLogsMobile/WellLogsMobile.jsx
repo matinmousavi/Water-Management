@@ -18,6 +18,7 @@ const { Text } = Typography
 const WellLogsMobile = ({ data }) => {
 	const isThisLogOngoing = data?.isOngoing
 	const landId = data?.land?._id
+	const title = data?.land ? data.land.title : data?.landGroup ? data.title : '-'
 
 	const [startedAt, setStartedAt] = useState(null)
 
@@ -43,12 +44,16 @@ const WellLogsMobile = ({ data }) => {
 				<Flex gap={10} align='start'>
 					<Flex gap={8} className={styles.cardType}>
 						<img src={iconTree} alt='icon tree' />
-						<Text className={styles.label}>نام زمین</Text>
+						{data?.land ? <Text className={styles.label}>نام زمین</Text> : <Text className={styles.label}>نام گروه</Text>}
 					</Flex>
 					<Flex className={styles.cardRole}>
 						{data?.land ? (
 							<Link to={`/lands/${data.land._id}`} className={styles.land_name}>
-								{data.land.title}
+								{title}
+							</Link>
+						) : data?.landGroup ? (
+							<Link to={`/groups/${data.landGroup}`} className={styles.land_name}>
+								{title}
 							</Link>
 						) : (
 							<Text>-</Text>
