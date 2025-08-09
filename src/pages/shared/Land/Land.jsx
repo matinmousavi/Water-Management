@@ -7,7 +7,6 @@ import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import BackButton from '../../../components/BackButton/BackButton'
 
-import LandNote from './components/LandNote/LandNote'
 import LandLogsCard from './components/LandLogsCard/LandLogsCard'
 import { useUser } from '../../../contexts/UserContext'
 import LandMobile from './components/LandMobile/LandMobile'
@@ -17,8 +16,7 @@ import useNotification from '../../../hooks/useNotification'
 import useNotificationToggle from '../../../hooks/useNotificationToggle'
 import LandStatus from './components/LandStatus'
 import { BellOutlined } from '@ant-design/icons'
-import NoteManager from '../../../components/Note/NoteManager'
-
+import Notes from '../../../components/Notes/Notes'
 const { Title } = Typography
 
 const Land = () => {
@@ -89,7 +87,7 @@ const Land = () => {
 						)}
 					</Flex>
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
-					<NoteManager entityType='land' notesData={landData?.notes} status={status} />{' '}
+					<Notes entityType='land' entityReference={landId} notesData={landData?.notes} status={status} />
 					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={status} />
 					{isAdmin && <DeleteCard title={`زمین ${pageTitle}`} api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>

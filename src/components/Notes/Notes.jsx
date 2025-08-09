@@ -1,16 +1,39 @@
-import { Button, Card, Flex, Form, Input, Modal, Typography } from 'antd'
-import { PlusCircleOutlined } from '@ant-design/icons'
+import { Button, Card, Flex, Form, Input, Modal, Space, Typography } from 'antd'
+import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router'
-import styles from './WellNote.module.css'
-import useAPI from '../../../../../../../hooks/useAPI'
-import useNotification from '../../../../../../../hooks/useNotification'
-import NoteList from '../../../../../Land/components/LandNote/components/NoteList/NoteList'
+import styles from './Notes.module.css'
+import useAPI from '../../hooks/useAPI'
+import moment from 'moment-jalaali'
+import useNotification from '../../hooks/useNotification'
 
 const { Title, Text } = Typography
 
-const WellNote = ({ notesData: initialNotes, status }) => {
-	const { wellId } = useParams()
+const NoteList = ({ data, handleDeleteClick, handleEditNote }) => {
+	return (
+		<Flex vertical gap={8}>
+			{data?.map(note => (
+				<div key={note?.id || note?._id} className={styles.fakePopoverBox}>
+					<div className={styles.arrowLeft}></div>
+					<Flex gap={8} vertical>
+						<Flex align='center' justify='space-between'>
+							<Flex align='center' gap={20}>
+								<h4 className={styles.userName}>{note?.user ? note.user.fullName : 'کاربر ناشناس'}</h4>
+								<span className={styles.date}>{moment(note?.createdAt).locale('fa').format('jD jMMMM jYYYY - ساعت HH:mm')}</span>
+							</Flex>
+							<Space className={styles.btns}>
+								<Button type='link' icon={<EditOutlined />} onClick={() => handleEditNote(note)} />
+								<Button type='link' icon={<DeleteOutlined />} danger onClick={() => handleDeleteClick(note)} />
+							</Space>
+						</Flex>
+						<p className={styles.commentText}>{note?.text}</p>
+					</Flex>
+				</div>
+			))}
+		</Flex>
+	)
+}
+
+const Notes = ({ entityType, entityReference, notesData: initialNotes, status }) => {
 	const cardRef = useRef()
 	const notesApi = useAPI()
 	const { openNotification } = useNotification()
@@ -25,6 +48,15 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 	useEffect(() => {
 		setNotes(initialNotes || [])
 	}, [initialNotes])
+
+	const getNoteId = note => note.id || note._id
+
+	const apiPaths = {
+		base: 'notes',
+		create: 'notes',
+		update: noteId => `notes/${noteId}`,
+		delete: noteId => `notes/${noteId}`,
+	}
 
 	const handleOpenAddNoteModal = () => {
 		setIsNoteEditMode(false)
@@ -46,10 +78,10 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 	}
 
 	const confirmDeleteNote = async () => {
-		if (!selectedNote?._id) return
+		if (!getNoteId(selectedNote)) return
 		try {
-			await notesApi.delete(`notes/${selectedNote._id}`)
-			setNotes(prev => prev.filter(note => note._id !== selectedNote._id))
+			await notesApi.delete(apiPaths.delete(getNoteId(selectedNote)))
+			setNotes(prev => prev.filter(note => getNoteId(note) !== getNoteId(selectedNote)))
 			openNotification('success', 'یادداشت با موفقیت حذف شد')
 		} catch (error) {
 			openNotification('error', 'خطا در حذف یادداشت')
@@ -62,23 +94,29 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 
 	const handleSubmitNote = async values => {
 		try {
-			if (isNoteEditMode && selectedNote?._id) {
-				const response = await notesApi.patch(`notes/${selectedNote._id}`, {
-					text: values.text,
-				})
+			if (isNoteEditMode && getNoteId(selectedNote)) {
+				// Update note
+				const response = await notesApi.patch(apiPaths.update(getNoteId(selectedNote)), { text: values.text })
+				console.log(response)
 
-				setNotes(prev => prev.map(note => (note._id === response.id ? response : note)))
+				const updatedNote = response.data?.note || response.data || response.note || response
+				const updatedId = getNoteId(updatedNote)
+				if (!updatedId) throw new Error('Invalid response structure')
+
+				setNotes(prev => prev.map(note => (getNoteId(note) === updatedId ? updatedNote : note)))
 				openNotification('success', 'یادداشت با موفقیت ویرایش شد')
 			} else {
-				const response = await notesApi.post('notes', {
-					type: 'well',
-					reference: wellId,
+				// Create note
+				const response = await notesApi.post(apiPaths.create, {
+					type: entityType,
+					reference: entityReference,
 					text: values.text,
 				})
 
-				if (!response.note?.id) throw new Error('Invalid response structure - missing _id')
+				const newNote = response.data?.note || response.data || response.note || response
+				if (!getNoteId(newNote)) throw new Error('Invalid response structure')
 
-				setNotes(prev => [...prev, response.note])
+				setNotes(prev => [...prev, newNote])
 				openNotification('success', 'یادداشت با موفقیت افزوده شد')
 			}
 
@@ -91,6 +129,8 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 		}
 	}
 
+	const entityTitle = entityType === 'land' ? 'یادداشت زمین' : entityType === 'well' ? 'یادداشت چاه' : 'یادداشت'
+
 	return (
 		<>
 			<div ref={cardRef} className={styles.commentContainer}>
@@ -98,7 +138,7 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 					<Flex gap={36} vertical>
 						<Flex align='center' justify='space-between'>
 							<Title level={2} className='text-card-title'>
-								یادداشت چاه ({notes?.length})
+								{entityTitle} ({notes?.length})
 							</Title>
 							<Button color='primary' variant='outlined' onClick={handleOpenAddNoteModal}>
 								<PlusCircleOutlined />
@@ -113,7 +153,7 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 
 			{/* Add/Edit Modal */}
 			<Modal
-				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user?.fullName}` : 'افزودن یادداشت'}
+				title={isNoteEditMode ? `ویرایش یادداشت ${selectedNote?.user?.fullName || ''}` : 'افزودن یادداشت'}
 				centered
 				open={isShowModalNote}
 				onCancel={() => {
@@ -138,7 +178,7 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 
 			{/* Delete Modal */}
 			<Modal
-				title={`حذف یادداشت ${selectedNote?.user?.fullName}`}
+				title={`حذف یادداشت ${selectedNote?.user?.fullName || ''}`}
 				open={isNoteDeleteMode}
 				onCancel={() => {
 					setIsNoteDeleteMode(false)
@@ -158,4 +198,4 @@ const WellNote = ({ notesData: initialNotes, status }) => {
 	)
 }
 
-export default WellNote
+export default Notes
