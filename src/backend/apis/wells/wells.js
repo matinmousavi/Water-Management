@@ -131,7 +131,7 @@ router.get('/:wellId', async (req, res) => {
 			.populate({
 				path: 'lands',
 				populate: { path: 'owner', select: 'fullName mobile' },
-				select: 'title owner area location',
+				select: 'title status owner area location',
 			})
 			.populate({ path: 'irrigator', select: 'fullName mobile' })
 			.lean()
