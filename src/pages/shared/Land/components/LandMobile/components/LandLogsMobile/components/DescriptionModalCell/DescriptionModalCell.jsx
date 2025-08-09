@@ -22,7 +22,6 @@ const DescriptionModalCell = ({ record, descriptionEditHours }) => {
 	const { openNotification } = useNotification()
 	const api = useAPI()
 
-	// ✅ اجازه ویرایش اگر کمتر از N ساعت گذشته
 	const isEditAllowed = moment().diff(moment(record.createdAt), 'hours') < descriptionEditHours
 
 	const handleEditClick = () => {

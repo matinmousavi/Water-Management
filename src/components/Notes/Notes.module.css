@@ -1,3 +1,21 @@
+.header {
+	display: none;
+}
+
+.text {
+	font-size: 12px;
+}
+
+.commentContainer {
+	position: relative;
+	z-index: 600;
+
+	.card {
+		height: auto;
+		height: 100%;
+	}
+}
+
 h4 {
 	margin: 0;
 }
@@ -45,7 +63,9 @@ h4 {
 }
 /* ------------- desktop ------------- */
 @media (min-width: 1440px) {
-	.commentText, .date, .userName {
+	.commentText,
+	.date,
+	.userName {
 		font-size: 14px;
 	}
 }

@@ -4,10 +4,15 @@ import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
+import useAPI from '../../../../../hooks/useAPI'
 
 const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
-
+	console.log(irrigatorWells)
+	const schedulesApi = useAPI()
+	schedulesApi.init(`wells/${irrigatorWells?._id}/schedules`)
+	const schedules = schedulesApi.data?.schedules || []
+	console.log(schedules)
 	const onCloseWellList = () => setOpenWellList(false)
 
 	return (

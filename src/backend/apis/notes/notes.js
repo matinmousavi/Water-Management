@@ -152,12 +152,12 @@ router.patch('/:noteId', async (req, res) => {
 			return res.status(400).json({ error: 'متن یادداشت معتبر نیست' })
 		}
 
-		const note = await Note.findById(req.params.noteId)
+		const note = await Note.findById(req.params.noteId).populate('user', 'fullName')
 		if (!note) {
 			return res.status(404).json({ error: 'یادداشت پیدا نشد' })
 		}
 
-		if (!req.isAdmin && note.user.toString() !== req.user._id.toString()) {
+		if (!req.isAdmin && note.user._id.toString() !== req.user._id.toString()) {
 			return res.status(403).json({ error: 'شما اجازه ویرایش این یادداشت را ندارید' })
 		}
 
@@ -171,6 +171,7 @@ router.patch('/:noteId', async (req, res) => {
 			createdAt: note.createdAt,
 			updatedAt: note.updatedAt,
 			reference: await getReference(note.type, note.reference),
+			user: { id: note.user._id, fullName: note.user.fullName },
 		}
 
 		return res.status(200).json({ note: responseData })
