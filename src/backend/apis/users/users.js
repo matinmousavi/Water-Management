@@ -207,6 +207,11 @@ router.delete('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
 
+		// جلوگیری از حذف خود کاربر
+		if (req.user && req.user._id.toString() === userId) {
+			return res.status(403).json({ message: 'شما نمی‌توانید حساب کاربری خود را حذف کنید.' })
+		}
+
 		const user = await User.findById(userId).populate('profilePicture')
 		if (!user) {
 			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
