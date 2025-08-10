@@ -56,7 +56,7 @@ userSchema.statics.initializeDefaultUsers = async function () {
 	const adminData = {
 		role: 'admin',
 		fullName: 'مدیر سیستم',
-		mobile: '09123456789',
+		mobile: '09128243530',
 		email: 'admin@example.com',
 		accountingCode: 'ADM-001',
 		address: 'تهران، میدان آزادی',
@@ -64,12 +64,30 @@ userSchema.statics.initializeDefaultUsers = async function () {
 		profilePicture: null,
 	}
 
-	const adminExists = await this.findOne({ role: 'admin' })
+	const adminExists = await this.findOne({ mobile: adminData.mobile })
 	if (!adminExists) {
 		await this.create(adminData)
 		console.log('✅ Default admin user created.')
 	} else {
 		console.log('ℹ️ Admin user already exists.')
+	}
+
+	const admin2Data = {
+		role: 'admin',
+		fullName: 'سامان عباسی',
+		mobile: '09102234879',
+		email: 'admin2@example.com',
+		accountingCode: 'ADM-002',
+		address: 'تهران، میدان آزادی',
+		status: 'active',
+		profilePicture: null,
+	}
+	const admin2Exists = await this.findOne({ mobile: admin2Data.mobile })
+	if (!admin2Exists) {
+		await this.create(admin2Data)
+		console.log('✅ Second admin user created.')
+	} else {
+		console.log('ℹ️ Second admin user already exists.')
 	}
 
 	if (process.env.NODE_ENV !== 'development') {
