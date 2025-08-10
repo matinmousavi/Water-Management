@@ -10,7 +10,7 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
 	const schedulesApi = useAPI()
 	schedulesApi.init(`wells/${irrigatorWells?._id}/schedules`)
-	const schedules = schedulesApi.data?.schedules || []
+	const schedules = schedulesApi.data
 
 	const onCloseWellList = () => setOpenWellList(false)
 
