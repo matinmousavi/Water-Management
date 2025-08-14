@@ -1,0 +1,56 @@
+name: deploy
+
+on:
+    push:
+        branches: ['staging', 'production'] # staging = for test server karyar، production = for product server
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set environment variables
+              run: |
+                  if [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
+                    echo "VITE_API_URL=https://staging.example.com/api" >> $GITHUB_ENV
+                    echo "IMAGE_NAME=myapp-staging:latest" >> $GITHUB_ENV
+                  else
+                    echo "VITE_API_URL=https://prod.example.com/api" >> $GITHUB_ENV
+                    echo "IMAGE_NAME=myapp-prod:latest" >> $GITHUB_ENV
+                  fi
+                  echo "REGISTRY=ghcr.io" >> $GITHUB_ENV
+
+            - name: Login to registry
+              run: |
+                  echo ${{ secrets.PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            - name: Build and push image
+              run: |
+                  docker build \
+                    --build-arg VITE_API_URL=${{ env.VITE_API_URL }} \
+                    --tag ${{ env.REGISTRY }}/my-org/${{ env.IMAGE_NAME }} .
+                  docker push ${{ env.REGISTRY }}/my-org/${{ env.IMAGE_NAME }}
+
+    deploy:
+        needs: publish
+        runs-on: ubuntu-latest
+        steps:
+            - name: Install SSH keys
+              run: |
+                  install -m 600 -D /dev/null ~/.ssh/id_rsa
+                  echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+                  ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+
+            - name: Deploy to server
+              run: |
+                  if [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
+                    ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+                      "cd /path/to/staging && docker-compose pull myapp-staging && docker-compose up -d"
+                  else
+                    ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+                      "cd /path/to/production && docker-compose pull myapp-prod && docker-compose up -d"
+                  fi
+
+            - name: Cleanup
+              run: rm -rf ~/.ssh
