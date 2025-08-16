@@ -14,10 +14,10 @@ jobs:
               run: |
                   if [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
                     echo "VITE_API_URL=https://staging.example.com/api" >> $GITHUB_ENV
-                    echo "IMAGE_NAME=myapp-staging:latest" >> $GITHUB_ENV
+                    echo "IMAGE_NAME=water-management-staging:latest" >> $GITHUB_ENV
                   else
                     echo "VITE_API_URL=https://prod.example.com/api" >> $GITHUB_ENV
-                    echo "IMAGE_NAME=myapp-prod:latest" >> $GITHUB_ENV
+                    echo "IMAGE_NAME=water-app-production:latest" >> $GITHUB_ENV
                   fi
                   echo "REGISTRY=ghcr.io" >> $GITHUB_ENV
 
@@ -46,10 +46,10 @@ jobs:
               run: |
                   if [[ "${GITHUB_REF_NAME}" == "staging" ]]; then
                     ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-                      "cd /path/to/staging && docker-compose pull myapp-staging && docker-compose up -d"
+                      "cd /path/to/staging && docker-compose -f docker-compose-staging.yml pull water-management-staging && docker-compose -f docker-compose-staging.yml up -d"
                   else
                     ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-                      "cd /path/to/production && docker-compose pull myapp-prod && docker-compose up -d"
+                      "cd /path/to/production && docker-compose -f docker-compose-production.yml pull water-management && docker-compose -f docker-compose-production.yml up -d"
                   fi
 
             - name: Cleanup
