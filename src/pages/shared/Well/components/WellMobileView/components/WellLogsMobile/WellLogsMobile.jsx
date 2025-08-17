@@ -47,7 +47,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 					</Flex>
 					<Flex className={styles.cardRole}>
 						{data?.title ? (
-							<Link to={`wells/${wellId}/groups/${data.id}`} className={styles.land_name}>
+							<Link to={data?.groupId ? `wells/${wellId}/groups/${data.id}` : `lands/${data?.landId}`} className={styles.land_name}>
 								{data?.title}
 							</Link>
 						) : (
