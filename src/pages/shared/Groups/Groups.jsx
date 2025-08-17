@@ -8,14 +8,11 @@ import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 const Groups = () => {
 	const { wellId, groupId } = useParams()
-	console.log(groupId)
-	console.log(wellId)
 	const landApi = useAPI()
 	landApi.init(`lands`)
 	const wellApi = useAPI()
 	wellApi.init(`wells/${wellId}`)
 	const well = wellApi.data?.well
-	console.log(wellApi.data?.well)
 
 	const items = [
 		{
@@ -31,7 +28,7 @@ const Groups = () => {
 		{
 			key: 'notes',
 			label: 'یادداشت ها',
-			children: <NotesGroup />,
+			children: <NotesGroup groupId={groupId} />,
 		},
 	]
 
