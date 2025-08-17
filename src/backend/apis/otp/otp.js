@@ -17,6 +17,11 @@ router.post('/send', async (req, res) => {
 		const { mobile } = req.body
 		if (!mobile) return res.status(400).json({ message: 'شماره موبایل الزامی است.' })
 
+		const user = await User.findOne({ mobile })
+		if (!user) {
+			return res.status(400).json({ message: 'کاربری با این شماره وجود ندارد.' })
+		}
+
 		const existingOtp = await OTP.findOne({
 			mobile,
 			expiresAt: { $gt: new Date() },
@@ -59,6 +64,7 @@ router.post('/verify', async (req, res) => {
 
 		const FIXED_OTP = '1111'
 		if (otp === FIXED_OTP) {
+			console.log(otp)
 			const user = await User.findOne({ mobile })
 			if (!user) {
 				return res.status(400).json({ message: 'کاربر با این شماره وجود ندارد.' })
