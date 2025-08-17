@@ -15,7 +15,7 @@ moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
 const { Text } = Typography
 
-const WellLogsMobile = ({ data }) => {
+const WellLogsMobile = ({ wellId, data }) => {
 	const isThisLogOngoing = data?.isOngoing
 	const landId = data?.land?._id
 
@@ -47,7 +47,7 @@ const WellLogsMobile = ({ data }) => {
 					</Flex>
 					<Flex className={styles.cardRole}>
 						{data?.title ? (
-							<Link to={`/groups/${data.landGroup}`} className={styles.land_name}>
+							<Link to={`wells/${wellId}/groups/${data.id}`} className={styles.land_name}>
 								{data?.title}
 							</Link>
 						) : (
