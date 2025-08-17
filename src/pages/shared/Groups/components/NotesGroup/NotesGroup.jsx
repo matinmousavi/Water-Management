@@ -7,17 +7,15 @@ import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
 
 const NotesGroup = ({ groupId }) => {
-	const [open, setOpen] = useState(false) // برای افزودن یادداشت
-	const [openEdit, setOpenEdit] = useState(false) // برای ویرایش یادداشت
-	const [editingNote, setEditingNote] = useState(null) // یادداشت در حال ویرایش
-
+	const [open, setOpen] = useState(false)
+	const [openEdit, setOpenEdit] = useState(false)
+	const [editingNote, setEditingNote] = useState(null)
 	const [addForm] = Form.useForm()
 	const [editForm] = Form.useForm()
 
 	const { openNotification } = useNotification()
 	const noteApi = useAPI()
 
-	// گرفتن لیست یادداشت‌های گروه زمین
 	useEffect(() => {
 		if (groupId) {
 			noteApi.init('notes', {
@@ -26,7 +24,6 @@ const NotesGroup = ({ groupId }) => {
 		}
 	}, [groupId])
 
-	// بستن مودال‌ها
 	const onClose = () => {
 		setOpen(false)
 		setOpenEdit(false)
@@ -35,7 +32,6 @@ const NotesGroup = ({ groupId }) => {
 		setEditingNote(null)
 	}
 
-	// افزودن یادداشت
 	const handleSubmitNote = async () => {
 		try {
 			const values = await addForm.validateFields()
@@ -61,7 +57,6 @@ const NotesGroup = ({ groupId }) => {
 		}
 	}
 
-	// ویرایش یادداشت
 	const handleEditSubmit = async () => {
 		try {
 			const values = await editForm.validateFields()
@@ -95,7 +90,6 @@ const NotesGroup = ({ groupId }) => {
 				</Button>
 			</div>
 
-			{/* لیست یادداشت‌ها */}
 			<ListNotesGroup
 				notes={noteApi.data?.notes || []}
 				loading={noteApi.isLoading}
@@ -106,7 +100,6 @@ const NotesGroup = ({ groupId }) => {
 				}}
 			/>
 
-			{/* مودال افزودن یادداشت */}
 			<ModalMobile
 				form={addForm}
 				onClose={onClose}
@@ -123,7 +116,6 @@ const NotesGroup = ({ groupId }) => {
 				</Form.Item>
 			</ModalMobile>
 
-			{/* مودال ویرایش یادداشت */}
 			<ModalMobile
 				form={editForm}
 				onClose={onClose}
