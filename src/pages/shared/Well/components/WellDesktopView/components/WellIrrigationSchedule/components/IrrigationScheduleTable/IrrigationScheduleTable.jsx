@@ -82,6 +82,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		try {
 			const res = await api.get(`/wells/${wellId}/schedules`)
 			setTasks(res.schedules || [])
+			
 		} catch {
 			openNotification('error', 'خطا', 'خطا در دریافت زمان‌بندی‌ها')
 		}
