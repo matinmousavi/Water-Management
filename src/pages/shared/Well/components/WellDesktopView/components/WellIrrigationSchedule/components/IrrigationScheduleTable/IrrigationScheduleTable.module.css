@@ -2,7 +2,6 @@
 	max-height: 600px;
 	overflow: auto;
 	background: #ffffff;
-	padding: 0 0 10px 10px;
 	border: 1px solid #ccc;
 }
 
@@ -12,7 +11,6 @@
 	border-bottom-right-radius: 8px;
 	overflow: visible;
 	border: none;
-	background-color: red;
 }
 
 .schedule-header {
@@ -21,6 +19,7 @@
 	position: sticky;
 	top: 0;
 	z-index: 4;
+	width: fit-content;
 }
 
 .time-header {
@@ -72,6 +71,7 @@
 	min-width: 156px;
 	right: 0;
 	z-index: 3;
+	background-color: #ffffff;
 }
 
 .time-column-content {
@@ -80,15 +80,25 @@
 
 .time-label-absolute {
 	position: absolute;
-	right: 1px;
+	right: 8px;
 	font-size: 10px;
 	font-weight: 500;
 	color: #495057;
 	top: 0;
 	transform: translateY(-50%);
-	padding: 0 8px;
 	z-index: 3;
 	min-width: 60px;
+}
+
+.time-label-absolute:not(:first-child):after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	right: calc(100% + 28px);
+	width: 100%;
+	height: 0.5px;
+	background-color: #d9d9d9;
 }
 
 .first-label {
@@ -98,7 +108,7 @@
 .time-hour-bold {
 	position: absolute;
 	left: 0;
-	width: 25%;
+	width: 100%;
 	border-bottom: 1px solid #d9d9d9;
 	transform: translateY(-1px);
 }

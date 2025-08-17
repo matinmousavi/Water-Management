@@ -16,10 +16,22 @@ const getReference = async (type, refId) => {
 		land: { model: Land, fields: 'title' },
 		well: { model: Well, fields: 'title' },
 		personal: { model: User, fields: 'fullName' },
+		landGroup: { model: Well, fields: 'landGroups' },
 	}
 
 	const config = models[type]
 	if (!config) return null
+
+	if (type === 'landGroup') {
+		const wells = await Well.find({ 'landGroups.groupId': refId }).select('landGroups').lean()
+		for (const well of wells) {
+			const group = well.landGroups.find(g => g.groupId.toString() === refId.toString())
+			if (group) {
+				return { id: refId, title: group.title }
+			}
+		}
+		return null
+	}
 
 	const doc = await config.model.findById(refId).select(config.fields).lean()
 	if (!doc) return null
@@ -81,7 +93,7 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({ error: 'متن یادداشت الزامی است' })
 		}
 
-		if (!['personal', 'well', 'land'].includes(type)) {
+		if (!['personal', 'well', 'land', 'landGroup'].includes(type)) {
 			return res.status(400).json({ error: 'نوع یادداشت معتبر نیست' })
 		}
 
@@ -93,6 +105,7 @@ router.post('/', async (req, res) => {
 			well: 'Well',
 			land: 'Land',
 			personal: 'User',
+			landGroup: 'LandGroup',
 		}
 
 		const note = await Note.create({
@@ -128,7 +141,7 @@ router.get('/:noteId', async (req, res) => {
 		const { fields } = req.query
 		const projection = fields ? fields.replace(/,/g, ' ') : ''
 
-		let note = await Note.findById(req.params.id).select(projection).populate('user', 'fullName').lean()
+		let note = await Note.findById(req.params.noteId).select(projection).populate('user', 'fullName').lean()
 
 		if (!note) {
 			return res.status(404).json({ error: 'یادداشت پیدا نشد.' })

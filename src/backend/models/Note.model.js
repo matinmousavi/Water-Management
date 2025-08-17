@@ -9,7 +9,7 @@ const noteSchema = new mongoose.Schema(
 		},
 		type: {
 			type: String,
-			enum: ['personal', 'well', 'land'],
+			enum: ['personal', 'well', 'land', 'landGroup'],
 			required: true,
 		},
 		reference: {
@@ -20,7 +20,7 @@ const noteSchema = new mongoose.Schema(
 		typeRef: {
 			type: String,
 			required: true,
-			enum: ['Well', 'Land', 'User'],
+			enum: ['Well', 'Land', 'User', 'LandGroup'],
 		},
 		text: {
 			type: String,
@@ -28,9 +28,7 @@ const noteSchema = new mongoose.Schema(
 			trim: true,
 		},
 	},
-	{
-		timestamps: true,
-	}
+	{ timestamps: true }
 )
 
 export default mongoose.model('Note', noteSchema)

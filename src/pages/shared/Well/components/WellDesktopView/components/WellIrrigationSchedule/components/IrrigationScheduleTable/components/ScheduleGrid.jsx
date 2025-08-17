@@ -34,13 +34,6 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 								}
 								return null
 							})}
-
-							{timeSlots.map(
-								(timeSlot, index) =>
-									timeSlot.minute === 45 && (
-										<div key={`hour-line-${index}`} className={styles['time-hour-bold']} style={{ top: `${(index + 1) * 15}px` }} />
-									)
-							)}
 						</div>
 					</div>
 
