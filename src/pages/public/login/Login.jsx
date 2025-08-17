@@ -44,8 +44,8 @@ const Login = () => {
 				openNotification('success', 'کد جدید ارسال شد.')
 				setExpireDate(response.cooldownUntil)
 			}
-		} catch {
-			openNotification('error', 'ارسال مجدد کد با مشکل مواجه شد.')
+		} catch (err) {
+			openNotification('error', err?.error.message || 'ارسال مجدد کد با مشکل مواجه شد.')
 		}
 	}
 
@@ -68,8 +68,8 @@ const Login = () => {
 					setStep(2)
 					openNotification('success', 'کد تأیید ارسال شد!')
 				}
-			} catch (error) {
-				openNotification('error', error)
+			} catch (err) {
+				openNotification('error', err?.error.message || 'خطا در ارسال کد OTP.')
 			}
 		} else {
 			try {
@@ -80,8 +80,8 @@ const Login = () => {
 				} else {
 					openNotification('error', 'کد نادرست یا منقضی شده است.')
 				}
-			} catch {
-				openNotification('error', 'کد نادرست یا منقضی شده است.')
+			} catch (err) {
+				openNotification('error', err?.error.message || 'کد نادرست یا منقضی شده است.')
 			}
 		}
 	}

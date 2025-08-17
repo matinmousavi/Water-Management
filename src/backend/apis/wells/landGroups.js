@@ -1,8 +1,23 @@
 import { Router } from 'express'
 import Well from '../../models/Well.model.js'
 import mongoose from 'mongoose'
+import Irrigation from '../../models/Irrigation.model.js'
 
 const router = Router({ mergeParams: true })
+
+router.get('/', async (req, res) => {
+	try {
+		const { wellId } = req.params
+		const well = await Well.findById(wellId).populate('landGroups.lands').select('landGroups').lean()
+
+		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+
+		return res.status(200).json({ landGroups: well.landGroups || [] })
+	} catch (err) {
+		console.error(err)
+		return res.status(500).json({ message: 'خطا در دریافت گروه‌ها.' })
+	}
+})
 
 router.post('/', async (req, res) => {
 	try {
@@ -39,17 +54,66 @@ router.post('/', async (req, res) => {
 	}
 })
 
-router.get('/', async (req, res) => {
+router.get('/:groupId', async (req, res) => {
 	try {
-		const { wellId } = req.params
-		const well = await Well.findById(wellId).populate('landGroups.lands').select('landGroups').lean()
+		const { wellId, groupId } = req.params
+
+		const well = await Well.findById(wellId)
+			.populate({
+				path: 'landGroups.lands',
+				populate: { path: 'owner', model: 'User', select: 'fullName mobile address' },
+			})
+			.lean()
 
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
-		return res.status(200).json({ landGroups: well.landGroups || [] })
+		const group = well.landGroups.find(g => g.groupId.equals(groupId))
+		if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
+
+		const lastIrrigationDoc = await Irrigation.findOne({
+			well: well._id,
+			landGroup: group.groupId,
+			isGroupLog: true,
+		})
+			.sort({ startedAt: -1 })
+			.lean()
+
+		const lastIrrigation = lastIrrigationDoc ? lastIrrigationDoc.startedAt : null
+
+		let nextIrrigationAt = null
+		if (well.cycleDays && well.cycleStartDate) {
+			const now = new Date()
+			const start = new Date(well.cycleStartDate)
+			const cycleDays = well.cycleDays
+
+			const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24))
+			const nextCycle = Math.ceil((diffDays + 1) / cycleDays) * cycleDays
+			nextIrrigationAt = new Date(start)
+			nextIrrigationAt.setDate(start.getDate() + nextCycle)
+		}
+
+		return res.status(200).json({
+			groupId: group.groupId,
+			title: group.title,
+			lands: group.lands.map(land => ({
+				_id: land._id,
+				title: land.title,
+				owner: land.owner
+					? {
+							_id: land.owner._id,
+							fullName: land.owner.fullName,
+							mobile: land.owner.mobile,
+							address: land.owner.address,
+					  }
+					: null,
+				location: land.location || '',
+			})),
+			lastIrrigation,
+			nextIrrigationAt,
+		})
 	} catch (err) {
 		console.error(err)
-		return res.status(500).json({ message: 'خطا در دریافت گروه‌ها.' })
+		return res.status(500).json({ message: 'خطا در دریافت اطلاعات گروه.' })
 	}
 })
 
