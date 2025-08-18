@@ -41,9 +41,7 @@ const ListNotesGroup = ({ notes = [], loading, noteApi, openNotification }) => {
 			openNotification('error', err?.message || 'خطا در ویرایش یادداشت')
 		}
 	}
-	if (loading) {
-		return <Spin />
-	}
+
 	if (!notes.length) {
 		return (
 			<Flex align='center' justify='center' style={{ padding: 24 }}>
@@ -54,7 +52,7 @@ const ListNotesGroup = ({ notes = [], loading, noteApi, openNotification }) => {
 
 	return (
 		<>
-			<Flex gap={16} vertical>
+			<Flex gap={16} vertical style={{ paddingBottom: '70px' }}>
 				{notes.map(note => (
 					<Card key={note.id || note._id} className={styles.card}>
 						<Flex gap={8} vertical>
