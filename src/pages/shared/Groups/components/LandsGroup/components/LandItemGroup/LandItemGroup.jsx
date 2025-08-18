@@ -13,7 +13,7 @@ const LandItemGroup = ({ data }) => {
 		{
 			label: 'نام زمین',
 			icon: iconTree,
-			content: <Link to='/'>{data?.title}</Link>,
+			content: <Link to={`/lands/${data._id}`}>{data?.title}</Link>,
 		},
 		{
 			label: 'نام مالک',
