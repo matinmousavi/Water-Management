@@ -8,10 +8,7 @@ import useNotification from '../../../../../hooks/useNotification'
 
 const NotesGroup = ({ groupId }) => {
 	const [open, setOpen] = useState(false)
-	const [openEdit, setOpenEdit] = useState(false)
-	const [editingNote, setEditingNote] = useState(null)
 	const [addForm] = Form.useForm()
-	const [editForm] = Form.useForm()
 
 	const { openNotification } = useNotification()
 	const noteApi = useAPI()
@@ -26,10 +23,7 @@ const NotesGroup = ({ groupId }) => {
 
 	const onClose = () => {
 		setOpen(false)
-		setOpenEdit(false)
 		addForm.resetFields()
-		editForm.resetFields()
-		setEditingNote(null)
 	}
 
 	const handleSubmitNote = async () => {
@@ -57,31 +51,6 @@ const NotesGroup = ({ groupId }) => {
 		}
 	}
 
-	const handleEditSubmit = async () => {
-		try {
-			const values = await editForm.validateFields()
-			const noteId = editingNote?.id || editingNote?._id
-			if (!noteId) throw new Error('آیدی یادداشت پیدا نشد')
-
-			await noteApi.patch(
-				`notes/${noteId}`,
-				{ text: values.text },
-				{
-					responseHandler: (prev, res) => ({
-						...prev,
-						notes: prev.notes.map(n => (n.id === noteId || n._id === noteId ? res.note : n)),
-					}),
-				}
-			)
-
-			openNotification('success', 'ویرایش موفق', 'یادداشت با موفقیت ویرایش شد')
-			onClose()
-		} catch (err) {
-			console.error(err)
-			openNotification('error', err?.message || 'خطا در ویرایش یادداشت')
-		}
-	}
-
 	return (
 		<Flex vertical style={{ width: '100%' }}>
 			<div className={styles.footer}>
@@ -90,15 +59,7 @@ const NotesGroup = ({ groupId }) => {
 				</Button>
 			</div>
 
-			<ListNotesGroup
-				notes={noteApi.data?.notes || []}
-				loading={noteApi.isLoading}
-				onEdit={note => {
-					setEditingNote(note)
-					editForm.setFieldsValue({ text: note.text })
-					setOpenEdit(true)
-				}}
-			/>
+			<ListNotesGroup notes={noteApi.data?.notes || []} loading={noteApi.isLoading} noteApi={noteApi} openNotification={openNotification} />
 
 			<ModalMobile
 				form={addForm}
@@ -108,22 +69,6 @@ const NotesGroup = ({ groupId }) => {
 				loading={noteApi.isLoading}
 				handleSubmit={handleSubmitNote}
 				title='افزودن یادداشت'
-			>
-				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-					<div className={styles.modalContainer}>
-						<Input.TextArea className={styles.textArea} />
-					</div>
-				</Form.Item>
-			</ModalMobile>
-
-			<ModalMobile
-				form={editForm}
-				onClose={onClose}
-				height={322}
-				open={openEdit}
-				loading={noteApi.isLoading}
-				handleSubmit={handleEditSubmit}
-				title='ویرایش یادداشت'
 			>
 				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 					<div className={styles.modalContainer}>
