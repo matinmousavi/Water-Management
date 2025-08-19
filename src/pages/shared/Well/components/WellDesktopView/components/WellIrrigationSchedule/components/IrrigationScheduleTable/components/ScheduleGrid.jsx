@@ -109,7 +109,6 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 													top: `${top}px`,
 													height: `${height}px`,
 													backgroundColor: task.color || '#e0f7e980',
-													border: isCurrentDayInCycle(dayIndex) ? '1px solid #ff4d4f' : '1px solid #d9d9d9',
 												}}
 											>
 												<div className={styles['task-name']}>{task.title}</div>

@@ -20,7 +20,7 @@ const colorPalette = [
 	'#cfd8dc80',
 ]
 
-const OFF_HOURS_COLOR = '#00000033' // رنگ ثابت برای ساعت خاموشی
+const OFF_HOURS_COLOR = '#00000033'
 
 export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions }) {
 	const [scheduleType, setScheduleType] = useState('land')
@@ -48,7 +48,7 @@ export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoa
 
 	return (
 		<Modal
-			title={editingTask ? 'ویرایش برنامه' : 'افزودن برنامه جدید'}
+			title={editingTask ? 'ویرایش زمان‌بندی' : 'افزودن زمان‌بندی'}
 			open={visible}
 			onCancel={onCancel}
 			footer={
@@ -172,6 +172,7 @@ export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoa
 									value: c,
 									label: <div style={{ background: c, height: 24, borderRadius: 4 }} />,
 								}))}
+								optionLabelProp='label'
 							/>
 						</Form.Item>
 					) : (

@@ -1,38 +1,70 @@
 import { useState, useEffect } from 'react'
 import { Typography, Flex, Tabs, Empty } from 'antd'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
+import { useSearchParams } from 'react-router-dom'
+
 import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 import useAPI from '../../../../../hooks/useAPI'
 
-const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells, wellId }) => {
+const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
+	const [searchParams, setSearchParams] = useSearchParams()
 	const schedulesApi = useAPI()
-	const schedules = schedulesApi?.data
+	const schedules = schedulesApi?.data?.schedules
 
+	// مقدار wellId از search params
+	const wellIdFromParams = searchParams.get('wellId')
+
+	// وقتی کامپوننت لود شد، اگر wellId در پارامز نبود، اولین چاه را اضافه کن
 	useEffect(() => {
-		if (irrigatorWells?._id) {
-			schedulesApi.init(`wells/${irrigatorWells._id}/schedules`)
+		if (!wellIdFromParams && filterWells?.length > 0) {
+			const firstWell = filterWells[0]
+			setSearchParams(prev => {
+				const params = new URLSearchParams(prev)
+				params.set('wellId', firstWell._id)
+				return params
+			})
+			setIrrigatorWells(firstWell)
 		}
-	}, [irrigatorWells?._id])
-	console.log(wellId)
+	}, [wellIdFromParams, filterWells])
+
+	// هر بار که چاه انتخاب شد یا wellId از پارامز تغییر کرد، API fetch کن
+	useEffect(() => {
+		const id = irrigatorWells?._id || wellIdFromParams
+		if (id) {
+			schedulesApi.init(`wells/${id}/schedules`)
+			setIrrigatorWells(prev => (prev?._id === id ? prev : { _id: id }))
+		}
+	}, [irrigatorWells?._id, wellIdFromParams])
 
 	const onCloseWellList = () => setOpenWellList(false)
+
+	// وقتی کاربر چاه جدید انتخاب کرد، هم state و هم پارامتر URL به‌روز شود
+	const handleWellSelect = well => {
+		setIrrigatorWells(well)
+		setSearchParams(prev => {
+			const params = new URLSearchParams(prev)
+			params.set('wellId', well._id)
+			return params
+		})
+		onCloseWellList()
+	}
 
 	return (
 		<>
 			<Flex gap={8} justify='center' align='center'>
 				<img src='/assets/icons/Vector.svg' alt='icon' />
 				<Typography.Title level={2} className='text-h2'>
-					چاه {irrigatorWells?.title}
+					چاه {irrigatorWells?.title || wellIdFromParams}
 				</Typography.Title>
 				{filterWells?.length <= 1 ? null : openWellList ? (
 					<CaretUpOutlined onClick={() => setOpenWellList(false)} style={{ color: '#00000073' }} />
 				) : (
 					<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
 				)}
-				<WellsList setData={setIrrigatorWells} data={filterWells} onClose={onCloseWellList} open={openWellList} />
+				<WellsList setData={handleWellSelect} data={filterWells} onClose={onCloseWellList} open={openWellList} />
 			</Flex>
 
 			<Tabs
@@ -44,7 +76,9 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells, wellId
 						children: (
 							<Flex vertical gap={16}>
 								{schedules?.length > 0 ? (
-									schedules?.map(log => <WellLogsMobile wellId={wellId} key={log?._id || log.id} data={log} />)
+									schedules.map(log => (
+										<WellLogsMobile wellId={irrigatorWells?._id || wellIdFromParams} key={log?._id || log.id} data={log} />
+									))
 								) : (
 									<Empty />
 								)}
@@ -54,7 +88,7 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells, wellId
 					{
 						key: 'notes',
 						label: 'یادداشت‌ها',
-						children: <WellNotesMobile wellId={irrigatorWells?._id} />,
+						children: <WellNotesMobile wellId={irrigatorWells?._id || wellIdFromParams} />,
 					},
 				]}
 			/>

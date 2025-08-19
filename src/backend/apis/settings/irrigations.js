@@ -7,7 +7,6 @@ router.get('/', async (req, res) => {
 	try {
 		const settings = await Setting.findOne().lean()
 
-		console.log(settings)
 		if (!settings) return res.status(404).json({ error: 'تنظیمات یافت نشد' })
 
 		return res.status(200).json({ data: settings.irrigations || {} })
