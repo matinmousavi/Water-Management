@@ -9,6 +9,7 @@ import DeleteCard from '../../../components/DeleteCard/DeleteCard'
 import { WellProvider } from './contexts/WellContext'
 import WellMobileView from './components/WellMobileView/WellMobileView'
 import WellDesktopView from './components/WellDesktopView/WellDesktopView'
+import BackButton from '../../../components/BackButton/BackButton'
 
 const Well = () => {
 	const { wellId } = useParams()

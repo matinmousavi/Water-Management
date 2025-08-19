@@ -4,6 +4,7 @@ import styles from './LandMobile.module.css'
 import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
 import LandNotesMobile from './components/LandMobileNotes/LandNotesMobile'
 import LandLogsMobile from './components/LandLogsMobile/LandLogsMobile'
+import HeaderIrrigation from '../../../../../components/HeaderIrrigation/HeaderIrrigation'
 
 const LandMobile = ({ landData }) => {
 	const items = [
@@ -26,10 +27,7 @@ const LandMobile = ({ landData }) => {
 
 	return (
 		<Flex className={styles.MobileLandContainer} vertical justify='center' gap={20}>
-			<Flex gap={8} align='center' justify='center'>
-				<img src={tree} alt='tree icon' />
-				<Typography.Title className='title-h1'>زمین {landData?.title}</Typography.Title>
-			</Flex>
+			<HeaderIrrigation icon={tree} link='/' title={`زمین ${landData?.title}`} />
 			<Tabs defaultActiveKey='logs' items={items} />
 		</Flex>
 	)

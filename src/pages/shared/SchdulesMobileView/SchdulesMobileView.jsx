@@ -5,6 +5,7 @@ import { Typography, Flex, Card, Spin } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import IrrigationScheduleTable from '../Well/components/WellDesktopView/components/WellIrrigationSchedule/components/IrrigationScheduleTable/IrrigationScheduleTable'
+import HeaderIrrigation from '../../../components/HeaderIrrigation/HeaderIrrigation'
 
 const SchdulesMobileView = () => {
 	const { wellId } = useParams()
@@ -35,12 +36,7 @@ const SchdulesMobileView = () => {
 
 	return (
 		<>
-			<Flex gap={8} justify='center' align='center'>
-				<img src='/assets/icons/Vector.svg' alt='icon' />
-				<Typography.Title level={2} className='text-h2'>
-					زمان‌بندی
-				</Typography.Title>
-			</Flex>
+			<HeaderIrrigation title={`زمان‌بندی`} icon='/assets/icons/Vector.svg' />
 
 			<Card style={{ marginTop: 16 }}>
 				<Spin spinning={loading}>
