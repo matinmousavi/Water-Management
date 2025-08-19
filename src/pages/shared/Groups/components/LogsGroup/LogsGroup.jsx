@@ -32,12 +32,11 @@ function uniqueGroupLogs(logs) {
 	return Array.from(map.values())
 }
 
-const LogsGroup = ({ data }) => {
+const LogsGroup = ({ data, wellId }) => {
 	const { groupId } = useParams()
 	const api = useAPI()
 	const apiTime = useAPI()
 	apiTime.init('settings/irrigations')
-	console.log(data)
 	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
 
 	const [logs, setLogs] = useState([])
@@ -134,8 +133,8 @@ const LogsGroup = ({ data }) => {
 			const combined = now.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
 
 			const response = await api.post('irrigations', {
-				landGroupId: data[0]?.landGroup,
-				wellId: data[0]?.well,
+				landGroupId: groupId,
+				wellId: wellId,
 				startTime: combined.toISOString(),
 				isOngoing: true,
 			})
@@ -189,7 +188,6 @@ const LogsGroup = ({ data }) => {
 			if (updatedLog) {
 				setLogs(prevLogs => {
 					const filtered = prevLogs.map(item => {
-						console.log('Comparing log IDs for sync:', item._id, 'with', updatedLog._id)
 						return item._id === updatedLog._id ? { ...updatedLog, isOngoing: false } : item
 					})
 					const uniqueFiltered = uniqueGroupLogs(filtered)

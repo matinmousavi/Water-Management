@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-
 import styles from './TimerDisplay.module.css'
-
-const TWO_HOURS = 2 * 60 * 60
 
 const formatTime = seconds => {
 	const hrs = Math.floor(seconds / 3600)
@@ -11,26 +8,30 @@ const formatTime = seconds => {
 	return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
 }
 
-const TimerDisplay = ({ startedAt }) => {
+const TimerDisplay = ({ startedAt, endedAt }) => {
 	const [time, setTime] = useState('00 : 00 : 00')
 	const [isOvertime, setIsOvertime] = useState(false)
 	const intervalRef = useRef(null)
 
 	useEffect(() => {
-		if (!startedAt) return
+		if (!startedAt || !endedAt) return
 
 		const startTime = typeof startedAt === 'number' ? startedAt : new Date(startedAt).getTime()
+		const endTime = typeof endedAt === 'number' ? endedAt : new Date(endedAt).getTime()
 
 		const update = () => {
-			const elapsed = Math.floor((Date.now() - startTime) / 1000)
+			const now = Date.now()
 
-			if (elapsed < TWO_HOURS) {
-				const remaining = TWO_HOURS - elapsed
+			if (now < startTime) {
+				setTime('00 : 00 : 00')
+				setIsOvertime(false)
+			} else if (now >= startTime && now <= endTime) {
+				const remaining = Math.floor((endTime - now) / 1000)
 				setTime(formatTime(remaining))
 				setIsOvertime(false)
 			} else {
-				const over = elapsed - TWO_HOURS
-				setTime(formatTime(over))
+				const overtime = Math.floor((now - endTime) / 1000)
+				setTime(`${formatTime(overtime)} -`)
 				setIsOvertime(true)
 			}
 		}
@@ -40,7 +41,7 @@ const TimerDisplay = ({ startedAt }) => {
 		intervalRef.current = setInterval(update, 1000)
 
 		return () => clearInterval(intervalRef.current)
-	}, [startedAt])
+	}, [startedAt, endedAt])
 
 	return <span className={isOvertime ? styles.textRed : styles.textGreen}>{time}</span>
 }

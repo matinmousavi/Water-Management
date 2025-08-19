@@ -1,13 +1,11 @@
-import  { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Layout, Menu, Typography, Image, Grid, Flex, Button } from 'antd'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useSearchParams } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
-
-import { SettingOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
+import { SettingOutlined, MailOutlined, UserOutlined, CalendarOutlined } from '@ant-design/icons'
 
 import iconExit from '../../public/Exit.svg'
 import iconNotes from '../../public/myNotes.svg'
-
 import styles from './Layouts.module.css'
 
 const { Header, Content } = Layout
@@ -15,10 +13,10 @@ const { Title } = Typography
 
 const Layouts = () => {
 	const { isAdmin, isIrrigator, logout } = useUser()
-	const location = useLocation()
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
-
+	const [searchParams] = useSearchParams()
+	const wellId = searchParams.get('wellId')
 	const [menuOpen, setMenuOpen] = useState(false)
 
 	const mainMenuItems = useMemo(() => {
@@ -95,14 +93,21 @@ const Layouts = () => {
 							</Title>
 						</Link>
 
-						{!isMobile && <Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} className={styles.flex} />}
+						{!isMobile && (
+							<Menu theme='dark' mode='horizontal' selectedKeys={[window.location.pathname]} items={mainMenuItems} className={styles.flex} />
+						)}
 					</Flex>
 
-					<div style={{ position: 'relative' }}>
+					<div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
+						{isIrrigator && (
+							<Link to={`/schedules/${wellId}`}>
+								<Button type='text' shape='circle' icon={<CalendarOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />} />
+							</Link>
+						)}
 						<Button
 							type='text'
 							shape='circle'
-							icon={<UserOutlined style={{ color: '#FFFFFFA6', fontSize: 20, paddingTop: 60 }} />}
+							icon={<UserOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />}
 							onClick={() => setMenuOpen(prev => !prev)}
 						/>
 						{menuOpen && (
