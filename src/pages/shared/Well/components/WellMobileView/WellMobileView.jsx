@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Typography, Flex, Tabs, Empty } from 'antd'
-import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
-import { useSearchParams } from 'react-router-dom'
+import { ArrowRightOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
@@ -30,7 +30,6 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 		}
 	}, [wellIdFromParams, filterWells])
 
-	// هر بار که چاه انتخاب شد یا wellId از پارامز تغییر کرد، API fetch کن
 	useEffect(() => {
 		const id = irrigatorWells?._id || wellIdFromParams
 		if (id) {
@@ -41,7 +40,6 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 
 	const onCloseWellList = () => setOpenWellList(false)
 
-	// وقتی کاربر چاه جدید انتخاب کرد، هم state و هم پارامتر URL به‌روز شود
 	const handleWellSelect = well => {
 		setIrrigatorWells(well)
 		setSearchParams(prev => {
@@ -65,6 +63,21 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 					<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
 				)}
 				<WellsList setData={handleWellSelect} data={filterWells} onClose={onCloseWellList} open={openWellList} />
+				<Link
+					to='/'
+					style={{
+						position: 'absolute',
+						right: '16px',
+						color: '#000000',
+					}}
+				>
+					<ArrowRightOutlined
+						style={{
+							fontSize: '16px',
+							marginTop: '8px',
+						}}
+					/>
+				</Link>
 			</Flex>
 
 			<Tabs

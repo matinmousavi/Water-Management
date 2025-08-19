@@ -13,6 +13,7 @@ import styles from './MyNotes.module.css'
 
 import { EditOutlined } from '@ant-design/icons'
 import NotesIcon from '../../../assets/icons/NotesIcon.svg'
+import HeaderIrrigation from '../../../components/HeaderIrrigation/HeaderIrrigation'
 
 const MyNotes = () => {
 	const [editingNoteId, setEditingNoteId] = useState(null)
@@ -31,12 +32,7 @@ const MyNotes = () => {
 
 	return (
 		<Flex gap={20} vertical>
-			<Flex justify='center' gap={8}>
-				<img src={NotesIcon} alt='notes icon' />
-				<Title level={1} className={styles.headTitle}>
-					یادداشت‌های من
-				</Title>
-			</Flex>
+			<HeaderIrrigation title='یادداشت های من' icon={NotesIcon} />
 
 			<Flex vertical gap={16}>
 				{apiNotes.data?.notes?.length == 0 ? (

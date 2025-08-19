@@ -95,7 +95,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 						<Flex gap={10}>
 							<Flex gap={8} className={styles.cardType}>
 								<img src={iconClock} alt='icon clock' />
-								<Text className={styles.label}>آخرین زمان آبیاری</Text>
+								<Text className={styles.label}>آب دریافت شده</Text>
 							</Flex>
 							<Flex className={styles.cardRole}>
 								<Text className={styles.text_irrigation}>
@@ -117,7 +117,9 @@ const WellLogsMobile = ({ wellId, data }) => {
 												{moment(data?.lastIrrigation).format('HH:mm - jYYYY/jMM/jDD') || '--'}
 											</Text>
 										)
-									) : null}
+									) : (
+										'--'
+									)}
 								</Text>
 							</Flex>
 						</Flex>

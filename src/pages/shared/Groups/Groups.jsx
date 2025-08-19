@@ -6,6 +6,7 @@ import NotesGroup from './components/NotesGroup/NotesGroup'
 import LogsGroup from './components/LogsGroup/LogsGroup'
 import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
+import HeaderIrrigation from '../../../components/HeaderIrrigation/HeaderIrrigation'
 const Groups = () => {
 	const { wellId, groupId } = useParams()
 	const landApi = useAPI()
@@ -36,13 +37,7 @@ const Groups = () => {
 		<>
 			<MetaTitle>گروه ها</MetaTitle>
 			<Flex gap={20} vertical>
-				<Flex gap={8} justify='center' align='center'>
-					<img src={groupIcon} alt='icon' />
-					<Typography.Title level={2} className='text-h2'>
-						گروه مزارع شرقی
-					</Typography.Title>
-				</Flex>
-
+				<HeaderIrrigation title={`گروه ${well?.landGroups[0]?.title}`} icon={groupIcon} />
 				<Tabs defaultActiveKey='lands' centered items={items} />
 			</Flex>
 		</>
