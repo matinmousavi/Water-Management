@@ -2,7 +2,6 @@
 	max-height: 600px;
 	overflow: auto;
 	background: #ffffff;
-	border: 1px solid #ccc;
 }
 
 .irrigation-schedule-container {
@@ -39,6 +38,7 @@
 	border-left: none;
 	z-index: 6;
 	padding: 0 8px;
+	border-top-right-radius: 8px;
 }
 
 .day-header-cell {
@@ -93,7 +93,7 @@
 .time-label-absolute:not(:first-child):after {
 	content: '';
 	position: absolute;
-	top: 50%;
+	top: 7px;
 	transform: translateY(-50%);
 	right: calc(100% + 28px);
 	width: 100%;
@@ -180,4 +180,29 @@
 .task-time {
 	font-size: 9px;
 	opacity: 0.8;
+}
+
+.current-day-column {
+	background-color: #fffafa;
+	position: relative;
+}
+
+.current-time-line {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background-color: #ff4d4f;
+	z-index: 10;
+}
+
+.current-time-line::before {
+	content: '';
+	position: absolute;
+	top: -3px;
+	right: 0;
+	width: 8px;
+	height: 8px;
+	background-color: #ff4d4f;
+	border-radius: 50%;
 }

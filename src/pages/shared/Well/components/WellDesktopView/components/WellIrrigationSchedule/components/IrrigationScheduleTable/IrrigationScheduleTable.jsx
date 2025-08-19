@@ -48,6 +48,8 @@ function numberToPersianOrdinal(n) {
 	return ordinals[n] || n
 }
 
+const OFF_HOURS_COLOR = '#00000033'
+
 export default function IrrigationScheduleTable({ wellId, selectedSnapshot, lands = [], landGroups = [] }) {
 	const [tasks, setTasks] = useState([])
 	const [isModalVisible, setIsModalVisible] = useState(false)
@@ -82,7 +84,6 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		try {
 			const res = await api.get(`/wells/${wellId}/schedules`)
 			setTasks(res.schedules || [])
-			
 		} catch {
 			openNotification('error', 'خطا', 'خطا در دریافت زمان‌بندی‌ها')
 		}
@@ -91,6 +92,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 	useEffect(() => {
 		if (wellId) fetchSchedules()
 	}, [wellId, selectedSnapshot])
+
+	const currentDayInCycle = tasks[0]?.dayInCycle
 
 	const landOptions = useMemo(() => {
 		const landsInGroups = landGroups.flatMap(g => g.lands)
@@ -147,15 +150,29 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 			const values = await form.validateFields()
 			setIsLoading(true)
 
-			const isGroup = groupOptions.some(g => g.value === values.target)
+			let payload
 
-			const payload = {
-				startTime: values.startTime.toISOString(),
-				endTime: values.endTime.toISOString(),
-				targetType: isGroup ? 'group' : 'land',
-				targetId: values.target,
-				color: values.color,
-				day: selectedDay,
+			if (values.color === OFF_HOURS_COLOR) {
+				// حالت خاموشی
+				payload = {
+					startTime: values.startTime.toISOString(),
+					endTime: values.endTime.toISOString(),
+					targetType: 'off', // مشخص کردن نوع off
+					color: OFF_HOURS_COLOR,
+					status: 'inactive',
+					day: selectedDay, // اگر میخوای روز هم ثبت بشه
+				}
+			} else {
+				const isGroup = groupOptions.some(g => g.value === values.target)
+				payload = {
+					startTime: values.startTime.toISOString(),
+					endTime: values.endTime.toISOString(),
+					targetType: isGroup ? 'group' : 'land',
+					targetId: values.target,
+					color: values.color,
+					status: 'active',
+					day: selectedDay,
+				}
 			}
 
 			if (editingTask?._id) {
@@ -218,6 +235,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				onEmptySlotClick={handleEmptySlotClick}
 				isTimeSlotOccupied={isTimeSlotOccupied}
 				getTaskPosition={getTaskPosition}
+				currentDayInCycle={currentDayInCycle}
 			/>
 
 			<ScheduleModal

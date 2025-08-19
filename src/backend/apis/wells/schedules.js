@@ -6,16 +6,14 @@ import Irrigation from '../../models/Irrigation.model.js'
 
 const router = Router({ mergeParams: true })
 
-// GET schedules with last & next irrigation times + full schedule info + ongoing irrigation info
+// GET schedules with last & next irrigation times + ongoing irrigation info
 router.get('/', async (req, res) => {
 	try {
 		const { wellId } = req.params
-
 		const well = await Well.findById(wellId).lean()
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
 		const schedules = await Schedule.find({ well: wellId }).lean()
-
 		const results = []
 
 		for (const schedule of schedules) {
@@ -24,47 +22,47 @@ router.get('/', async (req, res) => {
 			let irrigationStartedAt = null
 			let irrigationEndsAt = null
 
-			const ongoingLog = await Irrigation.findOne({
-				isOngoing: true,
-				...(schedule.targetType === 'land' ? { land: schedule.land, isGroupLog: false } : { landGroup: schedule.landGroup, isGroupLog: true }),
-			}).lean()
+			if (schedule.targetType !== 'off') {
+				const ongoingLog = await Irrigation.findOne({
+					isOngoing: true,
+					...(schedule.targetType === 'land' ? { land: schedule.land, isGroupLog: false } : { landGroup: schedule.landGroup, isGroupLog: true }),
+				}).lean()
 
-			if (ongoingLog) {
-				irrigationInProgress = true
-				irrigationStartedAt = ongoingLog.startedAt
+				if (ongoingLog) {
+					irrigationInProgress = true
+					irrigationStartedAt = ongoingLog.startedAt
+					const startTime = new Date(schedule.startTime)
+					const endTime = new Date(schedule.endTime)
+					const startedAt = new Date(irrigationStartedAt)
+					const durationMs =
+						endTime.getHours() * 3600000 + endTime.getMinutes() * 60000 - (startTime.getHours() * 3600000 + startTime.getMinutes() * 60000)
+					irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
+				}
 
-				const startTime = new Date(schedule.startTime)
-				const endTime = new Date(schedule.endTime)
-				const startedAt = new Date(irrigationStartedAt)
-
-				const durationMs =
-					endTime.getHours() * 3600000 + endTime.getMinutes() * 60000 - (startTime.getHours() * 3600000 + startTime.getMinutes() * 60000)
-
-				irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
-			}
-
-			if (schedule.targetType === 'land' && schedule.land) {
-				const lastLog = await Irrigation.findOne({
-					land: schedule.land,
-					isGroupLog: false,
-				})
-					.sort({ startedAt: -1 })
-					.lean()
-				lastIrrigation = lastLog?.startedAt || null
-			} else if (schedule.targetType === 'group' && schedule.landGroup) {
-				const lastLog = await Irrigation.findOne({
-					landGroup: schedule.landGroup,
-					isGroupLog: true,
-				})
-					.sort({ startedAt: -1 })
-					.lean()
-				lastIrrigation = lastLog?.startedAt || null
+				if (schedule.targetType === 'land' && schedule.land) {
+					const lastLog = await Irrigation.findOne({
+						land: schedule.land,
+						isGroupLog: false,
+					})
+						.sort({ startedAt: -1 })
+						.lean()
+					lastIrrigation = lastLog?.startedAt || null
+				} else if (schedule.targetType === 'group' && schedule.landGroup) {
+					const lastLog = await Irrigation.findOne({
+						landGroup: schedule.landGroup,
+						isGroupLog: true,
+					})
+						.sort({ startedAt: -1 })
+						.lean()
+					lastIrrigation = lastLog?.startedAt || null
+				}
 			}
 
 			const startDate = new Date(well.cycleStartDate)
 			const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
 			const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
 			const nextIrrigation = new Date(startDate.getTime() + (cyclesPassed + 1) * well.cycleDays * 24 * 60 * 60 * 1000)
+			const dayInCycle = (daysPassed % well.cycleDays) + 1
 
 			results.push({
 				id: schedule._id,
@@ -72,6 +70,7 @@ router.get('/', async (req, res) => {
 				title: schedule.title,
 				lastIrrigation,
 				nextIrrigation,
+				dayInCycle,
 				landId: schedule.targetType === 'land' ? schedule.land : undefined,
 				groupId: schedule.targetType === 'group' ? schedule.landGroup : undefined,
 				startTime: schedule.startTime,
@@ -79,7 +78,6 @@ router.get('/', async (req, res) => {
 				day: schedule.day,
 				color: schedule.color,
 				status: schedule.status,
-
 				irrigationInProgress,
 				irrigationStartedAt,
 				irrigationEndsAt,
@@ -87,8 +85,7 @@ router.get('/', async (req, res) => {
 		}
 
 		results.sort((a, b) => new Date(a.nextIrrigation) - new Date(b.nextIrrigation))
-
-		return res.status(200).json(results)
+		return res.status(200).json({ schedules: results })
 	} catch (err) {
 		console.error(err)
 		return res.status(500).json({ message: 'خطا در دریافت زمان‌بندی‌ها.' })
@@ -113,12 +110,12 @@ router.post('/', async (req, res) => {
 		} else if (targetType === 'group' && targetId) {
 			const well = await Well.findById(wellId).lean()
 			if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
-
 			const group = well.landGroups.find(g => g.groupId.toString() === targetId)
 			if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
-
 			title = group.title
 			landGroup = targetId
+		} else if (targetType === 'off') {
+			title = 'ساعت خاموشی'
 		} else {
 			return res.status(400).json({ message: 'اطلاعات زمین یا گروه نامعتبر است.' })
 		}
@@ -133,7 +130,7 @@ router.post('/', async (req, res) => {
 			title,
 			day,
 			color,
-			status: 'active',
+			status: targetType === 'off' ? 'inactive' : 'active',
 		}
 
 		const schedule = await Schedule.create(scheduleData)
@@ -180,27 +177,17 @@ router.patch('/:scheduleId', async (req, res) => {
 		} else if (targetType === 'group' && targetId) {
 			const well = await Well.findById(wellId).lean()
 			if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
-
 			const group = well.landGroups.find(g => g.groupId.toString() === targetId)
 			if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
-
 			title = group.title
 			landGroup = targetId
+		} else if (targetType === 'off') {
+			title = 'ساعت خاموشی'
 		} else {
 			return res.status(400).json({ message: 'اطلاعات زمین یا گروه نامعتبر است.' })
 		}
 
-		const updates = {
-			targetType,
-			land,
-			landGroup,
-			startTime,
-			endTime,
-			title,
-			day,
-			color,
-		}
-
+		const updates = { targetType, land, landGroup, startTime, endTime, title, day, color }
 		const schedule = await Schedule.findByIdAndUpdate(scheduleId, updates, { new: true })
 		if (!schedule) return res.status(404).json({ message: 'زمان‌بندی پیدا نشد.' })
 
@@ -234,7 +221,6 @@ router.delete('/:scheduleId', async (req, res) => {
 		const { scheduleId } = req.params
 		const schedule = await Schedule.findByIdAndDelete(scheduleId)
 		if (!schedule) return res.status(404).json({ message: 'زمان‌بندی پیدا نشد.' })
-
 		return res.status(200).json({ message: 'زمان‌بندی حذف شد.' })
 	} catch (err) {
 		console.error(err)
