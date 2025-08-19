@@ -19,8 +19,10 @@ const TimerDisplay = ({ startedAt }) => {
 	useEffect(() => {
 		if (!startedAt) return
 
+		const startTime = typeof startedAt === 'number' ? startedAt : new Date(startedAt).getTime()
+
 		const update = () => {
-			const elapsed = Math.floor((Date.now() - startedAt) / 1000)
+			const elapsed = Math.floor((Date.now() - startTime) / 1000)
 
 			if (elapsed < TWO_HOURS) {
 				const remaining = TWO_HOURS - elapsed

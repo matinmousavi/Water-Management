@@ -183,6 +183,9 @@ router.post('/', async (req, res) => {
 		const currentUser = req.user
 		const { startedAt, endedAt, isOngoing } = extractStartAndEndTimes(req.body)
 
+		console.log('req.body.startedAt:', req.body.startedAt)
+		console.log('extractStartAndEndTimes:', extractStartAndEndTimes(req.body))
+
 		if (!wellId) return res.status(400).json({ message: 'شناسه چاه (wellId) الزامی است.' })
 
 		const wellDocument = await Well.findById(wellId)

@@ -22,7 +22,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 	const [startedAt, setStartedAt] = useState(null)
 
 	useEffect(() => {
-		if (!landId) {
+		if (!landId || !groupId) {
 			console.error('landId is missing:', landId)
 			return
 		}
@@ -33,12 +33,11 @@ const WellLogsMobile = ({ wellId, data }) => {
 			console.error('irrigationStartTime not found in localStorage for landId:', landId)
 			return
 		}
-
-		setStartedAt(irrigationStartTime)
+		setStartedAt(Number(irrigationStartTime))
 	}, [landId, isThisLogOngoing])
 
 	return (
-		<Card>
+		<Card className={(data?.irrigationInProgress || isThisLogOngoing) && styles.borderCard}>
 			<Flex vertical gap={24}>
 				<Flex gap={10} align='start'>
 					<Flex gap={8} className={styles.cardType}>
@@ -63,17 +62,25 @@ const WellLogsMobile = ({ wellId, data }) => {
 					</Flex>
 					<Flex className={styles.cardRole}>
 						<Text className={styles.text_irrigation}>
-							{isThisLogOngoing ? (
-								startedAt ? (
+							{isThisLogOngoing || data?.irrigationInProgress ? (
+								data?.type === 'land' ? (
+									// آبیاری تکی (زمین)
+									startedAt ? (
+										<span className={styles.timerText}>
+											<TimerDisplay startedAt={startedAt} />
+										</span>
+									) : (
+										<Text className={styles.text_irrigation}>{moment(data?.endedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'}</Text>
+									)
+								) : // آبیاری گروهی
+								data?.irrigationStartedAt ? (
 									<span className={styles.timerText}>
-										<TimerDisplay startedAt={startedAt} />
+										<TimerDisplay startedAt={data?.irrigationStartedAt} />
 									</span>
 								) : (
-									<Text className={styles.text_irrigation}>-</Text>
+									<Text className={styles.text_irrigation}>{moment(data?.lastIrrigation).format('HH:mm - jYYYY/jMM/jDD') || '-'}</Text>
 								)
-							) : (
-								moment(data?.endedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'
-							)}
+							) : null}
 						</Text>
 					</Flex>
 				</Flex>
