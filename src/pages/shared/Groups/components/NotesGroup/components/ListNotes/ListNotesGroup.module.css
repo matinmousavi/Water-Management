@@ -28,3 +28,11 @@
 .text {
 	font-weight: 300 !important;
 }
+.modalContainer {
+	height: 100%;
+	padding: 0 16px;
+}
+.textArea {
+	height: 100% !important;
+	border-radius: 6px;
+}

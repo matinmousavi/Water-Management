@@ -4,7 +4,16 @@ import groupIcon from '../../../assets/icons/Group.svg'
 import LandsGroup from './components/LandsGroup/LandsGroup'
 import NotesGroup from './components/NotesGroup/NotesGroup'
 import LogsGroup from './components/LogsGroup/LogsGroup'
+import { useParams } from 'react-router'
+import useAPI from '../../../hooks/useAPI'
 const Groups = () => {
+	const { wellId, groupId } = useParams()
+	const landApi = useAPI()
+	landApi.init(`lands`)
+	const wellApi = useAPI()
+	wellApi.init(`wells/${wellId}`)
+	const well = wellApi.data?.well
+
 	const items = [
 		{
 			key: 'logs',
@@ -14,12 +23,12 @@ const Groups = () => {
 		{
 			key: 'lands',
 			label: 'زمین ها',
-			children: <LandsGroup />,
+			children: <LandsGroup data={well?.lands} />,
 		},
 		{
 			key: 'notes',
 			label: 'یادداشت ها',
-			children: <NotesGroup />,
+			children: <NotesGroup groupId={groupId} />,
 		},
 	]
 

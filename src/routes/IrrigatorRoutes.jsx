@@ -23,7 +23,7 @@ const IrrigatorRoutes = () => (
 				<Route path=':wellId' element={<Well />} />
 			</Route>
 			<Route path='my-notes' element={<MyNotes />} />
-			<Route path='groups' element={<Groups />} />
+			<Route path='wells/:wellId/groups/:groupId' element={<Groups />} />
 		</Route>
 	</Routes>
 )

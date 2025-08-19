@@ -15,7 +15,7 @@ moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
 const { Text } = Typography
 
-const WellLogsMobile = ({ data }) => {
+const WellLogsMobile = ({ wellId, data }) => {
 	const isThisLogOngoing = data?.isOngoing
 	const landId = data?.land?._id
 
@@ -43,12 +43,12 @@ const WellLogsMobile = ({ data }) => {
 				<Flex gap={10} align='start'>
 					<Flex gap={8} className={styles.cardType}>
 						<img src={iconTree} alt='icon tree' />
-						<Text className={styles.label}>نام زمین</Text>
+						{data?.type == 'land' ? <Text className={styles.label}>نام زمین</Text> : <Text className={styles.label}>نام گروه</Text>}
 					</Flex>
 					<Flex className={styles.cardRole}>
-						{data?.land ? (
-							<Link to={`/lands/${data.land._id}`} className={styles.land_name}>
-								{data.land.title}
+						{data?.title ? (
+							<Link to={data?.groupId ? `wells/${wellId}/groups/${data.id}` : `lands/${data?.landId}`} className={styles.land_name}>
+								{data?.title}
 							</Link>
 						) : (
 							<Text>-</Text>
@@ -84,7 +84,7 @@ const WellLogsMobile = ({ data }) => {
 						<Text className={styles.label}>زمان آبیاری بعدی</Text>
 					</Flex>
 					<Flex className={styles.cardRole}>
-						<Text className={styles.text_irrigation}>{moment(data?.updatedAt).format('HH:mm - jYYYY/jMM/jDD') || '-'}</Text>
+						<Text className={styles.text_irrigation}>{moment(data?.nextIrrigation).format('HH:mm - jYYYY/jMM/jDD') || '-'}</Text>
 					</Flex>
 				</Flex>
 			</Flex>

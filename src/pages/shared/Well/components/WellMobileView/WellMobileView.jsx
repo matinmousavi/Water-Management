@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Typography, Flex, Tabs, Empty } from 'antd'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import WellsList from './components/WellsList/WellsList'
@@ -6,13 +6,18 @@ import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 import useAPI from '../../../../../hooks/useAPI'
 
-const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
+const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells, wellId }) => {
 	const [openWellList, setOpenWellList] = useState(false)
-	console.log(irrigatorWells)
 	const schedulesApi = useAPI()
-	schedulesApi.init(`wells/${irrigatorWells?._id}/schedules`)
-	const schedules = schedulesApi.data?.schedules || []
-	console.log(schedules)
+	const schedules = schedulesApi?.data
+
+	useEffect(() => {
+		if (irrigatorWells?._id) {
+			schedulesApi.init(`wells/${irrigatorWells._id}/schedules`)
+		}
+	}, [irrigatorWells?._id])
+	console.log(wellId)
+
 	const onCloseWellList = () => setOpenWellList(false)
 
 	return (
@@ -38,7 +43,11 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 						label: 'نوبت آبیاری',
 						children: (
 							<Flex vertical gap={16}>
-								{irrigatorWells?.logs?.length == 0 ? <Empty /> : irrigatorWells?.logs?.map(log => <WellLogsMobile key={log?._id} data={log} />)}
+								{schedules?.length > 0 ? (
+									schedules?.map(log => <WellLogsMobile wellId={wellId} key={log?._id || log.id} data={log} />)
+								) : (
+									<Empty />
+								)}
 							</Flex>
 						),
 					},
