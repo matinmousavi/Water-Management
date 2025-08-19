@@ -3,6 +3,10 @@
 	direction: rtl;
 }
 
+.borderCard {
+	border-color: #52c41a !important ;
+}
+
 .cardType {
 	flex: 1;
 	display: flex;

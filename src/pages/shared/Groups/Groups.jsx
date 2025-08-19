@@ -18,7 +18,7 @@ const Groups = () => {
 		{
 			key: 'logs',
 			label: 'لاگ توزیع',
-			children: <LogsGroup />,
+			children: <LogsGroup data={well?.logs} />,
 		},
 		{
 			key: 'lands',

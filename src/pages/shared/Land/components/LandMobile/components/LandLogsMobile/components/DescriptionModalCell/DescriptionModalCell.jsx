@@ -17,12 +17,12 @@ const { Text } = Typography
 const DescriptionModalCell = ({ record, descriptionEditHours }) => {
 	const [openEdit, setOpenEdit] = useState(false)
 	const [openDescription, setOpenDescription] = useState(false)
-	const [notes, setNotes] = useState(record.note || null)
+	const [notes, setNotes] = useState(record?.note || null)
 
 	const { openNotification } = useNotification()
 	const api = useAPI()
 
-	const isEditAllowed = moment().diff(moment(record.createdAt), 'hours') < descriptionEditHours
+	const isEditAllowed = moment().diff(moment(record?.createdAt), 'hours') < descriptionEditHours
 
 	const handleEditClick = () => {
 		if (!notes && isEditAllowed) {
@@ -33,10 +33,10 @@ const DescriptionModalCell = ({ record, descriptionEditHours }) => {
 	}
 
 	const handleSubmit = async () => {
-		const hadNoteBefore = Boolean(record.note)
+		const hadNoteBefore = Boolean(record?.note)
 
 		try {
-			const response = await api.patch(`irrigations/${record._id}`, { note: notes })
+			const response = await api.patch(`irrigations/${record?._id}`, { note: notes })
 
 			setNotes(response.irrigation.note)
 
@@ -65,7 +65,7 @@ const DescriptionModalCell = ({ record, descriptionEditHours }) => {
 			</Flex>
 
 			<Modal
-				title={`توضیحات لاگ توزیع آب ${moment(record.startedAt).format('dddd jD jMMMM jYYYY')}`}
+				title={`توضیحات لاگ توزیع آب ${moment(record?.startedAt).format('dddd jD jMMMM jYYYY')}`}
 				open={openDescription}
 				onCancel={() => setOpenDescription(false)}
 				centered
