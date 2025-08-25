@@ -52,7 +52,7 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 
 	return (
 		<>
-			<Flex gap={8} justify='center' align='center'>
+			<Flex style={{ position: 'relative' }} gap={8} justify='center' align='center'>
 				<img src='/assets/icons/Vector.svg' alt='icon' />
 				<Typography.Title level={2} className='text-h2'>
 					چاه {irrigatorWells?.title || wellIdFromParams}

@@ -77,7 +77,7 @@ const WellNotesMobile = ({ wellId }) => {
 				</div>
 			</div>
 
-			<Flex vertical gap={16}>
+			<Flex style={{ paddingBottom: '60px' }} vertical gap={16}>
 				{notesApi?.data?.notes?.length == 0 ? (
 					<Empty />
 				) : (
