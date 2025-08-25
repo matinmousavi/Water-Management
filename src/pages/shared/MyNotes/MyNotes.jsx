@@ -22,8 +22,7 @@ const MyNotes = () => {
 	const userId = user._id
 
 	const apiNotes = useAPI()
-	apiNotes.init(`notes/user/${userId}`)
-
+	apiNotes.init('notes', { filters: { user: userId } })
 	if (apiNotes.isLoading) return <Loading />
 
 	const onClose = () => {
