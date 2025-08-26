@@ -36,3 +36,20 @@
 	height: 100% !important;
 	border-radius: 6px;
 }
+
+@media (min-width: 768px) {
+	.card :global(.ant-card-body) {
+		padding: 16px !important;
+	}
+}
+
+@media (min-width: 1024px) {
+	.card :global(.ant-card-body) {
+		padding: 16px !important;
+	}
+}
+@media (min-width: 1440px) {
+	.card :global(.ant-card-body) {
+		padding: 16px !important;
+	}
+}
