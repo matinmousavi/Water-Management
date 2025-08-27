@@ -58,7 +58,7 @@ const LandInfo = ({ landData, setPageTitle }) => {
 					<Title level={2} className='text-card-title'>
 						مشخصات زمین
 					</Title>
-					<LandEdit initialValue={land} setData={api.setData} setPageTitle={setPageTitle} />
+					{isAdmin ? <LandEdit initialValue={land} setData={api.setData} setPageTitle={setPageTitle} /> : null}
 				</Flex>
 
 				<Row gutter={[0, 36]}>

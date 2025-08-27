@@ -9,6 +9,7 @@ import { useWell } from '../../../../../../contexts/WellContext'
 
 import ScheduleGrid from './components/ScheduleGrid'
 import ScheduleModal from './components/ScheduleModal'
+import { useUser } from '../../../../../../../../../contexts/UserContext'
 
 dayjs.extend(isBetween)
 
@@ -59,7 +60,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 	const [form] = Form.useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
-
+	const { isAdmin } = useUser()
 	// فقط وقتی editable هست از context استفاده کن
 	const cycleDaysFromContext = editable ? useWell().cycleDays : null
 	const cycleDays = editable ? cycleDaysFromContext : cycleDaysProp || 7
@@ -236,22 +237,23 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				currentDayInCycle={currentDayInCycle}
 			/>
 
-			{editable && (
-				<ScheduleModal
-					visible={isModalVisible}
-					onCancel={() => {
-						setIsModalVisible(false)
-						setEditingTask(null)
-						setSelectedDay(null)
-					}}
-					onOk={handleModalOk}
-					onDelete={handleDeleteTask}
-					isLoading={isLoading}
-					editingTask={editingTask}
-					form={form}
-					selectOptions={selectOptions}
-				/>
-			)}
+			{editable &&
+				(isAdmin ? (
+					<ScheduleModal
+						visible={isModalVisible}
+						onCancel={() => {
+							setIsModalVisible(false)
+							setEditingTask(null)
+							setSelectedDay(null)
+						}}
+						onOk={handleModalOk}
+						onDelete={handleDeleteTask}
+						isLoading={isLoading}
+						editingTask={editingTask}
+						form={form}
+						selectOptions={selectOptions}
+					/>
+				) : null)}
 		</>
 	)
 }
