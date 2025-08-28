@@ -7,6 +7,7 @@ import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
+import { calculateTotalDuration } from '../../utils/calculateTotalDuration.js'
 
 const router = Router()
 
@@ -56,28 +57,6 @@ const getLandGroupTitle = async (irrigation, well) => {
 	}
 	const group = well.landGroups.find(g => g.groupId.toString() === irrigation.landGroup.toString())
 	return group ? group.title : null
-}
-
-// Calculate total received water in HH:mm format
-const calculateTotalDuration = async ({ landId, landGroupId }) => {
-	let irrigations = []
-	if (landGroupId) {
-		irrigations = await Irrigation.find({ landGroup: landGroupId, endedAt: { $ne: null } })
-	} else if (landId) {
-		irrigations = await Irrigation.find({ land: landId, endedAt: { $ne: null } })
-	}
-
-	let totalMinutes = 0
-	for (const ir of irrigations) {
-		if (ir.startedAt && ir.endedAt) {
-			const diffMs = ir.endedAt - ir.startedAt
-			totalMinutes += Math.floor(diffMs / (1000 * 60))
-		}
-	}
-
-	const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
-	const minutes = String(totalMinutes % 60).padStart(2, '0')
-	return `${hours}:${minutes}`
 }
 
 // Send SMS notifications

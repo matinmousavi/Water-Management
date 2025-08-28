@@ -2,6 +2,7 @@ import { Router } from 'express'
 import Well from '../../models/Well.model.js'
 import mongoose from 'mongoose'
 import Irrigation from '../../models/Irrigation.model.js'
+import { calculateTotalDuration } from '../../utils/calculateTotalDuration.js'
 
 const router = Router({ mergeParams: true })
 
@@ -11,6 +12,11 @@ router.get('/', async (req, res) => {
 		const well = await Well.findById(wellId).populate('landGroups.lands').select('landGroups').lean()
 
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+
+		// add totalReceivedWater for each group
+		for (const group of well.landGroups) {
+			group.totalReceivedWater = await calculateTotalDuration({ landGroupId: group.groupId })
+		}
 
 		return res.status(200).json({ landGroups: well.landGroups || [] })
 	} catch (err) {
@@ -92,6 +98,8 @@ router.get('/:groupId', async (req, res) => {
 			nextIrrigationAt.setDate(start.getDate() + nextCycle)
 		}
 
+		const totalReceivedWater = await calculateTotalDuration({ landGroupId: group.groupId })
+
 		return res.status(200).json({
 			groupId: group.groupId,
 			title: group.title,
@@ -110,6 +118,7 @@ router.get('/:groupId', async (req, res) => {
 			})),
 			lastIrrigation,
 			nextIrrigationAt,
+			totalReceivedWater,
 		})
 	} catch (err) {
 		console.error(err)
