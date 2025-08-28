@@ -109,7 +109,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 				return (
 					<Flex align='center' gap={8}>
 						<span>{group.title}</span>
-						<Button type='link' icon={<EditOutlined />} onClick={() => openEditGroupModal(group)} />
+						{isAdmin ? <Button type='link' icon={<EditOutlined />} onClick={() => openEditGroupModal(group)} /> : null}
 					</Flex>
 				)
 			},
@@ -125,7 +125,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			render: (_, record) => <Link to={`/users/${record.owner?._id}`}>{record.owner?.fullName}</Link>,
+			render: (_, record) => (isAdmin ? <Link to={`/users/${record.owner?._id}`}>{record.owner?.fullName}</Link> : record.owner?.fullName),
 		},
 		{
 			title: 'شماره تماس مالک',

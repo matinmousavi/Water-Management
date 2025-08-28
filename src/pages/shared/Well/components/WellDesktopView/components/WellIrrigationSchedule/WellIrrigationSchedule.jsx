@@ -84,16 +84,16 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 
 					<div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
 						<Spin spinning={loading}>
-							<Select
-								value={selectedSnapshot}
-								onChange={handleSelectChange}
-								style={{ width: 200 }}
-								placeholder='انتخاب'
-								showSearch
-								optionFilterProp='children'
-								popupRender={menu => (
-									<>
-										{isAdmin ? (
+							{isAdmin ? (
+								<Select
+									value={selectedSnapshot}
+									onChange={handleSelectChange}
+									style={{ width: 200 }}
+									placeholder='انتخاب'
+									showSearch
+									optionFilterProp='children'
+									popupRender={menu => (
+										<>
 											<div
 												style={{
 													padding: '8px 12px',
@@ -110,17 +110,17 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 											>
 												ساخت جدول زمانی جدید
 											</div>
-										) : null}
-										{menu}
-									</>
-								)}
-							>
-								{snapshots.map(snapshot => (
-									<Option key={snapshot._id} value={snapshot._id}>
-										{snapshot.title}
-									</Option>
-								))}
-							</Select>
+											{menu}
+										</>
+									)}
+								>
+									{snapshots.map(snapshot => (
+										<Option key={snapshot._id} value={snapshot._id}>
+											{snapshot.title}
+										</Option>
+									))}
+								</Select>
+							) : null}
 						</Spin>
 					</div>
 				</div>

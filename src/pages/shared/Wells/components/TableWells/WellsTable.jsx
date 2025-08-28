@@ -8,6 +8,7 @@ const WellsTable = ({ WellsData }) => {
 	const { isIrrigator } = useUser()
 	const [containerRef, height] = useContainerHeight(40)
 	const [searchedColumn, setSearchedColumn] = useState('')
+	const { isAdmin } = useUser()
 
 	const getColumnSearchProps = dataIndex => ({
 		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -58,7 +59,15 @@ const WellsTable = ({ WellsData }) => {
 			dataIndex: 'irrigator',
 			key: 'irrigator',
 			render: (irrigator, record) =>
-				irrigator?._id ? <Link to={isIrrigator ? `/wells/${record._id}` : `/users/${irrigator._id}`}>{irrigator.fullName}</Link> : <span>-</span>,
+				irrigator?._id ? (
+					isAdmin ? (
+						<Link to={isIrrigator ? `/wells/${record._id}` : `/users/${irrigator._id}`}>{irrigator.fullName}</Link>
+					) : (
+						irrigator.fullName
+					)
+				) : (
+					<span>-</span>
+				),
 			filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
 				<div style={{ padding: 8 }}>
 					<Input
