@@ -58,6 +58,28 @@ const getLandGroupTitle = async (irrigation, well) => {
 	return group ? group.title : null
 }
 
+// Calculate total received water in HH:mm format
+const calculateTotalDuration = async ({ landId, landGroupId }) => {
+	let irrigations = []
+	if (landGroupId) {
+		irrigations = await Irrigation.find({ landGroup: landGroupId, endedAt: { $ne: null } })
+	} else if (landId) {
+		irrigations = await Irrigation.find({ land: landId, endedAt: { $ne: null } })
+	}
+
+	let totalMinutes = 0
+	for (const ir of irrigations) {
+		if (ir.startedAt && ir.endedAt) {
+			const diffMs = ir.endedAt - ir.startedAt
+			totalMinutes += Math.floor(diffMs / (1000 * 60))
+		}
+	}
+
+	const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+	const minutes = String(totalMinutes % 60).padStart(2, '0')
+	return `${hours}:${minutes}`
+}
+
 // Send SMS notifications
 const sendIrrigationNotificationToLandOwner = async ({ landId, irrigationDocument, endedAt, currentUser }) => {
 	const landDocument = await Land.findById(landId).populate('owner', 'fullName mobile notificationsEnabled')
@@ -120,6 +142,10 @@ const updateGroupIrrigationLogs = async ({ groupIrrigationDocuments, requestBody
 
 	for (const irrigation of updatedIrrigations) {
 		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+		irrigation.totalReceivedWater = await calculateTotalDuration({
+			landId: irrigation.landGroup ? null : irrigation.land._id,
+			landGroupId: irrigation.landGroup || null,
+		})
 	}
 
 	return updatedIrrigations
@@ -145,6 +171,10 @@ router.get('/', async (req, res) => {
 
 		for (const irrigation of irrigations) {
 			irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+			irrigation.totalReceivedWater = await calculateTotalDuration({
+				landId: irrigation.landGroup ? null : irrigation.land._id,
+				landGroupId: irrigation.landGroup || null,
+			})
 		}
 
 		res.status(200).json({ irrigations })
@@ -169,6 +199,11 @@ router.get('/:irrigationId', async (req, res) => {
 		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
 
 		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+		irrigation.totalReceivedWater = await calculateTotalDuration({
+			landId: irrigation.landGroup ? null : irrigation.land._id,
+			landGroupId: irrigation.landGroup || null,
+		})
+
 		res.status(200).json({ irrigation })
 	} catch (err) {
 		console.error(err.message)
