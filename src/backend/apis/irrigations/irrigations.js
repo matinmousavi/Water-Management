@@ -7,6 +7,7 @@ import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
+import { calculateTotalDuration } from '../../utils/calculateTotalDuration.js'
 
 const router = Router()
 
@@ -120,6 +121,10 @@ const updateGroupIrrigationLogs = async ({ groupIrrigationDocuments, requestBody
 
 	for (const irrigation of updatedIrrigations) {
 		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+		irrigation.totalReceivedWater = await calculateTotalDuration({
+			landId: irrigation.landGroup ? null : irrigation.land._id,
+			landGroupId: irrigation.landGroup || null,
+		})
 	}
 
 	return updatedIrrigations
@@ -145,6 +150,10 @@ router.get('/', async (req, res) => {
 
 		for (const irrigation of irrigations) {
 			irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+			irrigation.totalReceivedWater = await calculateTotalDuration({
+				landId: irrigation.landGroup ? null : irrigation.land._id,
+				landGroupId: irrigation.landGroup || null,
+			})
 		}
 
 		res.status(200).json({ irrigations })
@@ -169,6 +178,11 @@ router.get('/:irrigationId', async (req, res) => {
 		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
 
 		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+		irrigation.totalReceivedWater = await calculateTotalDuration({
+			landId: irrigation.landGroup ? null : irrigation.land._id,
+			landGroupId: irrigation.landGroup || null,
+		})
+
 		res.status(200).json({ irrigation })
 	} catch (err) {
 		console.error(err.message)
