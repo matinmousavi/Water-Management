@@ -103,7 +103,7 @@ a,
 	border: 1 !important;
 }
 .ant-modal .ant-row {
-	flex-flow: row nowrap !important;
+	/* flex-flow: row nowrap !important; */
 	align-items: center !important;
 }
 .ant-modal-content {

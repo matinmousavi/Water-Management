@@ -1,4 +1,4 @@
-import { Flex, Form, Input, Select, TimePicker } from 'antd'
+import { Col, Flex, Form, Input, Row, Select, TimePicker } from 'antd'
 import { useUser } from '../../../contexts/UserContext'
 import FaDatePicker from '../../FaDatePicker/FaDatePicker'
 import { useState, useEffect } from 'react'
@@ -78,38 +78,41 @@ const WellForm = ({ form, irrigators = [] }) => {
 			</Form.Item>
 
 			<Form.Item label='ساعت خاموشی' required>
-				<Flex>
-					<Form.Item name='startTime' rules={[{ required: true, message: 'زمان شروع الزامی است' }]} style={{ flex: 1, marginBottom: 0 }}>
-						<TimePicker placeholder='شروع' format='HH:mm' size='large' style={{ width: '100%' }} onChange={value => setStartTime(value)} />
-					</Form.Item>
-
-					<Form.Item
-						name='endTime'
-						dependencies={['startTime']}
-						rules={[
-							{ required: true, message: 'زمان پایان الزامی است' },
-							({ getFieldValue }) => ({
-								validator(_, value) {
-									const start = getFieldValue('startTime')
-									if (!start || !value || dayjs(value).isAfter(dayjs(start))) {
-										return Promise.resolve()
-									}
-									return Promise.reject(new Error('زمان پایان باید بعد از زمان شروع باشد'))
-								},
-							}),
-						]}
-						style={{ flex: 1, marginBottom: 0 }}
-					>
-						<TimePicker
-							placeholder='پایان'
-							format='HH:mm'
-							size='large'
-							style={{ width: '100%' }}
-							disabledHours={disabledHours}
-							disabledMinutes={disabledMinutes}
-						/>
-					</Form.Item>
-				</Flex>
+				<Row gutter={16} align='middle'>
+					<Col span={12}>
+						<Form.Item name='startTime' rules={[{ required: true, message: 'زمان شروع الزامی است' }]} style={{ flex: 1, marginBottom: 0 }}>
+							<TimePicker placeholder='شروع' format='HH:mm' size='large' style={{ width: '100%' }} onChange={value => setStartTime(value)} />
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item
+							name='endTime'
+							dependencies={['startTime']}
+							rules={[
+								{ required: true, message: 'زمان پایان الزامی است' },
+								({ getFieldValue }) => ({
+									validator(_, value) {
+										const start = getFieldValue('startTime')
+										if (!start || !value || dayjs(value).isAfter(dayjs(start))) {
+											return Promise.resolve()
+										}
+										return Promise.reject(new Error('زمان پایان باید بعد از زمان شروع باشد'))
+									},
+								}),
+							]}
+							style={{ flex: 1, marginBottom: 0 }}
+						>
+							<TimePicker
+								placeholder='پایان'
+								format='HH:mm'
+								size='large'
+								style={{ width: '100%' }}
+								disabledHours={disabledHours}
+								disabledMinutes={disabledMinutes}
+							/>
+						</Form.Item>
+					</Col>
+				</Row>
 			</Form.Item>
 		</Form>
 	)

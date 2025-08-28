@@ -14,7 +14,7 @@ import BackButton from '../../../components/BackButton/BackButton'
 const Well = () => {
 	const { wellId } = useParams()
 	const api = useAPI()
-	const { user, isAdmin } = useUser()
+	const { user, isAdmin, isIrrigator } = useUser()
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
 
@@ -67,9 +67,10 @@ const Well = () => {
 		<WellProvider value={contextValue}>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
-				{isMobile ? (
+				{isMobile && isIrrigator && (
 					<WellMobileView wellId={well?._id} setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
-				) : (
+				)}
+				{isAdmin && (
 					<WellDesktopView
 						title={title}
 						well={well}
@@ -83,7 +84,6 @@ const Well = () => {
 						actualWellId={actualWellId}
 					/>
 				)}
-
 				{isAdmin && <DeleteCard title={`چاه ${title}`} api={`wells/${actualWellId}`} backTo='/wells' />}
 			</Flex>
 		</WellProvider>

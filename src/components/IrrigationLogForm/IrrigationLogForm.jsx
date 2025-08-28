@@ -1,10 +1,12 @@
-import { Form, Select, Input, Row, Col, TimePicker, Checkbox, Tag } from 'antd'
+import { Form, Select, Input, Row, Col, TimePicker, Checkbox, Tag, Grid } from 'antd'
 import FaDatePicker from '../FaDatePicker/FaDatePicker'
 import dayjs from 'dayjs'
 
 const { Option } = Select
 
 const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'admin', page = 'well' }) => {
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 	const labelCol = { span: 8 }
 	const wrapperCol = { span: 18 }
 
@@ -110,7 +112,7 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 			</Form.Item>
 
 			{type === 'admin' && (
-				<Form.Item name='isOngoing' valuePropName='checked' wrapperCol={{ offset: labelCol.span, span: wrapperCol.span }}>
+				<Form.Item name='isOngoing' valuePropName='checked' wrapperCol={!isMobile ? { offset: labelCol.span, span: wrapperCol.span } : undefined}>
 					<Checkbox>در حال آب‌رسانی</Checkbox>
 				</Form.Item>
 			)}
