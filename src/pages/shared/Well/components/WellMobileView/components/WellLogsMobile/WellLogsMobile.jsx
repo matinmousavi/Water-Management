@@ -41,6 +41,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 			console.log(cardClass)
 		}
 	}
+	console.log(data.totalReceivedWater)
 
 	return (
 		<Card className={cardClass}>
@@ -98,29 +99,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 								<Text className={styles.label}>آب دریافت شده</Text>
 							</Flex>
 							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>
-									{isThisLogOngoing || data?.irrigationInProgress ? (
-										data?.type === 'land' ? (
-											startedAt ? (
-												<span className={styles.timerText}>
-													<TimerDisplay startedAt={startedAt} />
-												</span>
-											) : (
-												<Text className={styles.text_irrigation}>{moment(data?.endedAt).format('HH:mm - jYYYY/jMM/jDD') || '--'}</Text>
-											)
-										) : data?.irrigationStartedAt ? (
-											<span className={styles.timerText}>
-												<TimerDisplay startedAt={data?.irrigationStartedAt} endedAt={data?.irrigationEndsAt} />
-											</span>
-										) : (
-											<Text className={styles.text_irrigation}>
-												{moment(data?.lastIrrigation).format('HH:mm - jYYYY/jMM/jDD') || '--'}
-											</Text>
-										)
-									) : (
-										'--'
-									)}
-								</Text>
+								<Text className={styles.text_irrigation}>{moment(data?.totalReceivedWater).format('HH:mm') || '-'}</Text>
 							</Flex>
 						</Flex>
 

@@ -5,7 +5,7 @@ import LandsGroup from './components/LandsGroup/LandsGroup'
 import NotesGroup from './components/NotesGroup/NotesGroup'
 import LogsGroup from './components/LogsGroup/LogsGroup'
 import GroupDesktop from './components/GroupDesktop/GroupDesktop'
-import { useParams } from 'react-router'
+import { data, useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import HeaderIrrigation from '../../../components/HeaderIrrigation/HeaderIrrigation'
 const Groups = () => {

@@ -5,8 +5,6 @@ import GroupLandsList from './components/GroupLandsList/GroupLandsList'
 import GroupLogs from './components/GroupLogs/GroupLogs'
 import GroupNotes from './components/GroupNotes/GroupNotes'
 const GroupDesktop = ({ data, groupId }) => {
-	console.log(data)
-
 	const { Title } = Typography
 	const items = [
 		{
@@ -22,7 +20,7 @@ const GroupDesktop = ({ data, groupId }) => {
 		{
 			key: 'notes',
 			label: 'یادداشت ها',
-			children: <GroupNotes notes={data?.notes} groupId={groupId} />,
+			children: <GroupNotes groupId={groupId} />,
 		},
 	]
 	return (
