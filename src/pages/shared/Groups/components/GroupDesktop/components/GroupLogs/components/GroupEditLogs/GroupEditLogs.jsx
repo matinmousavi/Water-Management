@@ -1,18 +1,61 @@
-import { Button, Flex, Form, Input, Modal } from 'antd'
+import { Button, Flex, Form, Modal } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import useModal from '../../../../../../../../../hooks/useModal'
+import GroupFormLogs from '../GroupFormLogs/GroupFormLogs'
+import useAPI from '../../../../../../../../../hooks/useAPI'
+import dayjs from 'dayjs'
+import { useState } from 'react'
 
-const GroupEditLogs = () => {
+const GroupEditLogs = ({ onLogAdded, groupId, wellId }) => {
 	const [form] = Form.useForm()
 	const { open, isOpen, close } = useModal()
+	const api = useAPI()
+	const [submitting, setSubmitting] = useState(false)
+
 	const handleCancel = () => {
 		form.resetFields()
 		close()
 	}
-	const handleSubmit = () => {
-		form.resetFields()
-		close()
+
+	const handleSubmit = async () => {
+		if (submitting) return
+		setSubmitting(true)
+
+		try {
+			const values = await form.validateFields()
+
+			const startDateTime = dayjs(values.startDate).hour(dayjs(values.startTime).hour()).minute(dayjs(values.startTime).minute()).second(0).toISOString()
+
+			let endDateTime = null
+			if (values.endDate && values.endTime) {
+				endDateTime = dayjs(values.endDate).hour(dayjs(values.endTime).hour()).minute(dayjs(values.endTime).minute()).second(0).toISOString()
+			}
+
+			const payload = {
+				landGroupId: groupId,
+				wellId,
+				startTime: startDateTime,
+				endTime: endDateTime,
+				isOngoing: values.isOngoing || false,
+				note: values.note || '',
+			}
+			console.log('ارسال به بک‌اند:', payload)
+
+			const res = await api.post('irrigations', payload)
+
+			if (res?.irrigations?.[0]) {
+				onLogAdded?.(res.irrigations[0])
+			}
+
+			form.resetFields()
+			close()
+		} catch (e) {
+			console.error('خطا در ثبت لاگ:', e)
+		} finally {
+			setSubmitting(false)
+		}
 	}
+
 	return (
 		<>
 			<Button color='primary' variant='outlined' size='middle' onClick={open}>
@@ -21,23 +64,25 @@ const GroupEditLogs = () => {
 					<span>افزودن لاگ</span>
 				</Flex>
 			</Button>
+
 			<Modal
 				title='افزودن لاگ توزیع'
 				open={isOpen}
-				onOk={handleSubmit}
 				onCancel={handleCancel}
-				okText='ثبت'
-				cancelText='انصراف'
-				// confirmLoading={irrigationApi?.isLoading}
+				footer={
+					<Flex gap={12} justify='end'>
+						<Button onClick={handleCancel}>انصراف</Button>
+						<Button type='primary' loading={submitting} onClick={handleSubmit}>
+							ثبت
+						</Button>
+					</Flex>
+				}
 				forceRender
 			>
-				<Form>
-					<Form.Item name='landId' label='زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-						<Input />
-					</Form.Item>
-				</Form>
+				<GroupFormLogs form={form} />
 			</Modal>
 		</>
 	)
 }
+
 export default GroupEditLogs

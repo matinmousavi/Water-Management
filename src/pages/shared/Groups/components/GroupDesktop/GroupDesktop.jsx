@@ -4,13 +4,13 @@ import styels from './GroupDesktop.module.css'
 import GroupLandsList from './components/GroupLandsList/GroupLandsList'
 import GroupLogs from './components/GroupLogs/GroupLogs'
 import GroupNotes from './components/GroupNotes/GroupNotes'
-const GroupDesktop = ({ data, groupId }) => {
+const GroupDesktop = ({ data, groupId, wellId }) => {
 	const { Title } = Typography
 	const items = [
 		{
 			key: 'logs',
 			label: 'لاگ توزیع',
-			children: <GroupLogs logs={data?.logs} />,
+			children: <GroupLogs logs={data?.logs} wellId={wellId} groupId={groupId} />,
 		},
 		{
 			key: 'lands',

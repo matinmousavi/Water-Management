@@ -45,7 +45,7 @@ const Groups = () => {
 					<Tabs defaultActiveKey='lands' centered items={items} />
 				</Flex>
 			) : (
-				<GroupDesktop groupId={groupId} data={well} />
+				<GroupDesktop groupId={groupId} wellId={wellId} data={well} />
 			)}
 		</>
 	)
