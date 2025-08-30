@@ -13,8 +13,14 @@
 	font-weight: 900 !important;
 }
 .form {
-	width: 120px !important;
+	width: 140px !important;
 }
 .modal-content {
 	margin: 4px 0 !important;
+}
+@media (min-width: 1024px) {
+	.form {
+		width: 120px !important;
+	}
+	
 }

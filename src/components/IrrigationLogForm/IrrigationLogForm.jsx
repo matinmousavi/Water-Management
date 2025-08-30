@@ -47,7 +47,7 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 						filterOption={(input, option) => (option?.children ?? '').toLowerCase().includes(input.toLowerCase())}
 						allowClear
 						disabled={mode === 'edit'}
-						size='large'
+						size={isMobile ? 'middle' : 'large'}
 					>
 						{/* زمین‌های بدون گروه */}
 						{landsNotInGroups.map(land => (
@@ -73,12 +73,12 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 				<Row gutter={16} align='middle'>
 					<Col span={13}>
 						<Form.Item name='startDate' noStyle rules={[{ required: true, message: 'تاریخ شروع الزامی است' }]}>
-							<FaDatePicker placeholder='تاریخ' size='large' disabled={type === 'irrigator' && mode === 'edit'} />
+							<FaDatePicker placeholder='تاریخ' size={isMobile ? 'middle' : 'large'} disabled={type === 'irrigator' && mode === 'edit'} />
 						</Form.Item>
 					</Col>
 					<Col span={11}>
 						<Form.Item name='startTime' noStyle rules={[{ required: true, message: 'ساعت شروع الزامی است' }]}>
-							<TimePicker placeholder='ساعت' format='HH:mm' size='large' disabled={type === 'irrigator' && mode === 'edit'} />
+							<TimePicker placeholder='ساعت' format='HH:mm' size={isMobile ? 'middle' : 'large'} disabled={type === 'irrigator' && mode === 'edit'} />
 						</Form.Item>
 					</Col>
 				</Row>
@@ -90,7 +90,7 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 						<Form.Item name='endDate' noStyle>
 							<FaDatePicker
 								placeholder='تاریخ'
-								size='large'
+								size={isMobile ? 'middle' : 'large'}
 								disabled={isOngoing || (type === 'irrigator' && mode !== 'edit')}
 								disabledDate={current => startDate && current && current.isBefore(dayjs(startDate), 'day')}
 							/>
@@ -101,7 +101,7 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 							<TimePicker
 								placeholder='ساعت'
 								format='HH:mm'
-								size='large'
+								size={isMobile ? 'middle' : 'large'}
 								disabled={isOngoing || (type === 'irrigator' && mode !== 'edit')}
 								disabledTime={disabledEndTime}
 								hideDisabledOptions

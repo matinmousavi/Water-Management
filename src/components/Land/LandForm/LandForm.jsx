@@ -1,4 +1,4 @@
-import { Form, Input, Select } from 'antd'
+import { Form, Grid, Input, Select } from 'antd'
 import { useUser } from '../../../contexts/UserContext'
 import TextArea from 'antd/es/input/TextArea'
 
@@ -15,10 +15,12 @@ const wrapperColSpan = 20
 
 const LandForm = ({ form, landOwners = [], wells = [] }) => {
 	const { isAdmin } = useUser()
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 	return (
 		<Form form={form} name='landForm' labelCol={{ span: labelColSpan }} colon={false} wrapperCol={{ span: wrapperColSpan }} labelAlign='left'>
 			<Form.Item name='title' label='عنوان زمین' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input size='large' />
+				<Input size={isMobile ? 'middle' : 'large'} />
 			</Form.Item>
 
 			{isAdmin && (
@@ -34,14 +36,14 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 							label: `${owner.fullName}`,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
-						size='large'
+						size={isMobile ? 'middle' : 'large'}
 					/>
 				</Form.Item>
 			)}
 
 			<Form.Item name='area' label='مساحت'>
 				<Input
-					size='large'
+					size={isMobile ? 'middle' : 'large'}
 					inputMode='numeric'
 					pattern='[0-9]*'
 					onKeyPress={e => {
@@ -53,15 +55,15 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 			</Form.Item>
 
 			<Form.Item name='kFactor' label='K-factor'>
-				<Input size='large' />
+				<Input size={isMobile ? 'middle' : 'large'} />
 			</Form.Item>
 
 			<Form.Item name='cropType' label='محصول'>
-				<Input size='large' />
+				<Input size={isMobile ? 'middle' : 'large'} />
 			</Form.Item>
 
 			<Form.Item name='irrigationType' label='نوع آبیاری'>
-				<Select options={irrigationOptions} placeholder='انتخاب' allowClear size='large' />
+				<Select options={irrigationOptions} placeholder='انتخاب' allowClear size={isMobile ? 'middle' : 'large'} />
 			</Form.Item>
 
 			<Form.Item name='location' label='مکان'>
@@ -79,7 +81,7 @@ const LandForm = ({ form, landOwners = [], wells = [] }) => {
 						label: well.title,
 					}))}
 					fieldNames={{ value: 'value', label: 'label' }}
-					size='large'
+					size={isMobile ? 'middle' : 'large'}
 				/>
 			</Form.Item>
 		</Form>

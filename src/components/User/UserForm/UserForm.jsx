@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Form, Input, Select, Upload, message, Modal, Flex } from 'antd'
+import { Form, Input, Select, Upload, message, Modal, Flex, Grid } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import ImgCrop from 'antd-img-crop'
 
@@ -25,6 +25,8 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 	const [previewVisible, setPreviewVisible] = useState(false)
 	const [previewImage, setPreviewImage] = useState('')
 	const [fileList, setFileList] = useState([])
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 
 	useEffect(() => {
 		setFileList([])
@@ -95,7 +97,7 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 										border: '1px dashed #3B8FF3',
 										borderRadius: 4,
 										width: '100%',
-										height: 40,
+										height: isMobile ? 32 : 40,
 										color: '#3B8FF3',
 										cursor: 'pointer',
 									}}
@@ -109,16 +111,16 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 				</Form.Item>
 
 				<Form.Item label='نام و نام خانوادگی' name='fullName' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-					<Input size='large' />
+					<Input size={isMobile ? 'middle' : 'large'} />
 				</Form.Item>
 
 				<Form.Item label='نقش' name='role' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-					<Select placeholder='انتخاب' options={ROLES.map(r => ({ value: r.key, label: r.label }))} size='large' />
+					<Select placeholder='انتخاب' options={ROLES.map(r => ({ value: r.key, label: r.label }))} size={isMobile ? 'middle' : 'large'} />
 				</Form.Item>
 
 				<Form.Item label='کد حساب‌داری' name='accountingCode'>
 					<Input
-						size='large'
+						size={isMobile ? 'middle' : 'large'}
 						inputMode='numeric'
 						pattern='[0-9]*'
 						onKeyPress={e => {
@@ -146,7 +148,7 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 						},
 					]}
 				>
-					<Input maxLength={11} inputMode='numeric' size='large' />
+					<Input maxLength={11} inputMode='numeric' size={isMobile ? 'middle' : 'large'} />
 				</Form.Item>
 				<Form.Item
 					label='آدرس ایمیل'
@@ -158,7 +160,7 @@ const UserForm = ({ form, setImageFile, initialImage }) => {
 						},
 					]}
 				>
-					<Input size='large' />
+					<Input size={isMobile ? 'middle' : 'large'} />
 				</Form.Item>
 				<Form.Item label='آدرس' name='address'>
 					<Input.TextArea rows={3} size='large' />

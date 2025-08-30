@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Button, Flex, Modal, Form, Input, Select, Checkbox, Row, Col } from 'antd'
+import { Button, Flex, Modal, Form, Input, Select, Checkbox, Row, Col, Grid } from 'antd'
 import { MailOutlined } from '@ant-design/icons'
 import useModal from '../../../../../hooks/useModal'
 import useNotification from '../../../../../hooks/useNotification'
@@ -12,6 +12,9 @@ const MessageSender = ({ api }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
+
 
 	const apiWells = useAPI()
 	apiWells.init('wells')
@@ -94,7 +97,7 @@ const MessageSender = ({ api }) => {
 					</Form.Item>
 
 					<Form.Item label='چاه' name='wellIds' rules={[{ required: true, message: 'چاه ها را انتخاب کنید' }]}>
-						<Select mode='multiple' size='large' placeholder='انتخاب' options={selectOptions} />
+						<Select mode='multiple' size={isMobile ? 'middle' : 'large'} placeholder='انتخاب' options={selectOptions} />
 					</Form.Item>
 
 					<Form.Item label='متن پیامک' name='message' rules={[{ required: true, message: 'متن پیامک الزامی است' }]}>
