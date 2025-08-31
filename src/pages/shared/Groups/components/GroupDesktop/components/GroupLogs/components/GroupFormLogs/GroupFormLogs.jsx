@@ -25,7 +25,6 @@ const GroupFormLogs = ({ form, type = 'admin', mode = 'add' }) => {
 
 	return (
 		<Form form={form} layout='horizontal' labelAlign='left' labelCol={labelCol} wrapperCol={wrapperCol}>
-			{/* شروع آب‌رسانی: در add فعال، در edit فقط نمایش (disabled) */}
 			<Form.Item label='شروع آب‌رسانی' required={mode === 'add'}>
 				<Row gutter={16} align='middle'>
 					<Col span={13}>
@@ -41,7 +40,6 @@ const GroupFormLogs = ({ form, type = 'admin', mode = 'add' }) => {
 				</Row>
 			</Form.Item>
 
-			{/* پایان آب‌رسانی: همیشه نمایش؛ در add غیرفعال، در edit فعال. هرگز required نیست */}
 			<Form.Item label='پایان آب‌رسانی'>
 				<Row gutter={16} align='middle'>
 					<Col span={13}>
@@ -69,7 +67,6 @@ const GroupFormLogs = ({ form, type = 'admin', mode = 'add' }) => {
 				</Row>
 			</Form.Item>
 
-			{/* فقط ادمین در حالت افزودن می‌تونه ongoing بزنه */}
 			{type === 'admin' && mode === 'add' && (
 				<Form.Item name='isOngoing' valuePropName='checked' wrapperCol={{ offset: labelCol.span, span: wrapperCol.span }}>
 					<Checkbox
