@@ -7,8 +7,14 @@ import iconPhone from '../../../../../../../assets/icons/PhoneOutlined.svg'
 import iconLocation from '../../../../../../../assets/icons/EnvironmentOutlined.svg'
 import moment from 'moment-jalaali'
 import styles from './LandItemGroup.module.css'
+import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
+
 const LandItemGroup = ({ data }) => {
 	const { Text } = Typography
+
+	const sections = Math.floor(Math.random() * 4) + 2
+	const progressValue = 40
+
 	const landData = [
 		{
 			label: 'نام زمین',
@@ -31,15 +37,13 @@ const LandItemGroup = ({ data }) => {
 			content: <Text>{data?.location}</Text>,
 		},
 		{
-			label: 'آخرین زمان آبیاری',
-			icon: iconClock,
-			content: <Text>{data?.lastIrrigatedAt ? moment(data?.lastIrrigatedAt).format('HH:mm - jYYYY/jMM/jDD') : '--'}</Text>,
-		},
-		{
 			label: 'زمان آبیاری بعدی',
 			icon: iconClock,
 			content: <Text>{moment(new Date()).format('HH:mm - jYYYY/jMM/jDD')}</Text>,
 		},
+		{ icon: iconClock, label: 'آب مورد نیاز', content: '3 ساعت' || '-' },
+		{ icon: iconClock, label: 'آب دریافت شده', content: '1 ساعت و 45 دقیقه' || '-' },
+		{ icon: iconClock, label: 'زمان باقی مانده', content: '15 دقیفه' || '-' },
 	]
 	return (
 		<Card>
@@ -53,6 +57,7 @@ const LandItemGroup = ({ data }) => {
 						<Flex className={styles.cardRole}>{item.content}</Flex>
 					</Flex>
 				))}
+				<ProgressBar sections={sections} progressValue={progressValue} />
 			</Flex>
 		</Card>
 	)

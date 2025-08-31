@@ -10,6 +10,7 @@ import iconTree from '../../../../../../../assets/icons/ri_tree-line.svg'
 import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg'
 
 import { getIrrigationStartTime } from '../../../../../../../utils/irrigationStorage'
+import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
@@ -21,7 +22,8 @@ const WellLogsMobile = ({ wellId, data }) => {
 	const landId = data?.land?._id
 
 	const [startedAt, setStartedAt] = useState(null)
-
+	const sections = Math.floor(Math.random() * 4) + 2
+	const progressValue = 40
 	useEffect(() => {
 		if (!landId || isOff) return
 
@@ -41,7 +43,6 @@ const WellLogsMobile = ({ wellId, data }) => {
 			console.log(cardClass)
 		}
 	}
-	console.log(data.totalReceivedWater)
 
 	return (
 		<Card className={cardClass}>
@@ -115,6 +116,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 						</Flex>
 					</>
 				)}
+				<ProgressBar sections={sections} progressValue={progressValue} />
 			</Flex>
 		</Card>
 	)

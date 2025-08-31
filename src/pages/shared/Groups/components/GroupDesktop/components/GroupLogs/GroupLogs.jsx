@@ -1,4 +1,4 @@
-import { Card, Flex, Table, Typography, Modal } from 'antd'
+import { Card, Flex, Table, Typography, Modal, Space } from 'antd'
 import moment from 'moment-jalaali'
 import { EyeOutlined } from '@ant-design/icons'
 import { useState, useEffect, useRef } from 'react'
@@ -68,6 +68,21 @@ const GroupLogs = ({ logs: initialLogs, groupId, wellId }) => {
 					'--'
 				),
 		},
+		{
+			title: 'عملیات',
+			key: 'action',
+			render: (_, record) => (
+				<Space size={8}>
+					<GroupEditLogs
+						mode='edit'
+						log={record}
+						onLogUpdated={updated => {
+							setLogs(prev => prev.map(l => (l._id === updated._id ? updated : l)))
+						}}
+					/>
+				</Space>
+			),
+		},
 	]
 
 	return (
@@ -77,7 +92,7 @@ const GroupLogs = ({ logs: initialLogs, groupId, wellId }) => {
 					<Title level={2} className='text-card-title'>
 						لاگ توزیع آب ({logs?.length || 0})
 					</Title>
-					<GroupEditLogs onLogAdded={handleLogAdded} groupId={groupId} wellId={wellId} />
+					<GroupEditLogs mode='add' groupId={groupId} wellId={wellId} onLogAdded={handleLogAdded} />
 				</Flex>
 
 				<Table bordered dataSource={logs} columns={columns} rowKey={record => `${record.landGroupId}_${record.startedAt}`} />
