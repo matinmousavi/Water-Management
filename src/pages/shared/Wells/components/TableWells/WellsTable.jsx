@@ -49,6 +49,7 @@ const WellsTable = ({ WellsData }) => {
 		{
 			title: 'عنوان چاه',
 			dataIndex: 'title',
+			width: 100,
 			key: 'title',
 			render: (text, record) => <Link to={`/wells/${record._id}`}>{text}</Link>,
 			...getColumnSearchProps('title'),

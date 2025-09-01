@@ -48,24 +48,25 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 	const columns = [
 		{
 			title: 'تاریخ ',
+			width: 150,
 			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : '--'),
 		},
 		{
 			title: 'ساعت شروع',
+			width: 120,
 			render: record => (record?.startedAt ? moment(record.startedAt).locale('fa').format('HH:mm') : '--'),
 		},
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
-			render: (_, record) => {
-				if (!record.endedAt) return 'در حال آبیاری'
-				return `${record.duration}`
-			},
+			width: 150,
+			render: (_, record) => (!record.endedAt ? 'در حال آبیاری' : `${record.duration}`),
 		},
 		{
 			title: 'توضیحات',
 			dataIndex: ['note'],
 			key: 'note',
+			width: 100,
 			render: (_, record) => (record?.note ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--'),
 		},
 	]
@@ -74,6 +75,7 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 		columns.push({
 			title: 'عملیات',
 			key: 'action',
+			width: 150,
 			render: (_, record) => (
 				<Space size={8}>
 					<EditOutlined className='edit-icon' onClick={() => handleEditClick(record)} />
@@ -89,9 +91,19 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 		})
 	}
 
+	const totalWidth = columns.reduce((sum, col) => sum + (col.width || 150), 0)
+
 	return (
 		<>
-			<Table size='middle' dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered />
+			<Table
+				size='middle'
+				dataSource={data}
+				columns={columns}
+				rowKey={record => record._id}
+				pagination={false}
+				bordered
+				scroll={{ x: totalWidth }}
+			/>
 			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			<Modal
