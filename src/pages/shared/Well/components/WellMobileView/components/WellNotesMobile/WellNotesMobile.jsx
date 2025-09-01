@@ -1,4 +1,4 @@
-import { Button, Flex, Form, Input, Spin, Empty, Card, Typography } from 'antd'
+import { Button, Flex, Form, Input, Empty, Card, Typography } from 'antd'
 import ModalMobile from '../../../../../../../components/ModalMobile/ModalMobile'
 import styles from './WellNotesMobile.module.css'
 import { useState } from 'react'
@@ -8,11 +8,13 @@ import useNotification from '../../../../../../../hooks/useNotification'
 import { EditOutlined } from '@ant-design/icons'
 
 const WellNotesMobile = ({ wellId }) => {
-	const [open, setOpen] = useState(false)
+	const [openAdd, setOpenAdd] = useState(false)
 	const [openEdit, setOpenEdit] = useState(false)
 	const [editingNoteId, setEditingNoteId] = useState(null)
-	const [editedText, setEditedText] = useState('')
-	const [form] = Form.useForm()
+
+	const [addForm] = Form.useForm()
+	const [editForm] = Form.useForm()
+
 	const notesApi = useAPI()
 	const { openNotification } = useNotification()
 	const { Title, Text } = Typography
@@ -20,19 +22,17 @@ const WellNotesMobile = ({ wellId }) => {
 	notesApi.init('notes', { type: 'well', reference: wellId })
 
 	const onClose = () => {
-		setOpen(false)
+		setOpenAdd(false)
 		setOpenEdit(false)
-		setEditedText('')
 		setEditingNoteId(null)
-		form.resetFields()
+		addForm.resetFields()
+		editForm.resetFields()
 	}
 
-	const handleSubmitNote = async () => {
+	const handleSubmitNote = async values => {
 		try {
-			const values = await form.validateFields()
-
 			await notesApi.post('notes', {
-				text: values.text,
+				text: values.text.trim(),
 				type: 'well',
 				reference: wellId,
 			})
@@ -41,19 +41,14 @@ const WellNotesMobile = ({ wellId }) => {
 			notesApi.init('notes', { type: 'well', reference: wellId }, true)
 		} catch (err) {
 			console.error('خطا در ثبت یادداشت:', err)
-			openNotification('error', err?.message)
+			openNotification('error', err?.message || 'خطایی رخ داد')
 		}
 	}
 
-	const handleEditSubmit = async () => {
-		if (!editingNoteId || !editedText.trim()) {
-			openNotification('error', 'متن یادداشت نمی‌تواند خالی باشد')
-			return
-		}
-
+	const handleEditSubmit = async values => {
 		try {
 			await notesApi.patch(`notes/${editingNoteId}`, {
-				text: editedText.trim(),
+				text: values.text.trim(),
 			})
 
 			openNotification('success', 'ویرایش موفق', 'یادداشت با موفقیت ویرایش شد')
@@ -70,67 +65,79 @@ const WellNotesMobile = ({ wellId }) => {
 			<div className={styles.commentContainer}>
 				<div className={styles.card}>
 					<Flex className={styles.buttonAddNote} align='center' justify='space-between'>
-						<Button type='default' className={`button-modal ${styles.addBtnNote}`} onClick={() => setOpen(true)}>
+						<Button type='default' className={`button-modal ${styles.addBtnNote}`} onClick={() => setOpenAdd(true)}>
 							افزودن یادداشت
 						</Button>
 					</Flex>
 				</div>
 			</div>
-
 			<Flex style={{ paddingBottom: '60px' }} vertical gap={16}>
-				{notesApi?.data?.notes?.length == 0 ? (
+				{notesApi?.data?.notes?.length === 0 ? (
 					<Empty />
 				) : (
-					notesApi.data?.notes?.map(note => (
-						<Card key={note.id}>
-							<Flex gap={8} vertical>
-								<Flex align='center' justify='space-between' gap={20}>
-									<Title className={styles.title} level={4}>
-										{note?.user ? `${note?.user?.fullName}` : 'کاربر ناشناس'}
-									</Title>
-									<Text className={styles.date}>{moment(note?.createdAt).locale('fa').format(' jD jMMMM jYYYY - ساعت HH:mm')}</Text>
-								</Flex>
+					notesApi.data?.notes?.map(note => {
+						const id = note._id || note.id
+
+						return (
+							<Card key={id}>
 								<Flex gap={8} vertical>
-									<Text className={styles.text}>{note?.text}</Text>
-									<div>
-										<Button
-											className={styles.btn}
-											onClick={() => {
-												setOpenEdit(true)
-												setEditingNoteId(note.id)
-												setEditedText(note.text)
-											}}
-											icon={<EditOutlined />}
-											type='link'
-										>
-											ویرایش
-										</Button>
-									</div>
+									<Flex align='center' justify='space-between' gap={20}>
+										<Title className={styles.title} level={4}>
+											{note?.user ? note?.user?.fullName : 'کاربر ناشناس'}
+										</Title>
+										<Text className={styles.date}>{moment(note?.createdAt).locale('fa').format('jD jMMMM jYYYY - ساعت HH:mm')}</Text>
+									</Flex>
+
+									<Flex gap={8} vertical>
+										<Text className={styles.text}>{note?.text}</Text>
+										<div>
+											<Button
+												className={styles.btn}
+												onClick={() => {
+													setOpenEdit(true)
+													setEditingNoteId(id)
+													editForm.setFieldsValue({ text: note.text }) // 👈 پر کردن TextArea
+												}}
+												icon={<EditOutlined />}
+												type='link'
+											>
+												ویرایش
+											</Button>
+										</div>
+									</Flex>
 								</Flex>
-							</Flex>
-						</Card>
-					))
+							</Card>
+						)
+					})
 				)}
 			</Flex>
 
-			<ModalMobile height={322} open={openEdit} title='ویرایش یادداشت' onClose={onClose} handleSubmit={handleEditSubmit} loading={notesApi.isLoading}>
+			<ModalMobile
+				height={322}
+				open={openEdit}
+				title='ویرایش یادداشت'
+				onClose={onClose}
+				handleSubmit={handleEditSubmit}
+				loading={notesApi.isLoading}
+				form={editForm}
+			>
 				<div className={styles.modalContainer}>
-					<Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-						<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={5} />
+					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+						<Input.TextArea className={styles.textArea} rows={6} />
 					</Form.Item>
 				</div>
 			</ModalMobile>
 
 			<ModalMobile
-				form={form}
-				onClose={onClose}
 				height={322}
-				open={open}
-				loading={notesApi.isLoading}
-				handleSubmit={handleSubmitNote}
+				open={openAdd}
 				title='افزودن یادداشت'
+				onClose={onClose}
+				handleSubmit={handleSubmitNote}
+				loading={notesApi.isLoading}
+				form={addForm}
 			>
-				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+				<Form.Item noStyle name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 					<div className={styles.modalContainer}>
 						<Input.TextArea className={styles.textArea} />
 					</div>
