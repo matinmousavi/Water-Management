@@ -143,7 +143,16 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		{
 			title: 'مالک زمین',
 			width: 180,
-			render: (_, record) => (record.land?.owner ? <Link to={`/users/${record.land.owner._id}`}>{record.land.owner.fullName}</Link> : '--'),
+			render: (_, record) =>
+				record.land?.owner ? (
+					isAdmin ? (
+						<Link to={`/users/${record.land.owner._id}`}>{record.land.owner.fullName}</Link>
+					) : (
+						record.land.owner.fullName
+					)
+				) : (
+					'--'
+				),
 		},
 		{
 			title: 'توضیحات',
