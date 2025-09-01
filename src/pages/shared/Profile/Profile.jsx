@@ -1,4 +1,4 @@
-import { Flex, Typography } from 'antd'
+import { Flex, Grid, Typography } from 'antd'
 import { useParams } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 
@@ -14,6 +14,8 @@ const { Title } = Typography
 const Profile = () => {
 	const { userId } = useParams()
 	const api = useAPI()
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 
 	if (userId) api.init(`users/${userId}`)
 
@@ -37,7 +39,7 @@ const Profile = () => {
 		<>
 			<MetaTitle>{pageTitle}</MetaTitle>
 
-			<Flex vertical justify='space-between'>
+			<Flex vertical justify='space-between' gap={isMobile && 16}>
 				<Flex align='center' gap={16}>
 					<BackButton backTo='/users' />
 

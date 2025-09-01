@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Select, Card, Typography, Modal, Input, Spin, Flex } from 'antd'
+import { Select, Card, Typography, Modal, Input, Spin, Flex, Grid } from 'antd'
 import IrrigationScheduleTable from './components/IrrigationScheduleTable/IrrigationScheduleTable'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
-import { useUser } from '../../../../../../../contexts/UserContext'
 
 const { Title } = Typography
 const { Option } = Select
@@ -16,6 +15,9 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 	const [loading, setLoading] = useState(false)
 	const api = useAPI()
 	const { openNotification } = useNotification()
+	const { useBreakpoint } = Grid
+	const screens = useBreakpoint()
+	const isMobile = screens.xs
 	const { isAdmin } = useUser()
 
 	const fetchSnapshots = async () => {
@@ -70,13 +72,12 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 	return (
 		<>
 			<Card>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						marginBottom: '24px',
-					}}
+				<Flex
+					vertical={isMobile ? true : false}
+					justify='space-between'
+					align={isMobile ? 'stretch' : 'center'}
+					gap={12}
+					style={{ marginBottom: '24px' }}
 				>
 					<Title level={2} className='text-card-title'>
 						جدول زمان‌بندی آبیاری
@@ -123,7 +124,7 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 							) : null}
 						</Spin>
 					</div>
-				</div>
+				</Flex>
 
 				<IrrigationScheduleTable wellId={wellId} selectedSnapshot={selectedSnapshot} lands={lands} landGroups={landGroups} />
 			</Card>

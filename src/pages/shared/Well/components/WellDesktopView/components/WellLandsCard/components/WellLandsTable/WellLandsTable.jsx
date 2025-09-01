@@ -19,23 +19,18 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 	const handleDelete = async () => {
 		if (!selectedLand?._id) return
 		try {
-			// حذف زمین انتخاب شده از آرایه data
 			const updatedLands = data.filter(item => item._id !== selectedLand._id)
-			// فقط آرایه‌ی شناسه‌ها را ارسال کن
 			const updatedLandsIds = updatedLands.map(land => land._id)
-
 			const updatedGroups = landGroups
 				.map(group => ({
 					...group,
 					lands: group.lands.filter(id => id !== selectedLand._id),
 				}))
 				.filter(group => group.lands.length > 0)
-
 			const response = await wellApi.patch(`wells/${wellId}`, {
 				lands: updatedLandsIds,
 				landGroups: updatedGroups,
 			})
-
 			openNotification('success', 'زمین از چاه و گروه حذف شد')
 			setData({ lands: response.well.lands, landGroups: response.well.landGroups })
 		} catch (error) {
@@ -102,7 +97,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 	const columns = [
 		{
 			title: 'گروه',
-			width: 150,
+			width: 180,
 			render: (_, record) => {
 				const group = landIdToGroup[record._id]
 				if (!group) return '-'
@@ -119,24 +114,28 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 			title: 'عنوان زمین',
 			dataIndex: 'title',
 			key: 'title',
+			width: 220,
 			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.title}</Link>,
 		},
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
+			width: 180,
 			render: (_, record) => (isAdmin ? <Link to={`/users/${record.owner?._id}`}>{record.owner?.fullName}</Link> : record.owner?.fullName),
 		},
 		{
 			title: 'شماره تماس مالک',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
+			width: 160,
 			render: (_, record) => record?.owner?.mobile || '--',
 		},
 		{
 			title: 'آخرین زمان آبیاری',
 			dataIndex: 'lastIrrigatedAt',
 			key: 'lastIrrigatedAt',
+			width: 260,
 			render: (_, record) => (record?.lastIrrigatedAt ? moment(record.lastIrrigatedAt).locale('fa').format('dddd jD jMMMM jYYYY - ساعت HH:mm') : '--'),
 			onCell: groupCell,
 		},
@@ -144,6 +143,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 			title: 'زمان آبیاری بعدی',
 			dataIndex: 'nextDateIrrigation',
 			key: 'nextDateIrrigation',
+			width: 200,
 			render: (_, record) => record?.logs || '--',
 			onCell: groupCell,
 		},
@@ -154,6 +154,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 			title: 'عملیات',
 			dataIndex: 'action',
 			key: 'action',
+			width: 120,
 			render: (_, record) => (
 				<Space size='small'>
 					<DeleteTwoTone twoToneColor='#ff0000' onClick={() => openDeleteModal(record)} />
@@ -162,9 +163,19 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 		})
 	}
 
+	const totalWidth = columns.reduce((sum, col) => sum + (col.width || 150), 0)
+
 	return (
 		<>
-			<Table size='middle' dataSource={finalData} bordered columns={columns} rowKey={record => record._id} pagination={false} />
+			<Table
+				size='middle'
+				dataSource={finalData}
+				bordered
+				columns={columns}
+				rowKey={record => record._id}
+				pagination={false}
+				scroll={{ x: totalWidth }}
+			/>
 
 			<Modal
 				title={`حذف زمین ${selectedLand?.title || ''}`}

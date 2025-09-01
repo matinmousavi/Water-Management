@@ -65,10 +65,10 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 					{wellInfoItems.map((item, index) => (
 						<Col xs={24} md={12} key={index}>
 							<Row>
-								<Col xs={6}>
+								<Col xs={12} md={6}>
 									<Typography.Text className='text-label'>{item.label}</Typography.Text>
 								</Col>
-								<Col xs={18}>
+								<Col xs={12} md={18}>
 									<Typography.Text className='text-value'>{item.value}</Typography.Text>
 								</Col>
 							</Row>

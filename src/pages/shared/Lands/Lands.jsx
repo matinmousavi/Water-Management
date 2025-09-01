@@ -1,4 +1,4 @@
-import { Flex, Typography } from 'antd'
+import { Flex, Grid, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import Loading from '../../../components/Loading/Loading'
 import LandsTable from './components/LandsTable/LandsTable'
@@ -7,6 +7,8 @@ import AddLand from './components/AddLand/AddLand'
 
 const Lands = () => {
 	const { isAdmin } = useUser()
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 
 	const api = useAPI()
 	api.init('lands')
@@ -14,7 +16,7 @@ const Lands = () => {
 	if (api.isLoading || !api.data) return <Loading />
 
 	return (
-		<Flex vertical className='main-container'>
+		<Flex vertical className='main-container' gap={isMobile && 16}>
 			<Flex justify='space-between' align='center'>
 				<Typography.Title level={1} className='text-page-title'>
 					زمین‌ها ({api.data.lands.length}){' '}
