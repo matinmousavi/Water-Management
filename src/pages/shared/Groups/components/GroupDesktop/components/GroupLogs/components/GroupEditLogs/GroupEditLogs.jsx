@@ -5,12 +5,14 @@ import GroupFormLogs from '../GroupFormLogs/GroupFormLogs'
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import dayjs from 'dayjs'
 import { useState, useEffect } from 'react'
+import useNotification from '../../../../../../../../../hooks/useNotification'
 
 const GroupEditLogs = ({ mode = 'add', groupId, wellId, log, onLogAdded, onLogUpdated }) => {
 	const [form] = Form.useForm()
 	const { open, isOpen, close } = useModal()
 	const api = useAPI()
 	const [submitting, setSubmitting] = useState(false)
+	const { openNotification } = useNotification()
 
 	useEffect(() => {
 		if (mode === 'edit' && log) {
@@ -52,6 +54,7 @@ const GroupEditLogs = ({ mode = 'add', groupId, wellId, log, onLogAdded, onLogUp
 				if (res?.irrigations?.[0]) {
 					onLogAdded?.(res.irrigations[0])
 				}
+				openNotification('success', 'عملیات موفق', 'لاگ ایجاد شد')
 			} else if (mode === 'edit' && log) {
 				let endDateTime = null
 				if (values.endDate && values.endTime) {
@@ -67,12 +70,14 @@ const GroupEditLogs = ({ mode = 'add', groupId, wellId, log, onLogAdded, onLogUp
 				if (res?.irrigation) {
 					onLogUpdated?.(res.irrigation)
 				}
+				openNotification('success', 'عملیات موفق', 'لاگ ویرایش شد')
 			}
 
 			form.resetFields()
 			close()
-		} catch (e) {
-			console.error('خطا:', e)
+		} catch (error) {
+			console.error('خطا:', error)
+			openNotification('error', 'خطا', error.message)
 		} finally {
 			setSubmitting(false)
 		}
