@@ -67,10 +67,9 @@ const Well = () => {
 		<WellProvider value={contextValue}>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
-				{isMobile && isIrrigator && (
+				{isMobile ? (
 					<WellMobileView wellId={well?._id} setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
-				)}
-				{isAdmin && (
+				) : (
 					<WellDesktopView
 						title={title}
 						well={well}

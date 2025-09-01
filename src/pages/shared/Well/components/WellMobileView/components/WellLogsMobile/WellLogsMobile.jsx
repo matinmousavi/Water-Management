@@ -3,7 +3,6 @@ import moment from 'moment-jalaali'
 import { Link } from 'react-router'
 import { useEffect, useState } from 'react'
 
-import TimerDisplay from '../../../../../../../components/TimerDisplay/TimerDisplay'
 import styles from './WellLogsMobile.module.css'
 
 import iconTree from '../../../../../../../assets/icons/ri_tree-line.svg'
@@ -56,7 +55,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 					{!isOff && (
 						<Flex className={styles.cardRole}>
 							{data?.title ? (
-								<Link to={data?.groupId ? `wells/${wellId}/groups/${data.groupId}` : `lands/${data?.landId}`} className={styles.land_name}>
+								<Link to={data?.groupId ? `/wells/${wellId}/groups/${data.groupId}` : `/lands/${data?.landId}`} className={styles.land_name}>
 									{data?.title}
 								</Link>
 							) : (

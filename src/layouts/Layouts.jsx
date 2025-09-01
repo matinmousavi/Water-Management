@@ -143,11 +143,11 @@ const Layouts = () => {
 							)}
 						</Flex>
 						<div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
-							{isIrrigator && (
+							{isIrrigator && isMobile ? (
 								<Link to={`/schedules/${wellId}`}>
 									<Button type='text' shape='circle' icon={<CalendarOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />} />
 								</Link>
-							)}
+							) : null}
 							<Button
 								type='text'
 								shape='circle'

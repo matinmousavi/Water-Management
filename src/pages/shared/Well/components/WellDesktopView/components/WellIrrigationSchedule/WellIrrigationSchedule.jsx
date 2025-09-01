@@ -3,6 +3,7 @@ import { Select, Card, Typography, Modal, Input, Spin, Flex, Grid } from 'antd'
 import IrrigationScheduleTable from './components/IrrigationScheduleTable/IrrigationScheduleTable'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
+import { useUser } from '../../../../../../../contexts/UserContext'
 
 const { Title } = Typography
 const { Option } = Select
@@ -19,7 +20,6 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 	const screens = useBreakpoint()
 	const isMobile = screens.xs
 	const { isAdmin } = useUser()
-
 	const fetchSnapshots = async () => {
 		try {
 			setLoading(true)
