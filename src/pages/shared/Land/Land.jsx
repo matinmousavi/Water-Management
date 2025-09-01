@@ -63,8 +63,9 @@ const Land = () => {
 		<>
 			<MetaTitle>{pageTitle ? `زمین ${pageTitle}` : 'جزئیات زمین'}</MetaTitle>
 
-			{isMobile && isIrrigator && <LandMobile landData={landData} />}
-			{isAdmin && (
+			{isMobile ? (
+				<LandMobile landData={landData} />
+			) : (
 				<Flex vertical gap={16}>
 					<Flex className='heading-container' align='center' justify='space-between'>
 						<Flex align='center' gap={isMobile && 8}>
@@ -74,13 +75,15 @@ const Land = () => {
 							</Title>
 							<LandStatus landId={landId} status={status} setStatus={setStatus} landTitle={pageTitle} />
 						</Flex>
-						<Flex align='center' gap={isMobile && 8}>
-							<Flex gap={5}>
-								<BellOutlined style={{ color: '#00000080', fontSize: '20px' }} />
-								<span className='text-label'>اطلاع رسانی</span>
+						{isAdmin ? (
+							<Flex align='center' gap={isMobile && 8}>
+								<Flex gap={5}>
+									<BellOutlined style={{ color: '#00000080', fontSize: '20px' }} />
+									<span className='text-label'>اطلاع رسانی</span>
+								</Flex>
+								<Switch checked={enabled} onChange={toggle} loading={loading} />
 							</Flex>
-							<Switch checked={enabled} onChange={toggle} loading={loading} />
-						</Flex>
+						) : null}
 					</Flex>
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
 					<Notes entityType='land' entityReference={landId} notesData={landData?.notes} status={status} />

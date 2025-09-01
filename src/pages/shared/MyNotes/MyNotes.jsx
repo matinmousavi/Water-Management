@@ -38,9 +38,9 @@ const MyNotes = () => {
 					<Empty />
 				) : (
 					apiNotes.data?.notes?.map(note => {
-						const isOpen = editingNoteId === note?.id
+						const isOpen = editingNoteId === note?._id
 						return (
-							<Card key={note?.id} rootClassName={styles.customCardRoot}>
+							<Card key={note?._id} rootClassName={styles.customCardRoot}>
 								<Flex gap={5} vertical>
 									<Flex align='center' className={styles.cardHeader} justify='space-between'>
 										<Title className={styles.title} level={4}>
@@ -51,13 +51,13 @@ const MyNotes = () => {
 									<Flex gap={8} vertical>
 										<Text className={styles.text}>{note?.text}</Text>
 										<div>
-											<Button className={styles.btn} onClick={() => setEditingNoteId(note?.id)} icon={<EditOutlined />} type='link'>
+											<Button className={styles.btn} onClick={() => setEditingNoteId(note?._id)} icon={<EditOutlined />} type='link'>
 												ویرایش
 											</Button>
 										</div>
 									</Flex>
 								</Flex>
-								<EditNotes setNotesData={apiNotes.setData} id={note?.id} text={note?.text} open={isOpen} onClose={onClose} />
+								<EditNotes setNotesData={apiNotes.setData} id={note?._id} text={note?.text} open={isOpen} onClose={onClose} />
 							</Card>
 						)
 					})
