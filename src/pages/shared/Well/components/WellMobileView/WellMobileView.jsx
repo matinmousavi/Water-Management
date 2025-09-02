@@ -14,10 +14,8 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const schedulesApi = useAPI()
 	const schedules = schedulesApi?.data?.schedules
 
-	// مقدار wellId از search params
 	const wellIdFromParams = searchParams.get('wellId')
 
-	// وقتی کامپوننت لود شد، اگر wellId در پارامز نبود، اولین چاه را اضافه کن
 	useEffect(() => {
 		if (!wellIdFromParams && filterWells?.length > 0) {
 			const firstWell = filterWells[0]
@@ -33,7 +31,7 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	useEffect(() => {
 		const id = irrigatorWells?._id || wellIdFromParams
 		if (id) {
-			schedulesApi.init(`wells/${id}/schedules`)
+			schedulesApi.init(`wells/${id}/schedules/today`)
 			setIrrigatorWells(prev => (prev?._id === id ? prev : { _id: id }))
 		}
 	}, [irrigatorWells?._id, wellIdFromParams])

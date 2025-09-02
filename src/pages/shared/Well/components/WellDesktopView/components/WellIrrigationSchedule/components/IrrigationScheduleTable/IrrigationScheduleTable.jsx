@@ -209,12 +209,17 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		: undefined
 
 	const getTaskPosition = task => {
+		const slotHeight = 15
 		const startTime = dayjs(task.startTime)
 		const endTime = dayjs(task.endTime)
+
 		const startMinutes = startTime.hour() * 60 + startTime.minute()
 		const endMinutes = endTime.hour() * 60 + endTime.minute()
-		const startSlotIndex = timeSlots.findIndex(slot => slot.hour * 60 + slot.minute === startMinutes)
-		return { top: startSlotIndex * 15, height: ((endMinutes - startMinutes) / 15) * 15 }
+
+		const top = (startMinutes / 15) * slotHeight
+		const height = ((endMinutes - startMinutes) / 15) * slotHeight
+
+		return { top, height }
 	}
 
 	const isTimeSlotOccupied = (day, timeSlot) =>

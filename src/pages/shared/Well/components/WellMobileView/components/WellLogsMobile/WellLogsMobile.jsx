@@ -20,25 +20,20 @@ const WellLogsMobile = ({ wellId, data }) => {
 	const isOff = data?.type === 'off'
 	const landId = data?.land?._id
 
-	const [startedAt, setStartedAt] = useState(null)
 	const sections = Math.floor(Math.random() * 4) + 2
 	const progressValue = 40
 	useEffect(() => {
 		if (!landId || isOff) return
-
-		const irrigationStartTime = getIrrigationStartTime(landId)
-		if (irrigationStartTime) setStartedAt(Number(irrigationStartTime))
 	}, [landId, isThisLogOngoing, isOff])
 
-	// کلاس کارت با منطق سبز/قرمز بر اساس irrigationEndsAt
 	let cardClass = ''
 	if (isOff) {
 		cardClass = styles.offCard
 	} else if (data?.irrigationInProgress || isThisLogOngoing) {
 		if (data?.irrigationEndsAt && new Date() > new Date(data.irrigationEndsAt)) {
-			cardClass = styles.borderCardDanger // قرمز
+			cardClass = styles.borderCardDanger
 		} else {
-			cardClass = styles.borderCard // سبز
+			cardClass = styles.borderCard
 			console.log(cardClass)
 		}
 	}
@@ -65,10 +60,8 @@ const WellLogsMobile = ({ wellId, data }) => {
 					)}
 				</Flex>
 
-				{/* محتوا */}
 				{isOff ? (
 					<>
-						{/* ساعت شروع */}
 						<Flex gap={10}>
 							<Flex gap={8} className={styles.cardType}>
 								<img src={iconClock} alt='icon clock' />
@@ -79,7 +72,6 @@ const WellLogsMobile = ({ wellId, data }) => {
 							</Flex>
 						</Flex>
 
-						{/* ساعت پایان */}
 						<Flex gap={10}>
 							<Flex gap={8} className={styles.cardType}>
 								<img src={iconClock} alt='icon clock' />
@@ -92,7 +84,6 @@ const WellLogsMobile = ({ wellId, data }) => {
 					</>
 				) : (
 					<>
-						{/* آخرین زمان آبیاری */}
 						<Flex gap={10}>
 							<Flex gap={8} className={styles.cardType}>
 								<img src={iconClock} alt='icon clock' />
@@ -103,7 +94,6 @@ const WellLogsMobile = ({ wellId, data }) => {
 							</Flex>
 						</Flex>
 
-						{/* زمان آبیاری بعدی */}
 						<Flex gap={10}>
 							<Flex gap={8} className={styles.cardType}>
 								<img src={iconClock} alt='icon clock' />
@@ -113,9 +103,9 @@ const WellLogsMobile = ({ wellId, data }) => {
 								<Text className={styles.text_irrigation}>{moment(data?.nextIrrigation).format('HH:mm - jYYYY/jMM/jDD') || '-'}</Text>
 							</Flex>
 						</Flex>
+						<ProgressBar sections={sections} progressValue={progressValue} />
 					</>
 				)}
-				<ProgressBar sections={sections} progressValue={progressValue} />
 			</Flex>
 		</Card>
 	)

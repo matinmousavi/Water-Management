@@ -6,7 +6,11 @@ import Irrigation from '../../models/Irrigation.model.js'
 
 const router = Router({ mergeParams: true })
 
-// GET schedules with last & next irrigation times + ongoing irrigation info
+// helper function to check overlap
+function isOverlapping(start1, end1, start2, end2) {
+	return start1 < end2 && start2 < end1
+}
+
 router.get('/', async (req, res) => {
 	try {
 		const { wellId } = req.params
@@ -14,6 +18,105 @@ router.get('/', async (req, res) => {
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
 		const schedules = await Schedule.find({ well: wellId }).lean()
+		const results = []
+
+		const startDate = new Date(well.cycleStartDate)
+		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
+		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
+		const dayInCycle = (daysPassed % well.cycleDays) + 1
+
+		for (const schedule of schedules) {
+			let lastIrrigation = null
+			let irrigationInProgress = false
+			let irrigationStartedAt = null
+			let irrigationEndsAt = null
+
+			if (schedule.targetType !== 'off') {
+				const ongoingLog = await Irrigation.findOne({
+					isOngoing: true,
+					...(schedule.targetType === 'land' ? { land: schedule.land, isGroupLog: false } : { landGroup: schedule.landGroup, isGroupLog: true }),
+				}).lean()
+
+				if (ongoingLog) {
+					irrigationInProgress = true
+					irrigationStartedAt = ongoingLog.startedAt
+					const startTime = new Date(schedule.startTime)
+					const endTime = new Date(schedule.endTime)
+					const startedAt = new Date(irrigationStartedAt)
+					const durationMs =
+						endTime.getHours() * 3600000 + endTime.getMinutes() * 60000 - (startTime.getHours() * 3600000 + startTime.getMinutes() * 60000)
+					irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
+				}
+
+				if (schedule.targetType === 'land' && schedule.land) {
+					const lastLog = await Irrigation.findOne({ land: schedule.land, isGroupLog: false }).sort({ startedAt: -1 }).lean()
+					lastIrrigation = lastLog?.startedAt || null
+				} else if (schedule.targetType === 'group' && schedule.landGroup) {
+					const lastLog = await Irrigation.findOne({ landGroup: schedule.landGroup, isGroupLog: true }).sort({ startedAt: -1 }).lean()
+					lastIrrigation = lastLog?.startedAt || null
+				}
+			}
+
+			results.push({
+				id: schedule._id,
+				type: schedule.targetType,
+				title: schedule.title,
+				lastIrrigation,
+				nextIrrigation: new Date(startDate.getTime() + (cyclesPassed + 1) * well.cycleDays * 24 * 60 * 60 * 1000),
+				dayInCycle,
+				landId: schedule.targetType === 'land' ? schedule.land : undefined,
+				groupId: schedule.targetType === 'group' ? schedule.landGroup : undefined,
+				startTime: schedule.startTime.toISOString(),
+				endTime: schedule.endTime.toISOString(),
+				day: schedule.day !== null ? schedule.day - 1 : null,
+				color: schedule.color,
+				status: schedule.status,
+				irrigationInProgress,
+				irrigationStartedAt,
+				irrigationEndsAt,
+			})
+		}
+
+		// اضافه کردن ساعت‌های خاموشی با dayInCycle
+		if (well.offTime) {
+			for (let i = 0; i < well.cycleDays; i++) {
+				results.push({
+					id: `off-time-${i}`,
+					type: 'off',
+					title: 'ساعت خاموشی',
+					startTime: well.offTime.start.toISOString(),
+					endTime: well.offTime.end.toISOString(),
+					day: i,
+					dayInCycle, // اضافه کردن dayInCycle
+					color: '#00000033',
+					status: 'inactive',
+					irrigationInProgress: false,
+					irrigationStartedAt: null,
+					irrigationEndsAt: null,
+				})
+			}
+		}
+
+		results.sort((a, b) => new Date(a.nextIrrigation || a.startTime) - new Date(b.nextIrrigation || b.startTime))
+
+		return res.status(200).json({ schedules: results })
+	} catch (err) {
+		console.error(err)
+		return res.status(500).json({ message: 'خطا در دریافت زمان‌بندی‌ها.' })
+	}
+})
+
+router.get('/today', async (req, res) => {
+	try {
+		const { wellId } = req.params
+		const well = await Well.findById(wellId).lean()
+		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+
+		const startDate = new Date(well.cycleStartDate)
+		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
+		const dayInCycle = (daysPassed % well.cycleDays) + 1
+
+		const schedules = await Schedule.find({ well: wellId, day: dayInCycle }).lean()
 		const results = []
 
 		for (const schedule of schedules) {
@@ -58,11 +161,8 @@ router.get('/', async (req, res) => {
 				}
 			}
 
-			const startDate = new Date(well.cycleStartDate)
-			const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
 			const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
 			const nextIrrigation = new Date(startDate.getTime() + (cyclesPassed + 1) * well.cycleDays * 24 * 60 * 60 * 1000)
-			const dayInCycle = (daysPassed % well.cycleDays) + 1
 
 			results.push({
 				id: schedule._id,
@@ -84,11 +184,31 @@ router.get('/', async (req, res) => {
 			})
 		}
 
-		results.sort((a, b) => new Date(a.nextIrrigation) - new Date(b.nextIrrigation))
+		results.push({
+			id: 'off-time',
+			type: 'off',
+			title: 'ساعت خاموشی',
+			lastIrrigation: null,
+			nextIrrigation: null,
+			dayInCycle,
+			landId: undefined,
+			groupId: undefined,
+			startTime: well.offTime.start,
+			endTime: well.offTime.end,
+			day: null,
+			color: '#999',
+			status: 'inactive',
+			irrigationInProgress: false,
+			irrigationStartedAt: null,
+			irrigationEndsAt: null,
+		})
+
+		results.sort((a, b) => new Date(a.nextIrrigation || a.startTime) - new Date(b.nextIrrigation || b.startTime))
+
 		return res.status(200).json({ schedules: results })
 	} catch (err) {
 		console.error(err)
-		return res.status(500).json({ message: 'خطا در دریافت زمان‌بندی‌ها.' })
+		return res.status(500).json({ message: 'خطا در دریافت زمان‌بندی‌های امروز.' })
 	}
 })
 
@@ -97,6 +217,26 @@ router.post('/', async (req, res) => {
 	try {
 		const { wellId } = req.params
 		const { targetType, targetId, startTime, endTime, day, color } = req.body
+
+		const well = await Well.findById(wellId).lean()
+		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+
+		const newStart = new Date(startTime)
+		const newEnd = new Date(endTime)
+
+		if (isOverlapping(newStart, newEnd, new Date(well.offTime.start), new Date(well.offTime.end))) {
+			return res.status(400).json({ message: 'زمان‌بندی با ساعت خاموشی چاه تداخل دارد.' })
+		}
+
+		const existingSchedules = await Schedule.find({ well: wellId }).lean()
+		for (const s of existingSchedules) {
+			if (s.targetType === 'off') continue
+			const sStart = new Date(s.startTime)
+			const sEnd = new Date(s.endTime)
+			if (isOverlapping(newStart, newEnd, sStart, sEnd)) {
+				return res.status(400).json({ message: `زمان‌بندی با زمان‌بندی دیگر "${s.title}" تداخل دارد.` })
+			}
+		}
 
 		let title = ''
 		let land = null
@@ -108,8 +248,6 @@ router.post('/', async (req, res) => {
 			title = landDoc.title
 			land = targetId
 		} else if (targetType === 'group' && targetId) {
-			const well = await Well.findById(wellId).lean()
-			if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 			const group = well.landGroups.find(g => g.groupId.toString() === targetId)
 			if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
 			title = group.title
@@ -135,7 +273,7 @@ router.post('/', async (req, res) => {
 
 		const schedule = await Schedule.create(scheduleData)
 
-		const response = {
+		return res.status(201).json({
 			message: 'زمان‌بندی ایجاد شد.',
 			schedule: {
 				id: schedule._id,
@@ -150,9 +288,7 @@ router.post('/', async (req, res) => {
 				color: schedule.color,
 				status: schedule.status,
 			},
-		}
-
-		return res.status(201).json(response)
+		})
 	} catch (err) {
 		console.error(err)
 		return res.status(500).json({ message: 'خطا در ایجاد زمان‌بندی.' })
@@ -165,6 +301,26 @@ router.patch('/:scheduleId', async (req, res) => {
 		const { scheduleId, wellId } = req.params
 		const { targetType, targetId, startTime, endTime, day, color } = req.body
 
+		const well = await Well.findById(wellId).lean()
+		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+
+		const newStart = new Date(startTime)
+		const newEnd = new Date(endTime)
+
+		if (isOverlapping(newStart, newEnd, new Date(well.offTime.start), new Date(well.offTime.end))) {
+			return res.status(400).json({ message: 'زمان‌بندی با ساعت خاموشی چاه تداخل دارد.' })
+		}
+
+		const existingSchedules = await Schedule.find({ well: wellId, _id: { $ne: scheduleId } }).lean()
+		for (const s of existingSchedules) {
+			if (s.targetType === 'off') continue
+			const sStart = new Date(s.startTime)
+			const sEnd = new Date(s.endTime)
+			if (isOverlapping(newStart, newEnd, sStart, sEnd)) {
+				return res.status(400).json({ message: `زمان‌بندی با زمان‌بندی دیگر "${s.title}" تداخل دارد.` })
+			}
+		}
+
 		let title = ''
 		let land = null
 		let landGroup = null
@@ -175,8 +331,6 @@ router.patch('/:scheduleId', async (req, res) => {
 			title = landDoc.title
 			land = targetId
 		} else if (targetType === 'group' && targetId) {
-			const well = await Well.findById(wellId).lean()
-			if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 			const group = well.landGroups.find(g => g.groupId.toString() === targetId)
 			if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
 			title = group.title
@@ -191,7 +345,7 @@ router.patch('/:scheduleId', async (req, res) => {
 		const schedule = await Schedule.findByIdAndUpdate(scheduleId, updates, { new: true })
 		if (!schedule) return res.status(404).json({ message: 'زمان‌بندی پیدا نشد.' })
 
-		const response = {
+		return res.status(200).json({
 			message: 'زمان‌بندی بروزرسانی شد.',
 			schedule: {
 				id: schedule._id,
@@ -206,9 +360,7 @@ router.patch('/:scheduleId', async (req, res) => {
 				color: schedule.color,
 				status: schedule.status,
 			},
-		}
-
-		return res.status(200).json(response)
+		})
 	} catch (err) {
 		console.error(err)
 		return res.status(500).json({ message: 'خطا در بروزرسانی زمان‌بندی.' })
