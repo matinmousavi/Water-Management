@@ -105,6 +105,23 @@ router.get('/', async (req, res) => {
 	}
 })
 
+// Helper: convert milliseconds to "HH:mm"
+function msToHoursMinutes(ms) {
+	const totalMinutes = Math.floor(ms / 60000)
+	const hours = Math.floor(totalMinutes / 60)
+	const minutes = totalMinutes % 60
+	return `${hours}:${minutes.toString().padStart(2, '0')}`
+}
+
+// Helper: sum duration of schedules
+function getTotalDurationMs(schedules) {
+	return schedules.reduce((sum, s) => {
+		const start = new Date(s.startTime)
+		const end = new Date(s.endTime)
+		return sum + (end - start)
+	}, 0)
+}
+
 router.get('/today', async (req, res) => {
 	try {
 		const { wellId } = req.params
@@ -114,75 +131,104 @@ router.get('/today', async (req, res) => {
 		const startDate = new Date(well.cycleStartDate)
 		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
 		const dayInCycle = (daysPassed % well.cycleDays) + 1
+		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
 
-		const schedules = await Schedule.find({ well: wellId, day: dayInCycle }).lean()
+		const schedulesToday = await Schedule.find({ well: wellId, day: dayInCycle }).lean()
 		const results = []
 
-		for (const schedule of schedules) {
-			let lastIrrigation = null
-			let irrigationInProgress = false
-			let irrigationStartedAt = null
-			let irrigationEndsAt = null
-
-			if (schedule.targetType !== 'off') {
-				const ongoingLog = await Irrigation.findOne({
-					isOngoing: true,
-					...(schedule.targetType === 'land' ? { land: schedule.land, isGroupLog: false } : { landGroup: schedule.landGroup, isGroupLog: true }),
-				}).lean()
-
-				if (ongoingLog) {
-					irrigationInProgress = true
-					irrigationStartedAt = ongoingLog.startedAt
-					const startTime = new Date(schedule.startTime)
-					const endTime = new Date(schedule.endTime)
-					const startedAt = new Date(irrigationStartedAt)
-					const durationMs =
-						endTime.getHours() * 3600000 + endTime.getMinutes() * 60000 - (startTime.getHours() * 3600000 + startTime.getMinutes() * 60000)
-					irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
-				}
-
-				if (schedule.targetType === 'land' && schedule.land) {
-					const lastLog = await Irrigation.findOne({
-						land: schedule.land,
-						isGroupLog: false,
-					})
-						.sort({ startedAt: -1 })
-						.lean()
-					lastIrrigation = lastLog?.startedAt || null
-				} else if (schedule.targetType === 'group' && schedule.landGroup) {
-					const lastLog = await Irrigation.findOne({
-						landGroup: schedule.landGroup,
-						isGroupLog: true,
-					})
-						.sort({ startedAt: -1 })
-						.lean()
-					lastIrrigation = lastLog?.startedAt || null
-				}
-			}
-
-			const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
-			const nextIrrigation = new Date(startDate.getTime() + (cyclesPassed + 1) * well.cycleDays * 24 * 60 * 60 * 1000)
-
-			results.push({
-				id: schedule._id,
-				type: schedule.targetType,
-				title: schedule.title,
-				lastIrrigation,
-				nextIrrigation,
-				dayInCycle,
-				landId: schedule.targetType === 'land' ? schedule.land : undefined,
-				groupId: schedule.targetType === 'group' ? schedule.landGroup : undefined,
-				startTime: schedule.startTime,
-				endTime: schedule.endTime,
-				day: schedule.day,
-				color: schedule.color,
-				status: schedule.status,
-				irrigationInProgress,
-				irrigationStartedAt,
-				irrigationEndsAt,
-			})
+		// Group schedules by land/group to optimize queries
+		const grouped = {}
+		for (const sched of schedulesToday) {
+			const key = sched.targetType === 'land' ? `land-${sched.land}` : `group-${sched.landGroup}`
+			if (!grouped[key]) grouped[key] = []
+			grouped[key].push(sched)
 		}
 
+		for (const key in grouped) {
+			const schedGroup = grouped[key][0]
+			const isOff = schedGroup.targetType === 'off'
+			const targetFilter =
+				schedGroup.targetType === 'land' ? { land: schedGroup.land, isGroupLog: false } : { landGroup: schedGroup.landGroup, isGroupLog: true }
+
+			// همه زمانبندی‌های این زمین/گروه در چرخه
+			const allSchedulesInCycle = await Schedule.find({
+				well: wellId,
+				targetType: schedGroup.targetType,
+				...(schedGroup.targetType === 'land' ? { land: schedGroup.land } : { landGroup: schedGroup.landGroup }),
+			}).lean()
+			const totalSchedulesInCycle = allSchedulesInCycle.length
+			const totalRequiredMs = getTotalDurationMs(allSchedulesInCycle)
+
+			// همه آبیاری‌های این زمین/گروه در چرخه
+			const irrigationsInCycle = await Irrigation.find({
+				well: wellId,
+				...targetFilter,
+			}).lean()
+			const receivedMsInCycle = irrigationsInCycle.reduce((sum, log) => {
+				if (!log.endedAt) return sum
+				return sum + (new Date(log.endedAt) - new Date(log.startedAt))
+			}, 0)
+
+			for (const schedule of grouped[key]) {
+				// بررسی آبیاری در حال اجرا
+				let irrigationInProgress = false
+				let irrigationStartedAt = null
+				let irrigationEndsAt = null
+				let lastIrrigation = null
+
+				if (!isOff) {
+					const ongoingLog = await Irrigation.findOne({
+						isOngoing: true,
+						...targetFilter,
+					}).lean()
+					if (ongoingLog) {
+						irrigationInProgress = true
+						irrigationStartedAt = ongoingLog.startedAt
+						const startTime = new Date(schedule.startTime)
+						const endTime = new Date(schedule.endTime)
+						const startedAt = new Date(irrigationStartedAt)
+						const durationMs =
+							endTime.getHours() * 3600000 + endTime.getMinutes() * 60000 - (startTime.getHours() * 3600000 + startTime.getMinutes() * 60000)
+						irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
+					}
+
+					// آخرین آبیاری
+					const lastLog = await Irrigation.findOne(targetFilter).sort({ startedAt: -1 }).lean()
+					lastIrrigation = lastLog?.startedAt || null
+				}
+
+				const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
+				const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
+
+				results.push({
+					id: schedule._id,
+					type: schedule.targetType,
+					title: schedule.title,
+					lastIrrigation,
+					nextIrrigation: new Date(startDate.getTime() + (cyclesPassed + 1) * well.cycleDays * 24 * 60 * 60 * 1000),
+					dayInCycle,
+					landId: schedule.targetType === 'land' ? schedule.land : undefined,
+					groupId: schedule.targetType === 'group' ? schedule.landGroup : undefined,
+					startTime: schedule.startTime,
+					endTime: schedule.endTime,
+					day: schedule.day,
+					color: schedule.color,
+					status: schedule.status,
+					irrigationInProgress,
+					irrigationStartedAt,
+					irrigationEndsAt,
+					requiredWater: msToHoursMinutes(totalRequiredMs),
+					receivedWater: msToHoursMinutes(receivedMsInCycle),
+					remainingWater: msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMsInCycle)),
+					totalSchedulesInCycle,
+					receivedWaterInCycle: msToHoursMinutes(receivedMsInCycle),
+					cycleStart,
+					cycleEnd,
+				})
+			}
+		}
+
+		// اضافه کردن ساعت خاموشی
 		results.push({
 			id: 'off-time',
 			type: 'off',
@@ -200,6 +246,13 @@ router.get('/today', async (req, res) => {
 			irrigationInProgress: false,
 			irrigationStartedAt: null,
 			irrigationEndsAt: null,
+			requiredWater: '0:00',
+			receivedWater: '0:00',
+			remainingWater: '0:00',
+			totalSchedulesInCycle: 0,
+			receivedWaterInCycle: '0:00',
+			cycleStart: null,
+			cycleEnd: null,
 		})
 
 		results.sort((a, b) => new Date(a.nextIrrigation || a.startTime) - new Date(b.nextIrrigation || b.startTime))

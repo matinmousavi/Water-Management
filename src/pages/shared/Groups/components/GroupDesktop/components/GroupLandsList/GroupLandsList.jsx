@@ -40,8 +40,6 @@ const ItemLandGroup = ({ land }) => {
 }
 
 const GroupLandsList = ({ lands }) => {
-	console.log(lands)
-
 	return (
 		<Flex gap={16} vertical>
 			{lands.map((item, index) => (
