@@ -74,7 +74,7 @@ const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartC
 				{isCurrentLandIrrigating ? (
 					<>
 						<Text className={`${styles.timerText}`}>{timer}</Text>
-						<Button type='default' className={`${styles.textBtn}`} onClick={handleStop}>
+						<Button type='default' color='primary' variant='outlined' onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>

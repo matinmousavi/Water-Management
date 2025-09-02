@@ -57,7 +57,7 @@ const LandItemGroup = ({ data }) => {
 						<Flex className={styles.cardRole}>{item.content}</Flex>
 					</Flex>
 				))}
-				<ProgressBar sections={sections} progressValue={progressValue} />
+				{/* <ProgressBar sections={sections} progressValue={progressValue} /> */}
 			</Flex>
 		</Card>
 	)
