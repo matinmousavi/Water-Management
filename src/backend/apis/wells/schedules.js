@@ -11,6 +11,7 @@ function isOverlapping(start1, end1, start2, end2) {
 	return start1 < end2 && start2 < end1
 }
 
+// GET all schedules
 router.get('/', async (req, res) => {
 	try {
 		const { wellId } = req.params
@@ -68,7 +69,7 @@ router.get('/', async (req, res) => {
 				groupId: schedule.targetType === 'group' ? schedule.landGroup : undefined,
 				startTime: schedule.startTime.toISOString(),
 				endTime: schedule.endTime.toISOString(),
-				day: schedule.day !== null ? schedule.day - 1 : null,
+				day: schedule.day,
 				color: schedule.color,
 				status: schedule.status,
 				irrigationInProgress,
@@ -77,7 +78,6 @@ router.get('/', async (req, res) => {
 			})
 		}
 
-		// اضافه کردن ساعت‌های خاموشی با dayInCycle
 		if (well.offTime) {
 			for (let i = 0; i < well.cycleDays; i++) {
 				results.push({
@@ -86,8 +86,8 @@ router.get('/', async (req, res) => {
 					title: 'ساعت خاموشی',
 					startTime: well.offTime.start.toISOString(),
 					endTime: well.offTime.end.toISOString(),
-					day: i,
-					dayInCycle, // اضافه کردن dayInCycle
+					day: i + 1,
+					dayInCycle,
 					color: '#00000033',
 					status: 'inactive',
 					irrigationInProgress: false,
@@ -98,7 +98,6 @@ router.get('/', async (req, res) => {
 		}
 
 		results.sort((a, b) => new Date(a.nextIrrigation || a.startTime) - new Date(b.nextIrrigation || b.startTime))
-
 		return res.status(200).json({ schedules: results })
 	} catch (err) {
 		console.error(err)
@@ -228,7 +227,7 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({ message: 'زمان‌بندی با ساعت خاموشی چاه تداخل دارد.' })
 		}
 
-		const existingSchedules = await Schedule.find({ well: wellId }).lean()
+		const existingSchedules = await Schedule.find({ well: wellId, day }).lean()
 		for (const s of existingSchedules) {
 			if (s.targetType === 'off') continue
 			const sStart = new Date(s.startTime)
@@ -272,7 +271,6 @@ router.post('/', async (req, res) => {
 		}
 
 		const schedule = await Schedule.create(scheduleData)
-
 		return res.status(201).json({
 			message: 'زمان‌بندی ایجاد شد.',
 			schedule: {
@@ -311,7 +309,7 @@ router.patch('/:scheduleId', async (req, res) => {
 			return res.status(400).json({ message: 'زمان‌بندی با ساعت خاموشی چاه تداخل دارد.' })
 		}
 
-		const existingSchedules = await Schedule.find({ well: wellId, _id: { $ne: scheduleId } }).lean()
+		const existingSchedules = await Schedule.find({ well: wellId, day, _id: { $ne: scheduleId } }).lean()
 		for (const s of existingSchedules) {
 			if (s.targetType === 'off') continue
 			const sStart = new Date(s.startTime)

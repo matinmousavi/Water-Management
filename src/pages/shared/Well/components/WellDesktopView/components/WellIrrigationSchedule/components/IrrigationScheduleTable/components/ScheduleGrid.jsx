@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import styles from '../IrrigationScheduleTable.module.css'
-import dayjs from 'dayjs'
 
 const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotClick, isTimeSlotOccupied, getTaskPosition, currentDayInCycle }) => {
 	const [currentTimePos, setCurrentTimePos] = useState(null)
@@ -30,7 +29,7 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 
 	// Check if a day is the current day in cycle
 	const isCurrentDayInCycle = dayIndex => {
-		return currentDayInCycle !== undefined && dayIndex === currentDayInCycle - 1
+		return currentDayInCycle !== undefined && dayIndex + 1 === currentDayInCycle
 	}
 
 	// Format time to Persian
@@ -88,8 +87,8 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 											cursor: isTimeSlotOccupied(dayIndex, timeSlot.value) ? 'default' : 'pointer',
 										}}
 										onClick={() => {
-											if (!isTimeSlotOccupied(dayIndex, timeSlot.value)) {
-												onEmptySlotClick(dayIndex, timeSlot.value)
+											if (!isTimeSlotOccupied(dayIndex + 1, timeSlot.value)) {
+												onEmptySlotClick(dayIndex + 1, timeSlot.value)
 											}
 										}}
 									/>
@@ -97,7 +96,7 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 
 								{/* Tasks */}
 								{tasks
-									.filter(task => task.day === dayIndex)
+									.filter(task => task.day === dayIndex + 1)
 									.map(task => {
 										const { top, height } = getTaskPosition(task)
 										return (
