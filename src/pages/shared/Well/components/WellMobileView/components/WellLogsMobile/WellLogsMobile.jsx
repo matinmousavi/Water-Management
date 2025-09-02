@@ -1,15 +1,15 @@
 import { Card, Flex, Typography } from 'antd'
 import moment from 'moment-jalaali'
 import { Link } from 'react-router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import styles from './WellLogsMobile.module.css'
 
 import iconTree from '../../../../../../../assets/icons/ri_tree-line.svg'
 import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg'
 
-import { getIrrigationStartTime } from '../../../../../../../utils/irrigationStorage'
 import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
+import TimerDisplay from '../../../../../../../components/TimerDisplay/TimerDisplay'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 
@@ -22,6 +22,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 
 	const sections = Math.floor(Math.random() * 4) + 2
 	const progressValue = 40
+
 	useEffect(() => {
 		if (!landId || isOff) return
 	}, [landId, isThisLogOngoing, isOff])
@@ -34,7 +35,6 @@ const WellLogsMobile = ({ wellId, data }) => {
 			cardClass = styles.borderCardDanger
 		} else {
 			cardClass = styles.borderCard
-			console.log(cardClass)
 		}
 	}
 
@@ -84,25 +84,37 @@ const WellLogsMobile = ({ wellId, data }) => {
 					</>
 				) : (
 					<>
+						{/* آب دریافت شده */}
 						<Flex gap={10}>
 							<Flex gap={8} className={styles.cardType}>
 								<img src={iconClock} alt='icon clock' />
 								<Text className={styles.label}>آب دریافت شده</Text>
 							</Flex>
 							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>{moment(data?.totalReceivedWater).format('HH:mm') || '-'}</Text>
+								<Text className={styles.text_irrigation}>
+									<TimerDisplay startedAt={10} />
+								</Text>
+								{/* {isThisLogOngoing ? (
+								) : (
+									<Text className={styles.text_irrigation}>{data.totalReceivedWater}</Text>
+								) */}
 							</Flex>
 						</Flex>
 
+						{/* زمان آبیاری بعدی */}
 						<Flex gap={10}>
 							<Flex gap={8} className={styles.cardType}>
 								<img src={iconClock} alt='icon clock' />
 								<Text className={styles.label}>زمان آبیاری بعدی</Text>
 							</Flex>
 							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>{moment(data?.nextIrrigation).format('HH:mm - jYYYY/jMM/jDD') || '-'}</Text>
+								<Text className={styles.text_irrigation}>
+									{data?.nextIrrigation ? moment(data?.nextIrrigation).format('HH:mm - jYYYY/jMM/jDD') : '-'}
+								</Text>
 							</Flex>
 						</Flex>
+
+						{/* ProgressBar */}
 						<ProgressBar sections={sections} progressValue={progressValue} />
 					</>
 				)}
