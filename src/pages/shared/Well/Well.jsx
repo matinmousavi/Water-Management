@@ -16,7 +16,7 @@ const Well = () => {
 	const api = useAPI()
 	const { user, isAdmin, isIrrigator } = useUser()
 	const screens = Grid.useBreakpoint()
-	const isMobile = screens.xs
+	const isMobile = screens.xs && !screens.md
 
 	const [title, setTitle] = useState('')
 	const [logs, setLogs] = useState([])
@@ -30,6 +30,7 @@ const Well = () => {
 		: api.init('wells', {
 				filters: { irrigator: user._id },
 		  })
+
 	useEffect(() => {
 		const fetchedWell = api.data?.well || api.data?.wells?.[0]
 		if (fetchedWell) {
@@ -46,9 +47,7 @@ const Well = () => {
 	}, [api.data])
 
 	const wellsApi = useAPI()
-
 	wellsApi.init('wells')
-
 	const filterWells = wellsApi.data?.wells?.filter(well => well?.irrigator?._id === user._id)
 
 	if (api.isLoading || (!api.data?.well && !api.data?.wells)) {
@@ -67,9 +66,10 @@ const Well = () => {
 		<WellProvider value={contextValue}>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
-				{isMobile ? (
+				{isMobile && isIrrigator && (
 					<WellMobileView wellId={well?._id} setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
-				) : (
+				)}
+				{(isAdmin || (isIrrigator && !isMobile)) && (
 					<WellDesktopView
 						title={title}
 						well={well}
@@ -83,6 +83,7 @@ const Well = () => {
 						actualWellId={actualWellId}
 					/>
 				)}
+
 				{isAdmin && <DeleteCard title={`چاه ${title}`} api={`wells/${actualWellId}`} backTo='/wells' />}
 			</Flex>
 		</WellProvider>
