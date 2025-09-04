@@ -38,7 +38,7 @@
 }
 
 .timerText {
-	flex: 1;
+	flex: 1 !important;
 	display: flex;
 	justify-content: center;
 }
@@ -66,4 +66,8 @@
 	border-radius: 8px !important;
 	font-weight: 500 !important;
 	font-size: 16px !important;
+}
+.endButton {
+	flex: 1 !important;
+	height: 47px !important;
 }
