@@ -1,49 +1,52 @@
 import { useEffect, useRef, useState } from 'react'
+import dayjs from 'dayjs'
 import styles from './TimerDisplay.module.css'
 
+// ss : mm : hh
 const formatTime = seconds => {
-	const hrs = Math.floor(seconds / 3600)
-	const mins = Math.floor((seconds % 3600) / 60)
-	const secs = seconds % 60
+	const abs = Math.abs(seconds)
+	const hrs = Math.floor(abs / 3600)
+	const mins = Math.floor((abs % 3600) / 60)
+	const secs = abs % 60
 	return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
 }
 
-const TimerDisplay = ({ startedAt, endedAt }) => {
-	const [time, setTime] = useState('00 : 00 : 00')
+const TimerDisplay = ({ startedAt, durationMs }) => {
+	const [text, setText] = useState('00 : 00 : 00')
 	const [isOvertime, setIsOvertime] = useState(false)
 	const intervalRef = useRef(null)
 
 	useEffect(() => {
-		if (!startedAt || !endedAt) return
+		if (!startedAt || !durationMs) return
 
-		const startTime = typeof startedAt === 'number' ? startedAt : new Date(startedAt).getTime()
-		const endTime = typeof endedAt === 'number' ? endedAt : new Date(endedAt).getTime()
+		const startMs = typeof startedAt === 'number' ? startedAt : dayjs(startedAt).isValid() ? dayjs(startedAt).valueOf() : Number(startedAt)
 
-		const update = () => {
+		if (!startMs || Number.isNaN(startMs)) return
+
+		const endMs = startMs + durationMs
+
+		const tick = () => {
 			const now = Date.now()
+			const remainingSec = Math.floor((endMs - now) / 1000)
 
-			if (now < startTime) {
-				setTime('00 : 00 : 00')
-				setIsOvertime(false)
-			} else if (now >= startTime && now <= endTime) {
-				const remaining = Math.floor((endTime - now) / 1000)
-				setTime(formatTime(remaining))
+			if (remainingSec >= 0) {
+				setText(formatTime(remainingSec))
 				setIsOvertime(false)
 			} else {
-				const overtime = Math.floor((now - endTime) / 1000)
-				setTime(`${formatTime(overtime)} -`)
+				setText(`${formatTime(remainingSec)} -`)
 				setIsOvertime(true)
 			}
 		}
 
-		update()
+		tick()
 		clearInterval(intervalRef.current)
-		intervalRef.current = setInterval(update, 1000)
-
+		intervalRef.current = setInterval(tick, 1000)
 		return () => clearInterval(intervalRef.current)
-	}, [startedAt, endedAt])
+	}, [startedAt, durationMs])
 
-	return <span className={isOvertime ? styles.textRed : styles.textGreen}>{time}</span>
+	if (!durationMs) return null
+
+	return <span className={isOvertime ? styles.textRed : styles.textGreen}>{text}</span>
 }
 
 export default TimerDisplay

@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
-
 import { useParams } from 'react-router'
 import useAPI from '../../../../../../../hooks/useAPI'
-
 import dayjs from 'dayjs'
 import jalaliday from 'jalaliday'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
@@ -19,6 +17,15 @@ import styles from './LandLogsMobile.module.css'
 dayjs.extend(jalaliday)
 dayjs.extend(customParseFormat)
 
+const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000 // 2h
+
+// تبدیل "hh:mm" به میلی‌ثانیه
+const parseDurationToMs = str => {
+	if (!str) return null
+	const [h, m] = str.split(':').map(Number)
+	return (h * 60 * 60 + m * 60) * 1000
+}
+
 const LandLogsMobile = ({ data }) => {
 	const { landId } = useParams()
 	const api = useAPI()
@@ -31,25 +38,23 @@ const LandLogsMobile = ({ data }) => {
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [showWellInUseWarning, setShowWellInUseWarning] = useState(false)
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
-	const [startedAt, setStartedAt] = useState(null)
+	const [startedAt, setStartedAt] = useState(null) // ms
 
-	const getLocalStorageKey = () => `irrigation_start_${landId}`
+	const lsKey = `irrigation_start_${landId}`
 
+	// ----------------- لاگ‌های اولیه -----------------
 	useEffect(() => {
-		if (data?.logs?.length && logs.length === 0) {
-			setLogs(data.logs)
-		}
+		if (data?.logs?.length && logs.length === 0) setLogs(data.logs)
 	}, [data?.logs])
 
+	// ----------------- بررسی چاه‌ها -----------------
 	useEffect(() => {
 		const fetchCurrentIrrigatingLand = async () => {
 			const wells = data?.wells || []
-
 			for (const well of wells) {
 				try {
 					const response = await api.get(`wells/${well._id}`)
 					const allLogs = response?.well?.logs || []
-
 					const ongoing = allLogs.find(log => log.isOngoing)
 					if (ongoing?.land && ongoing.land._id !== data._id) {
 						setCurrentIrrigatingWell({
@@ -60,15 +65,15 @@ const LandLogsMobile = ({ data }) => {
 						})
 						break
 					}
-				} catch (error) {
-					console.error('خطا در دریافت اطلاعات چاه:', error)
+				} catch (e) {
+					console.error('خطا در دریافت اطلاعات چاه:', e)
 				}
 			}
 		}
-
 		fetchCurrentIrrigatingLand()
 	}, [data?.wells])
 
+	// ----------------- همگام‌سازی تایمر -----------------
 	useEffect(() => {
 		if (!logs || logs.length === 0) return
 
@@ -76,46 +81,60 @@ const LandLogsMobile = ({ data }) => {
 		if (!ongoingLog) {
 			setIsIrrigating(false)
 			setStartedAt(null)
-			localStorage.removeItem(getLocalStorageKey())
+			localStorage.removeItem(lsKey)
 			return
 		}
 
 		setIsIrrigating(true)
+		const apiStartMs = dayjs(ongoingLog.startedAt).valueOf()
+		const lsValMs = Number(localStorage.getItem(lsKey)) || null
 
-		const localStorageKey = getLocalStorageKey()
-		let irrigationStartTime = localStorage.getItem(localStorageKey)
-
-		if (!irrigationStartTime) {
-			irrigationStartTime = Date.now()
-			localStorage.setItem(localStorageKey, irrigationStartTime.toString())
+		if (!lsValMs || Number.isNaN(lsValMs)) {
+			localStorage.setItem(lsKey, String(apiStartMs))
+			setStartedAt(apiStartMs)
+		} else {
+			const drift = Math.abs(lsValMs - apiStartMs)
+			if (drift > 2000) {
+				localStorage.setItem(lsKey, String(apiStartMs))
+				setStartedAt(apiStartMs)
+			} else {
+				setStartedAt(lsValMs)
+			}
 		}
-
-		setStartedAt(parseInt(irrigationStartTime, 10))
 	}, [logs, landId])
 
+	// ----------------- شروع آبیاری -----------------
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
+
 		try {
 			const now = dayjs()
-			const time = dayjs(selectedTime, 'HH:mm')
-			const combined = now.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
+			const t = dayjs(selectedTime, 'HH:mm')
+			const combined = now.hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 
-			const response = await api.post('irrigations', {
+			// انتخاب چاه جاری یا اولین چاه
+			const currentWell = data?.wells?.[0]
+
+			const res = await api.post('irrigations', {
 				landId,
-				wellId: data?.wells[0]?._id,
+				wellId: currentWell?._id,
 				startTime: combined.toISOString(),
 				isOngoing: true,
 			})
 
-			const localStorageKey = getLocalStorageKey()
-			localStorage.setItem(localStorageKey, Date.now().toString())
+			const startedAtServer = res?.irrigation?.startedAt
+			const startMs = startedAtServer ? dayjs(startedAtServer).valueOf() : combined.valueOf()
+			localStorage.setItem(lsKey, String(startMs))
+			setStartedAt(startMs)
+			setIsIrrigating(true)
 
-			setLogs(prevLogs => [response?.irrigation, ...prevLogs])
-		} catch (error) {
-			console.error('خطا در ارسال زمان شروع آبیاری:', error)
+			setLogs(prev => [res?.irrigation, ...prev])
+		} catch (e) {
+			console.error('خطا در ارسال زمان شروع آبیاری:', e)
 		}
 	}
 
+	// ----------------- پایان آبیاری -----------------
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
 		try {
@@ -123,34 +142,32 @@ const LandLogsMobile = ({ data }) => {
 			if (!ongoing) return
 
 			const now = dayjs()
-			const timeMoment = dayjs(time, 'HH:mm')
-			const combined = now.set('hour', timeMoment.hour()).set('minute', timeMoment.minute()).set('second', 0).set('millisecond', 0)
+			const t = dayjs(time, 'HH:mm')
+			const combined = now.set('hour', t.hour()).set('minute', t.minute()).set('second', 0).set('millisecond', 0)
 
-			const response = await api.patch(`irrigations/${ongoing._id}`, {
+			const res = await api.patch(`irrigations/${ongoing._id}`, {
 				endTime: combined.toISOString(),
 			})
 
-			localStorage.removeItem(getLocalStorageKey())
-
-			setLogs(prevLogs => prevLogs.filter(log => log._id !== ongoing._id).concat(response?.irrigation))
-		} catch (error) {
-			console.error('خطا در ثبت زمان پایان آبیاری:', error)
+			localStorage.removeItem(lsKey)
+			setIsIrrigating(false)
+			setStartedAt(null)
+			setLogs(prev => prev.filter(l => l._id !== ongoing._id).concat(res?.irrigation))
+		} catch (e) {
+			console.error('خطا در ثبت زمان پایان آبیاری:', e)
 		}
 	}
 
+	// ----------------- پایان آبیاری زمین دیگر -----------------
 	const handleEndOtherSelected = async selectedTime => {
 		setShowEndOtherDrawer(false)
-
 		try {
-			// پایان آبیاری زمین دیگر با زمان انتخابی کاربر
 			await api.patch(`irrigations/${currentIrrigatingWell.ongoingIrrigationId}`, {
 				endTime: selectedTime.toISOString(),
 			})
-
-			// نمایش کشوی انتخاب زمان شروع برای زمین فعلی
 			setShowStartDrawer(true)
-		} catch (error) {
-			console.error('خطا در پایان آبیاری زمین دیگر:', error)
+		} catch (e) {
+			console.error('خطا در پایان آبیاری زمین دیگر:', e)
 			alert('خطا در پایان آبیاری زمین دیگر. لطفاً دوباره تلاش کنید.')
 		}
 	}
@@ -167,19 +184,20 @@ const LandLogsMobile = ({ data }) => {
 
 	const handleStartClick = () => {
 		const wells = data?.wells || []
-		const isAnyWellUsedByOtherLand = wells.some(well => well.isIrrigating && well.irrigatingLand && well.irrigatingLand._id !== data?._id)
-
-		if (isAnyWellUsedByOtherLand) {
-			setShowWellInUseWarning(true)
-		} else {
-			setShowStartDrawer(true)
-		}
+		const inUseByOther = wells.some(w => w.isIrrigating && w.irrigatingLand?._id !== data._id)
+		if (inUseByOther) setShowWellInUseWarning(true)
+		else setShowStartDrawer(true)
 	}
 
 	const handleEndOtherIrrigation = () => {
 		setShowWellInUseWarning(false)
 		setShowEndOtherDrawer(true)
 	}
+
+	// ----------------- محاسبه remainingMs -----------------
+	const currentWell = data?.wells?.find(w => w.irrigatingLand?._id === data._id) || data?.wells?.[0]
+	let remainingMs = parseDurationToMs(currentWell?.remainingWater)
+	if (!remainingMs || Number.isNaN(remainingMs)) remainingMs = DEFAULT_DURATION_MS
 
 	return (
 		<div className={styles.container}>
@@ -189,13 +207,12 @@ const LandLogsMobile = ({ data }) => {
 				handleStop={() => setEndNoticeDrawer(true)}
 				onStartClick={handleStartClick}
 				isIrrigating={isIrrigating}
-				timer={<TimerDisplay startedAt={startedAt} />}
+				startedAt={startedAt}
+				durationMs={remainingMs}
 			/>
 
-			{/* کشوی انتخاب زمان شروع آبیاری زمین فعلی */}
 			<TimeStartPickerSheet isOpen={showStartDrawer} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 
-			{/* کشوی انتخاب زمان پایان آبیاری زمین فعلی */}
 			<TimeEndPickerSheet
 				isOpen={showEndDrawer}
 				title='ثبت زمان پایان آبیاری'
@@ -204,7 +221,6 @@ const LandLogsMobile = ({ data }) => {
 				onClose={CancelTimeEnd}
 			/>
 
-			{/* کشوی انتخاب زمان پایان آبیاری زمین دیگر */}
 			<TimeEndPickerSheet
 				isOpen={showEndOtherDrawer}
 				title='پایان آبیاری زمین دیگر'
@@ -213,10 +229,13 @@ const LandLogsMobile = ({ data }) => {
 				onClose={() => setShowEndOtherDrawer(false)}
 			/>
 
-			{/* کشوی تایید پایان آبیاری زمین فعلی */}
-			<EndNoticeDrawer isOpen={endNoticeDrawer} onSubmit={handleEndNotice} timer={<TimerDisplay startedAt={startedAt} />} onClose={CancelTimeEnd} />
+			<EndNoticeDrawer
+				isOpen={endNoticeDrawer}
+				onSubmit={handleEndNotice}
+				timer={<TimerDisplay startedAt={startedAt} durationMs={remainingMs} />}
+				onClose={CancelTimeEnd}
+			/>
 
-			{/* مودال هشدار استفاده چاه توسط زمین دیگر */}
 			<WarningModalInUse
 				isOpen={showWellInUseWarning}
 				onSubmit={handleEndOtherIrrigation}

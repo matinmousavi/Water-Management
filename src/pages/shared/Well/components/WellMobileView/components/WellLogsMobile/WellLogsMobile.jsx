@@ -26,7 +26,6 @@ const WellLogsMobile = ({ wellId, data }) => {
 	useEffect(() => {
 		if (!isThisLogOngoing || !data?.irrigationStartedAt || !data?.remainingWater) return
 
-		// remainingWater به میلی‌ثانیه
 		const [h, m] = data.remainingWater.split(':').map(Number)
 		const remainingMs = h * 3600000 + m * 60000
 
@@ -50,7 +49,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 				setIsOver(false)
 			} else {
 				const over = Math.abs(diff)
-				setCountdown(`+${formatTime(over)}`)
+				setCountdown(`-${formatTime(over)}`)
 				setIsOver(true)
 			}
 		}, 1000)
@@ -62,9 +61,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 	if (isOff) {
 		cardClass = styles.offCard
 	} else if (isThisLogOngoing) {
-		cardClass = isOver ? styles.borderCardDanger : styles.borderCardSuccess
-	} else {
-		cardClass = ''
+		cardClass = isOver ? styles.borderCardDanger : styles.borderCard
 	}
 
 	const totalMsInCycle = data?.totalSchedulesInCycle * 60 * 60 * 1000 || 0
@@ -79,7 +76,6 @@ const WellLogsMobile = ({ wellId, data }) => {
 	return (
 		<Card className={cardClass}>
 			<Flex vertical gap={24}>
-				{/* لیبل و آیکون */}
 				<Flex gap={10} align='start'>
 					<Flex gap={8} className={styles.cardType}>
 						{isOff ? <img src={iconClock} alt='icon clock' /> : <img src={iconTree} alt='icon tree' />}

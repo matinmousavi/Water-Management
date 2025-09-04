@@ -1,20 +1,19 @@
 import { Flex, Button, Typography, Card, Table } from 'antd'
 import moment from 'moment-jalaali'
-
 import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
-
 import styles from './TableLogsMobile.module.css'
 import useAPI from '../../../../../../../../../hooks/useAPI'
+import TimerDisplay from '../../../../../../../../../components/TimerDisplay/TimerDisplay'
 
 const { Text } = Typography
 
-const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartClick }) => {
+const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, startedAt, durationMs }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const apiTime = useAPI()
 	apiTime.init('settings/irrigations')
-
 	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
+	const ongoingLog = logs.find(log => log.isOngoing)
 
 	const columns = [
 		{
@@ -40,7 +39,6 @@ const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartC
 			render: (text, record) => {
 				if (record.isOngoing) return 'در حال آبیاری'
 				if (!record.duration) return '--'
-
 				const [h, m] = record.duration.split(':').map(Number)
 				return h === 0 ? `${m} دقیقه` : `${h} ساعت${m > 0 ? ` و ${m} دقیقه` : ''}`
 			},
@@ -71,10 +69,12 @@ const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartC
 			</Card>
 
 			<div className={styles.footer}>
-				{isCurrentLandIrrigating ? (
+				{isCurrentLandIrrigating && ongoingLog ? (
 					<>
-						<Text className={`${styles.timerText}`}>{timer}</Text>
-						<Button type='default' color='primary' variant='outlined' onClick={handleStop}>
+						<Text className={styles.timerText}>
+							<TimerDisplay startedAt={startedAt} durationMs={durationMs} />
+						</Text>
+						<Button type='primary' onClick={handleStop} className={styles.endButton}>
 							پایان آبیاری
 						</Button>
 					</>
