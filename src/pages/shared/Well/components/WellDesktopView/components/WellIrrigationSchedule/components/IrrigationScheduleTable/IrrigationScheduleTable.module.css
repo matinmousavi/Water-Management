@@ -1,15 +1,59 @@
 .schedule-wrapper {
-	max-height: 600px;
-	overflow: auto;
 	background: #ffffff;
+	scrollbar-width: thin;
+	scrollbar-color: #ccc transparent;
+	border: 1px solid #e9ecef;
+	border-radius: 8px;
+	max-height: none;
+	overflow: visible;
+}
+
+.schedule-wrapper::-webkit-scrollbar {
+	width: 6px;
+}
+
+.schedule-wrapper::-webkit-scrollbar-thumb {
+	background-color: #ccc;
+	border-radius: 4px;
+}
+
+.schedule-wrapper::-webkit-scrollbar-track {
+	background: red !important;
+}
+
+.schedule-wrapper::-webkit-scrollbar-button {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }
 
 .irrigation-schedule-container {
 	background-color: #f8f9fa;
 	border-bottom-left-radius: 8px;
 	border-bottom-right-radius: 8px;
-	overflow: visible;
 	border: none;
+	max-height: 600px;
+	overflow: auto;
+	scrollbar-width: thin;
+	scrollbar-color: #ffe6e6;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar {
+	width: 8px;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar-track {
+	background: #ffe6e6;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar-button {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }
 
 .schedule-header {
@@ -28,17 +72,14 @@
 	align-items: center;
 	font-weight: bold;
 	font-size: 14px;
-	border-right: 1px solid #e9ecef;
 	position: sticky;
 	left: 0;
 	right: 0;
 	background-color: #fafafa;
-	border: 1px solid rgba(0, 0, 0, 0.06);
 	border-bottom: none;
 	border-left: none;
 	z-index: 6;
 	padding: 0 8px;
-	border-top-right-radius: 8px;
 }
 
 .day-header-cell {
@@ -50,14 +91,11 @@
 	font-size: 14px;
 	border: 1px solid rgba(0, 0, 0, 0.06);
 	border-bottom: none;
+	border-top: none;
 	border-left: none;
 	min-width: 156px;
 	background-color: #fafafa;
 	padding: 0 8px;
-}
-
-.day-header-cell:last-child {
-	border-left: 1px solid #e9ecef;
 }
 
 .schedule-grid {
@@ -66,7 +104,6 @@
 }
 
 .time-column {
-	border-right: 1px solid #e9ecef;
 	position: sticky;
 	min-width: 156px;
 	right: 0;
@@ -125,10 +162,6 @@
 
 .day-column:not(:first-child) {
 	border-right: 1px solid #e9ecef;
-}
-
-.day-column:last-child {
-	border-left: 1px solid #e9ecef;
 }
 
 .day-content {
