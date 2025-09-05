@@ -7,6 +7,7 @@ import styles from './WellLogsMobile.module.css'
 
 import iconTree from '../../../../../../../assets/icons/ri_tree-line.svg'
 import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg'
+import iconTreeGroup from '../../../../../../../assets/icons/treeGroup.svg'
 
 import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
 
@@ -78,7 +79,13 @@ const WellLogsMobile = ({ wellId, data }) => {
 			<Flex vertical gap={24}>
 				<Flex gap={10} align='start'>
 					<Flex gap={8} className={styles.cardType}>
-						{isOff ? <img src={iconClock} alt='icon clock' /> : <img src={iconTree} alt='icon tree' />}
+						{isOff ? (
+							<img src={iconClock} alt='icon clock' />
+						) : data?.type === 'land' ? (
+							<img src={iconTree} alt='icon tree' />
+						) : (
+							<img src={iconTreeGroup} alt='icon tree' />
+						)}
 						<Text className={styles.label}>{isOff ? 'ساعت خاموشی' : data?.type === 'land' ? 'نام زمین' : 'نام گروه'}</Text>
 					</Flex>
 					{!isOff && (

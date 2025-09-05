@@ -1,9 +1,8 @@
-import { Card, Col, Flex, Row, Table, Typography } from 'antd'
+import { Card, Col, Flex, Row, Typography } from 'antd'
 import moment from 'moment-jalaali'
-import { Link } from 'react-router'
-const { Title, Text } = Typography
+const { Text } = Typography
 
-const ItemLandGroup = ({ land }) => {
+const ItemLandGroup = ({ land, group }) => {
 	const infoItems = [
 		{
 			label: 'نام زمین',
@@ -15,8 +14,13 @@ const ItemLandGroup = ({ land }) => {
 		},
 		{ label: 'شماره تماس ', value: land?.owner?.mobile || '--' },
 		{ label: 'آدرس زمین', value: land?.location || '--' },
-		{ label: 'زمان آبیاری بعدی', value: moment(new Date()).format('HH:mm - jYYYY/jMM/jDD') || '--' },
-		{ label: 'مدت زمان آبیاری ', value: '--' },
+		{
+			label: 'زمان آبیاری بعدی',
+			value: group?.nextIrrigationAt ? moment(group.nextIrrigationAt).format('HH:mm - jYYYY/jMM/jDD') : '--',
+		},
+		{ label: 'آب مورد نیاز', value: group?.requiredWater || '--' },
+		{ label: 'آب دریافت شده', value: group?.receivedWater || '--' },
+		{ label: 'زمان باقی مانده', value: group?.remainingWater || '--' },
 	]
 
 	return (
@@ -39,11 +43,11 @@ const ItemLandGroup = ({ land }) => {
 	)
 }
 
-const GroupLandsList = ({ lands }) => {
+const GroupLandsList = ({ lands, group }) => {
 	return (
 		<Flex gap={16} vertical>
-			{lands.map((item, index) => (
-				<ItemLandGroup land={item} key={index} />
+			{lands?.map((item, index) => (
+				<ItemLandGroup land={item} group={group} key={index} />
 			))}
 		</Flex>
 	)

@@ -1,5 +1,4 @@
 import { Button, Card, Flex, Table, Typography } from 'antd'
-import { EyeOutlined } from '@ant-design/icons'
 import moment from 'moment-jalaali'
 import dayjs from 'dayjs'
 import jalaliday from 'jalaliday'
@@ -21,18 +20,22 @@ dayjs.extend(customParseFormat)
 
 const { Text } = Typography
 
-function uniqueGroupLogs(logs) {
+const uniqueGroupLogs = logs => {
 	const map = new Map()
 	logs.forEach(item => {
-		const key = `${item.landGroup}_${item.startedAt}`
-		if (!map.has(key)) {
-			map.set(key, item)
-		}
+		const key = `${item.landGroupId || item.landGroup}_${item.startedAt}`
+		if (!map.has(key)) map.set(key, item)
 	})
 	return Array.from(map.values())
 }
 
-const LogsGroup = ({ data, wellId }) => {
+const parseTimeToMs = str => {
+	if (!str) return 0
+	const [h, m] = str.split(':').map(Number)
+	return (h * 60 * 60 + m * 60) * 1000
+}
+
+const LogsGroup = ({ data, wellId, group }) => {
 	const { groupId } = useParams()
 	const api = useAPI()
 	const apiTime = useAPI()
@@ -45,6 +48,7 @@ const LogsGroup = ({ data, wellId }) => {
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [startedAt, setStartedAt] = useState(null)
+	const [durationMs, setDurationMs] = useState(null)
 
 	const getLocalStorageKey = () => `irrigation_group_start_${groupId}`
 
@@ -55,37 +59,35 @@ const LogsGroup = ({ data, wellId }) => {
 	}, [data])
 
 	useEffect(() => {
-		const localStorageKey = getLocalStorageKey()
-
 		if (!logs || logs.length === 0) {
 			setIsIrrigating(false)
 			setStartedAt(null)
-			localStorage.removeItem(localStorageKey)
+			setDurationMs(null)
+			localStorage.removeItem(getLocalStorageKey())
 			return
 		}
 
-		const ongoingLog = logs.find(log => log.isOngoing === true)
-
+		const ongoingLog = logs.find(log => log.isOngoing)
 		if (!ongoingLog) {
 			setIsIrrigating(false)
 			setStartedAt(null)
-			localStorage.removeItem(localStorageKey)
+			setDurationMs(null)
+			localStorage.removeItem(getLocalStorageKey())
 			return
 		}
 
 		setIsIrrigating(true)
+		const startMs = dayjs(ongoingLog.startedAt).valueOf()
+		localStorage.setItem(getLocalStorageKey(), String(startMs))
+		setStartedAt(startMs)
 
-		let irrigationStartTime = localStorage.getItem(localStorageKey)
-
-		if (!irrigationStartTime) {
-			irrigationStartTime = Date.now()
-			localStorage.setItem(localStorageKey, irrigationStartTime.toString())
-		} else {
-			console.log('Found existing start time in localStorage:', irrigationStartTime)
-		}
-
-		setStartedAt(parseInt(irrigationStartTime, 10))
-	}, [logs, groupId])
+		const duration = ongoingLog.receivedWater
+			? parseTimeToMs(ongoingLog.receivedWater)
+			: group?.remainingWater
+			? parseTimeToMs(group.remainingWater)
+			: 2 * 60 * 60 * 1000
+		setDurationMs(duration)
+	}, [logs, groupId, group])
 
 	const columns = [
 		{
@@ -110,9 +112,11 @@ const LogsGroup = ({ data, wellId }) => {
 			key: 'duration',
 			render: (text, record) => {
 				if (record?.isOngoing) return 'در حال آبیاری'
-				if (!record?.duration) return '--'
 
-				const [h, m] = record?.duration.split(':').map(Number)
+				const timeStr = record?.receivedWater || record?.duration
+				if (!timeStr) return '--'
+
+				const [h, m] = timeStr.split(':').map(Number)
 				return h === 0 ? `${m} دقیقه` : `${h} ساعت${m > 0 ? ` و ${m} دقیقه` : ''}`
 			},
 		},
@@ -124,105 +128,51 @@ const LogsGroup = ({ data, wellId }) => {
 		},
 	]
 
-	// شروع آبیاری گروهی
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
 		try {
 			const now = dayjs()
-			const time = dayjs(selectedTime, 'HH:mm')
-			const combined = now.hour(time.hour()).minute(time.minute()).second(0).millisecond(0)
+			const t = dayjs(selectedTime, 'HH:mm')
+			const combined = now.hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 
 			const response = await api.post('irrigations', {
 				landGroupId: groupId,
-				wellId: wellId,
+				wellId,
 				startTime: combined.toISOString(),
 				isOngoing: true,
 			})
 
-			const startTime = Date.now().toString()
-			const localStorageKey = getLocalStorageKey()
-			localStorage.setItem(localStorageKey, startTime)
-
 			const newLog = response?.irrigations[0]
-			if (newLog) {
-				setLogs(prevLogs => uniqueGroupLogs([newLog, ...prevLogs]))
-			}
-		} catch (error) {
-			console.error('خطا در شروع آبیاری گروهی:', error)
+			if (newLog) setLogs(prev => uniqueGroupLogs([newLog, ...prev]))
+		} catch (e) {
+			console.error('خطا در شروع آبیاری گروهی:', e)
 		}
 	}
+	console.log(logs)
 
-	// پایان آبیاری گروهی
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
-
 		try {
-			const ongoing = logs.find(item => item.isOngoing === true && item.startedAt)
+			const ongoing = logs.find(l => l.isOngoing)
+			if (!ongoing) return
 
-			if (!ongoing) {
-				return
-			}
+			const t = dayjs(time, 'HH:mm')
+			const combined = dayjs(ongoing.startedAt).hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 
-			setLogs(prevLogs => {
-				const updatedLogs = prevLogs.map(item => (item._id === ongoing._id ? { ...item, isOngoing: false } : item))
-				return uniqueGroupLogs(updatedLogs)
-			})
-
-			const localStorageKey = getLocalStorageKey()
-			localStorage.removeItem(localStorageKey)
-
-			setIsIrrigating(false)
-			setStartedAt(null)
-
-			const now = dayjs()
-			const timeMoment = dayjs(time, 'HH:mm')
-			const combined = now.set('hour', timeMoment.hour()).set('minute', timeMoment.minute()).set('second', 0).set('millisecond', 0)
-
-			const response = await api.patch(`irrigations/${ongoing._id}`, {
+			await api.patch(`irrigations/${ongoing._id}`, {
 				endTime: combined.toISOString(),
 				isOngoing: false,
 			})
 
-			const updatedLog = response?.irrigations[0]
+			setLogs(prev => uniqueGroupLogs(prev.map(l => (l._id === ongoing._id ? { ...l, isOngoing: false, endTime: combined.toISOString() } : l))))
 
-			if (updatedLog) {
-				setLogs(prevLogs => {
-					const filtered = prevLogs.map(item => {
-						return item._id === updatedLog._id ? { ...updatedLog, isOngoing: false } : item
-					})
-					const uniqueFiltered = uniqueGroupLogs(filtered)
-					return uniqueFiltered
-				})
-			}
-		} catch (error) {
-			console.error('خطا در پایان آبیاری گروهی:', error)
-			const ongoing = logs.find(item => item.isOngoing === true && item.startedAt)
-			if (ongoing) {
-				setLogs(prevLogs => {
-					return prevLogs.map(item => (item._id === ongoing._id ? { ...item, isOngoing: true } : item))
-				})
-
-				const localStorageKey = getLocalStorageKey()
-				const savedStartTime = localStorage.getItem(localStorageKey)
-				if (!savedStartTime) {
-					localStorage.setItem(localStorageKey, Date.now().toString())
-				}
-				setIsIrrigating(true)
-				setStartedAt(parseInt(savedStartTime || Date.now(), 10))
-			}
-		} finally {
-			console.log('End irrigation process completed')
+			setIsIrrigating(false)
+			setStartedAt(null)
+			setDurationMs(null)
+			localStorage.removeItem(getLocalStorageKey())
+		} catch (e) {
+			console.error('خطا در پایان آبیاری گروهی:', e)
 		}
-	}
-
-	const CancelTimeEnd = () => {
-		setEndNoticeDrawer(false)
-		setShowEndDrawer(false)
-	}
-
-	const handleEndNotice = () => {
-		setEndNoticeDrawer(false)
-		setShowEndDrawer(true)
 	}
 
 	return (
@@ -241,13 +191,14 @@ const LogsGroup = ({ data, wellId }) => {
 					/>
 				</Flex>
 			</Card>
+
 			<div className={styles.footer}>
-				{isIrrigating ? (
-					<Flex align='center'>
-						<Text className={`${styles.timerText}`}>
-							<TimerDisplay startedAt={startedAt} />
+				{isIrrigating && startedAt ? (
+					<Flex align='center' gap={12} className={styles.footerContent}>
+						<Text className={styles.timerText}>
+							<TimerDisplay startedAt={startedAt} durationMs={durationMs} />
 						</Text>
-						<Button type='default' color='primary' variant='outlined' className={`${styles.textBtn}`} onClick={() => setEndNoticeDrawer(true)}>
+						<Button type='default' className={styles.textBtn} onClick={() => setEndNoticeDrawer(true)}>
 							پایان آبیاری
 						</Button>
 					</Flex>
@@ -258,20 +209,23 @@ const LogsGroup = ({ data, wellId }) => {
 				)}
 			</div>
 
-			{/* انتخاب زمان شروع */}
 			<TimeStartPickerSheet isOpen={showStartDrawer} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
-
-			{/* انتخاب زمان پایان */}
 			<TimeEndPickerSheet
 				isOpen={showEndDrawer}
 				title='ثبت زمان پایان آبیاری گروهی'
 				subtitle='ساعت پایان آبیاری گروهی را مشخص کنید.'
 				onSubmit={handleTimeEndSelected}
-				onClose={CancelTimeEnd}
+				onClose={() => setShowEndDrawer(false)}
 			/>
-
-			{/* تایید پایان آبیاری */}
-			<EndNoticeDrawer isOpen={endNoticeDrawer} onSubmit={handleEndNotice} timer={<TimerDisplay startedAt={startedAt} />} onClose={CancelTimeEnd} />
+			<EndNoticeDrawer
+				isOpen={endNoticeDrawer}
+				onSubmit={() => {
+					setEndNoticeDrawer(false)
+					setShowEndDrawer(true)
+				}}
+				timer={<TimerDisplay startedAt={startedAt} durationMs={durationMs} />}
+				onClose={() => setEndNoticeDrawer(false)}
+			/>
 		</div>
 	)
 }
