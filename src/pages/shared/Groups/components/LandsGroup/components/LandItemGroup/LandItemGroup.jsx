@@ -9,11 +9,18 @@ import moment from 'moment-jalaali'
 import styles from './LandItemGroup.module.css'
 import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
 
-const LandItemGroup = ({ data }) => {
+const LandItemGroup = ({ data, group }) => {
 	const { Text } = Typography
 
-	const sections = 4
-	const progressValue = 40
+	// محاسبه progress از API
+	const totalMsInCycle = group?.totalSchedulesInCycle * 60 * 60 * 1000 || 0
+	const receivedMsInCycle = (() => {
+		if (!group?.receivedWaterInCycle) return 0
+		const [h, m] = group.receivedWaterInCycle.split(':').map(Number)
+		return h * 3600000 + m * 60000
+	})()
+	const progressValue = totalMsInCycle ? (receivedMsInCycle / totalMsInCycle) * 100 : 0
+	const sections = group?.totalSchedulesInCycle || 3
 
 	const landData = [
 		{
@@ -39,12 +46,13 @@ const LandItemGroup = ({ data }) => {
 		{
 			label: 'زمان آبیاری بعدی',
 			icon: iconClock,
-			content: <Text>{moment(new Date()).format('HH:mm - jYYYY/jMM/jDD')}</Text>,
+			content: <Text>{group?.nextIrrigationAt ? moment(group.nextIrrigationAt).format('HH:mm - jYYYY/jMM/jDD') : '-'}</Text>,
 		},
-		{ icon: iconClock, label: 'آب مورد نیاز', content: '3 ساعت' || '-' },
-		{ icon: iconClock, label: 'آب دریافت شده', content: '1 ساعت و 45 دقیقه' || '-' },
-		{ icon: iconClock, label: 'زمان باقی مانده', content: '15 دقیفه' || '-' },
+		{ icon: iconClock, label: 'آب مورد نیاز', content: group?.requiredWater || '-' },
+		{ icon: iconClock, label: 'آب دریافت شده', content: group?.receivedWater || '-' },
+		{ icon: iconClock, label: 'زمان باقی مانده', content: group?.remainingWater || '-' },
 	]
+
 	return (
 		<Card>
 			<Flex vertical gap={24}>

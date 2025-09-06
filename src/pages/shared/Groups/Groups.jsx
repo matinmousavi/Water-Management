@@ -8,26 +8,32 @@ import GroupDesktop from './components/GroupDesktop/GroupDesktop'
 import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import HeaderIrrigation from '../../../components/HeaderIrrigation/HeaderIrrigation'
+
 const Groups = () => {
 	const { wellId, groupId } = useParams()
 	const landApi = useAPI()
+	const groupApi = useAPI()
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
+
 	landApi.init(`lands`)
 	const wellApi = useAPI()
 	wellApi.init(`wells/${wellId}`)
+	groupApi.init(`wells/${wellId}/land-groups/${groupId}`)
+
 	const well = wellApi.data?.well
+	const groupData = groupApi.data
 
 	const items = [
 		{
 			key: 'logs',
 			label: 'لاگ توزیع',
-			children: <LogsGroup data={well?.logs} wellId={wellId} />,
+			children: <LogsGroup data={well?.logs} wellId={wellId} group={groupData} />,
 		},
 		{
 			key: 'lands',
 			label: 'زمین ها',
-			children: <LandsGroup data={well?.lands} />,
+			children: <LandsGroup data={groupData?.lands} group={groupData} />,
 		},
 		{
 			key: 'notes',
@@ -45,7 +51,7 @@ const Groups = () => {
 					<Tabs defaultActiveKey='lands' centered items={items} />
 				</Flex>
 			) : (
-				<GroupDesktop groupId={groupId} wellId={wellId} data={well} />
+				<GroupDesktop groupId={groupId} wellId={wellId} data={groupData} />
 			)}
 		</>
 	)
