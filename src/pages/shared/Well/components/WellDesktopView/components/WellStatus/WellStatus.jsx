@@ -3,13 +3,14 @@ import { EditOutlined } from '@ant-design/icons'
 import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
+import { useUser } from '../../../../../../../contexts/UserContext'
 
 const WellStatus = ({ wellId, status, setStatus }) => {
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
 	const wellApi = useAPI()
 	const { isOpen, open, close, handleAfterChange } = useModal()
-
+	const { isAdmin } = useUser()
 	const handleOpen = () => {
 		open(() => {
 			form.setFieldsValue({ status })
@@ -37,9 +38,9 @@ const WellStatus = ({ wellId, status, setStatus }) => {
 
 	return (
 		<>
-			<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={handleOpen}>
+			<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }}>
 				<Flex align='center' gap={3}>
-					{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
+					{status === 'active' ? 'فعال' : 'غیرفعال'} {isAdmin ? <EditOutlined onClick={handleOpen} /> : null}
 				</Flex>
 			</Tag>
 

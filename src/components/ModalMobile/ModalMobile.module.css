@@ -51,3 +51,30 @@
 .containerBtn {
 	padding: 0 16px 16px 16px !important;
 }
+
+@media (min-width: 768px) {
+	.ModalMobileRoot :global(.ant-card-body) {
+		width: 100% !important;
+	}
+	.form {
+		width: 100% !important;
+	}
+}
+
+@media (min-width: 1024px) {
+	.ModalMobileRoot :global(.ant-card-body) {
+		width: 100% !important;
+	}
+	.form {
+		width: 100% !important;
+	}
+}
+
+@media (min-width: 1440px) {
+	.ModalMobileRoot :global(.ant-card-body) {
+		width: 100% !important;
+	}
+	.form {
+		width: 100% !important;
+	}
+}

@@ -24,3 +24,19 @@
 	color: rgba(0, 102, 238, 1) !important;
 	font-weight: 400;
 }
+@media (min-width: 768px) {
+	.customCardRoot :global(.ant-card-body) {
+		padding: 16px !important;
+	}
+}
+
+@media (min-width: 1024px) {
+	.customCardRoot :global(.ant-card-body) {
+		padding: 16px !important;
+	}
+}
+@media (min-width: 1440px) {
+	.customCardRoot :global(.ant-card-body) {
+		padding: 16px !important;
+	}
+}

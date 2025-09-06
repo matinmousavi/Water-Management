@@ -9,6 +9,7 @@ import { useWell } from '../../../../../../contexts/WellContext'
 
 import ScheduleGrid from './components/ScheduleGrid'
 import ScheduleModal from './components/ScheduleModal'
+import { useUser } from '../../../../../../../../../contexts/UserContext'
 
 dayjs.extend(isBetween)
 
@@ -59,11 +60,10 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 	const [form] = Form.useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
+	const { isAdmin } = useUser()
 
-	// فقط وقتی editable هست از context استفاده کن
 	const cycleDaysFromContext = editable ? useWell().cycleDays : null
 	const cycleDays = editable ? cycleDaysFromContext : cycleDaysProp || 7
-
 	const daysOfWeek = useMemo(() => Array.from({ length: cycleDays }, (_, i) => `روز ${numberToPersianOrdinal(i + 1)}`), [cycleDays])
 
 	const generateTimeSlots = () => {
@@ -76,7 +76,6 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		}
 		return slots
 	}
-
 	const timeSlots = useMemo(() => generateTimeSlots(), [])
 
 	const fetchSchedules = async () => {
@@ -110,9 +109,19 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		]
 	}, [landOptions, groupOptions])
 
+	const resetModal = () => {
+		setEditingTask(null)
+		setSelectedDay(null)
+		form.resetFields()
+		form.setFieldsValue({ color: '#e0f7e980' })
+		setScheduleType('land')
+		setIsModalVisible(false)
+	}
+
+	const [scheduleType, setScheduleType] = useState('land')
+
 	const handleTaskClick = editable
 		? task => {
-				console.log(task)
 				setEditingTask(task)
 				setSelectedDay(task.day)
 
@@ -127,6 +136,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					day: task.day ?? 0,
 					color: task.color || '#e0f7e980',
 				})
+
+				setScheduleType(task.targetType === 'off' ? 'off' : 'land')
 				setIsModalVisible(true)
 		  }
 		: undefined
@@ -142,6 +153,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					startTime: dayjs(timeSlot, 'HH:mm'),
 					endTime: dayjs(timeSlot, 'HH:mm').add(15, 'minute'),
 				})
+				setScheduleType('land')
 				setIsModalVisible(true)
 		  }
 		: undefined
@@ -179,9 +191,9 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					else await api.post(`/wells/${wellId}/schedules`, payload)
 
 					openNotification('success', 'زمان‌بندی ذخیره شد')
-					setIsModalVisible(false)
-					setEditingTask(null)
-					setSelectedDay(null)
+
+					resetModal()
+
 					await fetchSchedules()
 				} catch {
 					openNotification('error', 'خطا', 'خطا در ذخیره زمان‌بندی')
@@ -197,9 +209,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				try {
 					await api.delete(`/wells/${wellId}/schedules/${editingTask.id}`)
 					openNotification('success', 'زمان‌بندی حذف شد')
-					setIsModalVisible(false)
-					setEditingTask(null)
-					setSelectedDay(null)
+					resetModal()
 					await fetchSchedules()
 				} catch {
 					openNotification('error', 'خطا', 'خطا در حذف زمان‌بندی')
@@ -208,12 +218,17 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		: undefined
 
 	const getTaskPosition = task => {
+		const slotHeight = 15
 		const startTime = dayjs(task.startTime)
 		const endTime = dayjs(task.endTime)
+
 		const startMinutes = startTime.hour() * 60 + startTime.minute()
 		const endMinutes = endTime.hour() * 60 + endTime.minute()
-		const startSlotIndex = timeSlots.findIndex(slot => slot.hour * 60 + slot.minute === startMinutes)
-		return { top: startSlotIndex * 15, height: ((endMinutes - startMinutes) / 15) * 15 }
+
+		const top = (startMinutes / 15) * slotHeight
+		const height = ((endMinutes - startMinutes) / 15) * slotHeight
+
+		return { top, height }
 	}
 
 	const isTimeSlotOccupied = (day, timeSlot) =>
@@ -236,20 +251,18 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				currentDayInCycle={currentDayInCycle}
 			/>
 
-			{editable && (
+			{editable && isAdmin && (
 				<ScheduleModal
 					visible={isModalVisible}
-					onCancel={() => {
-						setIsModalVisible(false)
-						setEditingTask(null)
-						setSelectedDay(null)
-					}}
+					onCancel={resetModal}
 					onOk={handleModalOk}
 					onDelete={handleDeleteTask}
 					isLoading={isLoading}
 					editingTask={editingTask}
 					form={form}
 					selectOptions={selectOptions}
+					scheduleType={scheduleType}
+					setScheduleType={setScheduleType}
 				/>
 			)}
 		</>

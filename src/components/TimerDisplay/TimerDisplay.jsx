@@ -14,25 +14,37 @@ const TimerDisplay = ({ startedAt, endedAt }) => {
 	const intervalRef = useRef(null)
 
 	useEffect(() => {
-		if (!startedAt || !endedAt) return
+		if (!startedAt) return
 
 		const startTime = typeof startedAt === 'number' ? startedAt : new Date(startedAt).getTime()
-		const endTime = typeof endedAt === 'number' ? endedAt : new Date(endedAt).getTime()
+		const endTime = endedAt ? (typeof endedAt === 'number' ? endedAt : new Date(endedAt).getTime()) : null
 
 		const update = () => {
 			const now = Date.now()
 
-			if (now < startTime) {
-				setTime('00 : 00 : 00')
-				setIsOvertime(false)
-			} else if (now >= startTime && now <= endTime) {
-				const remaining = Math.floor((endTime - now) / 1000)
-				setTime(formatTime(remaining))
-				setIsOvertime(false)
+			if (endTime) {
+				// حالتی که پایان مشخص شده
+				if (now < startTime) {
+					setTime('00 : 00 : 00')
+					setIsOvertime(false)
+				} else if (now >= startTime && now <= endTime) {
+					const remaining = Math.floor((endTime - now) / 1000)
+					setTime(formatTime(remaining))
+					setIsOvertime(false)
+				} else {
+					const overtime = Math.floor((now - endTime) / 1000)
+					setTime(`${formatTime(overtime)} -`)
+					setIsOvertime(true)
+				}
 			} else {
-				const overtime = Math.floor((now - endTime) / 1000)
-				setTime(`${formatTime(overtime)} -`)
-				setIsOvertime(true)
+				// حالتی که پایان مشخص نشده (ongoing irrigation)
+				if (now < startTime) {
+					setTime('00 : 00 : 00')
+				} else {
+					const elapsed = Math.floor((now - startTime) / 1000)
+					setTime(formatTime(elapsed))
+				}
+				setIsOvertime(false)
 			}
 		}
 

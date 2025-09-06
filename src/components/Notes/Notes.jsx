@@ -128,7 +128,7 @@ const Notes = ({ entityType, entityReference, notesData: initialNotes, status })
 		}
 	}
 
-	const entityTitle = entityType === 'land' ? 'یادداشت زمین' : entityType === 'well' ? 'یادداشت چاه' : 'یادداشت'
+	const entityTitle = entityType === 'land' ? 'یادداشت زمین' : entityType === 'well' ? 'یادداشت چاه' : entityType === 'landGroup' ? 'یادداشت گروه' : 'یادداشت'
 
 	return (
 		<>

@@ -16,13 +16,10 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 
 		const cycleStartDateFormatted = well?.cycleStartDate ? moment(well.cycleStartDate).format('jYYYY/jMM/jDD') : '--'
 
-		const workTimeFormatted =
-			well?.offTime?.start && well?.offTime?.end ? `${moment(well.offTime.start).format('HH:mm')} - ${moment(well.offTime.end).format('HH:mm')}` : '--'
-
 		return [
 			{
 				label: 'نام میرآب',
-				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.fullName}`}</Link> : '--',
+				value: irrigator ? isAdmin ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.fullName}`}</Link> : irrigator.fullName : '--',
 			},
 			{
 				label: 'شماره تماس میرآب',
@@ -43,10 +40,6 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 			{
 				label: 'تاریخ شروع دوره',
 				value: cycleStartDateFormatted,
-			},
-			{
-				label: 'ساعت خاموشی',
-				value: workTimeFormatted,
 			},
 		]
 	}, [well])

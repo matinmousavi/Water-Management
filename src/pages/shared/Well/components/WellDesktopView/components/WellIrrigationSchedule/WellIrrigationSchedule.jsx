@@ -3,6 +3,7 @@ import { Select, Card, Typography, Modal, Input, Spin, Flex, Grid } from 'antd'
 import IrrigationScheduleTable from './components/IrrigationScheduleTable/IrrigationScheduleTable'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
+import { useUser } from '../../../../../../../contexts/UserContext'
 
 const { Title } = Typography
 const { Option } = Select
@@ -18,7 +19,7 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 	const { useBreakpoint } = Grid
 	const screens = useBreakpoint()
 	const isMobile = screens.xs
-
+	const { isAdmin } = useUser()
 	const fetchSnapshots = async () => {
 		try {
 			setLoading(true)
@@ -71,20 +72,20 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 	return (
 		<>
 			<Card>
-				<Flex 
-				vertical={isMobile ? true : false} 
-				justify='space-between' 
-				align={isMobile ? 'stretch' : 'center'} 
-				gap={12}
-				style={{ marginBottom: '24px' }} 
+				<Flex
+					vertical={isMobile ? true : false}
+					justify='space-between'
+					align={isMobile ? 'stretch' : 'center'}
+					gap={12}
+					style={{ marginBottom: '24px' }}
 				>
 					<Title level={2} className='text-card-title'>
 						جدول زمان‌بندی آبیاری
 					</Title>
 
-					<div style={{ marginTop: isMobile ? 'auto' : 0, alignSelf: isMobile ? 'flex-end' : 'auto' }}>
-						<Flex gap={16} align='center'>
-							<Spin spinning={loading}>
+					<div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+						<Spin spinning={loading}>
+							{isAdmin ? (
 								<Select
 									value={selectedSnapshot}
 									onChange={handleSelectChange}
@@ -120,8 +121,8 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 										</Option>
 									))}
 								</Select>
-							</Spin>
-						</Flex>
+							) : null}
+						</Spin>
 					</div>
 				</Flex>
 

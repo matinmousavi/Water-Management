@@ -247,7 +247,7 @@ const LogsGroup = ({ data, wellId }) => {
 						<Text className={`${styles.timerText}`}>
 							<TimerDisplay startedAt={startedAt} />
 						</Text>
-						<Button type='default' className={`${styles.textBtn}`} onClick={() => setEndNoticeDrawer(true)}>
+						<Button type='default' color='primary' variant='outlined' className={`${styles.textBtn}`} onClick={() => setEndNoticeDrawer(true)}>
 							پایان آبیاری
 						</Button>
 					</Flex>

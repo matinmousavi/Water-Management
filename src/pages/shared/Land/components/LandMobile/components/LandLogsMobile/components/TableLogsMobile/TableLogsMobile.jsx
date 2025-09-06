@@ -1,5 +1,6 @@
 import { Flex, Button, Typography, Card, Table } from 'antd'
 import moment from 'moment-jalaali'
+import { useEffect, useRef, useState } from 'react'
 
 import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 
@@ -8,7 +9,7 @@ import useAPI from '../../../../../../../../../hooks/useAPI'
 
 const { Text } = Typography
 
-const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartClick }) => {
+const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const apiTime = useAPI()
@@ -16,6 +17,44 @@ const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartC
 
 	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
 
+	// ------------------ ⏳ تایمر کاهشی ------------------
+	const parseRemainingWater = timeStr => {
+		if (!timeStr) return 0
+		const [h, m] = timeStr.split(':').map(Number)
+		return (h * 60 + m) * 60 // تبدیل دقیقه به ثانیه
+	}
+
+	const formatTime = totalSeconds => {
+		const absSec = Math.abs(totalSeconds)
+		const hrs = Math.floor(absSec / 3600)
+		const mins = Math.floor((absSec % 3600) / 60)
+		const secs = absSec % 60
+		return `${hrs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${secs.toString().padStart(2, '0')}`
+	}
+
+	const ongoingLog = logs.find(log => log.isOngoing)
+	const initialSeconds = ongoingLog ? parseRemainingWater(ongoingLog.remainingWater) : 0
+	const [timeLeft, setTimeLeft] = useState(initialSeconds)
+	const intervalRef = useRef(null)
+
+	useEffect(() => {
+		if (!isCurrentLandIrrigating || !ongoingLog) return
+
+		let seconds = parseRemainingWater(ongoingLog.remainingWater)
+		setTimeLeft(seconds)
+
+		const update = () => {
+			seconds -= 1
+			setTimeLeft(seconds)
+		}
+
+		clearInterval(intervalRef.current)
+		intervalRef.current = setInterval(update, 1000)
+
+		return () => clearInterval(intervalRef.current)
+	}, [isCurrentLandIrrigating, ongoingLog])
+
+	// ------------------ جدول ------------------
 	const columns = [
 		{
 			title: 'تاریخ',
@@ -71,10 +110,12 @@ const TableLogsMobile = ({ data, logs, isIrrigating, timer, handleStop, onStartC
 			</Card>
 
 			<div className={styles.footer}>
-				{isCurrentLandIrrigating ? (
+				{isCurrentLandIrrigating && ongoingLog ? (
 					<>
-						<Text className={`${styles.timerText}`}>{timer}</Text>
-						<Button type='default' className={`${styles.textBtn}`} onClick={handleStop}>
+						<Text className={styles.timerText} style={{ color: 'green' }}>
+							{formatTime(timeLeft)}
+						</Text>
+						<Button type='default' onClick={handleStop}>
 							پایان آبیاری
 						</Button>
 					</>

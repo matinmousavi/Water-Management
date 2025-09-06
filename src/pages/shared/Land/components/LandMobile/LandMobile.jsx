@@ -7,6 +7,8 @@ import LandLogsMobile from './components/LandLogsMobile/LandLogsMobile'
 import HeaderIrrigation from '../../../../../components/HeaderIrrigation/HeaderIrrigation'
 
 const LandMobile = ({ landData }) => {
+	console.log(landData)
+
 	const items = [
 		{
 			key: 'logs',
