@@ -4,8 +4,10 @@ import styels from './GroupDesktop.module.css'
 import GroupLandsList from './components/GroupLandsList/GroupLandsList'
 import GroupLogs from './components/GroupLogs/GroupLogs'
 import GroupNotes from './components/GroupNotes/GroupNotes'
+
 const GroupDesktop = ({ data, groupId, wellId }) => {
 	const { Title } = Typography
+
 	const items = [
 		{
 			key: 'logs',
@@ -15,7 +17,7 @@ const GroupDesktop = ({ data, groupId, wellId }) => {
 		{
 			key: 'lands',
 			label: 'زمین ها',
-			children: <GroupLandsList lands={data?.lands} />,
+			children: <GroupLandsList lands={data?.lands} group={data} />,
 		},
 		{
 			key: 'notes',
@@ -23,13 +25,14 @@ const GroupDesktop = ({ data, groupId, wellId }) => {
 			children: <GroupNotes groupId={groupId} />,
 		},
 	]
+
 	return (
 		<Flex vertical gap={16}>
 			<Flex vertical className='heading-container' justify='space-etween'>
 				<Flex align='center' gap={16}>
 					<BackButton backTo={''} />
 					<Title level={1} className='text-h3'>
-						گروه یکم
+						{data?.title || 'گروه'}
 					</Title>
 				</Flex>
 				<Tabs className={styels.tabContainer} items={items} />
