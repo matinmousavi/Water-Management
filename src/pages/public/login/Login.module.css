@@ -1,10 +1,10 @@
-.container {
+.loginContainer {
 	width: 100% !important;
 	height: 100vh !important;
 	background-color: #fff !important;
 }
 
-.wrapper {
+.loginWrapper {
 	width: 100% !important;
 	height: 100% !important;
 	background-color: #fff !important;
@@ -12,85 +12,90 @@
 	gap: 56px !important;
 }
 
-.brand-container {
+.loginBrand {
 	width: 100% !important;
 	height: 55px !important;
 }
 
-.form {
+.loginForm {
 	width: 100% !important;
 	display: flex !important;
 	flex-direction: column !important;
 	flex: 1 !important;
 }
 
-.form-wrapper {
+.loginFormWrapper {
 	display: flex !important;
 	justify-content: space-between !important;
 	flex: 1 !important;
 	gap: 20px !important;
 }
 
-.form-wrapper :global(.ant-otp) {
+.loginFormWrapper :global(.ant-otp) {
 	gap: 16px !important;
 }
-.form-wrapper :global(.ant-otp-input) {
+
+.loginFormWrapper :global(.ant-otp-input) {
 	height: 40px !important;
 	width: 40px !important;
 }
 
-.title {
+.loginTitle {
 	font-size: 20px !important;
 	font-weight: 600 !important;
 }
 
-.containerMobile {
-	text-align: center;
+.loginInfoRight {
+	text-align: right !important;
 }
 
-.mobile {
+.loginInfoCenter {
+	text-align: center !important;
+}
+
+.loginMobile {
 	font-weight: 600 !important;
 }
 
-.otp-item {
+.loginOtpItem {
 	display: flex !important;
 	justify-content: center !important;
 	align-items: center !important;
 	margin-bottom: 0 !important;
 }
-.inputLogin {
+.loginOtpItem :global(.ant-input-lg) {
+	border-radius: 6px !important;
+}
+
+.loginInput {
 	height: 40px;
 }
-.resendCode {
+
+.loginResendText {
 	color: rgba(0, 0, 0, 0.6);
 }
 
-/* ---------- Media Query ---------- */
+/* ---------- Media Query: Tablets and Up ---------- */
 @media screen and (min-width: 768px) {
-	.container {
+	.loginContainer {
 		background-color: #1e1e2c !important;
 	}
 
-	.wrapper {
+	.loginWrapper {
 		width: 400px !important;
 		height: initial !important;
 		gap: 32px !important;
-		padding: 36px !important;
+		padding: 32px !important;
 		border-radius: 4px !important;
 		filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1)) !important;
 	}
 
-	.form {
+	.loginForm {
 		justify-content: initial !important;
 		flex: initial !important;
 	}
 
-	.form-wrapper {
+	.loginFormWrapper {
 		gap: 32px !important;
 	}
-}
-
-/* ---------- Extra Large Screens (1440px and up) ---------- */
-
-@media (min-width: 1440px) {
 }
