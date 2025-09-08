@@ -9,6 +9,8 @@ const ProgressBar = ({ sections = 3, progressValue = 0 }) => {
 				{[...Array(sections)].map((_, index) => {
 					const filled = progressValue - index * perSection
 					const percent = Math.max(0, Math.min(filled, perSection))
+					const isFirst = index === 0
+					const isLast = index === sections - 1
 
 					return (
 						<div
@@ -18,7 +20,7 @@ const ProgressBar = ({ sections = 3, progressValue = 0 }) => {
 								flex: 1,
 								background: '#E0E0E0',
 								marginLeft: index !== 0 ? 4 : 0,
-								borderRadius: 4,
+								borderRadius: isFirst ? '4px 0 0 4px' : isLast ? '0 4px 4px 0' : '0',
 								overflow: 'hidden',
 								height: 8,
 							}}
