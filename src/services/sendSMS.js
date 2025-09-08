@@ -43,6 +43,7 @@ async function kavenegar({ to = '', message = '' }) {
 			'Content-Type': 'application/x-www-form-urlencoded',
 		},
 		body: new URLSearchParams({
+			sender: process.env.SMS_SENDER,
 			receptor: to,
 			message: message,
 		}),
