@@ -47,7 +47,6 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 		})
 		onCloseWellList()
 	}
-	console.log(schedules)
 
 	return (
 		<>
