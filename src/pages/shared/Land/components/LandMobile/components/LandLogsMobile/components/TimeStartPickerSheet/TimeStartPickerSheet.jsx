@@ -16,6 +16,7 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	const [minuteRange, setMinuteRange] = useState([])
 	const [selectedIndex, setSelectedIndex] = useState(30)
 	const listRef = useRef(null)
+	const scrollTimeout = useRef(null)
 
 	useEffect(() => {
 		const margin = apiTime.data?.data?.logTimeMarginMinutes?.time || 30
@@ -36,9 +37,20 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	}, [minuteRange, selectedIndex])
 
 	const handleScroll = e => {
-		const scrollTop = e.target.scrollTop
-		const index = Math.round(scrollTop / ITEM_HEIGHT)
-		if (minuteRange[index]) setSelectedIndex(index)
+		if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
+
+		scrollTimeout.current = setTimeout(() => {
+			const scrollTop = e.target.scrollTop
+			const index = Math.round(scrollTop / ITEM_HEIGHT)
+
+			if (minuteRange[index]) {
+				setSelectedIndex(index)
+				listRef.current.scrollTo({
+					top: index * ITEM_HEIGHT,
+					behavior: 'smooth',
+				})
+			}
+		}, 100)
 	}
 
 	const selectedTime = minuteRange[selectedIndex] || dayjs()
@@ -52,9 +64,6 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 				style={{
 					height: ITEM_HEIGHT * VISIBLE_COUNT,
 					overflowY: 'scroll',
-					scrollSnapType: 'y mandatory',
-					scrollPaddingTop: `${ITEM_HEIGHT * CENTER_INDEX}px`,
-					scrollPaddingBottom: `${ITEM_HEIGHT * CENTER_INDEX}px`,
 					scrollbarWidth: 'none',
 					msOverflowStyle: 'none',
 				}}
@@ -77,7 +86,6 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 								style={{
 									height: ITEM_HEIGHT,
 									lineHeight: `60px`,
-									scrollSnapAlign: 'center',
 									fontSize: 20,
 									padding: '0 10px',
 									fontWeight: isSelected ? '600' : '400',
