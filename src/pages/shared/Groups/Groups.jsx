@@ -47,7 +47,7 @@ const Groups = () => {
 			<MetaTitle>گروه ها</MetaTitle>
 			{isMobile ? (
 				<Flex gap={20} vertical>
-					<HeaderIrrigation title={`گروه ${well?.landGroups[0]?.title}`} icon={groupIcon} />
+					<HeaderIrrigation title={`گروه ${groupData?.title}`} icon={groupIcon} />
 					<Tabs defaultActiveKey='lands' centered items={items} />
 				</Flex>
 			) : (
