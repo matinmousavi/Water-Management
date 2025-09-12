@@ -122,9 +122,8 @@ const LogsGroup = ({ data, wellId, group }) => {
 		},
 		{
 			title: 'توضیحات',
-			dataIndex: 'note',
 			key: 'note',
-			render: record => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
+			render: (_, record) => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
 		},
 	]
 
