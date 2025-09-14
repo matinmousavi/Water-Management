@@ -53,8 +53,10 @@ const LogsGroup = ({ data, wellId, group }) => {
 	const getLocalStorageKey = () => `irrigation_group_start_${groupId}`
 
 	useEffect(() => {
-		if (data?.length && logs.length === 0) {
+		if (data?.length) {
 			setLogs(uniqueGroupLogs(data))
+		} else {
+			setLogs([])
 		}
 	}, [data])
 
@@ -192,7 +194,7 @@ const LogsGroup = ({ data, wellId, group }) => {
 			</Card>
 
 			<div className={styles.footer}>
-				{isIrrigating && startedAt ? (
+				{isIrrigating ? (
 					<Flex align='center' gap={12} className={styles.footerContent}>
 						<Text className={styles.timerText}>
 							<TimerDisplay startedAt={startedAt} durationMs={durationMs} />
