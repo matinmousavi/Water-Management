@@ -20,7 +20,14 @@ const ProgressBar = ({ sections = 3, progressValue = 0 }) => {
 								flex: 1,
 								background: '#E0E0E0',
 								marginLeft: index !== 0 ? 4 : 0,
-								borderRadius: isFirst ? '4px 0 0 4px' : isLast ? '0 4px 4px 0' : '0',
+								borderRadius:
+									sections === 1
+										? '4px' // فقط یک بخش → همه گوشه‌ها گرد
+										: isFirst
+										? '4px 0 0 4px'
+										: isLast
+										? '0 4px 4px 0'
+										: '0',
 								overflow: 'hidden',
 								height: 8,
 							}}
