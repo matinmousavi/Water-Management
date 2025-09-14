@@ -7,7 +7,7 @@ import TimerDisplay from '../../../../../../../../../components/TimerDisplay/Tim
 
 const { Text } = Typography
 
-const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, startedAt, durationMs }) => {
+const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, startedAt, durationMs, onNoteUpdate }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const apiTime = useAPI()
@@ -46,7 +46,15 @@ const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, s
 		{
 			title: 'توضیحات',
 			key: 'note',
-			render: record => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
+			render: record => (
+				<DescriptionModalCell
+					record={record}
+					descriptionEditHours={descriptionEditHours}
+					onNoteUpdate={newNote => {
+						if (onNoteUpdate) onNoteUpdate(record._id, newNote)
+					}}
+				/>
+			),
 		},
 	]
 

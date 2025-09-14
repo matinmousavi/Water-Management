@@ -19,7 +19,6 @@ dayjs.extend(customParseFormat)
 
 const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000 // 2h
 
-// تبدیل "hh:mm" به میلی‌ثانیه
 const parseDurationToMs = str => {
 	if (!str) return null
 	const [h, m] = str.split(':').map(Number)
@@ -38,16 +37,14 @@ const LandLogsMobile = ({ data }) => {
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [showWellInUseWarning, setShowWellInUseWarning] = useState(false)
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
-	const [startedAt, setStartedAt] = useState(null) // ms
+	const [startedAt, setStartedAt] = useState(null)
 
 	const lsKey = `irrigation_start_${landId}`
 
-	// ----------------- لاگ‌های اولیه -----------------
 	useEffect(() => {
 		if (data?.logs?.length && logs.length === 0) setLogs(data.logs)
 	}, [data?.logs])
 
-	// ----------------- بررسی چاه‌ها -----------------
 	useEffect(() => {
 		const fetchCurrentIrrigatingLand = async () => {
 			const wells = data?.wells || []
@@ -73,7 +70,6 @@ const LandLogsMobile = ({ data }) => {
 		fetchCurrentIrrigatingLand()
 	}, [data?.wells])
 
-	// ----------------- همگام‌سازی تایمر -----------------
 	useEffect(() => {
 		if (!logs || logs.length === 0) return
 
@@ -103,16 +99,13 @@ const LandLogsMobile = ({ data }) => {
 		}
 	}, [logs, landId])
 
-	// ----------------- شروع آبیاری -----------------
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
-
 		try {
 			const now = dayjs()
 			const t = dayjs(selectedTime, 'HH:mm')
 			const combined = now.hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 
-			// انتخاب چاه جاری یا اولین چاه
 			const currentWell = data?.wells?.[0]
 
 			const res = await api.post('irrigations', {
@@ -127,14 +120,12 @@ const LandLogsMobile = ({ data }) => {
 			localStorage.setItem(lsKey, String(startMs))
 			setStartedAt(startMs)
 			setIsIrrigating(true)
-
 			setLogs(prev => [res?.irrigation, ...prev])
 		} catch (e) {
 			console.error('خطا در ارسال زمان شروع آبیاری:', e)
 		}
 	}
 
-	// ----------------- پایان آبیاری -----------------
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
 		try {
@@ -158,7 +149,6 @@ const LandLogsMobile = ({ data }) => {
 		}
 	}
 
-	// ----------------- پایان آبیاری زمین دیگر -----------------
 	const handleEndOtherSelected = async selectedTime => {
 		setShowEndOtherDrawer(false)
 		try {
@@ -194,7 +184,6 @@ const LandLogsMobile = ({ data }) => {
 		setShowEndOtherDrawer(true)
 	}
 
-	// ----------------- محاسبه remainingMs -----------------
 	const currentWell = data?.wells?.find(w => w.irrigatingLand?._id === data._id) || data?.wells?.[0]
 	let remainingMs = parseDurationToMs(currentWell?.remainingWater)
 	if (!remainingMs || Number.isNaN(remainingMs)) remainingMs = DEFAULT_DURATION_MS
@@ -209,6 +198,9 @@ const LandLogsMobile = ({ data }) => {
 				isIrrigating={isIrrigating}
 				startedAt={startedAt}
 				durationMs={remainingMs}
+				onNoteUpdate={(id, newNote) => {
+					setLogs(prevLogs => prevLogs.map(l => (l._id === id ? { ...l, note: newNote } : l)))
+				}}
 			/>
 
 			<TimeStartPickerSheet isOpen={showStartDrawer} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />

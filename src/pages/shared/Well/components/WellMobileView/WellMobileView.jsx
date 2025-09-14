@@ -65,7 +65,7 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 					to='/'
 					style={{
 						position: 'absolute',
-						right: '16px',
+						right: '0px',
 						color: '#000000',
 					}}
 				>
