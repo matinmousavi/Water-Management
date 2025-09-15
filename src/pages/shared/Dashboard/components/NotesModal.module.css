@@ -1,0 +1,30 @@
+.noteCard {
+	background: #f2f7fe;
+	border-radius: 8px;
+	padding: 12px;
+}
+
+.authorName,
+.dateTime,
+.location,
+.note {
+	font-size: 14px;
+	font-weight: 400;
+	margin: 0;
+}
+
+.authorName {
+	color: #000000;
+}
+
+.dateTime,
+.location {
+	color: #00000080;
+}
+
+.note {
+	color: #000000e0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

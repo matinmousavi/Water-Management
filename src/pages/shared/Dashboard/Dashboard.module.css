@@ -1,5 +1,6 @@
 .tag {
 	padding: 1px 8px !important;
+	font-weight: 400;
 }
 
 .title {
@@ -23,4 +24,24 @@
 .filterActions {
 	display: flex;
 	justify-content: space-between;
+}
+
+.watering {
+	color: #2f54eb;
+	background-color: #f0f5ff;
+	border: 1px solid #adc6ff !important;
+}
+
+.delay,
+.earlyStop,
+.overConsumption {
+	color: #f5222d;
+	background-color: #fff2f0;
+	border: 1px solid #ffccc7 !important;
+}
+
+.waterStatus100 {
+	color: #52c41a;
+	font-weight: 600;
+	font-size: 14px;
 }
