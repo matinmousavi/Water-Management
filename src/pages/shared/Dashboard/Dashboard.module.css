@@ -1,1 +1,26 @@
+.tag {
+	padding: 1px 8px !important;
+}
 
+.title {
+	margin: 0 !important;
+}
+
+.card {
+	flex: 1;
+	min-height: 120px;
+}
+
+.filterDropdown {
+	padding: 8px;
+}
+
+.searchInput {
+	margin-bottom: 8px;
+	display: block;
+}
+
+.filterActions {
+	display: flex;
+	justify-content: space-between;
+}
