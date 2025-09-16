@@ -73,7 +73,7 @@ const LogsGroup = ({ data, wellId, group }) => {
 		if (!ongoingLog) {
 			setIsIrrigating(false)
 			setStartedAt(null)
-			setDurationMs(null)
+			setDurationMs(0)
 			localStorage.removeItem(getLocalStorageKey())
 			return
 		}
@@ -83,13 +83,10 @@ const LogsGroup = ({ data, wellId, group }) => {
 		localStorage.setItem(getLocalStorageKey(), String(startMs))
 		setStartedAt(startMs)
 
-		const duration = ongoingLog.receivedWater
-			? parseTimeToMs(ongoingLog.receivedWater)
-			: group?.remainingWater
-			? parseTimeToMs(group.remainingWater)
-			: 2 * 60 * 60 * 1000
+		const durationStr = ongoingLog.receivedWater || ongoingLog.requiredWater || '02:00'
+		const duration = parseTimeToMs(durationStr)
 		setDurationMs(duration)
-	}, [logs, groupId, group])
+	}, [logs])
 
 	const columns = [
 		{
@@ -112,7 +109,7 @@ const LogsGroup = ({ data, wellId, group }) => {
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
-			render: (text, record) => {
+			render: (_, record) => {
 				if (record?.isOngoing) return 'در حال آبیاری'
 
 				const timeStr = record?.receivedWater || record?.duration
@@ -149,7 +146,6 @@ const LogsGroup = ({ data, wellId, group }) => {
 			console.error('خطا در شروع آبیاری گروهی:', e)
 		}
 	}
-	console.log(logs)
 
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
@@ -165,7 +161,8 @@ const LogsGroup = ({ data, wellId, group }) => {
 				isOngoing: false,
 			})
 
-			setLogs(prev => uniqueGroupLogs(prev.map(l => (l._id === ongoing._id ? { ...l, isOngoing: false, endTime: combined.toISOString() } : l))))
+			const updated = await api.get(`irrigations?landGroupId=${groupId}&wellId=${wellId}`)
+			setLogs(uniqueGroupLogs(updated.irrigations))
 
 			setIsIrrigating(false)
 			setStartedAt(null)

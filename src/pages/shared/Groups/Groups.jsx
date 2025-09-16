@@ -22,7 +22,7 @@ const Groups = () => {
 	groupApi.init(`wells/${wellId}/land-groups/${groupId}`)
 
 	const well = wellApi.data?.well
-	const groupData = groupApi.data
+	const groupData = groupApi.data?.landGroup
 
 	const items = [
 		{
