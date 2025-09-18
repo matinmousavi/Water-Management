@@ -11,6 +11,23 @@ function isOverlapping(start1, end1, start2, end2) {
 	return start1 < end2 && start2 < end1
 }
 
+// Helper: convert milliseconds to "HH:mm"
+function msToHoursMinutes(ms) {
+	const totalMinutes = Math.floor(ms / 60000)
+	const hours = Math.floor(totalMinutes / 60)
+	const minutes = totalMinutes % 60
+	return `${hours}:${minutes.toString().padStart(2, '0')}`
+}
+
+// Helper: sum duration of schedules
+function getTotalDurationMs(schedules) {
+	return schedules.reduce((sum, s) => {
+		const start = new Date(s.startTime)
+		const end = new Date(s.endTime)
+		return sum + (end - start)
+	}, 0)
+}
+
 // GET all schedules
 router.get('/', async (req, res) => {
 	try {
@@ -78,25 +95,6 @@ router.get('/', async (req, res) => {
 			})
 		}
 
-		if (well.offTime) {
-			for (let i = 0; i < well.cycleDays; i++) {
-				results.push({
-					id: `off-time-${i}`,
-					type: 'off',
-					title: 'ساعت خاموشی',
-					startTime: well.offTime.start.toISOString(),
-					endTime: well.offTime.end.toISOString(),
-					day: i + 1,
-					dayInCycle,
-					color: '#00000033',
-					status: 'inactive',
-					irrigationInProgress: false,
-					irrigationStartedAt: null,
-					irrigationEndsAt: null,
-				})
-			}
-		}
-
 		results.sort((a, b) => new Date(a.nextIrrigation || a.startTime) - new Date(b.nextIrrigation || b.startTime))
 		return res.status(200).json({ schedules: results })
 	} catch (err) {
@@ -104,23 +102,6 @@ router.get('/', async (req, res) => {
 		return res.status(500).json({ message: 'خطا در دریافت زمان‌بندی‌ها.' })
 	}
 })
-
-// Helper: convert milliseconds to "HH:mm"
-function msToHoursMinutes(ms) {
-	const totalMinutes = Math.floor(ms / 60000)
-	const hours = Math.floor(totalMinutes / 60)
-	const minutes = totalMinutes % 60
-	return `${hours}:${minutes.toString().padStart(2, '0')}`
-}
-
-// Helper: sum duration of schedules
-function getTotalDurationMs(schedules) {
-	return schedules.reduce((sum, s) => {
-		const start = new Date(s.startTime)
-		const end = new Date(s.endTime)
-		return sum + (end - start)
-	}, 0)
-}
 
 router.get('/today', async (req, res) => {
 	try {
@@ -150,7 +131,6 @@ router.get('/today', async (req, res) => {
 			const targetFilter =
 				schedGroup.targetType === 'land' ? { land: schedGroup.land, isGroupLog: false } : { landGroup: schedGroup.landGroup, isGroupLog: true }
 
-			// همه زمانبندی‌های این زمین/گروه در چرخه
 			const allSchedulesInCycle = await Schedule.find({
 				well: wellId,
 				targetType: schedGroup.targetType,
@@ -170,7 +150,6 @@ router.get('/today', async (req, res) => {
 			}, 0)
 
 			for (const schedule of grouped[key]) {
-				// بررسی آبیاری در حال اجرا
 				let irrigationInProgress = false
 				let irrigationStartedAt = null
 				let irrigationEndsAt = null
@@ -228,33 +207,6 @@ router.get('/today', async (req, res) => {
 			}
 		}
 
-		// اضافه کردن ساعت خاموشی
-		results.push({
-			id: 'off-time',
-			type: 'off',
-			title: 'ساعت خاموشی',
-			lastIrrigation: null,
-			nextIrrigation: null,
-			dayInCycle,
-			landId: undefined,
-			groupId: undefined,
-			startTime: well.offTime.start,
-			endTime: well.offTime.end,
-			day: null,
-			color: '#999',
-			status: 'inactive',
-			irrigationInProgress: false,
-			irrigationStartedAt: null,
-			irrigationEndsAt: null,
-			requiredWater: '0:00',
-			receivedWater: '0:00',
-			remainingWater: '0:00',
-			totalSchedulesInCycle: 0,
-			receivedWaterInCycle: '0:00',
-			cycleStart: null,
-			cycleEnd: null,
-		})
-
 		results.sort((a, b) => new Date(a.nextIrrigation || a.startTime) - new Date(b.nextIrrigation || b.startTime))
 
 		return res.status(200).json({ schedules: results })
@@ -276,7 +228,7 @@ router.post('/', async (req, res) => {
 		const newStart = new Date(startTime)
 		const newEnd = new Date(endTime)
 
-		if (isOverlapping(newStart, newEnd, new Date(well.offTime.start), new Date(well.offTime.end))) {
+		if (isOverlapping(newStart, newEnd)) {
 			return res.status(400).json({ message: 'زمان‌بندی با ساعت خاموشی چاه تداخل دارد.' })
 		}
 
@@ -358,7 +310,7 @@ router.patch('/:scheduleId', async (req, res) => {
 		const newStart = new Date(startTime)
 		const newEnd = new Date(endTime)
 
-		if (isOverlapping(newStart, newEnd, new Date(well.offTime.start), new Date(well.offTime.end))) {
+		if (isOverlapping(newStart, newEnd)) {
 			return res.status(400).json({ message: 'زمان‌بندی با ساعت خاموشی چاه تداخل دارد.' })
 		}
 
