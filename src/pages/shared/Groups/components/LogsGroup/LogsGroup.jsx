@@ -35,7 +35,7 @@ const parseTimeToMs = str => {
 	return (h * 60 * 60 + m * 60) * 1000
 }
 
-const LogsGroup = ({ data, wellId, group }) => {
+const LogsGroup = ({ wellId, group }) => {
 	const { groupId } = useParams()
 	const api = useAPI()
 	const apiTime = useAPI()
@@ -53,12 +53,12 @@ const LogsGroup = ({ data, wellId, group }) => {
 	const getLocalStorageKey = () => `irrigation_group_start_${groupId}`
 
 	useEffect(() => {
-		if (data?.length) {
-			setLogs(uniqueGroupLogs(data))
+		if (group?.logs?.length) {
+			setLogs(uniqueGroupLogs(group?.logs))
 		} else {
 			setLogs([])
 		}
-	}, [data])
+	}, [group?.logs])
 
 	useEffect(() => {
 		if (!logs || logs.length === 0) {

@@ -1,4 +1,4 @@
-import { Flex, Tabs, Typography, Grid } from 'antd'
+import { Flex, Tabs, Grid } from 'antd'
 import MetaTitle from '../../../components/MetaTitle/MetaTitle'
 import groupIcon from '../../../assets/icons/Group.svg'
 import LandsGroup from './components/LandsGroup/LandsGroup'
@@ -17,18 +17,15 @@ const Groups = () => {
 	const isMobile = screens.xs
 
 	landApi.init(`lands`)
-	const wellApi = useAPI()
-	wellApi.init(`wells/${wellId}`)
 	groupApi.init(`wells/${wellId}/land-groups/${groupId}`)
 
-	const well = wellApi.data?.well
 	const groupData = groupApi.data?.landGroup
 
 	const items = [
 		{
 			key: 'logs',
 			label: 'لاگ توزیع',
-			children: <LogsGroup data={well?.logs} wellId={wellId} group={groupData} />,
+			children: <LogsGroup wellId={wellId} group={groupData} />,
 		},
 		{
 			key: 'lands',
@@ -51,7 +48,7 @@ const Groups = () => {
 					<Tabs defaultActiveKey='lands' centered items={items} />
 				</Flex>
 			) : (
-				<GroupDesktop groupId={groupId} wellId={wellId} logs={well?.logs} data={groupData} />
+				<GroupDesktop groupId={groupId} wellId={wellId} logs={groupData?.logs} data={groupData} />
 			)}
 		</>
 	)

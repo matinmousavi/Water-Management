@@ -21,6 +21,8 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true, title = 'ثبت 
 			list.push(base.add(i, 'minute'))
 		}
 		setMinuteRange(list)
+		const currentIndex = list.findIndex(t => t.minute() === base.minute())
+		setSelectedIndex(currentIndex >= 0 ? currentIndex : list.length - 1)
 	}, [])
 
 	useEffect(() => {

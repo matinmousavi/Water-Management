@@ -26,7 +26,9 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 			list.push(base.add(i, 'minute'))
 		}
 		setMinuteRange(list)
-		setSelectedIndex(margin)
+		const now = dayjs()
+		const currentIndex = list.findIndex(t => t.minute() === now.minute())
+		setSelectedIndex(currentIndex >= 0 ? currentIndex : list.length - 1)
 	}, [apiTime.data])
 
 	useEffect(() => {

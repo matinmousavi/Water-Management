@@ -7,6 +7,7 @@ import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 import useAPI from '../../../../../hooks/useAPI'
+import Loading from '../../../../../components/Loading/Loading'
 
 const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
@@ -48,7 +49,11 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 		onCloseWellList()
 	}
 
-	return (
+	return filterWells?.length === 0 ? (
+		<Flex style={{ height: '100vh' }} justify='center' align='center'>
+			<Empty description='چاهی به شما داده نشده است' />
+		</Flex>
+	) : (
 		<>
 			<Flex style={{ position: 'relative' }} gap={8} justify='center' align='center'>
 				<img src='/assets/icons/Vector.svg' alt='icon' />
@@ -78,31 +83,35 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 				</Link>
 			</Flex>
 
-			<Tabs
-				defaultActiveKey='logs'
-				items={[
-					{
-						key: 'logs',
-						label: 'نوبت آبیاری',
-						children: (
-							<Flex vertical gap={16}>
-								{schedules?.length > 0 ? (
-									schedules.map(log => (
-										<WellLogsMobile wellId={irrigatorWells?._id || wellIdFromParams} key={log?._id || log.id} data={log} />
-									))
-								) : (
-									<Empty />
-								)}
-							</Flex>
-						),
-					},
-					{
-						key: 'notes',
-						label: 'یادداشت‌ها',
-						children: <WellNotesMobile wellId={irrigatorWells?._id || wellIdFromParams} />,
-					},
-				]}
-			/>
+			{schedulesApi.isLoading ? (
+				<Loading />
+			) : (
+				<Tabs
+					defaultActiveKey='logs'
+					items={[
+						{
+							key: 'logs',
+							label: 'نوبت آبیاری',
+							children: (
+								<Flex vertical gap={16}>
+									{schedules?.length > 0 ? (
+										schedules.map(log => (
+											<WellLogsMobile wellId={irrigatorWells?._id || wellIdFromParams} key={log?._id || log.id} data={log} />
+										))
+									) : (
+										<Empty />
+									)}
+								</Flex>
+							),
+						},
+						{
+							key: 'notes',
+							label: 'یادداشت‌ها',
+							children: <WellNotesMobile wellId={irrigatorWells?._id || wellIdFromParams} />,
+						},
+					]}
+				/>
+			)}
 		</>
 	)
 }
