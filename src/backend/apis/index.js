@@ -14,6 +14,7 @@ import irrigations from './irrigations/irrigations.js'
 import notifications from './notifications/notifications.js'
 import settings from './settings/settings.js'
 import notes from './notes/notes.js'
+import dashboard from './dashboard/dashboard.js'
 
 const router = Router()
 
@@ -42,5 +43,6 @@ router.use('/irrigations', isLogin, irrigations)
 router.use('/notifications', isAdmin, notifications)
 router.use('/settings', isLogin, settings)
 router.use('/notes', isLogin, notes)
+router.use('/dashboard', isAdmin, dashboard)
 
 export default router
