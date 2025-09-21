@@ -121,6 +121,7 @@ const Login = () => {
 										onKeyPress={e => {
 											if (!/[0-9]/.test(e.key)) e.preventDefault()
 										}}
+										onPressEnter={() => form.submit()}
 										className={styles.loginInput}
 									/>
 								</Form.Item>
@@ -143,7 +144,14 @@ const Login = () => {
 											{ pattern: /^\d{4}$/, message: 'کد باید 4 رقم باشد.' },
 										]}
 									>
-										<Input.OTP size='large' length={4} autoFocus inputMode='numeric' style={{ direction: 'ltr' }} />
+										<Input.OTP
+											size='large'
+											length={4}
+											autoFocus
+											inputMode='numeric'
+											style={{ direction: 'ltr' }}
+											onPressEnter={() => form.submit()}
+										/>
 									</Form.Item>
 								</Flex>
 
