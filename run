@@ -52,5 +52,11 @@ function hiderun() {
 	tput cuu 1
 }
 
+function db() {
+  DOCKER_IP=$(ssh $REMOTE_SSH_SERVER docker inspect --format "{{.NetworkSettings.Networks.water_default.IPAddress}}" ${WEB_HOST}_mongo)
+  echo $DOCKER_IP
+	ssh -L 27017:${DOCKER_IP}:27017 -N $REMOTE_SSH_SERVER
+}
+
 source ./.env
 $@

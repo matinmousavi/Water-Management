@@ -1,4 +1,4 @@
-import mongoose from '../config/database.js'
+import mongoose from 'mongoose'
 
 const noteSchema = new mongoose.Schema(
 	{
@@ -26,6 +26,10 @@ const noteSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 			trim: true,
+		},
+		isRead: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	{ timestamps: true }
