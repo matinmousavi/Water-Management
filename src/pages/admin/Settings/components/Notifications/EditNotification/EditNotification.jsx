@@ -97,16 +97,18 @@ const EditNotification = ({ template, setTemplate, title }) => {
 				width={520}
 				onOk={handleOk}
 			>
-				<Flex vertical gap={10}>
-					<Typography.Title level={5} className={styles.titlePlaceholders}>
-						{template.key === 'otp' ? (
-							<p>متن پیامک را با در نظر گرفتن متغییر زیر وارد کنید:</p>
-						) : (
-							<p>متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:</p>
-						)}
-					</Typography.Title>
+				<Flex vertical gap={20}>
+					<Flex vertical gap={10}>
+						<Typography.Title level={5} className={styles.titlePlaceholders}>
+							{template.key === 'otp' ? (
+								<p>متن پیامک را با در نظر گرفتن متغییر زیر وارد کنید:</p>
+							) : (
+								<p>متن پیامک را با در نظر گرفتن متغییرهای زیر وارد کنید:</p>
+							)}
+						</Typography.Title>
 
-					{renderPlaceholders()}
+						{renderPlaceholders()}
+					</Flex>
 
 					<Form form={form}>
 						<Form.Item name='text' initialValue={renderDefaultText()}>
