@@ -1,15 +1,30 @@
 import { Table, Tag } from 'antd'
 import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import useContainerHeight from '../../../../../hooks/useContainerHeight'
 
 const LandsTable = ({ landsData = [] }) => {
+	const [containerRef, height] = useContainerHeight(40)
+	const [pageSize, setPageSize] = useState(6)
+	const tableWrapperRef = useRef(null)
+
+	useEffect(() => {
+		if (!tableWrapperRef.current) return
+		const firstRow = tableWrapperRef.current.querySelector('.ant-table-row')
+		if (firstRow) {
+			const rowHeight = firstRow.getBoundingClientRect().height
+			if (rowHeight > 0) {
+				const visibleRows = Math.floor(height / rowHeight)
+				setPageSize(visibleRows > 0 ? visibleRows : 1)
+			}
+		}
+	}, [height, landsData])
+
 	const allIrrigators = Array.from(
 		new Set(landsData.flatMap(land => (land.wells || []).filter(well => well.irrigator).map(well => `${well.irrigator.fullName}`)))
 	).map(name => ({ text: name, value: name }))
 
-	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner?.fullName || '-'}`.trim()))).map(name => ({
-		text: name,
-		value: name,
-	}))
+	const uniqueOwners = Array.from(new Set(landsData.map(land => `${land.owner?.fullName || '-'}`.trim()))).map(name => ({ text: name, value: name }))
 
 	const uniqueLandNames = Array.from(new Set(landsData.map(land => land.title || '-'))).map(name => ({ text: name, value: name }))
 
@@ -42,7 +57,7 @@ const LandsTable = ({ landsData = [] }) => {
 			filterSearch: true,
 			render: (_, record) => {
 				const name = record.owner?.fullName || '-'
-				return record.owner?._id ? <Link to={`/users/${record.owner._id}`}>{`${name}`.trim()}</Link> : '-'
+				return record.owner?._id ? <Link to={`/users/${record.owner._id}`}>{name}</Link> : '-'
 			},
 		},
 		{
@@ -113,19 +128,28 @@ const LandsTable = ({ landsData = [] }) => {
 	]
 
 	return (
-		<Table
-			size='middle'
-			columns={columns}
-			rowKey='_id'
-			dataSource={landsData}
-			pagination={{
-				position: ['bottomCenter'],
-				total: landsData.length,
-				pageSize: 6,
-			}}
-			scroll={{ x: 'max-content' }}
-			bordered
-		/>
+		<div ref={containerRef}>
+			<div ref={tableWrapperRef}>
+				<Table
+					size='middle'
+					columns={columns}
+					rowKey='_id'
+					dataSource={landsData}
+					pagination={
+						landsData.length > pageSize
+							? {
+									position: ['bottomCenter'],
+									total: landsData.length,
+									pageSize,
+									showSizeChanger: false,
+							  }
+							: false
+					}
+					scroll={{ x: 'max-content', y: height }}
+					bordered
+				/>
+			</div>
+		</div>
 	)
 }
 
