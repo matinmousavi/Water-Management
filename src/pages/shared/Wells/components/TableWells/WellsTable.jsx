@@ -2,13 +2,25 @@ import { Table, Tag, Input } from 'antd'
 import { Link } from 'react-router'
 import { useUser } from '../../../../../contexts/UserContext'
 import useContainerHeight from '../../../../../hooks/useContainerHeight'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const WellsTable = ({ WellsData }) => {
-	const { isIrrigator } = useUser()
+	const { isIrrigator, isAdmin } = useUser()
 	const [containerRef, height] = useContainerHeight(40)
-	const [searchedColumn, setSearchedColumn] = useState('')
-	const { isAdmin } = useUser()
+	const [pageSize, setPageSize] = useState(6)
+	const tableWrapperRef = useRef(null)
+
+	useEffect(() => {
+		if (!tableWrapperRef.current) return
+		const firstRow = tableWrapperRef.current.querySelector('.ant-table-row')
+		if (firstRow) {
+			const rowHeight = firstRow.getBoundingClientRect().height
+			if (rowHeight > 0) {
+				const visibleRows = Math.floor(height / rowHeight)
+				setPageSize(visibleRows > 0 ? visibleRows : 1)
+			}
+		}
+	}, [height, WellsData])
 
 	const getColumnSearchProps = dataIndex => ({
 		filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -17,21 +29,11 @@ const WellsTable = ({ WellsData }) => {
 					placeholder={`جستجو ${dataIndex}`}
 					value={selectedKeys[0]}
 					onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-					onPressEnter={() => {
-						confirm()
-						setSearchedColumn(dataIndex)
-					}}
+					onPressEnter={confirm}
 					style={{ marginBottom: 8, display: 'block' }}
 				/>
 				<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-					<a
-						onClick={() => {
-							confirm()
-							setSearchedColumn(dataIndex)
-						}}
-					>
-						اعمال
-					</a>
+					<a onClick={confirm}>اعمال</a>
 					<a
 						onClick={() => {
 							clearFilters()
@@ -75,11 +77,11 @@ const WellsTable = ({ WellsData }) => {
 						placeholder='جستجو میرآب'
 						value={selectedKeys[0]}
 						onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-						onPressEnter={() => confirm()}
+						onPressEnter={confirm}
 						style={{ marginBottom: 8, display: 'block' }}
 					/>
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-						<a onClick={() => confirm()}>اعمال</a>
+						<a onClick={confirm}>اعمال</a>
 						<a
 							onClick={() => {
 								clearFilters()
@@ -114,20 +116,26 @@ const WellsTable = ({ WellsData }) => {
 
 	return (
 		<div ref={containerRef}>
-			<Table
-				size='middle'
-				columns={columns}
-				dataSource={WellsData}
-				rowKey={record => record._id}
-				pagination={{
-					position: ['bottomCenter'],
-					total: WellsData.length,
-					pageSize: 6,
-					showSizeChanger: false,
-				}}
-				scroll={{ y: height }}
-				bordered
-			/>
+			<div ref={tableWrapperRef}>
+				<Table
+					size='middle'
+					columns={columns}
+					dataSource={WellsData}
+					rowKey={record => record._id}
+					pagination={
+						WellsData.length > pageSize
+							? {
+									position: ['bottomCenter'],
+									total: WellsData.length,
+									pageSize,
+									showSizeChanger: false,
+							  }
+							: false
+					}
+					scroll={{ y: height }}
+					bordered
+				/>
+			</div>
 		</div>
 	)
 }

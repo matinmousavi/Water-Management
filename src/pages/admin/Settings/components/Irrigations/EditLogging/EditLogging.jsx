@@ -71,7 +71,7 @@ const EditLogging = ({ value, setValues, title }) => {
 				width={520}
 				onOk={handleOk}
 			>
-				<Flex gap={10} justify='space-between' align='center' className={styles['modal-content']}>
+				<Flex gap={24} vertical justify='space-between' className={styles['modal-content']}>
 					<Typography.Title level={5} className={styles.titlePlaceholders}>
 						{getQuestion()}
 					</Typography.Title>

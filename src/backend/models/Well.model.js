@@ -30,16 +30,6 @@ const wellSchema = new mongoose.Schema(
 			type: Date,
 			required: true,
 		},
-		offTime: {
-			start: {
-				type: Date,
-				required: true,
-			},
-			end: {
-				type: Date,
-				required: true,
-			},
-		},
 		status: {
 			type: String,
 			enum: ['active', 'inactive'],

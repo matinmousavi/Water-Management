@@ -162,6 +162,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		? async () => {
 				try {
 					const values = await form.validateFields()
+
 					setIsLoading(true)
 
 					let payload
