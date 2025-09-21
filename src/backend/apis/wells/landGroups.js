@@ -123,28 +123,6 @@ router.get('/:groupId', async (req, res) => {
 		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
-		const lastIrrigationDoc = await Irrigation.findOne({
-			well: well._id,
-			landGroup: group.groupId,
-			isGroupLog: true,
-		})
-			.sort({ startedAt: -1 })
-			.lean()
-
-		const lastIrrigation = lastIrrigationDoc ? lastIrrigationDoc.startedAt : null
-
-		let nextIrrigationAt = null
-		if (well.cycleDays && well.cycleStartDate) {
-			const now = new Date()
-			const start = new Date(well.cycleStartDate)
-			const cycleDays = well.cycleDays
-
-			const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24))
-			const nextCycle = Math.ceil((diffDays + 1) / cycleDays) * cycleDays
-			nextIrrigationAt = new Date(start)
-			nextIrrigationAt.setDate(start.getDate() + nextCycle)
-		}
-
 		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
 		const totalSchedulesInCycle = schedules.length
 		const totalRequiredMs = getTotalDurationMs(schedules)
@@ -162,9 +140,20 @@ router.get('/:groupId', async (req, res) => {
 			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
 		}, 0)
 
+		const nextIrrigationLog = await Irrigation.find({
+			well: wellId,
+			landGroup: group.groupId,
+			endedAt: null,
+		})
+			.sort({ startedAt: 1 })
+			.lean()
+
+		const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
+
 		const requiredWater = msToHoursMinutes(totalRequiredMs)
 		const receivedWater = msToHoursMinutes(receivedMs)
 		const remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
+		const receivedWaterInCycle = msToHoursMinutes(receivedMs)
 
 		return res.status(200).json({
 			groupId: group.groupId,
@@ -182,13 +171,13 @@ router.get('/:groupId', async (req, res) => {
 					: null,
 				location: land.location || '',
 			})),
-			lastIrrigation,
-			nextIrrigationAt,
+			lastIrrigation: irrigations.length ? irrigations[irrigations.length - 1].startedAt : null,
+			nextIrrigation,
 			requiredWater,
 			receivedWater,
 			remainingWater,
 			totalSchedulesInCycle,
-			receivedWaterInCycle: receivedWater,
+			receivedWaterInCycle,
 		})
 	} catch (err) {
 		console.error(err)
