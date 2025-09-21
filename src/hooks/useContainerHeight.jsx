@@ -13,10 +13,8 @@ const useContainerHeight = (offset = 0) => {
 			}
 		}
 
-		// First run
 		updateHeight()
 
-		// ResizeObserver for container itself
 		const resizeObserver = new ResizeObserver(() => {
 			updateHeight()
 		})
@@ -25,7 +23,6 @@ const useContainerHeight = (offset = 0) => {
 			resizeObserver.observe(containerRef.current)
 		}
 
-		// Fallback to window resize
 		window.addEventListener('resize', updateHeight)
 
 		return () => {
