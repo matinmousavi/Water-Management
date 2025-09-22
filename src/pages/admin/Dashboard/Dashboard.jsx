@@ -117,7 +117,7 @@ const Dashboard = () => {
 
 	const wellsData = (api.data?.wells || []).map(item => ({
 		...item,
-		land: item.land || item.group || '---',
+		land: item.land ? item.land.title || item.land.id : item.group ? item.group.title || item.group.id : '---',
 	}))
 
 	const delayedLogs = wellsData.filter(w => w.status === 'تاخیر')

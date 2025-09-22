@@ -17,7 +17,7 @@ import styles from './LandLogsMobile.module.css'
 dayjs.extend(jalaliday)
 dayjs.extend(customParseFormat)
 
-const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000 // 2h
+const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000
 
 const parseDurationToMs = str => {
 	if (!str) return null
@@ -104,7 +104,7 @@ const LandLogsMobile = ({ data }) => {
 		try {
 			const now = dayjs()
 			const t = dayjs(selectedTime, 'HH:mm')
-			const combined = now.hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
+			const combined = now.set('hour', t.hour()).set('minute', t.minute())
 
 			const currentWell = data?.wells?.[0]
 
@@ -183,9 +183,36 @@ const LandLogsMobile = ({ data }) => {
 		setShowWellInUseWarning(false)
 		setShowEndOtherDrawer(true)
 	}
+	const handleStop = () => {
+		const currentWell = data?.wells?.find(w => w.irrigatingLand?._id === data._id) || data?.wells?.[0]
+		const ongoingLog = logs.find(l => l.isOngoing)
+
+		if (!ongoingLog) {
+			setEndNoticeDrawer(false)
+			setShowEndDrawer(true)
+			return
+		}
+
+		const startedAtMs = dayjs(ongoingLog.startedAt).valueOf()
+		const nowMs = Date.now()
+		const elapsedMs = nowMs - startedAtMs
+
+		let totalReceived = currentWell?.receivedWater || 0
+		const flowRate = currentWell?.flowRate || 1
+		totalReceived += elapsedMs * flowRate
+		if (totalReceived >= currentWell?.requiredWater || elapsedMs >= remainingMs) {
+			setEndNoticeDrawer(false)
+			setShowEndDrawer(true)
+		} else {
+			setEndNoticeDrawer(true)
+			setShowEndDrawer(false)
+		}
+	}
 
 	const currentWell = data?.wells?.find(w => w.irrigatingLand?._id === data._id) || data?.wells?.[0]
-	let remainingMs = parseDurationToMs(currentWell?.remainingWater)
+	const requiredWaterMs = parseDurationToMs(currentWell?.requiredWater)
+	const remainingWaterMs = parseDurationToMs(currentWell?.remainingWater)
+	let remainingMs = remainingWaterMs
 	if (!remainingMs || Number.isNaN(remainingMs)) remainingMs = DEFAULT_DURATION_MS
 
 	return (
@@ -193,7 +220,7 @@ const LandLogsMobile = ({ data }) => {
 			<TableLogsMobile
 				data={data}
 				logs={logs}
-				handleStop={() => setEndNoticeDrawer(true)}
+				handleStop={handleStop}
 				onStartClick={handleStartClick}
 				isIrrigating={isIrrigating}
 				startedAt={startedAt}
@@ -224,7 +251,7 @@ const LandLogsMobile = ({ data }) => {
 			<EndNoticeDrawer
 				isOpen={endNoticeDrawer}
 				onSubmit={handleEndNotice}
-				timer={<TimerDisplay startedAt={startedAt} durationMs={remainingMs} />}
+				timer={<TimerDisplay landId={landId} startedAt={startedAt} requiredWaterMs={requiredWaterMs} remainingWaterMs={remainingWaterMs} />}
 				onClose={CancelTimeEnd}
 			/>
 

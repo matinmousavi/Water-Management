@@ -19,7 +19,8 @@ const Groups = () => {
 	landApi.init(`lands`)
 	groupApi.init(`wells/${wellId}/land-groups/${groupId}`)
 
-	const groupData = groupApi.data?.landGroup
+	const groupData = groupApi.data
+	console.log(groupData)
 
 	const items = [
 		{

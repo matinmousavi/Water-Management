@@ -57,6 +57,15 @@ const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, s
 			),
 		},
 	]
+	const currentWell = data?.wells?.[0] // یا همون چاه که آبیاری داره
+	const parseDurationToMs = str => {
+		if (!str) return 0
+		const [h, m] = str.split(':').map(Number)
+		return (h * 60 * 60 + m * 60) * 1000
+	}
+
+	const remainingWaterMs = parseDurationToMs(currentWell?.remainingWater)
+	const requiredWaterMs = parseDurationToMs(currentWell?.requiredWater)
 
 	return (
 		<>
@@ -80,7 +89,7 @@ const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, s
 				{isCurrentLandIrrigating && ongoingLog ? (
 					<>
 						<Text className={styles.timerText}>
-							<TimerDisplay startedAt={startedAt} durationMs={durationMs} />
+							<TimerDisplay landId={data._id} startedAt={startedAt} requiredWaterMs={requiredWaterMs} remainingWaterMs={remainingWaterMs} />
 						</Text>
 						<Button type='primary' onClick={handleStop} className={styles.endButton}>
 							پایان آبیاری
