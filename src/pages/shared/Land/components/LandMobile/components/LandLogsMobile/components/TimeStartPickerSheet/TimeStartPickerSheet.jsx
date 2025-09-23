@@ -9,7 +9,7 @@ const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
-const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
+const TimeStartPickerSheet = ({ onSubmit, now, onClose, isOpen = true }) => {
 	const apiTime = useAPI()
 	apiTime.init('settings/irrigations')
 
@@ -19,17 +19,18 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	const scrollTimeout = useRef(null)
 
 	useEffect(() => {
+		if (!isOpen || !now) return
 		const margin = apiTime.data?.data?.logTimeMarginMinutes?.time || 30
-		const base = dayjs().subtract(margin, 'minute')
+		const base = dayjs(now).subtract(margin, 'minute')
 		const list = []
 		for (let i = 0; i <= margin; i++) {
 			list.push(base.add(i, 'minute'))
 		}
 		setMinuteRange(list)
-		const now = dayjs()
-		const currentIndex = list.findIndex(t => t.minute() === now.minute())
+
+		const currentIndex = list.findIndex(t => t.hour() === dayjs(now).hour() && t.minute() === dayjs(now).minute())
 		setSelectedIndex(currentIndex >= 0 ? currentIndex : list.length - 1)
-	}, [apiTime.data])
+	}, [apiTime.data, now, isOpen])
 
 	useEffect(() => {
 		if (listRef.current && minuteRange.length > 0) {

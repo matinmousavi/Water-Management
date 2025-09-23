@@ -49,8 +49,13 @@ const LogsGroup = ({ wellId, group }) => {
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [startedAt, setStartedAt] = useState(null)
 	const [durationMs, setDurationMs] = useState(null)
+	const [currentTime, setCurrentTime] = useState(dayjs())
 
 	const getLocalStorageKey = () => `irrigation_group_start_${groupId}`
+	const handleOpenStart = () => {
+		setCurrentTime(dayjs())
+		setShowStartDrawer(true)
+	}
 
 	useEffect(() => {
 		if (group?.logs?.length) {
@@ -161,7 +166,7 @@ const LogsGroup = ({ wellId, group }) => {
 				isOngoing: false,
 			})
 
-			const updated = await api.get(`irrigations?landGroupId=${groupId}&wellId=${wellId}`)
+			const updated = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
 			setLogs(uniqueGroupLogs(updated.irrigations))
 
 			setIsIrrigating(false)
@@ -194,20 +199,25 @@ const LogsGroup = ({ wellId, group }) => {
 				{isIrrigating ? (
 					<Flex align='center' gap={12} className={styles.footerContent}>
 						<Text className={styles.timerText}>
-							<TimerDisplay startedAt={startedAt} durationMs={durationMs} />
+							<TimerDisplay
+								landId={groupId}
+								startedAt={startedAt}
+								requiredWaterMs={parseTimeToMs(group?.requiredWater)}
+								remainingWaterMs={parseTimeToMs(group?.remainingWater)}
+							/>
 						</Text>
 						<Button type='default' className={styles.textBtn} onClick={() => setEndNoticeDrawer(true)}>
 							پایان آبیاری
 						</Button>
 					</Flex>
 				) : (
-					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={() => setShowStartDrawer(true)}>
+					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={handleOpenStart}>
 						شروع آبیاری
 					</Button>
 				)}
 			</div>
 
-			<TimeStartPickerSheet isOpen={showStartDrawer} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
+			<TimeStartPickerSheet isOpen={showStartDrawer} now={currentTime} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 			<TimeEndPickerSheet
 				isOpen={showEndDrawer}
 				title='ثبت زمان پایان آبیاری گروهی'
@@ -221,7 +231,14 @@ const LogsGroup = ({ wellId, group }) => {
 					setEndNoticeDrawer(false)
 					setShowEndDrawer(true)
 				}}
-				timer={<TimerDisplay startedAt={startedAt} durationMs={durationMs} />}
+				timer={
+					<TimerDisplay
+						landId={groupId}
+						startedAt={startedAt}
+						requiredWaterMs={parseTimeToMs(group?.requiredWater)}
+						remainingWaterMs={parseTimeToMs(group?.remainingWater)}
+					/>
+				}
 				onClose={() => setEndNoticeDrawer(false)}
 			/>
 		</div>

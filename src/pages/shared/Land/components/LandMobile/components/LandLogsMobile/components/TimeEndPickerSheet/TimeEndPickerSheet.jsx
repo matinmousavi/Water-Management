@@ -15,15 +15,17 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true, title = 'ثبت 
 	const scrollTimeout = useRef(null)
 
 	useEffect(() => {
-		const base = dayjs()
-		const list = []
-		for (let i = -30; i <= 0; i++) {
-			list.push(base.add(i, 'minute'))
+		if (isOpen) {
+			const base = dayjs()
+			const list = []
+			for (let i = -30; i <= 0; i++) {
+				list.push(base.add(i, 'minute'))
+			}
+			setMinuteRange(list)
+			const currentIndex = list.findIndex(t => t.minute() === base.minute())
+			setSelectedIndex(currentIndex >= 0 ? currentIndex : list.length - 1)
 		}
-		setMinuteRange(list)
-		const currentIndex = list.findIndex(t => t.minute() === base.minute())
-		setSelectedIndex(currentIndex >= 0 ? currentIndex : list.length - 1)
-	}, [])
+	}, [isOpen])
 
 	useEffect(() => {
 		if (listRef.current && minuteRange.length > 0) {
