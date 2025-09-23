@@ -118,19 +118,16 @@ router.get('/:groupId', async (req, res) => {
 		const group = well.landGroups.find(g => g.groupId.equals(groupId))
 		if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
 
-		// محاسبه شروع و پایان سیکل فعلی
 		const startDate = new Date(well.cycleStartDate)
 		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
 		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
 		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
-		// برنامه‌ها
 		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
 		const totalSchedulesInCycle = schedules.length
 		const totalRequiredMs = getTotalDurationMs(schedules)
 
-		// لاگ‌های گروه در سیکل
 		const irrigations = await Irrigation.find({
 			well: wellId,
 			landGroup: group.groupId,
@@ -139,13 +136,11 @@ router.get('/:groupId', async (req, res) => {
 			endedAt: { $lte: cycleEnd },
 		}).lean()
 
-		// محاسبه زمان دریافتی
 		const receivedMs = irrigations.reduce((sum, log) => {
 			if (!log.endedAt) return sum
 			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
 		}, 0)
 
-		// لاگ آبیاری در حال انجام
 		const nextIrrigationLog = await Irrigation.find({
 			well: wellId,
 			landGroup: group.groupId,
@@ -173,6 +168,7 @@ router.get('/:groupId', async (req, res) => {
 					startedAt: log.startedAt,
 					endedAt: log.endedAt,
 					duration: log.duration,
+					isOngoing: log.isOngoing,
 					note: log.note,
 				})
 			}
