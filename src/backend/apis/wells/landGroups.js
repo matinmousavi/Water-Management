@@ -136,7 +136,17 @@ router.get('/:groupId', async (req, res) => {
 			endedAt: { $lte: cycleEnd },
 		}).lean()
 
-		const receivedMs = irrigations.reduce((sum, log) => {
+		const uniqueLogsMap = new Map()
+		for (const log of irrigations) {
+			const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
+			if (!uniqueLogsMap.has(key)) {
+				uniqueLogsMap.set(key, log)
+			}
+		}
+
+		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
+
+		const receivedMs = logs.reduce((sum, log) => {
 			if (!log.endedAt) return sum
 			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
 		}, 0)
@@ -159,23 +169,6 @@ router.get('/:groupId', async (req, res) => {
 			.sort({ createdAt: -1 })
 			.lean()
 
-		const uniqueLogsMap = new Map()
-		for (const log of irrigations) {
-			const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
-			if (!uniqueLogsMap.has(key)) {
-				uniqueLogsMap.set(key, {
-					_id: log._id,
-					startedAt: log.startedAt,
-					endedAt: log.endedAt,
-					duration: log.duration,
-					isOngoing: log.isOngoing,
-					note: log.note,
-				})
-			}
-		}
-
-		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
-
 		const requiredWater = msToHoursMinutes(totalRequiredMs)
 		const receivedWater = msToHoursMinutes(receivedMs)
 		const remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
@@ -197,7 +190,7 @@ router.get('/:groupId', async (req, res) => {
 					: null,
 				location: land.location || '',
 			})),
-			lastIrrigation: irrigations.length ? irrigations[irrigations.length - 1].startedAt : null,
+			lastIrrigation: logs.length ? logs[logs.length - 1].startedAt : null,
 			nextIrrigation,
 			requiredWater,
 			receivedWater,
