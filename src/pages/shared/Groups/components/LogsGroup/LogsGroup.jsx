@@ -51,26 +51,32 @@ const LogsGroup = ({ wellId, group }) => {
 	const [durationMs, setDurationMs] = useState(null)
 	const [currentTime, setCurrentTime] = useState(dayjs())
 
-	const getLocalStorageKey = () => `irrigation_group_start_${groupId}`
+	const lsKey = `irrigation_group_start_${groupId}`
+
+	const getLogsFromAPI = async () => {
+		try {
+			const response = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
+			setLogs(uniqueGroupLogs(response?.irrigations || []))
+		} catch (e) {
+			console.error('خطا در دریافت لاگ‌ها:', e)
+		}
+	}
+
+	useEffect(() => {
+		getLogsFromAPI()
+	}, [groupId, wellId])
+
 	const handleOpenStart = () => {
 		setCurrentTime(dayjs())
 		setShowStartDrawer(true)
 	}
 
 	useEffect(() => {
-		if (group?.logs?.length) {
-			setLogs(uniqueGroupLogs(group?.logs))
-		} else {
-			setLogs([])
-		}
-	}, [group?.logs])
-
-	useEffect(() => {
 		if (!logs || logs.length === 0) {
 			setIsIrrigating(false)
 			setStartedAt(null)
 			setDurationMs(null)
-			localStorage.removeItem(getLocalStorageKey())
+			localStorage.removeItem(lsKey)
 			return
 		}
 
@@ -79,18 +85,29 @@ const LogsGroup = ({ wellId, group }) => {
 			setIsIrrigating(false)
 			setStartedAt(null)
 			setDurationMs(0)
-			localStorage.removeItem(getLocalStorageKey())
+			localStorage.removeItem(lsKey)
 			return
 		}
 
 		setIsIrrigating(true)
-		const startMs = dayjs(ongoingLog.startedAt).valueOf()
-		localStorage.setItem(getLocalStorageKey(), String(startMs))
-		setStartedAt(startMs)
+		const apiStartMs = dayjs(ongoingLog.startedAt).valueOf()
+		const lsValMs = Number(localStorage.getItem(lsKey)) || null
+
+		if (!lsValMs || Number.isNaN(lsValMs)) {
+			localStorage.setItem(lsKey, String(apiStartMs))
+			setStartedAt(apiStartMs)
+		} else {
+			const drift = Math.abs(lsValMs - apiStartMs)
+			if (drift > 2000) {
+				localStorage.setItem(lsKey, String(apiStartMs))
+				setStartedAt(apiStartMs)
+			} else {
+				setStartedAt(lsValMs)
+			}
+		}
 
 		const durationStr = ongoingLog.receivedWater || ongoingLog.requiredWater || '02:00'
-		const duration = parseTimeToMs(durationStr)
-		setDurationMs(duration)
+		setDurationMs(parseTimeToMs(durationStr))
 	}, [logs])
 
 	const columns = [
@@ -145,8 +162,14 @@ const LogsGroup = ({ wellId, group }) => {
 				isOngoing: true,
 			})
 
-			const newLog = response?.irrigations[0]
-			if (newLog) setLogs(prev => uniqueGroupLogs([newLog, ...prev]))
+			const newLog = response?.irrigations?.[0]
+			if (newLog) {
+				const startMs = dayjs(newLog.startedAt).valueOf()
+				localStorage.setItem(lsKey, String(startMs))
+				setStartedAt(startMs)
+				setIsIrrigating(true)
+				setLogs(prev => [newLog, ...prev])
+			}
 		} catch (e) {
 			console.error('خطا در شروع آبیاری گروهی:', e)
 		}
@@ -172,11 +195,12 @@ const LogsGroup = ({ wellId, group }) => {
 			setIsIrrigating(false)
 			setStartedAt(null)
 			setDurationMs(null)
-			localStorage.removeItem(getLocalStorageKey())
+			localStorage.removeItem(lsKey)
 		} catch (e) {
 			console.error('خطا در پایان آبیاری گروهی:', e)
 		}
 	}
+	console.log(logs)
 
 	return (
 		<div className={styles.container}>
@@ -191,6 +215,7 @@ const LogsGroup = ({ wellId, group }) => {
 						className={styles.table}
 						dataSource={logs}
 						columns={columns}
+						loading={api.isLoading}
 					/>
 				</Flex>
 			</Card>
