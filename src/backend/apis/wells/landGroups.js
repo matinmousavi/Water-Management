@@ -3,6 +3,7 @@ import Well from '../../models/Well.model.js'
 import mongoose from 'mongoose'
 import Irrigation from '../../models/Irrigation.model.js'
 import Schedule from '../../models/Schedule.model.js'
+import Note from '../../models/Note.model.js'
 
 const router = Router({ mergeParams: true })
 
@@ -117,16 +118,19 @@ router.get('/:groupId', async (req, res) => {
 		const group = well.landGroups.find(g => g.groupId.equals(groupId))
 		if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
 
+		// محاسبه شروع و پایان سیکل فعلی
 		const startDate = new Date(well.cycleStartDate)
 		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
 		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
 		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
+		// برنامه‌ها
 		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
 		const totalSchedulesInCycle = schedules.length
 		const totalRequiredMs = getTotalDurationMs(schedules)
 
+		// لاگ‌های گروه در سیکل
 		const irrigations = await Irrigation.find({
 			well: wellId,
 			landGroup: group.groupId,
@@ -135,20 +139,46 @@ router.get('/:groupId', async (req, res) => {
 			endedAt: { $lte: cycleEnd },
 		}).lean()
 
+		// محاسبه زمان دریافتی
 		const receivedMs = irrigations.reduce((sum, log) => {
 			if (!log.endedAt) return sum
 			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
 		}, 0)
 
+		// لاگ آبیاری در حال انجام
 		const nextIrrigationLog = await Irrigation.find({
 			well: wellId,
 			landGroup: group.groupId,
 			endedAt: null,
+			isGroupLog: true,
 		})
 			.sort({ startedAt: 1 })
 			.lean()
 
 		const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
+
+		const notes = await Note.find({
+			type: 'landGroup',
+			reference: group.groupId,
+		})
+			.sort({ createdAt: -1 })
+			.lean()
+
+		const uniqueLogsMap = new Map()
+		for (const log of irrigations) {
+			const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
+			if (!uniqueLogsMap.has(key)) {
+				uniqueLogsMap.set(key, {
+					_id: log._id,
+					startedAt: log.startedAt,
+					endedAt: log.endedAt,
+					duration: log.duration,
+					note: log.note,
+				})
+			}
+		}
+
+		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
 
 		const requiredWater = msToHoursMinutes(totalRequiredMs)
 		const receivedWater = msToHoursMinutes(receivedMs)
@@ -178,6 +208,8 @@ router.get('/:groupId', async (req, res) => {
 			remainingWater,
 			totalSchedulesInCycle,
 			receivedWaterInCycle,
+			logs,
+			notes,
 		})
 	} catch (err) {
 		console.error(err)

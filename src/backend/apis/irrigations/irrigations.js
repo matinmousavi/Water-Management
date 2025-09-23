@@ -141,17 +141,30 @@ router.get('/', async (req, res) => {
 			if (safeQuery[field]) filter[field] = safeQuery[field]
 		})
 
-		const irrigations = await Irrigation.find(filter)
+		let irrigations = await Irrigation.find(filter)
 			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
 			.populate('well', 'title landGroups')
 			.populate('createdBy', 'fullName mobile')
 			.sort({ createdAt: -1 })
 			.lean()
 
+		if (safeQuery.landGroup) {
+			const uniqueLogsMap = new Map()
+
+			for (const log of irrigations) {
+				const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
+				if (!uniqueLogsMap.has(key)) {
+					uniqueLogsMap.set(key, log)
+				}
+			}
+
+			irrigations = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
+		}
+
 		for (const irrigation of irrigations) {
 			irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
 			irrigation.totalReceivedWater = await calculateTotalDuration({
-				landId: irrigation.landGroup ? null : irrigation.land._id,
+				landId: irrigation.landGroup ? null : irrigation.land?._id,
 				landGroupId: irrigation.landGroup || null,
 			})
 		}
@@ -160,33 +173,6 @@ router.get('/', async (req, res) => {
 	} catch (err) {
 		console.error(err.message)
 		res.status(500).json({ message: 'خطا در دریافت لاگ‌های آبیاری!' })
-	}
-})
-
-// GET single irrigation
-router.get('/:irrigationId', async (req, res) => {
-	try {
-		const { irrigationId } = req.params
-		if (!mongoose.isValidObjectId(irrigationId)) return res.status(400).json({ message: 'شناسه آبیاری معتبر نیست.' })
-
-		const irrigation = await Irrigation.findById(irrigationId)
-			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
-			.populate('well', 'title landGroups')
-			.populate('createdBy', 'fullName mobile')
-			.lean()
-
-		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
-
-		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
-		irrigation.totalReceivedWater = await calculateTotalDuration({
-			landId: irrigation.landGroup ? null : irrigation.land._id,
-			landGroupId: irrigation.landGroup || null,
-		})
-
-		res.status(200).json({ irrigation })
-	} catch (err) {
-		console.error(err.message)
-		res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
 })
 
@@ -296,6 +282,33 @@ router.post('/', async (req, res) => {
 			return res.status(400).json({ message: `${fieldName} الزامی یا نامعتبر است.` })
 		}
 		return res.status(500).json({ message: 'خطا در ثبت آبیاری.' })
+	}
+})
+
+// GET single irrigation
+router.get('/:irrigationId', async (req, res) => {
+	try {
+		const { irrigationId } = req.params
+		if (!mongoose.isValidObjectId(irrigationId)) return res.status(400).json({ message: 'شناسه آبیاری معتبر نیست.' })
+
+		const irrigation = await Irrigation.findById(irrigationId)
+			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
+			.populate('well', 'title landGroups')
+			.populate('createdBy', 'fullName mobile')
+			.lean()
+
+		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
+
+		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+		irrigation.totalReceivedWater = await calculateTotalDuration({
+			landId: irrigation.landGroup ? null : irrigation.land._id,
+			landGroupId: irrigation.landGroup || null,
+		})
+
+		res.status(200).json({ irrigation })
+	} catch (err) {
+		console.error(err.message)
+		res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
 })
 
