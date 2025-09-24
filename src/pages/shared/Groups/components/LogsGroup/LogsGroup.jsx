@@ -20,15 +20,6 @@ dayjs.extend(customParseFormat)
 
 const { Text } = Typography
 
-const uniqueGroupLogs = logs => {
-	const map = new Map()
-	logs.forEach(item => {
-		const key = `${item.landGroupId || item.landGroup}_${item.startedAt}`
-		if (!map.has(key)) map.set(key, item)
-	})
-	return Array.from(map.values())
-}
-
 const parseTimeToMs = str => {
 	if (!str) return 0
 	const [h, m] = str.split(':').map(Number)
@@ -56,7 +47,7 @@ const LogsGroup = ({ wellId, group }) => {
 	const getLogsFromAPI = async () => {
 		try {
 			const response = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
-			setLogs(uniqueGroupLogs(response?.irrigations || []))
+			setLogs(response?.irrigations || [])
 		} catch (e) {
 			console.error('خطا در دریافت لاگ‌ها:', e)
 		}
@@ -190,7 +181,7 @@ const LogsGroup = ({ wellId, group }) => {
 			})
 
 			const updated = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
-			setLogs(uniqueGroupLogs(updated.irrigations))
+			setLogs(updated.irrigations || [])
 
 			setIsIrrigating(false)
 			setStartedAt(null)
