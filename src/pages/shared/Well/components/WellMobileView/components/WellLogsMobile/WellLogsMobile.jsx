@@ -132,29 +132,50 @@ const WellLogsMobile = ({ wellId, data }) => {
 						</Flex>
 					</Flex>
 				)}
-
-				<Flex gap={10}>
-					<Flex gap={8} className={styles.cardType}>
-						<img src={iconClock} alt='icon clock' />
-						<Text className={styles.label}>آب دریافت شده</Text>
-					</Flex>
-					<Flex className={styles.cardRole}>
-						<Text className={styles.text_irrigation}>{data?.receivedWater || '-'}</Text>
-					</Flex>
-				</Flex>
-
 				{!isThisLogOngoing && (
-					<Flex gap={10}>
-						<Flex gap={8} className={styles.cardType}>
-							<img src={iconClock} alt='icon clock' />
-							<Text className={styles.label}>آخرین زمان آبیاری</Text>
+					<>
+						<Flex gap={10}>
+							<Flex gap={8} className={styles.cardType}>
+								<img src={iconClock} alt='icon clock' />
+								<Text className={styles.label}>سهمیه دریافت شده</Text>
+							</Flex>
+							<Flex className={styles.cardRole}>
+								<Text className={styles.text_irrigation}>{data?.receivedWater || '-'}</Text>
+							</Flex>
 						</Flex>
-						<Flex className={styles.cardRole}>
-							<Text className={styles.text_irrigation}>
-								{data?.lastIrrigation ? moment(data.lastIrrigation).format('HH:mm - jYYYY/jMM/jDD') : '-'}
-							</Text>
+
+						<Flex gap={10}>
+							<Flex gap={8} className={styles.cardType}>
+								<img src={iconClock} alt='icon clock' />
+								<Text className={styles.label}>مقدار سهمیه</Text>
+							</Flex>
+							<Flex className={styles.cardRole}>
+								<Text className={styles.text_irrigation}>{data?.requiredWater || '-'}</Text>
+							</Flex>
 						</Flex>
-					</Flex>
+
+						<Flex gap={10}>
+							<Flex gap={8} className={styles.cardType}>
+								<img src={iconClock} alt='icon clock' />
+								<Text className={styles.label}>سهمیه باقی مانده</Text>
+							</Flex>
+							<Flex className={styles.cardRole}>
+								<Text className={styles.text_irrigation}>{data?.remainingWater || '-'}</Text>
+							</Flex>
+						</Flex>
+
+						<Flex gap={10}>
+							<Flex gap={8} className={styles.cardType}>
+								<img src={iconClock} alt='icon clock' />
+								<Text className={styles.label}>آخرین زمان آبیاری</Text>
+							</Flex>
+							<Flex className={styles.cardRole}>
+								<Text className={styles.text_irrigation}>
+									{data?.lastIrrigation ? moment(data.lastIrrigation).format('HH:mm - jYYYY/jMM/jDD') : '-'}
+								</Text>
+							</Flex>
+						</Flex>
+					</>
 				)}
 
 				<Flex gap={10}>

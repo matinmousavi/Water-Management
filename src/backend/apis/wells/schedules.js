@@ -3,6 +3,7 @@ import Schedule from '../../models/Schedule.model.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
+import moment from 'moment-jalaali'
 
 const router = Router({ mergeParams: true })
 
@@ -109,15 +110,14 @@ router.get('/today', async (req, res) => {
 		const well = await Well.findById(wellId).lean()
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
-		const startDate = new Date(well.cycleStartDate)
-		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
+		const startDate = moment(well.cycleStartDate)
+		const daysPassed = Math.floor(moment().diff(startDate, 'days'))
 		const dayInCycle = (daysPassed % well.cycleDays) + 1
-		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
 
 		const schedulesToday = await Schedule.find({ well: wellId, day: dayInCycle }).lean()
 		const results = []
 
-		// Group schedules by land/group to optimize queries
+		// Group schedules by land/group
 		const grouped = {}
 		for (const sched of schedulesToday) {
 			const key = sched.targetType === 'land' ? `land-${sched.land}` : `group-${sched.landGroup}`
@@ -136,6 +136,7 @@ router.get('/today', async (req, res) => {
 				targetType: schedGroup.targetType,
 				...(schedGroup.targetType === 'land' ? { land: schedGroup.land } : { landGroup: schedGroup.landGroup }),
 			}).lean()
+
 			const totalSchedulesInCycle = allSchedulesInCycle.length
 			const totalRequiredMs = getTotalDurationMs(allSchedulesInCycle)
 
@@ -143,6 +144,7 @@ router.get('/today', async (req, res) => {
 				well: wellId,
 				...targetFilter,
 			}).lean()
+
 			const receivedMsInCycle = irrigationsInCycle.reduce((sum, log) => {
 				if (!log.endedAt) return sum
 				return sum + (new Date(log.endedAt) - new Date(log.startedAt))
@@ -159,19 +161,31 @@ router.get('/today', async (req, res) => {
 						isOngoing: true,
 						...targetFilter,
 					}).lean()
+
 					if (ongoingLog) {
 						irrigationInProgress = true
 						irrigationStartedAt = ongoingLog.startedAt
-						const startTime = new Date(schedule.startTime)
-						const endTime = new Date(schedule.endTime)
-						const startedAt = new Date(irrigationStartedAt)
-						const durationMs =
-							endTime.getHours() * 3600000 + endTime.getMinutes() * 60000 - (startTime.getHours() * 3600000 + startTime.getMinutes() * 60000)
-						irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
+
+						const startTime = moment(schedule.startTime)
+						const endTime = moment(schedule.endTime)
+						const startedAt = moment(irrigationStartedAt)
+						const durationMs = endTime.diff(startTime)
+						irrigationEndsAt = startedAt.clone().add(durationMs, 'ms')
 					}
 
 					const lastLog = await Irrigation.findOne(targetFilter).sort({ startedAt: -1 }).lean()
 					lastIrrigation = lastLog?.startedAt || null
+				}
+
+				const now = moment()
+				let nextIrrigation = moment(schedule.startTime)
+				if (nextIrrigation.isBefore(now)) {
+					const endTime = moment(schedule.endTime)
+					if (endTime.isAfter(now)) {
+						nextIrrigation = now.clone()
+					} else {
+						nextIrrigation = moment(schedule.startTime).add(well.cycleDays, 'days')
+					}
 				}
 
 				results.push({
@@ -179,7 +193,7 @@ router.get('/today', async (req, res) => {
 					type: schedule.targetType,
 					title: schedule.title,
 					lastIrrigation,
-					nextIrrigation: new Date(startDate.getTime() + (cyclesPassed + 1) * well.cycleDays * 24 * 60 * 60 * 1000),
+					nextIrrigation: nextIrrigation.toISOString(),
 					dayInCycle,
 					landId: schedule.targetType === 'land' ? schedule.land : undefined,
 					groupId: schedule.targetType === 'group' ? schedule.landGroup : undefined,
