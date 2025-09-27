@@ -9,24 +9,28 @@ const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
-const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
+const TimeStartPickerSheet = ({ onSubmit, now, onClose, isOpen = true }) => {
 	const apiTime = useAPI()
 	apiTime.init('settings/irrigations')
 
 	const [minuteRange, setMinuteRange] = useState([])
 	const [selectedIndex, setSelectedIndex] = useState(30)
 	const listRef = useRef(null)
+	const scrollTimeout = useRef(null)
 
 	useEffect(() => {
+		if (!isOpen || !now) return
 		const margin = apiTime.data?.data?.logTimeMarginMinutes?.time || 30
-		const base = dayjs().subtract(margin, 'minute')
+		const base = dayjs(now).subtract(margin, 'minute')
 		const list = []
 		for (let i = 0; i <= margin; i++) {
 			list.push(base.add(i, 'minute'))
 		}
 		setMinuteRange(list)
-		setSelectedIndex(margin)
-	}, [apiTime.data])
+
+		const currentIndex = list.findIndex(t => t.hour() === dayjs(now).hour() && t.minute() === dayjs(now).minute())
+		setSelectedIndex(currentIndex >= 0 ? currentIndex : list.length - 1)
+	}, [apiTime.data, now, isOpen])
 
 	useEffect(() => {
 		if (listRef.current && minuteRange.length > 0) {
@@ -36,9 +40,20 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 	}, [minuteRange, selectedIndex])
 
 	const handleScroll = e => {
-		const scrollTop = e.target.scrollTop
-		const index = Math.round(scrollTop / ITEM_HEIGHT)
-		if (minuteRange[index]) setSelectedIndex(index)
+		if (scrollTimeout.current) clearTimeout(scrollTimeout.current)
+
+		scrollTimeout.current = setTimeout(() => {
+			const scrollTop = e.target.scrollTop
+			const index = Math.round(scrollTop / ITEM_HEIGHT)
+
+			if (minuteRange[index]) {
+				setSelectedIndex(index)
+				listRef.current.scrollTo({
+					top: index * ITEM_HEIGHT,
+					behavior: 'smooth',
+				})
+			}
+		}, 100)
 	}
 
 	const selectedTime = minuteRange[selectedIndex] || dayjs()
@@ -52,9 +67,6 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 				style={{
 					height: ITEM_HEIGHT * VISIBLE_COUNT,
 					overflowY: 'scroll',
-					scrollSnapType: 'y mandatory',
-					scrollPaddingTop: `${ITEM_HEIGHT * CENTER_INDEX}px`,
-					scrollPaddingBottom: `${ITEM_HEIGHT * CENTER_INDEX}px`,
 					scrollbarWidth: 'none',
 					msOverflowStyle: 'none',
 				}}
@@ -77,7 +89,6 @@ const TimeStartPickerSheet = ({ onSubmit, onClose, isOpen = true }) => {
 								style={{
 									height: ITEM_HEIGHT,
 									lineHeight: `60px`,
-									scrollSnapAlign: 'center',
 									fontSize: 20,
 									padding: '0 10px',
 									fontWeight: isSelected ? '600' : '400',

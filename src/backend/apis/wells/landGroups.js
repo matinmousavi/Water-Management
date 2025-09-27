@@ -3,6 +3,7 @@ import Well from '../../models/Well.model.js'
 import mongoose from 'mongoose'
 import Irrigation from '../../models/Irrigation.model.js'
 import Schedule from '../../models/Schedule.model.js'
+import Note from '../../models/Note.model.js'
 
 const router = Router({ mergeParams: true })
 
@@ -123,28 +124,6 @@ router.get('/:groupId', async (req, res) => {
 		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
-		const lastIrrigationDoc = await Irrigation.findOne({
-			well: well._id,
-			landGroup: group.groupId,
-			isGroupLog: true,
-		})
-			.sort({ startedAt: -1 })
-			.lean()
-
-		const lastIrrigation = lastIrrigationDoc ? lastIrrigationDoc.startedAt : null
-
-		let nextIrrigationAt = null
-		if (well.cycleDays && well.cycleStartDate) {
-			const now = new Date()
-			const start = new Date(well.cycleStartDate)
-			const cycleDays = well.cycleDays
-
-			const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24))
-			const nextCycle = Math.ceil((diffDays + 1) / cycleDays) * cycleDays
-			nextIrrigationAt = new Date(start)
-			nextIrrigationAt.setDate(start.getDate() + nextCycle)
-		}
-
 		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
 		const totalSchedulesInCycle = schedules.length
 		const totalRequiredMs = getTotalDurationMs(schedules)
@@ -157,14 +136,43 @@ router.get('/:groupId', async (req, res) => {
 			endedAt: { $lte: cycleEnd },
 		}).lean()
 
-		const receivedMs = irrigations.reduce((sum, log) => {
+		const uniqueLogsMap = new Map()
+		for (const log of irrigations) {
+			const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
+			if (!uniqueLogsMap.has(key)) {
+				uniqueLogsMap.set(key, log)
+			}
+		}
+
+		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
+
+		const receivedMs = logs.reduce((sum, log) => {
 			if (!log.endedAt) return sum
 			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
 		}, 0)
 
+		const nextIrrigationLog = await Irrigation.find({
+			well: wellId,
+			landGroup: group.groupId,
+			endedAt: null,
+			isGroupLog: true,
+		})
+			.sort({ startedAt: 1 })
+			.lean()
+
+		const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
+
+		const notes = await Note.find({
+			type: 'landGroup',
+			reference: group.groupId,
+		})
+			.sort({ createdAt: -1 })
+			.lean()
+
 		const requiredWater = msToHoursMinutes(totalRequiredMs)
 		const receivedWater = msToHoursMinutes(receivedMs)
 		const remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
+		const receivedWaterInCycle = msToHoursMinutes(receivedMs)
 
 		return res.status(200).json({
 			groupId: group.groupId,
@@ -182,13 +190,15 @@ router.get('/:groupId', async (req, res) => {
 					: null,
 				location: land.location || '',
 			})),
-			lastIrrigation,
-			nextIrrigationAt,
+			lastIrrigation: logs.length ? logs[logs.length - 1].startedAt : null,
+			nextIrrigation,
 			requiredWater,
 			receivedWater,
 			remainingWater,
 			totalSchedulesInCycle,
-			receivedWaterInCycle: receivedWater,
+			receivedWaterInCycle,
+			logs,
+			notes,
 		})
 	} catch (err) {
 		console.error(err)

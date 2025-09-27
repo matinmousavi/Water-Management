@@ -7,7 +7,7 @@ import TimerDisplay from '../../../../../../../../../components/TimerDisplay/Tim
 
 const { Text } = Typography
 
-const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, startedAt, durationMs }) => {
+const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, startedAt, durationMs, onNoteUpdate }) => {
 	const isCurrentLandIrrigating = isIrrigating && logs.some(log => log.isOngoing && log.startedAt)
 
 	const apiTime = useAPI()
@@ -46,9 +46,26 @@ const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, s
 		{
 			title: 'توضیحات',
 			key: 'note',
-			render: record => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
+			render: record => (
+				<DescriptionModalCell
+					record={record}
+					descriptionEditHours={descriptionEditHours}
+					onNoteUpdate={newNote => {
+						if (onNoteUpdate) onNoteUpdate(record._id, newNote)
+					}}
+				/>
+			),
 		},
 	]
+	const currentWell = data?.wells?.[0] // یا همون چاه که آبیاری داره
+	const parseDurationToMs = str => {
+		if (!str) return 0
+		const [h, m] = str.split(':').map(Number)
+		return (h * 60 * 60 + m * 60) * 1000
+	}
+
+	const remainingWaterMs = parseDurationToMs(currentWell?.remainingWater)
+	const requiredWaterMs = parseDurationToMs(currentWell?.requiredWater)
 
 	return (
 		<>
@@ -72,7 +89,7 @@ const TableLogsMobile = ({ data, logs, isIrrigating, handleStop, onStartClick, s
 				{isCurrentLandIrrigating && ongoingLog ? (
 					<>
 						<Text className={styles.timerText}>
-							<TimerDisplay startedAt={startedAt} durationMs={durationMs} />
+							<TimerDisplay landId={data._id} startedAt={startedAt} requiredWaterMs={requiredWaterMs} remainingWaterMs={remainingWaterMs} />
 						</Text>
 						<Button type='primary' onClick={handleStop} className={styles.endButton}>
 							پایان آبیاری

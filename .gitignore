@@ -18,6 +18,7 @@ uploads
 !.env.example
 
 vite.config.js.*
+.sync_flags.json
 
 # Editor directories and files
 .vscode/*

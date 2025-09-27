@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import dayjs from 'dayjs'
 import styles from './TimerDisplay.module.css'
+import { getIrrigationStartTime, setIrrigationStartTime, removeIrrigationStartTime } from '../../utils/irrigationStorage' // مسیر فایل helper رو درست وارد کن
 
 // ss : mm : hh
 const formatTime = seconds => {
@@ -11,40 +11,50 @@ const formatTime = seconds => {
 	return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
 }
 
-const TimerDisplay = ({ startedAt, durationMs }) => {
+const TimerDisplay = ({ landId, startedAt, requiredWaterMs, remainingWaterMs, onComplete }) => {
 	const [text, setText] = useState('00 : 00 : 00')
 	const [isOvertime, setIsOvertime] = useState(false)
 	const intervalRef = useRef(null)
 
+	// زمان شروع را از localStorage بازیابی می‌کنیم اگر موجود باشد
 	useEffect(() => {
-		if (!startedAt || !durationMs) return
+		if (!landId || !requiredWaterMs) return
 
-		const startMs = typeof startedAt === 'number' ? startedAt : dayjs(startedAt).isValid() ? dayjs(startedAt).valueOf() : Number(startedAt)
+		let startMs = startedAt ? new Date(startedAt).getTime() : getIrrigationStartTime(landId)
 
-		if (!startMs || Number.isNaN(startMs)) return
-
-		const endMs = startMs + durationMs
+		if (!startMs) {
+			// اگر remainingWater صفر باشد، تایمر از همون لحظه شروع بشه
+			startMs = Date.now()
+			setIrrigationStartTime(landId, startMs)
+		}
 
 		const tick = () => {
 			const now = Date.now()
-			const remainingSec = Math.floor((endMs - now) / 1000)
+			const remaining = remainingWaterMs != null ? remainingWaterMs : requiredWaterMs
+			const elapsed = Math.floor((now - startMs) / 1000)
+			let remainingSec = Math.floor(remaining / 1000) - elapsed
 
-			if (remainingSec >= 0) {
-				setText(formatTime(remainingSec))
-				setIsOvertime(false)
-			} else {
-				setText(`${formatTime(remainingSec)} -`)
+			if (remainingWaterMs === 0 || remainingSec < 0) {
 				setIsOvertime(true)
+				setText(`${formatTime(-remainingSec)} -`)
+			} else {
+				setIsOvertime(false)
+				setText(formatTime(remainingSec))
+			}
+
+			if (remainingSec <= -1 && onComplete) {
+				onComplete()
+				clearInterval(intervalRef.current)
+				removeIrrigationStartTime(landId)
 			}
 		}
 
 		tick()
 		clearInterval(intervalRef.current)
 		intervalRef.current = setInterval(tick, 1000)
-		return () => clearInterval(intervalRef.current)
-	}, [startedAt, durationMs])
 
-	if (!durationMs) return null
+		return () => clearInterval(intervalRef.current)
+	}, [landId, startedAt, requiredWaterMs, remainingWaterMs, onComplete])
 
 	return <span className={isOvertime ? styles.textRed : styles.textGreen}>{text}</span>
 }

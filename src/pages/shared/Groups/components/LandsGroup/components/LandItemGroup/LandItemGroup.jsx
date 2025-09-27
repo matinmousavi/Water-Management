@@ -11,8 +11,6 @@ import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar
 
 const LandItemGroup = ({ data, group }) => {
 	const { Text } = Typography
-
-	// محاسبه progress از API
 	const totalMsInCycle = group?.totalSchedulesInCycle * 60 * 60 * 1000 || 0
 	const receivedMsInCycle = (() => {
 		if (!group?.receivedWaterInCycle) return 0

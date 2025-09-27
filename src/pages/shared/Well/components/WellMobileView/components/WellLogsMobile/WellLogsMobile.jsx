@@ -1,7 +1,7 @@
 import { Card, Flex, Typography } from 'antd'
 import moment from 'moment-jalaali'
 import { Link } from 'react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import styles from './WellLogsMobile.module.css'
 
@@ -12,24 +12,55 @@ import iconTreeGroup from '../../../../../../../assets/icons/treeGroup.svg'
 import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
-
 const { Text } = Typography
+
+const timeToMinutes = (timeStr = '0:00') => {
+	if (!timeStr) return 0
+	const [h, m] = timeStr.split(':').map(Number)
+	return h * 60 + m
+}
 
 const WellLogsMobile = ({ wellId, data }) => {
 	const isThisLogOngoing = data?.irrigationInProgress
-
 	const isOff = data?.type === 'off'
 	const landId = data?.landId
 
-	const [countdown, setCountdown] = useState(null)
+	const countdownRef = useRef(null)
 	const [isOver, setIsOver] = useState(false)
+	const [progressRatio, setProgressRatio] = useState(0)
+
+	const requiredMinutes = timeToMinutes(data?.requiredWater)
+	const receivedMinutesInitial = timeToMinutes(data?.receivedWaterInCycle)
+
+	useEffect(() => {
+		if (!requiredMinutes) {
+			setProgressRatio(0)
+			return
+		}
+
+		const calcProgress = () => {
+			let receivedMinutes = receivedMinutesInitial
+			if (isThisLogOngoing && data?.irrigationStartedAt) {
+				const startedAt = new Date(data.irrigationStartedAt).getTime()
+				const now = Date.now()
+				const minutesSinceStart = (now - startedAt) / 60000
+				receivedMinutes += minutesSinceStart
+			}
+			setProgressRatio(receivedMinutes / requiredMinutes)
+		}
+
+		calcProgress()
+		if (isThisLogOngoing) {
+			const interval = setInterval(calcProgress, 1000)
+			return () => clearInterval(interval)
+		}
+	}, [isThisLogOngoing, data?.irrigationStartedAt, requiredMinutes, receivedMinutesInitial])
 
 	useEffect(() => {
 		if (!isThisLogOngoing || !data?.irrigationStartedAt || !data?.remainingWater) return
 
 		const [h, m] = data.remainingWater.split(':').map(Number)
 		const remainingMs = h * 3600000 + m * 60000
-
 		const start = new Date(data.irrigationStartedAt).getTime()
 		const end = start + remainingMs
 
@@ -45,13 +76,12 @@ const WellLogsMobile = ({ wellId, data }) => {
 				return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 			}
 
-			if (diff >= 0) {
-				setCountdown(formatTime(diff))
-				setIsOver(false)
-			} else {
-				const over = Math.abs(diff)
-				setCountdown(`-${formatTime(over)}`)
-				setIsOver(true)
+			const over = diff < 0
+			setIsOver(over)
+
+			if (countdownRef.current) {
+				countdownRef.current.innerText = over ? `-${formatTime(Math.abs(diff))}` : formatTime(diff)
+				countdownRef.current.style.color = over ? 'red' : 'green'
 			}
 		}, 1000)
 
@@ -59,20 +89,8 @@ const WellLogsMobile = ({ wellId, data }) => {
 	}, [isThisLogOngoing, data?.irrigationStartedAt, data?.remainingWater])
 
 	let cardClass = ''
-	if (isOff) {
-		cardClass = styles.offCard
-	} else if (isThisLogOngoing) {
-		cardClass = isOver ? styles.borderCardDanger : styles.borderCard
-	}
-
-	const totalMsInCycle = data?.totalSchedulesInCycle * 60 * 60 * 1000 || 0
-	const receivedMsInCycle = (() => {
-		if (!data?.receivedWaterInCycle) return 0
-		const [h, m] = data.receivedWaterInCycle.split(':').map(Number)
-		return h * 3600000 + m * 60000
-	})()
-	const progressValue = totalMsInCycle ? (receivedMsInCycle / totalMsInCycle) * 100 : 0
-	const sections = data?.totalSchedulesInCycle || 3
+	if (isOff) cardClass = styles.offCard
+	else if (isThisLogOngoing) cardClass = isOver ? styles.borderCardDanger : styles.borderCard
 
 	return (
 		<Card className={cardClass}>
@@ -101,89 +119,57 @@ const WellLogsMobile = ({ wellId, data }) => {
 					)}
 				</Flex>
 
-				{isOff ? (
-					<>
-						<Flex gap={10}>
-							<Flex gap={8} className={styles.cardType}>
-								<img src={iconClock} alt='icon clock' />
-								<Text className={styles.label}>شروع</Text>
-							</Flex>
-							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>{data?.startTime ? moment(data.startTime).format('HH:mm - jYYYY/jMM/jDD') : '-'}</Text>
-							</Flex>
+				{isThisLogOngoing && (
+					<Flex gap={10}>
+						<Flex gap={8} className={styles.cardType}>
+							<img src={iconClock} alt='icon clock' />
+							<Text className={styles.label}>درحال آبیاری</Text>
 						</Flex>
-
-						<Flex gap={10}>
-							<Flex gap={8} className={styles.cardType}>
-								<img src={iconClock} alt='icon clock' />
-								<Text className={styles.label}>پایان</Text>
-							</Flex>
-							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>{data?.endTime ? moment(data.endTime).format('HH:mm - jYYYY/jMM/jDD') : '-'}</Text>
-							</Flex>
+						<Flex className={styles.cardRole}>
+							<Text ref={countdownRef} className={styles.text_irrigation}>
+								{'-'}
+							</Text>
 						</Flex>
-					</>
-				) : (
-					<>
-						{isThisLogOngoing && (
-							<Flex gap={10}>
-								<Flex gap={8} className={styles.cardType}>
-									<img src={iconClock} alt='icon clock' />
-									<Text className={styles.label}>درحال آبیاری</Text>
-								</Flex>
-								<Flex className={styles.cardRole}>
-									<Text className={styles.text_irrigation} style={{ color: isOver ? 'red' : 'green' }}>
-										{countdown || '-'}
-									</Text>
-								</Flex>
-							</Flex>
-						)}
-
-						<Flex gap={10}>
-							<Flex gap={8} className={styles.cardType}>
-								<img src={iconClock} alt='icon clock' />
-								<Text className={styles.label}>آب مورد نیاز</Text>
-							</Flex>
-							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>{data?.requiredWater || '-'}</Text>
-							</Flex>
-						</Flex>
-
-						<Flex gap={10}>
-							<Flex gap={8} className={styles.cardType}>
-								<img src={iconClock} alt='icon clock' />
-								<Text className={styles.label}>آب دریافت شده</Text>
-							</Flex>
-							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>{data?.receivedWater || '-'}</Text>
-							</Flex>
-						</Flex>
-
-						<Flex gap={10}>
-							<Flex gap={8} className={styles.cardType}>
-								<img src={iconClock} alt='icon clock' />
-								<Text className={styles.label}>باقیمانده</Text>
-							</Flex>
-							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>{data?.remainingWater || '-'}</Text>
-							</Flex>
-						</Flex>
-
-						<Flex gap={10}>
-							<Flex gap={8} className={styles.cardType}>
-								<img src={iconClock} alt='icon clock' />
-								<Text className={styles.label}>زمان آبیاری بعدی</Text>
-							</Flex>
-							<Flex className={styles.cardRole}>
-								<Text className={styles.text_irrigation}>
-									{data?.nextIrrigation ? moment(data.nextIrrigation).format('HH:mm - jYYYY/jMM/jDD') : '-'}
-								</Text>
-							</Flex>
-						</Flex>
-
-						<ProgressBar sections={sections} progressValue={progressValue} />
-					</>
+					</Flex>
 				)}
+
+				<Flex gap={10}>
+					<Flex gap={8} className={styles.cardType}>
+						<img src={iconClock} alt='icon clock' />
+						<Text className={styles.label}>آب دریافت شده</Text>
+					</Flex>
+					<Flex className={styles.cardRole}>
+						<Text className={styles.text_irrigation}>{data?.receivedWater || '-'}</Text>
+					</Flex>
+				</Flex>
+
+				{!isThisLogOngoing && (
+					<Flex gap={10}>
+						<Flex gap={8} className={styles.cardType}>
+							<img src={iconClock} alt='icon clock' />
+							<Text className={styles.label}>آخرین زمان آبیاری</Text>
+						</Flex>
+						<Flex className={styles.cardRole}>
+							<Text className={styles.text_irrigation}>
+								{data?.lastIrrigation ? moment(data.lastIrrigation).format('HH:mm - jYYYY/jMM/jDD') : '-'}
+							</Text>
+						</Flex>
+					</Flex>
+				)}
+
+				<Flex gap={10}>
+					<Flex gap={8} className={styles.cardType}>
+						<img src={iconClock} alt='icon clock' />
+						<Text className={styles.label}>زمان آبیاری بعدی</Text>
+					</Flex>
+					<Flex className={styles.cardRole}>
+						<Text className={styles.text_irrigation}>
+							{data?.nextIrrigation ? moment(data.nextIrrigation).format('HH:mm - jYYYY/jMM/jDD') : '-'}
+						</Text>
+					</Flex>
+				</Flex>
+
+				<ProgressBar progressRatio={progressRatio} />
 			</Flex>
 		</Card>
 	)

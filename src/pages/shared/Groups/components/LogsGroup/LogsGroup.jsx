@@ -20,22 +20,13 @@ dayjs.extend(customParseFormat)
 
 const { Text } = Typography
 
-const uniqueGroupLogs = logs => {
-	const map = new Map()
-	logs.forEach(item => {
-		const key = `${item.landGroupId || item.landGroup}_${item.startedAt}`
-		if (!map.has(key)) map.set(key, item)
-	})
-	return Array.from(map.values())
-}
-
 const parseTimeToMs = str => {
 	if (!str) return 0
 	const [h, m] = str.split(':').map(Number)
 	return (h * 60 * 60 + m * 60) * 1000
 }
 
-const LogsGroup = ({ data, wellId, group }) => {
+const LogsGroup = ({ wellId, group }) => {
 	const { groupId } = useParams()
 	const api = useAPI()
 	const apiTime = useAPI()
@@ -49,21 +40,34 @@ const LogsGroup = ({ data, wellId, group }) => {
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [startedAt, setStartedAt] = useState(null)
 	const [durationMs, setDurationMs] = useState(null)
+	const [currentTime, setCurrentTime] = useState(dayjs())
 
-	const getLocalStorageKey = () => `irrigation_group_start_${groupId}`
+	const lsKey = `irrigation_group_start_${groupId}`
+
+	const getLogsFromAPI = async () => {
+		try {
+			const response = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
+			setLogs(response?.irrigations || [])
+		} catch (e) {
+			console.error('خطا در دریافت لاگ‌ها:', e)
+		}
+	}
 
 	useEffect(() => {
-		if (data?.length && logs.length === 0) {
-			setLogs(uniqueGroupLogs(data))
-		}
-	}, [data])
+		getLogsFromAPI()
+	}, [groupId, wellId])
+
+	const handleOpenStart = () => {
+		setCurrentTime(dayjs())
+		setShowStartDrawer(true)
+	}
 
 	useEffect(() => {
 		if (!logs || logs.length === 0) {
 			setIsIrrigating(false)
 			setStartedAt(null)
 			setDurationMs(null)
-			localStorage.removeItem(getLocalStorageKey())
+			localStorage.removeItem(lsKey)
 			return
 		}
 
@@ -71,23 +75,31 @@ const LogsGroup = ({ data, wellId, group }) => {
 		if (!ongoingLog) {
 			setIsIrrigating(false)
 			setStartedAt(null)
-			setDurationMs(null)
-			localStorage.removeItem(getLocalStorageKey())
+			setDurationMs(0)
+			localStorage.removeItem(lsKey)
 			return
 		}
 
 		setIsIrrigating(true)
-		const startMs = dayjs(ongoingLog.startedAt).valueOf()
-		localStorage.setItem(getLocalStorageKey(), String(startMs))
-		setStartedAt(startMs)
+		const apiStartMs = dayjs(ongoingLog.startedAt).valueOf()
+		const lsValMs = Number(localStorage.getItem(lsKey)) || null
 
-		const duration = ongoingLog.receivedWater
-			? parseTimeToMs(ongoingLog.receivedWater)
-			: group?.remainingWater
-			? parseTimeToMs(group.remainingWater)
-			: 2 * 60 * 60 * 1000
-		setDurationMs(duration)
-	}, [logs, groupId, group])
+		if (!lsValMs || Number.isNaN(lsValMs)) {
+			localStorage.setItem(lsKey, String(apiStartMs))
+			setStartedAt(apiStartMs)
+		} else {
+			const drift = Math.abs(lsValMs - apiStartMs)
+			if (drift > 2000) {
+				localStorage.setItem(lsKey, String(apiStartMs))
+				setStartedAt(apiStartMs)
+			} else {
+				setStartedAt(lsValMs)
+			}
+		}
+
+		const durationStr = ongoingLog.receivedWater || ongoingLog.requiredWater || '02:00'
+		setDurationMs(parseTimeToMs(durationStr))
+	}, [logs])
 
 	const columns = [
 		{
@@ -110,7 +122,7 @@ const LogsGroup = ({ data, wellId, group }) => {
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
-			render: (text, record) => {
+			render: (_, record) => {
 				if (record?.isOngoing) return 'در حال آبیاری'
 
 				const timeStr = record?.receivedWater || record?.duration
@@ -122,9 +134,8 @@ const LogsGroup = ({ data, wellId, group }) => {
 		},
 		{
 			title: 'توضیحات',
-			dataIndex: 'note',
 			key: 'note',
-			render: record => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
+			render: (_, record) => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
 		},
 	]
 
@@ -142,13 +153,18 @@ const LogsGroup = ({ data, wellId, group }) => {
 				isOngoing: true,
 			})
 
-			const newLog = response?.irrigations[0]
-			if (newLog) setLogs(prev => uniqueGroupLogs([newLog, ...prev]))
+			const newLog = response?.irrigations?.[0]
+			if (newLog) {
+				const startMs = dayjs(newLog.startedAt).valueOf()
+				localStorage.setItem(lsKey, String(startMs))
+				setStartedAt(startMs)
+				setIsIrrigating(true)
+				setLogs(prev => [newLog, ...prev])
+			}
 		} catch (e) {
 			console.error('خطا در شروع آبیاری گروهی:', e)
 		}
 	}
-	console.log(logs)
 
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
@@ -164,16 +180,18 @@ const LogsGroup = ({ data, wellId, group }) => {
 				isOngoing: false,
 			})
 
-			setLogs(prev => uniqueGroupLogs(prev.map(l => (l._id === ongoing._id ? { ...l, isOngoing: false, endTime: combined.toISOString() } : l))))
+			const updated = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
+			setLogs(updated.irrigations || [])
 
 			setIsIrrigating(false)
 			setStartedAt(null)
 			setDurationMs(null)
-			localStorage.removeItem(getLocalStorageKey())
+			localStorage.removeItem(lsKey)
 		} catch (e) {
 			console.error('خطا در پایان آبیاری گروهی:', e)
 		}
 	}
+	console.log(logs)
 
 	return (
 		<div className={styles.container}>
@@ -188,28 +206,34 @@ const LogsGroup = ({ data, wellId, group }) => {
 						className={styles.table}
 						dataSource={logs}
 						columns={columns}
+						loading={api.isLoading}
 					/>
 				</Flex>
 			</Card>
 
 			<div className={styles.footer}>
-				{isIrrigating && startedAt ? (
+				{isIrrigating ? (
 					<Flex align='center' gap={12} className={styles.footerContent}>
 						<Text className={styles.timerText}>
-							<TimerDisplay startedAt={startedAt} durationMs={durationMs} />
+							<TimerDisplay
+								landId={groupId}
+								startedAt={startedAt}
+								requiredWaterMs={parseTimeToMs(group?.requiredWater)}
+								remainingWaterMs={parseTimeToMs(group?.remainingWater)}
+							/>
 						</Text>
 						<Button type='default' className={styles.textBtn} onClick={() => setEndNoticeDrawer(true)}>
 							پایان آبیاری
 						</Button>
 					</Flex>
 				) : (
-					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={() => setShowStartDrawer(true)}>
+					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={handleOpenStart}>
 						شروع آبیاری
 					</Button>
 				)}
 			</div>
 
-			<TimeStartPickerSheet isOpen={showStartDrawer} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
+			<TimeStartPickerSheet isOpen={showStartDrawer} now={currentTime} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 			<TimeEndPickerSheet
 				isOpen={showEndDrawer}
 				title='ثبت زمان پایان آبیاری گروهی'
@@ -223,7 +247,14 @@ const LogsGroup = ({ data, wellId, group }) => {
 					setEndNoticeDrawer(false)
 					setShowEndDrawer(true)
 				}}
-				timer={<TimerDisplay startedAt={startedAt} durationMs={durationMs} />}
+				timer={
+					<TimerDisplay
+						landId={groupId}
+						startedAt={startedAt}
+						requiredWaterMs={parseTimeToMs(group?.requiredWater)}
+						remainingWaterMs={parseTimeToMs(group?.remainingWater)}
+					/>
+				}
 				onClose={() => setEndNoticeDrawer(false)}
 			/>
 		</div>

@@ -15,16 +15,16 @@ const { Text } = Typography
 
 const LandInfoMobile = ({ data }) => {
 	const well = data?.wells?.[0] || {}
+	console.log(data)
 
-	const totalMsInCycle = well?.totalSchedulesInCycle * 60 * 60 * 1000 || 0
-	const receivedMsInCycle = (() => {
-		if (!well?.receivedWaterInCycle) return 0
-		const [h, m] = well.receivedWaterInCycle.split(':').map(Number)
-		return h * 3600000 + m * 60000
-	})()
+	const [reqH, reqM] = well?.requiredWater?.split(':').map(Number) || [0, 0]
+	const requiredMs = reqH * 3600000 + reqM * 60000
 
-	const progressValue = totalMsInCycle ? (receivedMsInCycle / totalMsInCycle) * 100 : 0
-	const sections = well?.totalSchedulesInCycle || 3
+	const [recH, recM] = well?.receivedWater?.split(':').map(Number) || [0, 0]
+	const receivedMs = recH * 3600000 + recM * 60000
+
+	const progressValue = requiredMs ? Math.min((receivedMs / requiredMs) * 100, 100) : 0
+	const sections = 1
 
 	const listItems = [
 		{ icon: iconContacts, title: 'نام زمین', value: data?.title || '-' },

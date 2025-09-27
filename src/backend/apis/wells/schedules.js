@@ -139,7 +139,6 @@ router.get('/today', async (req, res) => {
 			const totalSchedulesInCycle = allSchedulesInCycle.length
 			const totalRequiredMs = getTotalDurationMs(allSchedulesInCycle)
 
-			// همه آبیاری‌های این زمین/گروه در چرخه
 			const irrigationsInCycle = await Irrigation.find({
 				well: wellId,
 				...targetFilter,
@@ -171,13 +170,9 @@ router.get('/today', async (req, res) => {
 						irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
 					}
 
-					// آخرین آبیاری
 					const lastLog = await Irrigation.findOne(targetFilter).sort({ startedAt: -1 }).lean()
 					lastIrrigation = lastLog?.startedAt || null
 				}
-
-				const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
-				const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
 				results.push({
 					id: schedule._id,
@@ -201,8 +196,6 @@ router.get('/today', async (req, res) => {
 					remainingWater: msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMsInCycle)),
 					totalSchedulesInCycle,
 					receivedWaterInCycle: msToHoursMinutes(receivedMsInCycle),
-					cycleStart,
-					cycleEnd,
 				})
 			}
 		}
