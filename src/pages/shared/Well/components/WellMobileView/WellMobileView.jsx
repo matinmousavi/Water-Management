@@ -15,6 +15,8 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const schedulesApi = useAPI()
 	const schedules = schedulesApi?.data?.schedules
 
+	console.log(schedules)
+
 	const wellIdFromParams = searchParams.get('wellId')
 
 	useEffect(() => {
@@ -66,21 +68,6 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 					<CaretDownOutlined onClick={() => setOpenWellList(true)} style={{ color: '#00000073' }} />
 				)}
 				<WellsList setData={handleWellSelect} data={filterWells} onClose={onCloseWellList} open={openWellList} />
-				<Link
-					to='/'
-					style={{
-						position: 'absolute',
-						right: '0px',
-						color: '#000000',
-					}}
-				>
-					<ArrowRightOutlined
-						style={{
-							fontSize: '16px',
-							marginTop: '8px',
-						}}
-					/>
-				</Link>
 			</Flex>
 
 			{schedulesApi.isLoading ? (
