@@ -68,7 +68,7 @@ const Land = () => {
 				<Flex vertical gap={16}>
 					<Flex className='heading-container' align='center' justify='space-between'>
 						<Flex align='center' gap={isMobile ? 8 : 16}>
-							<BackButton backTo={'lands'} />
+							<BackButton backTo='/lands' />
 							<Title level={1} className='text-h3'>
 								{pageTitle}
 							</Title>
