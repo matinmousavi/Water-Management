@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Card, Flex, Typography } from 'antd'
 import { Link } from 'react-router'
 import iconTree from '../../../../../../../assets/icons/ri_tree-line.svg'
@@ -11,14 +12,40 @@ import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar
 
 const LandItemGroup = ({ data, group }) => {
 	const { Text } = Typography
+
 	const totalMsInCycle = group?.totalSchedulesInCycle * 60 * 60 * 1000 || 0
+
 	const receivedMsInCycle = (() => {
 		if (!group?.receivedWaterInCycle) return 0
 		const [h, m] = group.receivedWaterInCycle.split(':').map(Number)
 		return h * 3600000 + m * 60000
 	})()
-	const progressValue = totalMsInCycle ? (receivedMsInCycle / totalMsInCycle) * 100 : 0
-	const sections = group?.totalSchedulesInCycle || 3
+
+	const targetRatio = totalMsInCycle ? receivedMsInCycle / totalMsInCycle : 0
+	const [progressRatio, setProgressRatio] = useState(0)
+
+	useEffect(() => {
+		let frame
+		let start
+
+		if (targetRatio <= 0) {
+			setProgressRatio(0)
+			return
+		}
+
+		const duration = 1000
+
+		const animate = timestamp => {
+			if (!start) start = timestamp
+			const elapsed = timestamp - start
+			const progress = Math.min(elapsed / duration, 1)
+			setProgressRatio(progress * targetRatio)
+			if (progress < 1) frame = requestAnimationFrame(animate)
+		}
+
+		frame = requestAnimationFrame(animate)
+		return () => cancelAnimationFrame(frame)
+	}, [targetRatio])
 
 	const landData = [
 		{
@@ -63,7 +90,7 @@ const LandItemGroup = ({ data, group }) => {
 						<Flex className={styles.cardRole}>{item.content}</Flex>
 					</Flex>
 				))}
-				<ProgressBar sections={sections} progressValue={progressValue} />
+				<ProgressBar progressRatio={progressRatio} />
 			</Flex>
 		</Card>
 	)

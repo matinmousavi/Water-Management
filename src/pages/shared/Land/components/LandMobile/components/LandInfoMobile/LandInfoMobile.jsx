@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Flex, Card, Typography } from 'antd'
 import moment from 'moment-jalaali'
 
@@ -15,7 +16,6 @@ const { Text } = Typography
 
 const LandInfoMobile = ({ data }) => {
 	const well = data?.wells?.[0] || {}
-	console.log(data)
 
 	const [reqH, reqM] = well?.requiredWater?.split(':').map(Number) || [0, 0]
 	const requiredMs = reqH * 3600000 + reqM * 60000
@@ -23,8 +23,31 @@ const LandInfoMobile = ({ data }) => {
 	const [recH, recM] = well?.receivedWater?.split(':').map(Number) || [0, 0]
 	const receivedMs = recH * 3600000 + recM * 60000
 
-	const progressValue = requiredMs ? Math.min((receivedMs / requiredMs) * 100, 100) : 0
-	const sections = 1
+	const targetRatio = requiredMs > 0 ? receivedMs / requiredMs : 0
+	const [progressRatio, setProgressRatio] = useState(0)
+
+	useEffect(() => {
+		let frame
+		let start
+
+		if (targetRatio <= 0) {
+			setProgressRatio(0)
+			return
+		}
+
+		const duration = 1000
+
+		const animate = timestamp => {
+			if (!start) start = timestamp
+			const elapsed = timestamp - start
+			const progress = Math.min(elapsed / duration, 1)
+			setProgressRatio(progress * targetRatio)
+			if (progress < 1) frame = requestAnimationFrame(animate)
+		}
+
+		frame = requestAnimationFrame(animate)
+		return () => cancelAnimationFrame(frame)
+	}, [targetRatio])
 
 	const listItems = [
 		{ icon: iconContacts, title: 'نام زمین', value: data?.title || '-' },
@@ -54,7 +77,8 @@ const LandInfoMobile = ({ data }) => {
 						</Flex>
 					</Flex>
 				))}
-				<ProgressBar sections={sections} progressValue={progressValue} />
+
+				<ProgressBar progressRatio={progressRatio} />
 			</Flex>
 		</Card>
 	)
