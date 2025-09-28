@@ -1,0 +1,23 @@
+services:
+    water-management:
+        image: water-management-staging
+        container_name: water-management-staging
+        restart: unless-stopped
+        ports:
+            - '5173:5173'
+        env_file:
+            - .env.staging
+        depends_on:
+            - water-management_mongo
+
+    water-management_mongo:
+        image: mongodb/mongodb-community-server:latest
+        container_name: water-management_mongo_staging
+        restart: unless-stopped
+        volumes:
+            - mongodb_staging:/data/db
+        env_file:
+            - .env.staging
+
+volumes:
+    mongodb_staging:
