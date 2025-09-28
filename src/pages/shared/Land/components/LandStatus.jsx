@@ -4,13 +4,14 @@ import { EditOutlined } from '@ant-design/icons'
 import useNotification from '../../../../hooks/useNotification'
 import useAPI from '../../../../hooks/useAPI'
 import useModal from '../../../../hooks/useModal'
+import { useUser } from '../../../../contexts/UserContext'
 
 const LandStatus = ({ landId, status, setStatus, landTitle }) => {
 	const [form] = Form.useForm()
 	const { openNotification } = useNotification()
 	const landApi = useAPI()
 	const { isOpen, open, close, handleAfterChange } = useModal()
-
+	const { isAdmin } = useUser()
 	const handleOpen = () => {
 		open(() => {
 			form.setFieldsValue({ status })
@@ -38,9 +39,9 @@ const LandStatus = ({ landId, status, setStatus, landTitle }) => {
 
 	return (
 		<>
-			<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }} onClick={handleOpen}>
+			<Tag color={status === 'active' ? 'green' : 'red'} style={{ cursor: 'pointer' }}>
 				<Flex align='center' gap={3}>
-					{status === 'active' ? 'فعال' : 'غیرفعال'} <EditOutlined />
+					{status === 'active' ? 'فعال' : 'غیرفعال'} {isAdmin ? <EditOutlined onClick={handleOpen} /> : null}
 				</Flex>
 			</Tag>
 
@@ -55,7 +56,7 @@ const LandStatus = ({ landId, status, setStatus, landTitle }) => {
 				confirmLoading={landApi.isLoading}
 			>
 				<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
-					<Form.Item name='status' label='وضعیت' >
+					<Form.Item name='status' label='وضعیت'>
 						<Select
 							size='large'
 							optionLabelProp='label'

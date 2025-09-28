@@ -1,4 +1,5 @@
-import { Modal, Form, Select, TimePicker, Row, Col, Button } from 'antd'
+import React, { useEffect } from 'react'
+import { Modal, Form, Select, TimePicker, Row, Col, Button, Radio, Input } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 
@@ -19,12 +20,36 @@ const colorPalette = [
 	'#cfd8dc80',
 ]
 
-export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions }) {
+const OFF_HOURS_COLOR = '#00000033'
+
+export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions, scheduleType, setScheduleType }) {
+	useEffect(() => {
+		if (editingTask) {
+			const type = editingTask.targetType === 'off' ? 'off' : 'land'
+			setScheduleType(type)
+			form.setFieldsValue({
+				color: type === 'off' ? OFF_HOURS_COLOR : editingTask.color,
+			})
+		} else {
+			setScheduleType('land')
+			form.setFieldsValue({ color: colorPalette[0] })
+		}
+	}, [editingTask, form, setScheduleType])
+
+	const handleScheduleTypeChange = e => {
+		setScheduleType(e.target.value)
+		form.setFieldsValue({
+			target: undefined,
+			color: e.target.value === 'off' ? OFF_HOURS_COLOR : colorPalette[0],
+		})
+	}
+
 	return (
 		<Modal
-			title={editingTask ? 'ویرایش برنامه آبیاری' : 'افزودن برنامه آبیاری جدید'}
+			title={editingTask ? 'ویرایش زمان‌بندی' : 'افزودن زمان‌بندی'}
 			open={visible}
 			onCancel={onCancel}
+			destroyOnHidden
 			footer={
 				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 					{editingTask ? (
@@ -55,11 +80,20 @@ export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoa
 			}
 		>
 			<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
-				<Form.Item label='زمین' name='target' rules={[{ required: true, message: 'لطفا انتخاب کنید' }]}>
-					<Select size='large' placeholder='انتخاب' options={selectOptions} />
+				<Form.Item label='نوع برنامه' style={{ marginBottom: 24 }}>
+					<Radio.Group value={scheduleType} onChange={handleScheduleTypeChange}>
+						<Radio value='land'>زمین</Radio>
+						<Radio value='off'>ساعت خاموشی</Radio>
+					</Radio.Group>
 				</Form.Item>
 
-				<Form.Item label='ساعت آبیاری' required>
+				{scheduleType === 'land' && (
+					<Form.Item label='زمین' name='target' rules={[{ required: scheduleType === 'land', message: 'لطفا زمین را انتخاب کنید' }]}>
+						<Select size='large' placeholder='انتخاب زمین' options={selectOptions} />
+					</Form.Item>
+				)}
+
+				<Form.Item label={scheduleType === 'land' ? 'ساعت آبیاری' : 'ساعت خاموشی'} required>
 					<Row gutter={16} align='middle'>
 						<Col span={12}>
 							<Form.Item name='startTime' noStyle rules={[{ required: true, message: 'ساعت شروع را انتخاب کنید' }]}>
@@ -77,16 +111,9 @@ export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoa
 										validator(_, value) {
 											const start = getFieldValue('startTime')
 											if (!start || !value) return Promise.resolve()
-
-											if (!dayjs(value).isAfter(dayjs(start))) {
-												return Promise.reject(new Error('زمان پایان باید بعد از زمان شروع باشد'))
-											}
-
-											const diffMinutes = dayjs(value).diff(dayjs(start), 'minute')
-											if (diffMinutes < 15) {
+											if (!dayjs(value).isAfter(dayjs(start))) return Promise.reject(new Error('زمان پایان باید بعد از زمان شروع باشد'))
+											if (dayjs(value).diff(dayjs(start), 'minute') < 15)
 												return Promise.reject(new Error('اختلاف زمان باید حداقل ۱۵ دقیقه باشد'))
-											}
-
 											return Promise.resolve()
 										},
 									}),
@@ -98,13 +125,32 @@ export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoa
 					</Row>
 				</Form.Item>
 
-				<Form.Item name='color' label='رنگ' rules={[{ required: true }]}>
-					<Select
-						options={colorPalette.map(c => ({
-							value: c,
-							label: <div style={{ background: c, height: 24, borderRadius: 4 }} />,
-						}))}
-					/>
+				<Form.Item label='رنگ'>
+					{scheduleType === 'land' ? (
+						<Form.Item name='color' noStyle rules={[{ required: scheduleType === 'land' }]}>
+							<Select
+								options={colorPalette.map(c => ({ value: c, label: <div style={{ background: c, height: 24, borderRadius: 4 }} /> }))}
+								optionLabelProp='label'
+							/>
+						</Form.Item>
+					) : (
+						<div
+							style={{
+								background: OFF_HOURS_COLOR,
+								height: 32,
+								borderRadius: 6,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								color: 'white',
+								fontWeight: 'bold',
+							}}
+						>
+							<Form.Item name='color' initialValue={OFF_HOURS_COLOR} noStyle>
+								<Input type='hidden' />
+							</Form.Item>
+						</div>
+					)}
 				</Form.Item>
 			</Form>
 		</Modal>

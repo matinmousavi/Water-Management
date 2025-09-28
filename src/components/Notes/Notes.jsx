@@ -97,7 +97,6 @@ const Notes = ({ entityType, entityReference, notesData: initialNotes, status })
 			if (isNoteEditMode && getNoteId(selectedNote)) {
 				// Update note
 				const response = await notesApi.patch(apiPaths.update(getNoteId(selectedNote)), { text: values.text })
-				console.log(response)
 
 				const updatedNote = response.data?.note || response.data || response.note || response
 				const updatedId = getNoteId(updatedNote)
@@ -129,7 +128,7 @@ const Notes = ({ entityType, entityReference, notesData: initialNotes, status })
 		}
 	}
 
-	const entityTitle = entityType === 'land' ? 'یادداشت زمین' : entityType === 'well' ? 'یادداشت چاه' : 'یادداشت'
+	const entityTitle = entityType === 'land' ? 'یادداشت زمین' : entityType === 'well' ? 'یادداشت چاه' : entityType === 'landGroup' ? 'یادداشت گروه' : 'یادداشت'
 
 	return (
 		<>

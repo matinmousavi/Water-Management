@@ -1,6 +1,5 @@
 import { Button, Flex, Form, Input } from 'antd'
 import { useEffect, useState } from 'react'
-
 import { useParams } from 'react-router'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
@@ -15,8 +14,8 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 	const notesApi = useAPI()
 	const { openNotification } = useNotification()
 	const [noteForm] = Form.useForm()
-	const [open, setOpen] = useState(false)
 
+	const [open, setOpen] = useState(false)
 	const [isNoteEditMode, setIsNoteEditMode] = useState(false)
 	const [selectedNote, setSelectedNote] = useState(null)
 	const [notes, setNotes] = useState(initialNotes || [])
@@ -25,28 +24,31 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 		setNotes(initialNotes || [])
 	}, [initialNotes])
 
+	useEffect(() => {
+		if (!open) {
+			noteForm.resetFields()
+			return
+		}
+
+		if (isNoteEditMode && selectedNote) {
+			setTimeout(() => {
+				noteForm.setFieldsValue({ text: selectedNote.text ?? '' })
+			}, 0)
+		} else {
+			setTimeout(() => noteForm.resetFields(), 0)
+		}
+	}, [open, isNoteEditMode, selectedNote, noteForm])
+
 	const handleOpenAddNoteModal = () => {
-		showDrawer()
 		setIsNoteEditMode(false)
-		noteForm.resetFields()
 		setSelectedNote(null)
+		setOpen(true)
 	}
 
 	const handleEditNote = note => {
 		setIsNoteEditMode(true)
 		setSelectedNote(note)
-		noteForm.setFieldsValue({ text: note.text })
-	}
-
-	const handleDelete = async noteId => {
-		try {
-			await notesApi.delete(`lands/${landId}/notes/${noteId}`)
-			setNotes(prev => prev.filter(note => note?._id !== noteId))
-			openNotification('success', 'یادداشت با موفقیت حذف شد')
-		} catch (error) {
-			openNotification('error', 'خطا در حذف یادداشت')
-			console.error('Error deleting note:', error)
-		}
+		setOpen(true)
 	}
 
 	const handleSubmitNote = async values => {
@@ -54,41 +56,37 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 			if (isNoteEditMode && selectedNote?._id) {
 				const response = await notesApi.put(`lands/${landId}/notes/${selectedNote._id}`, values)
 
-				const updatedData = response.data || response.note || response
-				if (!updatedData._id) {
+				const updatedNote = response.data || response.note || response
+				if (!updatedNote._id) {
 					throw new Error('Invalid response structure - missing _id')
 				}
 
-				setNotes(prev => prev.map(note => (note._id === updatedData._id ? updatedData : note)))
+				setNotes(prev => prev.map(n => (n._id === updatedNote._id ? updatedNote : n)))
 				openNotification('success', 'یادداشت با موفقیت ویرایش شد')
 			} else {
 				const response = await notesApi.post(`lands/${landId}/notes`, values)
 
-				const newData = response.data || response.note || response
-				if (!newData._id) {
+				const newNote = response.data || response.note || response
+				if (!newNote._id) {
 					throw new Error('Invalid response structure - missing _id')
 				}
 
-				setNotes(prev => [...prev, newData])
+				setNotes(prev => [...prev, newNote])
 				openNotification('success', 'یادداشت با موفقیت افزوده شد')
-				setOpen(false)
 			}
 
+			setOpen(false)
 			setSelectedNote(null)
+			noteForm.resetFields()
 		} catch (error) {
 			console.error('Operation failed:', error)
 			openNotification('error', `خطا در ${isNoteEditMode ? 'ویرایش' : 'افزودن'} یادداشت`)
-		} finally {
-			noteForm.resetFields()
 		}
-	}
-
-	const showDrawer = () => {
-		setOpen(true)
 	}
 
 	const onClose = () => {
 		setOpen(false)
+		setSelectedNote(null)
 		noteForm.resetFields()
 	}
 
@@ -101,8 +99,7 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 							افزودن یادداشت
 						</Button>
 					</Flex>
-
-					<NotesListMobile handleDelete={handleDelete} handleEditNote={handleEditNote} data={notes} />
+					<NotesListMobile data={notes} handleEditNote={handleEditNote} />
 				</div>
 			</div>
 
@@ -113,13 +110,13 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				open={open}
 				loading={notesApi.isLoading}
 				handleSubmit={handleSubmitNote}
-				title='افزودن یادداشت'
+				title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
 			>
-				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-					<div className={styles.modalContainer}>
-						<Input.TextArea className={styles.textArea} />
-					</div>
-				</Form.Item>
+				<div className={styles.modalContainer}>
+					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+						<Input.TextArea className={styles.textArea} rows={6} />
+					</Form.Item>
+				</div>
 			</ModalMobile>
 		</>
 	)

@@ -25,11 +25,11 @@ const Land = () => {
 	const [status, setStatus] = useState()
 	const { landId } = useParams()
 	const { openNotification } = useNotification()
-	const { isAdmin } = useUser()
+	const { isAdmin, isIrrigator } = useUser()
 	const landApi = useAPI()
 	const [pageTitle, setPageTitle] = useState('')
 	const screens = Grid.useBreakpoint()
-	const isMobile = screens.xs
+	const isMobile = screens.xs && !screens.md
 
 	const fetchLand = async () => {
 		try {
@@ -63,13 +63,12 @@ const Land = () => {
 		<>
 			<MetaTitle>{pageTitle ? `زمین ${pageTitle}` : 'جزئیات زمین'}</MetaTitle>
 
-			{isMobile ? (
-				<LandMobile landData={landData} />
-			) : (
+			{isMobile && isIrrigator && <LandMobile landData={landData} />}
+			{((isIrrigator && !isMobile) || isAdmin) && (
 				<Flex vertical gap={16}>
 					<Flex className='heading-container' align='center' justify='space-between'>
-						<Flex align='center'>
-							<BackButton backTo={'lands'} />
+						<Flex align='center' gap={isMobile ? 8 : 16}>
+							<BackButton backTo='/lands' />
 							<Title level={1} className='text-h3'>
 								{pageTitle}
 							</Title>
@@ -77,7 +76,7 @@ const Land = () => {
 						</Flex>
 
 						{isAdmin && (
-							<Flex align='center'>
+							<Flex align='center' gap={isMobile ? 8 : 16}>
 								<Flex gap={5}>
 									<BellOutlined style={{ color: '#00000080', fontSize: '20px' }} />
 									<span className='text-label'>اطلاع رسانی</span>
@@ -86,9 +85,11 @@ const Land = () => {
 							</Flex>
 						)}
 					</Flex>
+
 					<LandInfo landData={landData} setPageTitle={setPageTitle} />
 					<Notes entityType='land' entityReference={landId} notesData={landData?.notes} status={status} />
 					<LandLogsCard landLogs={logs} setLogs={setLogs} well={landData.wells} landId={landId} status={status} />
+
 					{isAdmin && <DeleteCard title={`زمین ${pageTitle}`} api={`lands/${landId}`} backTo='/lands' />}
 				</Flex>
 			)}

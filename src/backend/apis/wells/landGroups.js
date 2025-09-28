@@ -1,8 +1,71 @@
 import { Router } from 'express'
 import Well from '../../models/Well.model.js'
 import mongoose from 'mongoose'
+import Irrigation from '../../models/Irrigation.model.js'
+import Schedule from '../../models/Schedule.model.js'
+import Note from '../../models/Note.model.js'
 
 const router = Router({ mergeParams: true })
+
+function msToHoursMinutes(ms) {
+	const totalMinutes = Math.floor(ms / 60000)
+	const hours = Math.floor(totalMinutes / 60)
+	const minutes = totalMinutes % 60
+	return `${hours}:${minutes.toString().padStart(2, '0')}`
+}
+
+function getTotalDurationMs(schedules) {
+	return schedules.reduce((sum, s) => {
+		const start = new Date(s.startTime)
+		const end = new Date(s.endTime)
+		return sum + (end - start)
+	}, 0)
+}
+
+router.get('/', async (req, res) => {
+	try {
+		const { wellId } = req.params
+		const well = await Well.findById(wellId).populate('landGroups.lands').select('landGroups cycleDays cycleStartDate').lean()
+
+		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+
+		const startDate = new Date(well.cycleStartDate)
+		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
+		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
+		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
+		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
+
+		for (const group of well.landGroups) {
+			const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
+			const totalSchedulesInCycle = schedules.length
+			const totalRequiredMs = getTotalDurationMs(schedules)
+
+			const irrigations = await Irrigation.find({
+				well: wellId,
+				landGroup: group.groupId,
+				isGroupLog: true,
+				startedAt: { $gte: cycleStart },
+				endedAt: { $lte: cycleEnd },
+			}).lean()
+
+			const receivedMs = irrigations.reduce((sum, log) => {
+				if (!log.endedAt) return sum
+				return sum + (new Date(log.endedAt) - new Date(log.startedAt))
+			}, 0)
+
+			group.requiredWater = msToHoursMinutes(totalRequiredMs)
+			group.receivedWater = msToHoursMinutes(receivedMs)
+			group.remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
+			group.totalSchedulesInCycle = totalSchedulesInCycle
+			group.receivedWaterInCycle = msToHoursMinutes(receivedMs)
+		}
+
+		return res.status(200).json({ landGroups: well.landGroups || [] })
+	} catch (err) {
+		console.error(err)
+		return res.status(500).json({ message: 'خطا در دریافت گروه‌ها.' })
+	}
+})
 
 router.post('/', async (req, res) => {
 	try {
@@ -35,21 +98,111 @@ router.post('/', async (req, res) => {
 		return res.status(201).json({ message: 'گروه زمین ایجاد شد.', group })
 	} catch (err) {
 		console.error(err)
-		return res.status(500).json({ message: 'خطا در ایجاد گروه زمین.' })
+		return res.status(500).json({ message: 'خطا در ایجاد گروه.' })
 	}
 })
 
-router.get('/', async (req, res) => {
+router.get('/:groupId', async (req, res) => {
 	try {
-		const { wellId } = req.params
-		const well = await Well.findById(wellId).populate('landGroups.lands').select('landGroups').lean()
+		const { wellId, groupId } = req.params
+
+		const well = await Well.findById(wellId)
+			.populate({
+				path: 'landGroups.lands',
+				populate: { path: 'owner', model: 'User', select: 'fullName mobile address' },
+			})
+			.lean()
 
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
-		return res.status(200).json({ landGroups: well.landGroups || [] })
+		const group = well.landGroups.find(g => g.groupId.equals(groupId))
+		if (!group) return res.status(404).json({ message: 'گروه پیدا نشد.' })
+
+		const startDate = new Date(well.cycleStartDate)
+		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
+		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
+		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
+		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
+
+		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
+		const totalSchedulesInCycle = schedules.length
+		const totalRequiredMs = getTotalDurationMs(schedules)
+
+		const irrigations = await Irrigation.find({
+			well: wellId,
+			landGroup: group.groupId,
+			isGroupLog: true,
+			startedAt: { $gte: cycleStart },
+			endedAt: { $lte: cycleEnd },
+		}).lean()
+
+		const uniqueLogsMap = new Map()
+		for (const log of irrigations) {
+			const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
+			if (!uniqueLogsMap.has(key)) {
+				uniqueLogsMap.set(key, log)
+			}
+		}
+
+		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
+
+		const receivedMs = logs.reduce((sum, log) => {
+			if (!log.endedAt) return sum
+			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
+		}, 0)
+
+		const nextIrrigationLog = await Irrigation.find({
+			well: wellId,
+			landGroup: group.groupId,
+			endedAt: null,
+			isGroupLog: true,
+		})
+			.sort({ startedAt: 1 })
+			.lean()
+
+		const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
+
+		const notes = await Note.find({
+			type: 'landGroup',
+			reference: group.groupId,
+		})
+			.sort({ createdAt: -1 })
+			.lean()
+
+		const requiredWater = msToHoursMinutes(totalRequiredMs)
+		const receivedWater = msToHoursMinutes(receivedMs)
+		const remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
+		const receivedWaterInCycle = msToHoursMinutes(receivedMs)
+
+		return res.status(200).json({
+			groupId: group.groupId,
+			title: group.title,
+			lands: group.lands.map(land => ({
+				_id: land._id,
+				title: land.title,
+				owner: land.owner
+					? {
+							_id: land.owner._id,
+							fullName: land.owner.fullName,
+							mobile: land.owner.mobile,
+							address: land.owner.address,
+					  }
+					: null,
+				location: land.location || '',
+			})),
+			lastIrrigation: logs.length ? logs[logs.length - 1].startedAt : null,
+			nextIrrigation,
+			requiredWater,
+			receivedWater,
+			remainingWater,
+			totalSchedulesInCycle,
+			receivedWaterInCycle,
+			logs,
+			notes,
+		})
 	} catch (err) {
 		console.error(err)
-		return res.status(500).json({ message: 'خطا در دریافت گروه‌ها.' })
+		return res.status(500).json({ message: 'خطا در دریافت اطلاعات گروه.' })
 	}
 })
 

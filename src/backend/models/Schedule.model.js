@@ -16,7 +16,7 @@ const scheduleSchema = new mongoose.Schema(
 		},
 		targetType: {
 			type: String,
-			enum: ['land', 'group'],
+			enum: ['land', 'group', 'off'],
 			required: true,
 		},
 		title: {

@@ -16,13 +16,10 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 
 		const cycleStartDateFormatted = well?.cycleStartDate ? moment(well.cycleStartDate).format('jYYYY/jMM/jDD') : '--'
 
-		const workTimeFormatted =
-			well?.offTime?.start && well?.offTime?.end ? `${moment(well.offTime.start).format('HH:mm')} - ${moment(well.offTime.end).format('HH:mm')}` : '--'
-
 		return [
 			{
 				label: 'نام میرآب',
-				value: irrigator ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.fullName}`}</Link> : '--',
+				value: irrigator ? isAdmin ? <Link to={`/users/${irrigator._id}`}>{`${irrigator.fullName}`}</Link> : irrigator.fullName : '--',
 			},
 			{
 				label: 'شماره تماس میرآب',
@@ -44,10 +41,6 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 				label: 'تاریخ شروع دوره',
 				value: cycleStartDateFormatted,
 			},
-			{
-				label: 'ساعت خاموشی',
-				value: workTimeFormatted,
-			},
 		]
 	}, [well])
 
@@ -65,10 +58,10 @@ const WellInfoCard = ({ wellInfo, setPageTitle }) => {
 					{wellInfoItems.map((item, index) => (
 						<Col xs={24} md={12} key={index}>
 							<Row>
-								<Col xs={6}>
+								<Col xs={12} md={6}>
 									<Typography.Text className='text-label'>{item.label}</Typography.Text>
 								</Col>
-								<Col xs={18}>
+								<Col xs={12} md={18}>
 									<Typography.Text className='text-value'>{item.value}</Typography.Text>
 								</Col>
 							</Row>

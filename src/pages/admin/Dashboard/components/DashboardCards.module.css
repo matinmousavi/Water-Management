@@ -1,0 +1,43 @@
+.text {
+	font-size: 16px;
+	font-weight: 400;
+	color: #000000;
+	margin: 0;
+}
+
+.title {
+	font-size: 20px;
+	font-weight: 500;
+	color: #000000;
+	margin: 0;
+}
+
+.info {
+	color: #0066ee;
+	font-size: 21px;
+}
+
+.error {
+	color: #ff4d4f;
+	font-size: 21px;
+}
+
+.card {
+	transition: all 0.3s ease;
+	border: 1px solid transparent;
+}
+
+.hover-delay:hover {
+	border-color: #ff4d4f;
+	background-color: #fff6f6;
+}
+
+.hover-consumption:hover {
+	border-color: #ff4d4f;
+	background-color: #fff6f6;
+}
+
+.hover-notes:hover {
+	border-color: #0066ee;
+	background-color: #f2f7fe;
+}

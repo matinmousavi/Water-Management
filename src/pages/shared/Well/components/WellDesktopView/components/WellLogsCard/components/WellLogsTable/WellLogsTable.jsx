@@ -26,8 +26,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		const grouped = {}
 
 		data.forEach(log => {
-			const key = log.landGroup ? `${log.landGroup}_${moment(log.startedAt).format('YYYYMMDDHHmmss')}` : log._id
-
+			const key = log.landGroup ? `${log.landGroup}_${moment(log.startedAt).format('YYYYMMDDHHmmss')}_${log._id}` : log._id
 			if (!grouped[key]) {
 				grouped[key] = {
 					...log,
@@ -47,7 +46,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 			group.logs.forEach((log, index) => {
 				rows.push({
 					...log,
-					groupKey: group.landGroup ? `${group.landGroup}_${moment(group.startedAt).format('YYYYMMDDHHmmss')}` : log._id,
+					groupKey: log.landGroup ? `${log.landGroup}_${moment(log.startedAt).format('YYYYMMDDHHmmss')}_${log._id}` : log._id,
 					logs: group.logs,
 					isFirstRow: index === 0,
 					groupSize: group.logs.length,
@@ -92,76 +91,78 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
+			width: 200,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
 					children: record.sharedDate ? moment(record.sharedDate).locale('fa').format('dddd jD jMMMM jYYYY') : '--',
-					props: {
-						rowSpan: record.groupSize,
-					},
+					props: { rowSpan: record.groupSize },
 				}
 			},
 		},
 		{
 			title: 'نام گروه',
+			width: 150,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
 					children: record.landGroupTitle || '--',
-					props: {
-						rowSpan: record.groupSize,
-						style: { fontWeight: 'bold' },
-					},
+					props: { rowSpan: record.groupSize, style: { fontWeight: 'bold' } },
 				}
 			},
 		},
 		{
 			title: 'ساعت شروع',
+			width: 120,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
 					children: record.sharedStartedAt ? moment(record.sharedStartedAt).locale('fa').format('HH:mm') : '--',
-					props: {
-						rowSpan: record.groupSize,
-					},
+					props: { rowSpan: record.groupSize },
 				}
 			},
 		},
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
+			width: 160,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
-
 				const display = record.isOngoing ? 'در حال آبیاری' : record.sharedDuration || '--'
-
 				return {
 					children: display,
-					props: {
-						rowSpan: record.groupSize,
-					},
+					props: { rowSpan: record.groupSize },
 				}
 			},
 		},
 		{
 			title: 'عنوان زمین',
+			width: 180,
 			render: (_, record) => <Link to={`/lands/${record.land?._id}`}>{record.land?.title}</Link>,
 		},
 		{
 			title: 'مالک زمین',
-			render: (_, record) => (record.land?.owner ? <Link to={`/users/${record.land.owner._id}`}>{record.land.owner.fullName}</Link> : '--'),
+			width: 180,
+			render: (_, record) =>
+				record.land?.owner ? (
+					isAdmin ? (
+						<Link to={`/users/${record.land.owner._id}`}>{record.land.owner.fullName}</Link>
+					) : (
+						record.land.owner.fullName
+					)
+				) : (
+					'--'
+				),
 		},
 		{
 			title: 'توضیحات',
 			key: 'note',
+			width: 120,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
-
 				return {
 					children: record.sharedNote ? <EyeOutlined className='eye-icon' onClick={() => handleViewNote(record)} /> : '--',
-					props: {
-						rowSpan: record.groupSize,
-					},
+					props: { rowSpan: record.groupSize },
 				}
 			},
 		},
@@ -171,9 +172,9 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		columns.push({
 			title: 'عملیات',
 			key: 'action',
+			width: 120,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
-
 				return {
 					children: (
 						<Space size={8}>
@@ -187,17 +188,25 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 							/>
 						</Space>
 					),
-					props: {
-						rowSpan: record.groupSize,
-					},
+					props: { rowSpan: record.groupSize },
 				}
 			},
 		})
 	}
 
+	const totalWidth = columns.reduce((sum, col) => sum + (col.width || 150), 0)
+
 	return (
 		<>
-			<Table size='middle' dataSource={groupedData} columns={columns} rowKey={record => record.groupKey || record._id} pagination={false} bordered />
+			<Table
+				size='middle'
+				dataSource={groupedData}
+				columns={columns}
+				rowKey={record => record.groupKey || record._id}
+				pagination={false}
+				bordered
+				scroll={{ x: totalWidth }}
+			/>
 
 			<Modal
 				title='حذف لاگ‌های گروهی'
@@ -207,10 +216,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 				afterOpenChange={handleAfterChange}
 				okText='تایید'
 				cancelText='انصراف'
-				okButtonProps={{
-					danger: true,
-					type: 'primary',
-				}}
+				okButtonProps={{ danger: true, type: 'primary' }}
 				confirmLoading={wellApi.isLoading}
 			>
 				<p>آیا از حذف این گروه لاگ‌های توزیع آب اطمینان دارید؟</p>

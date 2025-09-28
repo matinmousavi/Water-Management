@@ -1,18 +1,59 @@
 .schedule-wrapper {
-	max-height: 600px;
-	overflow: auto;
 	background: #ffffff;
-	padding: 0 0 10px 10px;
-	border: 1px solid #ccc;
+	scrollbar-width: thin;
+	scrollbar-color: #ccc transparent;
+	border: 1px solid #e9ecef;
+	border-radius: 8px;
+	max-height: none;
+	overflow: visible;
+}
+
+.schedule-wrapper::-webkit-scrollbar {
+	width: 6px;
+}
+
+.schedule-wrapper::-webkit-scrollbar-thumb {
+	background-color: #ccc;
+	border-radius: 4px;
+}
+
+.schedule-wrapper::-webkit-scrollbar-track {
+	background: red !important;
+}
+
+.schedule-wrapper::-webkit-scrollbar-button {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }
 
 .irrigation-schedule-container {
 	background-color: #f8f9fa;
 	border-bottom-left-radius: 8px;
 	border-bottom-right-radius: 8px;
-	overflow: visible;
 	border: none;
-	background-color: red;
+	max-height: 600px;
+	overflow: auto;
+	scrollbar-width: thin;
+	scrollbar-color: #ffe6e6;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar {
+	width: 8px;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar-track {
+	background: #ffe6e6;
+}
+
+.irrigation-schedule-container::-webkit-scrollbar-button {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }
 
 .schedule-header {
@@ -21,6 +62,7 @@
 	position: sticky;
 	top: 0;
 	z-index: 4;
+	width: fit-content;
 }
 
 .time-header {
@@ -30,12 +72,10 @@
 	align-items: center;
 	font-weight: bold;
 	font-size: 14px;
-	border-right: 1px solid #e9ecef;
 	position: sticky;
 	left: 0;
 	right: 0;
 	background-color: #fafafa;
-	border: 1px solid rgba(0, 0, 0, 0.06);
 	border-bottom: none;
 	border-left: none;
 	z-index: 6;
@@ -51,14 +91,11 @@
 	font-size: 14px;
 	border: 1px solid rgba(0, 0, 0, 0.06);
 	border-bottom: none;
+	border-top: none;
 	border-left: none;
 	min-width: 156px;
 	background-color: #fafafa;
 	padding: 0 8px;
-}
-
-.day-header-cell:last-child {
-	border-left: 1px solid #e9ecef;
 }
 
 .schedule-grid {
@@ -67,11 +104,11 @@
 }
 
 .time-column {
-	border-right: 1px solid #e9ecef;
 	position: sticky;
 	min-width: 156px;
 	right: 0;
 	z-index: 3;
+	background-color: #ffffff;
 }
 
 .time-column-content {
@@ -80,15 +117,25 @@
 
 .time-label-absolute {
 	position: absolute;
-	right: 1px;
+	right: 8px;
 	font-size: 10px;
 	font-weight: 500;
 	color: #495057;
 	top: 0;
 	transform: translateY(-50%);
-	padding: 0 8px;
 	z-index: 3;
 	min-width: 60px;
+}
+
+.time-label-absolute:not(:first-child):after {
+	content: '';
+	position: absolute;
+	top: 7px;
+	transform: translateY(-50%);
+	right: calc(100% + 28px);
+	width: 100%;
+	height: 0.5px;
+	background-color: #d9d9d9;
 }
 
 .first-label {
@@ -98,7 +145,7 @@
 .time-hour-bold {
 	position: absolute;
 	left: 0;
-	width: 25%;
+	width: 100%;
 	border-bottom: 1px solid #d9d9d9;
 	transform: translateY(-1px);
 }
@@ -115,10 +162,6 @@
 
 .day-column:not(:first-child) {
 	border-right: 1px solid #e9ecef;
-}
-
-.day-column:last-child {
-	border-left: 1px solid #e9ecef;
 }
 
 .day-content {
@@ -170,4 +213,29 @@
 .task-time {
 	font-size: 9px;
 	opacity: 0.8;
+}
+
+.current-day-column {
+	background-color: #fffafa;
+	position: relative;
+}
+
+.current-time-line {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background-color: #ff4d4f;
+	z-index: 1;
+}
+
+.current-time-line::before {
+	content: '';
+	position: absolute;
+	top: -3px;
+	right: 0;
+	width: 8px;
+	height: 8px;
+	background-color: #ff4d4f;
+	border-radius: 50%;
 }

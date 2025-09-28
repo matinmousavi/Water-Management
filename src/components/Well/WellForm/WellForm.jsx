@@ -1,8 +1,6 @@
-import { Flex, Form, Input, Select, TimePicker } from 'antd'
+import { Form, Grid, Input, Select } from 'antd'
 import { useUser } from '../../../contexts/UserContext'
 import FaDatePicker from '../../FaDatePicker/FaDatePicker'
-import { useState, useEffect } from 'react'
-import dayjs from 'dayjs'
 
 const { TextArea } = Input
 
@@ -18,25 +16,8 @@ const numberOnlyProps = {
 
 const WellForm = ({ form, irrigators = [] }) => {
 	const { isAdmin } = useUser()
-	const [startTime, setStartTime] = useState(null)
-
-	useEffect(() => {
-		setStartTime(form.getFieldValue('startTime'))
-	}, [form])
-
-	const disabledHours = () => {
-		if (!startTime) return []
-		const startHour = dayjs(startTime).hour()
-		return Array.from({ length: startHour }, (_, i) => i)
-	}
-
-	const disabledMinutes = selectedHour => {
-		if (!startTime) return []
-		const startHour = dayjs(startTime).hour()
-		const startMinute = dayjs(startTime).minute()
-		if (selectedHour !== startHour) return []
-		return Array.from({ length: startMinute + 1 }, (_, i) => i)
-	}
+	const screens = Grid.useBreakpoint()
+	const isMobile = screens.xs
 
 	return (
 		<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
@@ -56,13 +37,13 @@ const WellForm = ({ form, irrigators = [] }) => {
 							label: irrigator.fullName,
 						}))}
 						fieldNames={{ value: 'value', label: 'label' }}
-						size='large'
+						size={isMobile ? 'middle' : 'large'}
 					/>
 				</Form.Item>
 			)}
 
 			<Form.Item label='License Code' name='licenseCode'>
-				<Input size='large' {...numberOnlyProps} />
+				<Input size={isMobile ? 'middle' : 'large'} {...numberOnlyProps} />
 			</Form.Item>
 
 			<Form.Item label='مکان' name='location'>
@@ -70,46 +51,11 @@ const WellForm = ({ form, irrigators = [] }) => {
 			</Form.Item>
 
 			<Form.Item label='دوره' name='cycleDays' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<Input size='large' {...numberOnlyProps} />
+				<Input size={isMobile ? 'middle' : 'large'} {...numberOnlyProps} />
 			</Form.Item>
 
 			<Form.Item label='تاریخ شروع دوره' name='cycleStartDate' rules={[{ required: true, message: 'این فیلد الزامی است' }]}>
-				<FaDatePicker placeholder='تاریخ' size='large' />
-			</Form.Item>
-
-			<Form.Item label='ساعت خاموشی' required>
-				<Flex>
-					<Form.Item name='startTime' rules={[{ required: true, message: 'زمان شروع الزامی است' }]} style={{ flex: 1, marginBottom: 0 }}>
-						<TimePicker placeholder='شروع' format='HH:mm' size='large' style={{ width: '100%' }} onChange={value => setStartTime(value)} />
-					</Form.Item>
-
-					<Form.Item
-						name='endTime'
-						dependencies={['startTime']}
-						rules={[
-							{ required: true, message: 'زمان پایان الزامی است' },
-							({ getFieldValue }) => ({
-								validator(_, value) {
-									const start = getFieldValue('startTime')
-									if (!start || !value || dayjs(value).isAfter(dayjs(start))) {
-										return Promise.resolve()
-									}
-									return Promise.reject(new Error('زمان پایان باید بعد از زمان شروع باشد'))
-								},
-							}),
-						]}
-						style={{ flex: 1, marginBottom: 0 }}
-					>
-						<TimePicker
-							placeholder='پایان'
-							format='HH:mm'
-							size='large'
-							style={{ width: '100%' }}
-							disabledHours={disabledHours}
-							disabledMinutes={disabledMinutes}
-						/>
-					</Form.Item>
-				</Flex>
+				<FaDatePicker placeholder='تاریخ' size={isMobile ? 'middle' : 'large'} />
 			</Form.Item>
 		</Form>
 	)

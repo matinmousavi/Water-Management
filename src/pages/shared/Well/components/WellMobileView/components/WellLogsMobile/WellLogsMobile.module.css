@@ -3,6 +3,15 @@
 	direction: rtl;
 }
 
+.borderCard {
+	border-color: #52c41a !important ;
+	background-color: #f3fcef !important;
+}
+.borderCardDanger {
+	border-color: #f5222d !important;
+	background-color: #fff3f4 !important;
+}
+
 .cardType {
 	flex: 1;
 	display: flex;
@@ -42,6 +51,11 @@
 	color: rgba(245, 34, 45, 1);
 	font-weight: 500;
 	font-size: 14px;
+}
+
+.offCard {
+	background-color: rgba(0, 0, 0, 0.05); /* مشکی کم‌رنگ */
+	border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 @media (min-width: 1280px) {

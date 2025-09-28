@@ -9,6 +9,7 @@ import { useWell } from '../../../../../../contexts/WellContext'
 
 import ScheduleGrid from './components/ScheduleGrid'
 import ScheduleModal from './components/ScheduleModal'
+import { useUser } from '../../../../../../../../../contexts/UserContext'
 
 dayjs.extend(isBetween)
 
@@ -48,7 +49,9 @@ function numberToPersianOrdinal(n) {
 	return ordinals[n] || n
 }
 
-export default function IrrigationScheduleTable({ wellId, selectedSnapshot, lands = [], landGroups = [] }) {
+const OFF_HOURS_COLOR = '#00000033'
+
+export default function IrrigationScheduleTable({ wellId, selectedSnapshot, lands = [], landGroups = [], editable = true, cycleDays: cycleDaysProp }) {
 	const [tasks, setTasks] = useState([])
 	const [isModalVisible, setIsModalVisible] = useState(false)
 	const [editingTask, setEditingTask] = useState(null)
@@ -57,8 +60,10 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 	const [form] = Form.useForm()
 	const api = useAPI()
 	const { openNotification } = useNotification()
-	const { cycleDays } = useWell()
+	const { isAdmin } = useUser()
 
+	const cycleDaysFromContext = editable ? useWell().cycleDays : null
+	const cycleDays = editable ? cycleDaysFromContext : cycleDaysProp || 7
 	const daysOfWeek = useMemo(() => Array.from({ length: cycleDays }, (_, i) => `روز ${numberToPersianOrdinal(i + 1)}`), [cycleDays])
 
 	const generateTimeSlots = () => {
@@ -66,16 +71,11 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		for (let hour = 0; hour < 24; hour++) {
 			for (let minute = 0; minute < 60; minute += 15) {
 				const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-				slots.push({
-					value: timeString,
-					hour,
-					minute,
-				})
+				slots.push({ value: timeString, hour, minute })
 			}
 		}
 		return slots
 	}
-
 	const timeSlots = useMemo(() => generateTimeSlots(), [])
 
 	const fetchSchedules = async () => {
@@ -89,7 +89,9 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 
 	useEffect(() => {
 		if (wellId) fetchSchedules()
-	}, [wellId, selectedSnapshot])
+	}, [wellId, selectedSnapshot, editable])
+
+	const currentDayInCycle = tasks[0]?.dayInCycle
 
 	const landOptions = useMemo(() => {
 		const landsInGroups = landGroups.flatMap(g => g.lands)
@@ -107,97 +109,127 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		]
 	}, [landOptions, groupOptions])
 
-	const handleTaskClick = task => {
-		setEditingTask(task)
-		setSelectedDay(task.day)
-
-		let targetValue = null
-		if (task.targetType === 'land' && task.land) {
-			targetValue = task.land._id
-		} else if (task.targetType === 'group' && task.landGroup) {
-			targetValue = task.landGroup._id
-		}
-
-		form.setFieldsValue({
-			target: targetValue,
-			startTime: dayjs(task.startTime),
-			endTime: dayjs(task.endTime),
-			day: task.day ?? 0,
-			color: task.color || '#e0f7e980',
-		})
-		setIsModalVisible(true)
-	}
-
-	const handleEmptySlotClick = (day, timeSlot) => {
+	const resetModal = () => {
 		setEditingTask(null)
-		setSelectedDay(day)
+		setSelectedDay(null)
 		form.resetFields()
-		form.setFieldsValue({
-			color: '#e0f7e980',
-			day,
-			startTime: dayjs(timeSlot, 'HH:mm'),
-			endTime: dayjs(timeSlot, 'HH:mm').add(15, 'minute'),
-		})
-		setIsModalVisible(true)
+		form.setFieldsValue({ color: '#e0f7e980' })
+		setScheduleType('land')
+		setIsModalVisible(false)
 	}
 
-	const handleModalOk = async () => {
-		try {
-			const values = await form.validateFields()
-			setIsLoading(true)
+	const [scheduleType, setScheduleType] = useState('land')
 
-			const isGroup = groupOptions.some(g => g.value === values.target)
+	const handleTaskClick = editable
+		? task => {
+				setEditingTask(task)
+				setSelectedDay(task.day)
 
-			const payload = {
-				startTime: values.startTime.toISOString(),
-				endTime: values.endTime.toISOString(),
-				targetType: isGroup ? 'group' : 'land',
-				targetId: values.target,
-				color: values.color,
-				day: selectedDay,
-			}
+				let targetValue = null
+				if (task.targetType === 'land' && task.land) targetValue = task.land._id
+				else if (task.targetType === 'group' && task.landGroup) targetValue = task.landGroup._id
 
-			if (editingTask?._id) {
-				await api.patch(`/wells/${wellId}/schedules/${editingTask._id}`, payload)
-				openNotification('success', 'زمان‌بندی بروزرسانی شد')
-			} else {
-				await api.post(`/wells/${wellId}/schedules`, payload)
-				openNotification('success', 'زمان‌بندی ایجاد شد')
-			}
+				form.setFieldsValue({
+					target: targetValue,
+					startTime: dayjs(task.startTime),
+					endTime: dayjs(task.endTime),
+					day: task.day ?? 0,
+					color: task.color || '#e0f7e980',
+				})
 
-			setIsModalVisible(false)
-			setEditingTask(null)
-			setSelectedDay(null)
-			await fetchSchedules()
-		} catch {
-			openNotification('error', 'خطا', 'خطا در ذخیره زمان‌بندی')
-		} finally {
-			setIsLoading(false)
-		}
-	}
+				setScheduleType(task.targetType === 'off' ? 'off' : 'land')
+				setIsModalVisible(true)
+		  }
+		: undefined
 
-	const handleDeleteTask = async () => {
-		if (!editingTask?._id) return
-		try {
-			await api.delete(`/wells/${wellId}/schedules/${editingTask._id}`)
-			openNotification('success', 'زمان‌بندی حذف شد')
-			setIsModalVisible(false)
-			setEditingTask(null)
-			setSelectedDay(null)
-			await fetchSchedules()
-		} catch {
-			openNotification('error', 'خطا', 'خطا در حذف زمان‌بندی')
-		}
-	}
+	const handleEmptySlotClick = editable
+		? (day, timeSlot) => {
+				setEditingTask(null)
+				setSelectedDay(day)
+				form.resetFields()
+				form.setFieldsValue({
+					color: '#e0f7e980',
+					day,
+					startTime: dayjs(timeSlot, 'HH:mm'),
+					endTime: dayjs(timeSlot, 'HH:mm').add(15, 'minute'),
+				})
+				setScheduleType('land')
+				setIsModalVisible(true)
+		  }
+		: undefined
+
+	const handleModalOk = editable
+		? async () => {
+				try {
+					const values = await form.validateFields()
+
+					setIsLoading(true)
+
+					let payload
+					if (values.color === OFF_HOURS_COLOR) {
+						payload = {
+							startTime: values.startTime.toISOString(),
+							endTime: values.endTime.toISOString(),
+							targetType: 'off',
+							color: OFF_HOURS_COLOR,
+							status: 'inactive',
+							day: selectedDay,
+						}
+					} else {
+						const isGroup = groupOptions.some(g => g.value === values.target)
+						payload = {
+							startTime: values.startTime.toISOString(),
+							endTime: values.endTime.toISOString(),
+							targetType: isGroup ? 'group' : 'land',
+							targetId: values.target,
+							color: values.color,
+							status: 'active',
+							day: selectedDay,
+						}
+					}
+
+					if (editingTask?.id) await api.patch(`/wells/${wellId}/schedules/${editingTask.id}`, payload)
+					else await api.post(`/wells/${wellId}/schedules`, payload)
+
+					openNotification('success', 'زمان‌بندی ذخیره شد')
+
+					resetModal()
+
+					await fetchSchedules()
+				} catch {
+					openNotification('error', 'خطا', 'خطا در ذخیره زمان‌بندی')
+				} finally {
+					setIsLoading(false)
+				}
+		  }
+		: undefined
+
+	const handleDeleteTask = editable
+		? async () => {
+				if (!editingTask?.id) return
+				try {
+					await api.delete(`/wells/${wellId}/schedules/${editingTask.id}`)
+					openNotification('success', 'زمان‌بندی حذف شد')
+					resetModal()
+					await fetchSchedules()
+				} catch {
+					openNotification('error', 'خطا', 'خطا در حذف زمان‌بندی')
+				}
+		  }
+		: undefined
 
 	const getTaskPosition = task => {
+		const slotHeight = 15
 		const startTime = dayjs(task.startTime)
 		const endTime = dayjs(task.endTime)
+
 		const startMinutes = startTime.hour() * 60 + startTime.minute()
 		const endMinutes = endTime.hour() * 60 + endTime.minute()
-		const startSlotIndex = timeSlots.findIndex(slot => slot.hour * 60 + slot.minute === startMinutes)
 
-		return { top: startSlotIndex * 15, height: ((endMinutes - startMinutes) / 15) * 15 }
+		const top = (startMinutes / 15) * slotHeight
+		const height = ((endMinutes - startMinutes) / 15) * slotHeight
+
+		return { top, height }
 	}
 
 	const isTimeSlotOccupied = (day, timeSlot) =>
@@ -217,22 +249,23 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				onEmptySlotClick={handleEmptySlotClick}
 				isTimeSlotOccupied={isTimeSlotOccupied}
 				getTaskPosition={getTaskPosition}
+				currentDayInCycle={currentDayInCycle}
 			/>
 
-			<ScheduleModal
-				visible={isModalVisible}
-				onCancel={() => {
-					setIsModalVisible(false)
-					setEditingTask(null)
-					setSelectedDay(null)
-				}}
-				onOk={handleModalOk}
-				onDelete={handleDeleteTask}
-				isLoading={isLoading}
-				editingTask={editingTask}
-				form={form}
-				selectOptions={selectOptions}
-			/>
+			{editable && isAdmin && (
+				<ScheduleModal
+					visible={isModalVisible}
+					onCancel={resetModal}
+					onOk={handleModalOk}
+					onDelete={handleDeleteTask}
+					isLoading={isLoading}
+					editingTask={editingTask}
+					form={form}
+					selectOptions={selectOptions}
+					scheduleType={scheduleType}
+					setScheduleType={setScheduleType}
+				/>
+			)}
 		</>
 	)
 }

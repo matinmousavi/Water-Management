@@ -1,0 +1,16 @@
+.containerHeader {
+	width: 100%;
+	position: relative;
+}
+
+.backLink {
+	position: absolute;
+	right: 0;
+	border: none;
+	background-color: transparent;
+}
+.icon {
+	margin-top: 8px;
+	color: #000;
+	font-size: 16px;
+}

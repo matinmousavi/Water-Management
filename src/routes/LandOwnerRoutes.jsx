@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import Layouts from '../layouts/Layouts'
 
-import Dashboard from '../pages/shared/Dashboard/Dashboard'
+import Dashboard from '../pages/admin/Dashboard/Dashboard'
 import Land from '../pages/shared/Land/Land'
 import Well from '../pages/shared/Well/Well'
 import Lands from '../pages/shared/Lands/Lands'

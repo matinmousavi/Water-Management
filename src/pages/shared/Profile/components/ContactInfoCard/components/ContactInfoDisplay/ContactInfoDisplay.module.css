@@ -1,8 +1,14 @@
 .container_avatar {
 	text-align: center;
+	margin-bottom: 16px;
 }
 .avatar {
 	width: 124px;
 	height: 124px;
 	font-size: 40px;
+}
+@media (min-width: 1024px){
+	.container_avatar {
+	margin-bottom: 0;
+}
 }

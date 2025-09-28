@@ -1,45 +1,36 @@
 import { Flex, Modal, Typography } from 'antd'
-import { useState } from 'react'
-
+import { useState, useEffect } from 'react'
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../../../hooks/useNotification'
-
 import moment from 'moment-jalaali'
-
 import EditDescriptionLog from '../EditDescriptionLog/EditDescriptionLog'
-
 import styles from './DescriptionModalCell.module.css'
-
 import { EyeOutlined, EditOutlined } from '@ant-design/icons'
 
 const { Text } = Typography
 
-const DescriptionModalCell = ({ record, descriptionEditHours }) => {
+const DescriptionModalCell = ({ record, descriptionEditHours, onNoteUpdate }) => {
 	const [openEdit, setOpenEdit] = useState(false)
 	const [openDescription, setOpenDescription] = useState(false)
-	const [notes, setNotes] = useState(record.note || null)
+	const [notes, setNotes] = useState(record?.note || null)
 
 	const { openNotification } = useNotification()
 	const api = useAPI()
 
-	const isEditAllowed = moment().diff(moment(record.createdAt), 'hours') < descriptionEditHours
+	useEffect(() => {
+		setNotes(record?.note || null)
+	}, [record?.note])
 
-	const handleEditClick = () => {
-		if (!notes && isEditAllowed) {
-			setOpenEdit(true)
-		} else {
-			setOpenDescription(true)
-		}
-	}
+	const isEditAllowed = moment().diff(moment(record?.createdAt), 'hours') < descriptionEditHours
 
-	const handleSubmit = async () => {
-		const hadNoteBefore = Boolean(record.note)
+	const handleSubmit = async newNote => {
+		const hadNoteBefore = Boolean(record?.note)
 
 		try {
-			const response = await api.patch(`irrigations/${record._id}`, { note: notes })
+			await api.patch(`irrigations/${record?._id}`, { note: newNote })
+			if (onNoteUpdate) onNoteUpdate(newNote)
 
-			setNotes(response.irrigation.note)
-
+			setNotes(newNote)
 			openNotification('success', hadNoteBefore ? 'ویرایش موفق' : 'ثبت موفق', hadNoteBefore ? 'توضیحات با موفقیت ویرایش شد' : 'توضیحات با موفقیت ثبت شد')
 
 			setOpenEdit(false)
@@ -49,30 +40,44 @@ const DescriptionModalCell = ({ record, descriptionEditHours }) => {
 		}
 	}
 
-	const cancelEdit = () => {
-		setOpenEdit(false)
-	}
-
-	const openEditFromModal = () => {
-		setOpenDescription(false)
-		setTimeout(() => setOpenEdit(true), 300)
-	}
-
 	return (
 		<>
-			<Flex align='center' justify='center' onClick={handleEditClick}>
-				{isEditAllowed ? <EditOutlined className={styles.icon} /> : <EyeOutlined onClick={() => setOpenDescription(true)} className={styles.icon} />}
+			<Flex align='center' justify='center'>
+				{!notes && isEditAllowed ? (
+					<EditOutlined
+						className={styles.icon}
+						onClick={() => {
+							setNotes('')
+							setOpenEdit(true)
+						}}
+					/>
+				) : (
+					<EyeOutlined
+						className={styles.icon}
+						onClick={() => {
+							setNotes(notes)
+							setOpenDescription(true)
+						}}
+					/>
+				)}
 			</Flex>
-
 			<Modal
-				title={`توضیحات لاگ توزیع آب ${moment(record.startedAt).format('dddd jD jMMMM jYYYY')}`}
+				title={`توضیحات لاگ توزیع آب ${moment(record?.startedAt).format('dddd jD jMMMM jYYYY')}`}
 				open={openDescription}
 				onCancel={() => setOpenDescription(false)}
 				centered
 				footer={
 					isEditAllowed &&
 					notes && (
-						<Flex align='center' justify='start' onClick={openEditFromModal}>
+						<Flex
+							align='center'
+							justify='start'
+							onClick={() => {
+								setOpenDescription(false)
+								setNotes(record?.note || notes)
+								setTimeout(() => setOpenEdit(true), 300)
+							}}
+						>
 							<EditOutlined className={styles.icon} />
 							<Text className={styles.icon}>ویرایش</Text>
 						</Flex>
@@ -82,8 +87,14 @@ const DescriptionModalCell = ({ record, descriptionEditHours }) => {
 			>
 				<Text className={styles.text_note}>{notes || 'بدون توضیحات'}</Text>
 			</Modal>
-
-			<EditDescriptionLog loading={api.isLoading} isOpen={openEdit} onSubmit={handleSubmit} setNotes={setNotes} note={notes} onClose={cancelEdit} />
+			<EditDescriptionLog
+				loading={api.isLoading}
+				isOpen={openEdit}
+				onSubmit={handleSubmit}
+				setNotes={setNotes}
+				note={notes}
+				onClose={() => setOpenEdit(false)}
+			/>
 		</>
 	)
 }

@@ -1,13 +1,11 @@
-import  { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Layout, Menu, Typography, Image, Grid, Flex, Button } from 'antd'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useSearchParams } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
-
-import { SettingOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
+import { SettingOutlined, MailOutlined, UserOutlined, CalendarOutlined, MenuOutlined, CloseOutlined } from '@ant-design/icons'
 
 import iconExit from '../../public/Exit.svg'
 import iconNotes from '../../public/myNotes.svg'
-
 import styles from './Layouts.module.css'
 
 const { Header, Content } = Layout
@@ -15,11 +13,12 @@ const { Title } = Typography
 
 const Layouts = () => {
 	const { isAdmin, isIrrigator, logout } = useUser()
-	const location = useLocation()
 	const screens = Grid.useBreakpoint()
 	const isMobile = screens.xs
-
+	const [searchParams] = useSearchParams()
+	const wellId = searchParams.get('wellId')
 	const [menuOpen, setMenuOpen] = useState(false)
+	const [drawerOpen, setDrawerOpen] = useState(false)
 
 	const mainMenuItems = useMemo(() => {
 		const items = []
@@ -84,34 +83,84 @@ const Layouts = () => {
 	return (
 		<Layout className={styles.layout}>
 			<Header>
-				<Flex align='center' justify='space-between'>
-					<Flex align='center' gap={10} className={styles['w-full']}>
-						<Link to='/'>
+				{isMobile && isAdmin ? (
+					<Flex align='center' justify='space-between' className={styles['w-full']}>
+						<Button
+							type='text'
+							shape='circle'
+							icon={
+								drawerOpen ? (
+									<CloseOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />
+								) : (
+									<MenuOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />
+								)
+							}
+							onClick={() => setDrawerOpen(prev => !prev)}
+						/>
+						<Link to='/' style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 							<Image src='../assets/images/default-logo.png' width={24} preview={false} />
-						</Link>
-						<Link to='/'>
 							<Title level={3} className={styles.title}>
 								مدیریت آب
 							</Title>
 						</Link>
-
-						{!isMobile && <Menu theme='dark' mode='horizontal' selectedKeys={[location.pathname]} items={mainMenuItems} className={styles.flex} />}
-					</Flex>
-
-					<div style={{ position: 'relative' }}>
 						<Button
 							type='text'
 							shape='circle'
-							icon={<UserOutlined style={{ color: '#FFFFFFA6', fontSize: 20, paddingTop: 60 }} />}
+							icon={<UserOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />}
 							onClick={() => setMenuOpen(prev => !prev)}
 						/>
 						{menuOpen && (
 							<Menu mode='vertical' items={userMenuItems} onClick={handleUserMenuClick} className={styles.userMenu} selectable={false} />
 						)}
-					</div>
-				</Flex>
+						{drawerOpen && (
+							<>
+								<div className={styles.mobileMenuWrapper}>
+									<div className={styles.overlay} onClick={() => setDrawerOpen(false)} />
+									<Menu
+										mode='vertical'
+										selectedKeys={[window.location.pathname]}
+										items={mainMenuItems}
+										className={styles.mobileMenu}
+										onClick={() => setDrawerOpen(false)}
+									/>
+								</div>
+							</>
+						)}
+					</Flex>
+				) : (
+					<Flex align='center' justify='space-between'>
+						<Flex align='center' gap={10} className={styles['w-full']}>
+							<Link to='/'>
+								<Image src='../assets/images/default-logo.png' width={24} preview={false} />
+							</Link>
+							<Link to='/'>
+								<Title level={3} className={styles.title}>
+									مدیریت آب
+								</Title>
+							</Link>
+							{!isMobile && (
+								<Menu theme='dark' mode='horizontal' selectedKeys={[window.location.pathname]} items={mainMenuItems} className={styles.flex} />
+							)}
+						</Flex>
+						<div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
+							{isIrrigator && isMobile ? (
+								<Link to={`/schedules/${wellId}`}>
+									<Button type='text' shape='circle' icon={<CalendarOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />} />
+								</Link>
+							) : null}
+							<Button
+								type='text'
+								shape='circle'
+								icon={<UserOutlined style={{ color: '#FFFFFFA6', fontSize: 20 }} />}
+								onClick={() => setMenuOpen(prev => !prev)}
+							/>
+							{menuOpen && (
+								<Menu mode='vertical' items={userMenuItems} onClick={handleUserMenuClick} className={styles.userMenu} selectable={false} />
+							)}
+						</div>
+					</Flex>
+				)}
 			</Header>
-
 			<Content className={styles.content}>
 				<Outlet />
 			</Content>
