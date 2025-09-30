@@ -56,8 +56,8 @@ function scheduleTimesForDate(schedule, referenceDay = moment().startOf('day')) 
 	return { schedStart, schedEnd }
 }
 
-function isLogOutOfSchedule(log, schedule, bufferMinutes = 2, scheduleDay = moment().startOf('day')) {
-	const { schedStart, schedEnd } = scheduleTimesForDate(schedule, scheduleDay)
+function isLogOutOfSchedule(log, schedule, bufferMinutes = 2) {
+	const { schedStart, schedEnd } = scheduleTimesForDate(schedule, moment(log.startedAt))
 	const logStart = moment(log.startedAt)
 	const logEnd = moment(log.endedAt || log.startedAt)
 	const beforeAllowed = schedStart.clone().subtract(bufferMinutes, 'minutes')
@@ -67,7 +67,6 @@ function isLogOutOfSchedule(log, schedule, bufferMinutes = 2, scheduleDay = mome
 
 router.get('/', async (req, res) => {
 	try {
-		const today = moment().startOf('day')
 		const wells = await Well.find({ status: 'active' }).lean()
 		const irrigations = await Irrigation.find().populate('well').populate('land').lean()
 
@@ -77,95 +76,107 @@ router.get('/', async (req, res) => {
 		let totalScheduledMinutes = 0
 		const wellsData = []
 
-		for (const well of wells) {
-			if (!well.cycleStartDate || !well.cycleDays) continue
+		const sortedLogs = irrigations.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
 
+		const processedGroups = new Set()
+
+		for (const log of sortedLogs) {
+			if (!log.well) continue
+
+			const well = wells.find(w => w._id.toString() === log.well._id.toString())
+			if (!well) continue
+
+			const logStartDate = moment(log.startedAt)
 			const startDate = new Date(well.cycleStartDate)
-			const daysPassed = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+			const daysPassed = Math.floor((logStartDate.valueOf() - startDate.getTime()) / (1000 * 60 * 60 * 24))
 			const dayInCycle = (daysPassed % well.cycleDays) + 1
 
-			const schedules = await Schedule.find({
+			let key = log._id
+			let landTitle = log.land?.title || null
+			let groupInfo = null
+
+			if (log.landGroup) {
+				const groupKey = `${log.landGroup}-${log.startedAt}-${log.endedAt}`
+				if (processedGroups.has(groupKey)) continue
+				processedGroups.add(groupKey)
+
+				const group = well.landGroups.find(g => g.groupId.toString() === log.landGroup.toString())
+				if (group) {
+					groupInfo = { id: group.groupId, title: group.title }
+				} else {
+					groupInfo = { id: log.landGroup, title: log.landGroup.toString() }
+				}
+
+				landTitle = null
+				key = log.landGroup + '-' + log.startedAt
+			}
+
+			const schedulesForStatus = await Schedule.find({
 				well: well._id,
 				status: 'active',
 				day: dayInCycle,
+				$or: [
+					{ targetType: 'land', land: log.land?._id },
+					{ targetType: 'group', landGroup: log.landGroup },
+				],
+			}).lean()
+
+			const schedulesForProgress = await Schedule.find({
+				well: well._id,
+				status: 'active',
+				$or: [
+					{ targetType: 'land', land: log.land?._id },
+					{ targetType: 'group', landGroup: log.landGroup },
+				],
+			}).lean()
+
+			let totalSchedMinutes = 0
+			schedulesForProgress.forEach(sch => {
+				const dur = moment(sch.endTime).diff(moment(sch.startTime), 'minutes')
+				if (!isNaN(dur) && dur > 0) totalSchedMinutes += dur
 			})
-				.populate('land')
-				.populate('landGroup')
-				.lean()
 
-			if (!schedules || schedules.length === 0) continue
+			const logDuration = log.startedAt && log.endedAt ? moment(log.endedAt).diff(moment(log.startedAt), 'minutes') : 0
+			totalIrrigatedMinutes += logDuration
 
-			for (const schedule of schedules) {
-				const { schedStart, schedEnd } = scheduleTimesForDate(schedule, today)
-				const schedDuration = moment(schedule.endTime).diff(moment(schedule.startTime), 'minutes')
-				if (!isNaN(schedDuration) && schedDuration > 0) totalScheduledMinutes += schedDuration
+			const waterPercent = totalSchedMinutes > 0 ? Math.min(100, Math.round((logDuration / totalSchedMinutes) * 100)) : 0
 
-				const scheduleLogs = irrigations.filter(log => {
-					if (!log.well || log.well._id.toString() !== well._id.toString()) return false
-					if (schedule.targetType === 'land' && log.land) {
-						return log.land._id.toString() === schedule.land._id.toString() && moment(log.startedAt).isSame(today, 'day')
-					}
-					if (schedule.targetType === 'group' && log.landGroup) {
-						return log.landGroup.toString() === schedule.landGroup?._id.toString() && moment(log.startedAt).isSame(today, 'day')
-					}
-					return false
-				})
-
-				if (scheduleLogs.length === 0) continue
-
-				let totalLandMinutes = 0
-				for (const log of scheduleLogs) {
-					if (log.startedAt && log.endedAt) {
-						const dur = moment(log.endedAt).diff(moment(log.startedAt), 'minutes')
-						if (!isNaN(dur) && dur > 0) totalLandMinutes += dur
-					}
-				}
-				totalIrrigatedMinutes += totalLandMinutes
-
-				let status = ''
-				const firstLog = scheduleLogs[0]
-
-				if (firstLog.isOngoing) {
-					status = 'در حال آبیاری'
-				} else if (scheduleLogs.some(log => isLogOutOfSchedule(log, schedule, 2, today))) {
-					status = 'خارج از زمانبندی'
-					outOfScheduleCount++
-				} else if (totalLandMinutes > schedDuration) {
-					status = 'مصرف بیشتر'
-				} else {
-					const logEnd = moment(firstLog.endedAt)
+			let status = ''
+			if (log.isOngoing) {
+				status = 'در حال آبیاری'
+			} else if (schedulesForStatus.some(sch => isLogOutOfSchedule(log, sch, 2))) {
+				status = 'خارج از زمانبندی'
+				outOfScheduleCount++
+			} else if (logDuration > totalSchedMinutes) {
+				status = 'مصرف بیشتر'
+			} else {
+				const firstSchedule = schedulesForStatus[0]
+				if (firstSchedule) {
+					const { schedStart, schedEnd } = scheduleTimesForDate(firstSchedule, logStartDate)
+					const logEnd = moment(log.endedAt)
 					const endDiff = schedEnd.diff(logEnd, 'minutes')
 					if (endDiff > 5) {
 						status = 'توقف زودهنگام'
-					} else if (moment(firstLog.startedAt).isAfter(schedStart)) {
+					} else if (moment(log.startedAt).isAfter(schedStart)) {
 						status = 'تاخیر'
 						delayedStartCount++
 					}
 				}
-
-				const waterPercent = schedDuration > 0 ? Math.min(100, Math.round((totalLandMinutes / schedDuration) * 100)) : 0
-
-				wellsData.push({
-					key: schedule._id,
-					wellName: well.title,
-					land: schedule.targetType === 'land' ? schedule.land?.title : null,
-					group:
-						schedule.targetType === 'group'
-							? {
-									id: schedule.landGroup?._id,
-									title: schedule.landGroup?.title,
-							  }
-							: null,
-					startTime: schedStart.format('HH:mm'),
-					endTime: schedEnd.format('HH:mm'),
-					status,
-					waterStatus: waterPercent,
-				})
 			}
+
+			wellsData.push({
+				key,
+				wellName: well.title,
+				land: landTitle,
+				group: groupInfo,
+				startTime: moment(log.startedAt).format('HH:mm'),
+				endTime: log.endedAt ? moment(log.endedAt).format('HH:mm') : null,
+				status,
+				waterStatus: waterPercent,
+			})
 		}
 
 		const progressPercent = totalScheduledMinutes > 0 ? Math.min(100, (totalIrrigatedMinutes / totalScheduledMinutes) * 100) : 0
-
 		const unreadNotesCount = await Note.countDocuments({ user: req.user._id, isRead: false })
 
 		res.json({
@@ -173,7 +184,6 @@ router.get('/', async (req, res) => {
 			progressPercent: Math.round(progressPercent),
 			delayedStartCount,
 			outOfScheduleCount,
-			today: today.format('jYYYY/jMM/jDD'),
 			totalScheduledMinutes,
 			wells: wellsData,
 			unreadNotesCount,
