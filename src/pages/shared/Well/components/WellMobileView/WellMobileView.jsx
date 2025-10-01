@@ -15,8 +15,6 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const schedulesApi = useAPI()
 	const schedules = schedulesApi?.data?.schedules
 
-	console.log(schedules)
-
 	const wellIdFromParams = searchParams.get('wellId')
 
 	useEffect(() => {

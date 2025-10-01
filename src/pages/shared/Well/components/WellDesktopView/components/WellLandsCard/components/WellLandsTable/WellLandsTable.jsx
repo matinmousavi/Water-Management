@@ -11,7 +11,7 @@ import EditLandGroupModal from '../EditLandGroupModal/EditLandGroupModal'
 const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
-	const { isAdmin } = useUser()
+	const { isAdmin, isIrrigator } = useUser()
 	const [selectedLand, setSelectedLand] = useState(null)
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 	const [editGroupModalContent, setEditGroupModalContent] = useState(null)
@@ -103,7 +103,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 				if (!group) return '-'
 				return (
 					<Flex align='center' gap={8}>
-						<span>{group.title}</span>
+						{isIrrigator ? <Link to={`/wells/${wellId}/groups/${group?.groupId}`}>{group.title}</Link> : <span>{group.title}</span>}
 						{isAdmin ? <Button type='link' icon={<EditOutlined />} onClick={() => openEditGroupModal(group)} /> : null}
 					</Flex>
 				)

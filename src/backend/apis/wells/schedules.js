@@ -29,6 +29,15 @@ function getTotalDurationMs(schedules) {
 	}, 0)
 }
 
+// Helper: calculate duration between start and end in "HH:mm"
+function calcDuration(startTime, endTime) {
+	const ms = new Date(endTime) - new Date(startTime)
+	const totalMinutes = Math.floor(ms / 60000)
+	const hours = Math.floor(totalMinutes / 60)
+	const minutes = totalMinutes % 60
+	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+}
+
 // GET all schedules
 router.get('/', async (req, res) => {
 	try {
@@ -93,6 +102,7 @@ router.get('/', async (req, res) => {
 				irrigationInProgress,
 				irrigationStartedAt,
 				irrigationEndsAt,
+				duration: calcDuration(schedule.startTime, schedule.endTime),
 			})
 		}
 
