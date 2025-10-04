@@ -7,6 +7,7 @@ const LandsTable = ({ landsData = [] }) => {
 	const [containerRef, height] = useContainerHeight(40)
 	const [pageSize, setPageSize] = useState(6)
 	const tableWrapperRef = useRef(null)
+	const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1024)
 
 	useEffect(() => {
 		if (!tableWrapperRef.current) return
@@ -19,6 +20,12 @@ const LandsTable = ({ landsData = [] }) => {
 			}
 		}
 	}, [height, landsData])
+
+	useEffect(() => {
+		const handleResize = () => setIsSmallScreen(window.innerWidth < 1024)
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	const allIrrigators = Array.from(
 		new Set(landsData.flatMap(land => (land.wells || []).filter(well => well.irrigator).map(well => `${well.irrigator.fullName}`)))
@@ -37,12 +44,14 @@ const LandsTable = ({ landsData = [] }) => {
 
 	const irrigationTypes = ['قطره‌ای', 'بارانی', 'سطحی', 'چاه دستی', 'سایر']
 
+	const colWidth = isSmallScreen ? 188 : undefined
+
 	const columns = [
 		{
 			title: 'عنوان زمین',
 			dataIndex: 'title',
 			key: 'title',
-			width: 188,
+			width: colWidth,
 			filters: uniqueLandNames,
 			onFilter: (value, record) => (record.title || '').includes(value),
 			filterSearch: true,
@@ -51,7 +60,7 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'مالک زمین',
 			key: 'owner',
-			width: 188,
+			width: colWidth,
 			filters: uniqueOwners,
 			onFilter: (value, record) => `${record.owner?.fullName || '-'}`.trim().includes(value),
 			filterSearch: true,
@@ -63,7 +72,7 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'شماره تماس مالک زمین',
 			key: 'mobile',
-			width: 188,
+			width: colWidth,
 			filters: ownerMobiles,
 			onFilter: (value, record) => (record.owner?.mobile || '-') === value,
 			render: (_, record) => record.owner?.mobile || '-',
@@ -71,7 +80,7 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'عنوان چاه',
 			key: 'wellTitles',
-			width: 188,
+			width: colWidth,
 			filters: allWellTitles,
 			onFilter: (value, record) => (record.wells || []).some(well => (well.title || '-') === value),
 			filterSearch: true,
@@ -89,7 +98,7 @@ const LandsTable = ({ landsData = [] }) => {
 		{
 			title: 'میرآب',
 			key: 'irrigator',
-			width: 188,
+			width: colWidth,
 			filters: allIrrigators,
 			onFilter: (value, record) => (record.wells || []).some(well => well.irrigator && `${well.irrigator.fullName}` === value),
 			filterSearch: true,
@@ -108,7 +117,7 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'نوع آبیاری',
 			dataIndex: 'irrigationType',
 			key: 'irrigationType',
-			width: 188,
+			width: colWidth,
 			filters: irrigationTypes.map(type => ({ text: type, value: type })),
 			onFilter: (value, record) => record.irrigationType === value,
 			render: type => type || '-',
@@ -117,7 +126,7 @@ const LandsTable = ({ landsData = [] }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
-			width: 188,
+			width: colWidth,
 			filters: [
 				{ text: 'فعال', value: 'active' },
 				{ text: 'غیرفعال', value: 'inactive' },
@@ -145,7 +154,10 @@ const LandsTable = ({ landsData = [] }) => {
 							  }
 							: false
 					}
-					scroll={{ x: 'max-content', y: height }}
+					scroll={{
+						x: isSmallScreen ? 'max-content' : undefined, // ✅ فقط در عرض کمتر از 1024px
+						y: height,
+					}}
 					bordered
 				/>
 			</div>

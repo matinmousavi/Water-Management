@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import useNotification from '../../../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import { useUser } from '../../../../../../../../../contexts/UserContext'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import moment from 'moment-jalaali'
 import EditLandGroupModal from '../EditLandGroupModal/EditLandGroupModal'
 
@@ -15,6 +15,14 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 	const [selectedLand, setSelectedLand] = useState(null)
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 	const [editGroupModalContent, setEditGroupModalContent] = useState(null)
+	const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1024)
+
+	// 📱 تشخیص اندازه صفحه برای فعال‌سازی اسکرول افقی فقط در موبایل
+	useEffect(() => {
+		const handleResize = () => setIsSmallScreen(window.innerWidth < 1024)
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	const handleDelete = async () => {
 		if (!selectedLand?._id) return
@@ -94,10 +102,13 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 		return { rowSpan: 0 }
 	}
 
+	// 📏 عرض ستون‌ها در حالت واکنش‌گرا
+	const colWidth = isSmallScreen ? 200 : undefined
+
 	const columns = [
 		{
 			title: 'گروه',
-			width: 180,
+			width: isSmallScreen ? 180 : undefined,
 			render: (_, record) => {
 				const group = landIdToGroup[record._id]
 				if (!group) return '-'
@@ -114,28 +125,28 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 			title: 'عنوان زمین',
 			dataIndex: 'title',
 			key: 'title',
-			width: 220,
+			width: colWidth,
 			render: (_, record) => <Link to={`/lands/${record._id}`}>{record.title}</Link>,
 		},
 		{
 			title: 'مالک زمین',
 			dataIndex: 'owner',
 			key: 'owner',
-			width: 180,
+			width: colWidth,
 			render: (_, record) => (isAdmin ? <Link to={`/users/${record.owner?._id}`}>{record.owner?.fullName}</Link> : record.owner?.fullName),
 		},
 		{
 			title: 'شماره تماس مالک',
 			dataIndex: ['owner', 'mobile'],
 			key: 'mobile',
-			width: 160,
+			width: colWidth,
 			render: (_, record) => record?.owner?.mobile || '--',
 		},
 		{
 			title: 'آخرین زمان آبیاری',
 			dataIndex: 'lastIrrigatedAt',
 			key: 'lastIrrigatedAt',
-			width: 260,
+			width: colWidth,
 			render: (_, record) => (record?.lastIrrigatedAt ? moment(record.lastIrrigatedAt).locale('fa').format('dddd jD jMMMM jYYYY - ساعت HH:mm') : '--'),
 			onCell: groupCell,
 		},
@@ -143,7 +154,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 			title: 'زمان آبیاری بعدی',
 			dataIndex: 'nextDateIrrigation',
 			key: 'nextDateIrrigation',
-			width: 200,
+			width: colWidth,
 			render: (_, record) => record?.logs || '--',
 			onCell: groupCell,
 		},
@@ -174,7 +185,9 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 				columns={columns}
 				rowKey={record => record._id}
 				pagination={false}
-				scroll={{ x: totalWidth }}
+				scroll={{
+					x: isSmallScreen ? 'max-content' : false, // ✅ فقط در موبایل و تبلت
+				}}
 			/>
 
 			<Modal
