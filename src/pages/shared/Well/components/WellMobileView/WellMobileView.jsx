@@ -19,8 +19,6 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const schedulesApi = useAPI()
 	const schedules = schedulesApi?.data?.schedules
 
-	console.log(schedules)
-
 	const [date, setDate] = useState(moment())
 
 	const goNextDay = () => setDate(d => moment(d).add(1, 'day'))
