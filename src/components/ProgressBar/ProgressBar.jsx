@@ -16,8 +16,7 @@ const ProgressBar = ({ progressRatio = 0 }) => {
 
 	const basePercent = Math.min(progressRatio, 1)
 	const overPercent = progressRatio > 1 ? progressRatio - 1 : 0
-	const totalPercent = Math.max(progressRatio, 1) // جمع برای تقسیم صحیح
-
+	const totalPercent = Math.max(progressRatio, 1)
 	const blueFlex = (basePercent / totalPercent) * 100
 	const redFlex = (overPercent / totalPercent) * 100
 

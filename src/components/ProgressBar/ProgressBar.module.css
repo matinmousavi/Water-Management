@@ -1,11 +1,11 @@
 .progressWrapper {
 	display: flex;
 	direction: ltr;
-	overflow: hidden; /* اضافه شد */
-	height: 8px; /* همون ارتفاع دلخواه */
-	border-radius: 4px; /* گوشه‌ها */
-	background: #e0e0e0; /* رنگ پایه */
-	gap: 4px; /* فاصله بین بخش‌ها */
+	overflow: hidden;
+	height: 8px;
+	border-radius: 4px;
+	background: #e0e0e0;
+	gap: 4px;
 }
 
 .progressSection {
