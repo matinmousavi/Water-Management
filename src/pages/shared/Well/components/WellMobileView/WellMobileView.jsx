@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Typography, Flex, Tabs, Empty } from 'antd'
-import { ArrowRightOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Typography, Flex, Tabs, Empty, Button } from 'antd'
+import { CaretDownOutlined, CaretUpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { useSearchParams } from 'react-router-dom'
+import moment from 'moment-jalaali'
+import english2persian from '../../../../../utils/english2persian'
 
 import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
@@ -9,11 +11,33 @@ import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 import useAPI from '../../../../../hooks/useAPI'
 import Loading from '../../../../../components/Loading/Loading'
 
+import styles from './WellMobileView.module.css'
+
 const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
 	const [searchParams, setSearchParams] = useSearchParams()
 	const schedulesApi = useAPI()
 	const schedules = schedulesApi?.data?.schedules
+
+	const [date, setDate] = useState(moment())
+
+	const goNextDay = () => setDate(d => moment(d).add(1, 'day'))
+	const goPrevDay = () => setDate(d => moment(d).subtract(1, 'day'))
+
+	const renderLabel = d => {
+		const today = moment().startOf('day')
+		const target = moment(d).startOf('day')
+
+		const dayNum = english2persian(String(target.jDate()))
+		const monthName = target.format('jMMMM')
+
+		let suffix = ''
+		if (target.isSame(today, 'day')) suffix = ' (امروز)'
+		else if (target.isSame(moment(today).subtract(1, 'day'), 'day')) suffix = ' (دیروز)'
+		else if (target.isSame(moment(today).add(1, 'day'), 'day')) suffix = ' (فردا)'
+
+		return `${dayNum} ${monthName}${suffix}`
+	}
 
 	const wellIdFromParams = searchParams.get('wellId')
 
@@ -31,11 +55,12 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 
 	useEffect(() => {
 		const id = irrigatorWells?._id || wellIdFromParams
-		if (id) {
-			schedulesApi.init(`wells/${id}/schedules/today`)
+		if (id && date) {
+			const isoDate = date.toISOString()
+			schedulesApi.init(`wells/${id}/schedules/day/${isoDate}`)
 			setIrrigatorWells(prev => (prev?._id === id ? prev : { _id: id }))
 		}
-	}, [irrigatorWells?._id, wellIdFromParams])
+	}, [irrigatorWells?._id, wellIdFromParams, date])
 
 	const onCloseWellList = () => setOpenWellList(false)
 
@@ -78,15 +103,35 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 							key: 'logs',
 							label: 'نوبت آبیاری',
 							children: (
-								<Flex vertical gap={16}>
-									{schedules?.length > 0 ? (
-										schedules.map(log => (
-											<WellLogsMobile wellId={irrigatorWells?._id || wellIdFromParams} key={log?._id || log.id} data={log} />
-										))
-									) : (
-										<Empty />
-									)}
-								</Flex>
+								<>
+									<Flex vertical gap={16}>
+										{schedules?.length > 0 ? (
+											schedules.map(log => (
+												<WellLogsMobile wellId={irrigatorWells?._id || wellIdFromParams} key={log?._id || log.id} data={log} />
+											))
+										) : (
+											<Empty />
+										)}
+									</Flex>
+
+									<div className={styles.datePager} dir='rtl'>
+										<Button type='link' onClick={goPrevDay} className={styles.btn}>
+											<span>
+												<RightOutlined />
+											</span>
+											<span>روز قبل</span>
+										</Button>
+
+										<div className={styles.date}>{renderLabel(date)}</div>
+
+										<Button type='link' onClick={goNextDay} className={styles.btn}>
+											<span>روز بعد</span>
+											<span>
+												<LeftOutlined />
+											</span>
+										</Button>
+									</div>
+								</>
 							),
 						},
 						{
