@@ -201,8 +201,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					resetModal()
 
 					await fetchSchedules()
-				} catch {
-					openNotification('error', 'خطا', 'خطا در ذخیره زمان‌بندی')
+				} catch (err) {
+					openNotification('error', `${err.error.message}`)
 				} finally {
 					setIsLoading(false)
 				}

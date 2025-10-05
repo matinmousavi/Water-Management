@@ -84,21 +84,19 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 									const occupied = isTimeSlotOccupied(dayIndex + 1, timeSlot.value)
 
 									return !isIrrigator ? (
-										<Tooltip key={timeIndex} title={occupied ? 'اشغال شده' : 'برای افزودن کلیک کنید'}>
-											<div
-												className={`${styles['grid-line']} ${timeIndex % 4 === 3 ? styles['hour-bold'] : ''}`}
-												style={{
-													top: timeIndex * 15,
-													height: '15px',
-													cursor: occupied ? 'default' : 'pointer',
-												}}
-												onClick={() => {
-													if (!occupied) {
-														onEmptySlotClick(dayIndex + 1, timeSlot.value)
-													}
-												}}
-											/>
-										</Tooltip>
+										<div
+											className={`${styles['grid-line']} ${timeIndex % 4 === 3 ? styles['hour-bold'] : ''}`}
+											style={{
+												top: timeIndex * 15,
+												height: '15px',
+												cursor: occupied ? 'default' : 'pointer',
+											}}
+											onClick={() => {
+												if (!occupied) {
+													onEmptySlotClick(dayIndex + 1, timeSlot.value)
+												}
+											}}
+										/>
 									) : (
 										<div
 											key={timeIndex}
