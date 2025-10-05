@@ -42,9 +42,9 @@ const ContactInfoDisplay = ({ userData }) => {
 		{ label: 'آدرس', value: userData?.address || '-' },
 		{ label: 'تاریخ ثبت کاربر', value: moment(userData?.updatedAt).format('dddd jD jMMMM jYYYY') || '-' },
 		...(userData?.role === 'irrigator'
-			? [{ label: 'چاه‌ها', value: wellsOrLands || '-' }]
+			? [{ label: 'چاه', value: wellsOrLands || '-' }]
 			: userData?.role === 'landOwner'
-			? [{ label: 'زمین‌ها', value: wellsOrLands || '-' }]
+			? [{ label: 'زمین‌', value: wellsOrLands || '-' }]
 			: []),
 	]
 
