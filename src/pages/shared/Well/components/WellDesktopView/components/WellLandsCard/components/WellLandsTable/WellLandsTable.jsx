@@ -17,7 +17,6 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 	const [editGroupModalContent, setEditGroupModalContent] = useState(null)
 	const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1024)
 
-	// 📱 تشخیص اندازه صفحه برای فعال‌سازی اسکرول افقی فقط در موبایل
 	useEffect(() => {
 		const handleResize = () => setIsSmallScreen(window.innerWidth < 1024)
 		window.addEventListener('resize', handleResize)
@@ -174,8 +173,6 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 		})
 	}
 
-	const totalWidth = columns.reduce((sum, col) => sum + (col.width || 150), 0)
-
 	return (
 		<>
 			<Table
@@ -186,7 +183,7 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 				rowKey={record => record._id}
 				pagination={false}
 				scroll={{
-					x: isSmallScreen ? 'max-content' : false, // ✅ فقط در موبایل و تبلت
+					x: isSmallScreen ? 'max-content' : false,
 				}}
 			/>
 

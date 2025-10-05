@@ -155,7 +155,7 @@ const LandsTable = ({ landsData = [] }) => {
 							: false
 					}
 					scroll={{
-						x: isSmallScreen ? 'max-content' : undefined, // ✅ فقط در عرض کمتر از 1024px
+						x: isSmallScreen ? 'max-content' : undefined,
 						y: height,
 					}}
 					bordered
