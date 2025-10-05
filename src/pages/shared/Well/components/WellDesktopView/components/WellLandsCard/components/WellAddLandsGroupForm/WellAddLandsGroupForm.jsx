@@ -21,7 +21,7 @@ const WellAddLandsGroupForm = ({ form, lands = [] }) => {
 					filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
 					options={activeLands.map(land => ({
 						value: land._id,
-						label: land.title,
+						label: `${land.title} - ${land?.owner?.fullName}`,
 					}))}
 				/>
 			</Form.Item>

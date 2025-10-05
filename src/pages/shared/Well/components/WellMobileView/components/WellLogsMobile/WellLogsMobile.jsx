@@ -11,7 +11,6 @@ import iconTreeGroup from '../../../../../../../assets/icons/treeGroup.svg'
 
 import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
 
-moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 const { Text } = Typography
 
 const timeToMinutes = (timeStr = '0:00') => {
@@ -88,9 +87,14 @@ const WellLogsMobile = ({ wellId, data }) => {
 		return () => clearInterval(interval)
 	}, [isThisLogOngoing, data?.irrigationStartedAt, data?.remainingWater])
 
+	const isToday = data?.dayInCycle === data?.todayDayInCycle
+
 	let cardClass = ''
-	if (isOff) cardClass = styles.offCard
-	else if (isThisLogOngoing) cardClass = isOver ? styles.borderCardDanger : styles.borderCard
+	if (!isToday || isOff) {
+		cardClass = styles.offCard
+	} else if (isThisLogOngoing) {
+		cardClass = isOver ? styles.borderCardDanger : styles.borderCard
+	}
 
 	return (
 		<Card className={cardClass}>
@@ -132,6 +136,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 						</Flex>
 					</Flex>
 				)}
+
 				{!isThisLogOngoing && (
 					<>
 						<Flex gap={10}>
@@ -190,7 +195,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 					</Flex>
 				</Flex>
 
-				<ProgressBar progressRatio={progressRatio} />
+				{isToday && <ProgressBar progressRatio={progressRatio} />}
 			</Flex>
 		</Card>
 	)

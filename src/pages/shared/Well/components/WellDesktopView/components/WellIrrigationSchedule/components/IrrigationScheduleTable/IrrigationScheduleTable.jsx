@@ -95,7 +95,12 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 
 	const landOptions = useMemo(() => {
 		const landsInGroups = landGroups.flatMap(g => g.lands)
-		return lands.filter(l => !landsInGroups.includes(l._id)).map(l => ({ value: l._id, label: l.title }))
+		return lands
+			.filter(l => !landsInGroups.includes(l._id))
+			.map(l => ({
+				value: l._id,
+				label: `${l.title}${l.owner?.fullName ? ` - ${l.owner.fullName}` : ''}`,
+			}))
 	}, [lands, landGroups])
 
 	const groupOptions = useMemo(() => landGroups.map(g => ({ value: g.groupId, label: `${g.title} (گروه)` })), [landGroups])
@@ -196,8 +201,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					resetModal()
 
 					await fetchSchedules()
-				} catch {
-					openNotification('error', 'خطا', 'خطا در ذخیره زمان‌بندی')
+				} catch (err) {
+					openNotification('error', `${err.error.message}`)
 				} finally {
 					setIsLoading(false)
 				}

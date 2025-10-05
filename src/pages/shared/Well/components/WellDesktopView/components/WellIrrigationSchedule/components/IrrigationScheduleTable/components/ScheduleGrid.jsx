@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Tooltip } from 'antd'
 import styles from '../IrrigationScheduleTable.module.css'
+import { useUser } from '../../../../../../../../../../contexts/UserContext'
 
 const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotClick, isTimeSlotOccupied, getTaskPosition, currentDayInCycle }) => {
 	const [currentTimePos, setCurrentTimePos] = useState(null)
+	const { isIrrigator } = useUser()
 
 	// Update current time position every minute
 	useEffect(() => {
@@ -44,7 +47,7 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 				<div className={styles['schedule-header']}>
 					<div className={styles['time-header']}>ساعت</div>
 					{daysOfWeek.map((day, index) => (
-						<div key={index} className={`${styles['day-header-cell']}`}>
+						<div key={index} className={styles['day-header-cell']}>
 							{day}
 						</div>
 					))}
@@ -77,41 +80,58 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 						<div key={dayIndex} className={`${styles['day-column']} ${isCurrentDayInCycle(dayIndex) ? styles['current-day-column'] : ''}`}>
 							<div className={styles['day-content']} style={{ height: `${timeSlots.length * 15}px` }}>
 								{/* Grid lines */}
-								{timeSlots.map((timeSlot, timeIndex) => (
-									<div
-										key={timeIndex}
-										className={`${styles['grid-line']} ${timeIndex % 4 === 3 ? styles['hour-bold'] : ''}`}
-										style={{
-											top: timeIndex * 15,
-											height: '15px',
-											cursor: isTimeSlotOccupied(dayIndex, timeSlot.value) ? 'default' : 'pointer',
-										}}
-										onClick={() => {
-											if (!isTimeSlotOccupied(dayIndex + 1, timeSlot.value)) {
-												onEmptySlotClick(dayIndex + 1, timeSlot.value)
-											}
-										}}
-									/>
-								))}
+								{timeSlots.map((timeSlot, timeIndex) => {
+									const occupied = isTimeSlotOccupied(dayIndex + 1, timeSlot.value)
+
+									return !isIrrigator ? (
+										<div
+											className={`${styles['grid-line']} ${timeIndex % 4 === 3 ? styles['hour-bold'] : ''}`}
+											style={{
+												top: timeIndex * 15,
+												height: '15px',
+												cursor: occupied ? 'default' : 'pointer',
+											}}
+											onClick={() => {
+												if (!occupied) {
+													onEmptySlotClick(dayIndex + 1, timeSlot.value)
+												}
+											}}
+										/>
+									) : (
+										<div
+											key={timeIndex}
+											className={`${styles['grid-line']} ${timeIndex % 4 === 3 ? styles['hour-bold'] : ''}`}
+											style={{
+												top: timeIndex * 15,
+												height: '15px',
+											}}
+										/>
+									)
+								})}
 
 								{/* Tasks */}
 								{tasks
 									.filter(task => task.day === dayIndex + 1)
 									.map(task => {
 										const { top, height } = getTaskPosition(task)
+
 										return (
-											<div
+											<Tooltip
 												key={task._id}
-												onClick={() => onTaskClick(task)}
-												className={styles['task-card']}
-												style={{
-													top: `${top}px`,
-													height: `${height}px`,
-													backgroundColor: task.color || '#e0f7e980',
-												}}
+												title={<div>مدت زمان: {task.duration && task.duration.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])}</div>}
 											>
-												<div className={styles['task-name']}>{task.title}</div>
-											</div>
+												<div
+													onClick={() => onTaskClick(task)}
+													className={styles['task-card']}
+													style={{
+														top: `${top}px`,
+														height: `${height}px`,
+														backgroundColor: task.color || '#e0f7e980',
+													}}
+												>
+													<div className={styles['task-name']}>{task.title}</div>
+												</div>
+											</Tooltip>
 										)
 									})}
 

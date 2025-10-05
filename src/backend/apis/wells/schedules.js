@@ -29,6 +29,15 @@ function getTotalDurationMs(schedules) {
 	}, 0)
 }
 
+// Helper: calculate duration between start and end in "HH:mm"
+function calcDuration(startTime, endTime) {
+	const ms = new Date(endTime) - new Date(startTime)
+	const totalMinutes = Math.floor(ms / 60000)
+	const hours = Math.floor(totalMinutes / 60)
+	const minutes = totalMinutes % 60
+	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+}
+
 // GET all schedules
 router.get('/', async (req, res) => {
 	try {
@@ -93,6 +102,7 @@ router.get('/', async (req, res) => {
 				irrigationInProgress,
 				irrigationStartedAt,
 				irrigationEndsAt,
+				duration: calcDuration(schedule.startTime, schedule.endTime),
 			})
 		}
 
@@ -104,20 +114,29 @@ router.get('/', async (req, res) => {
 	}
 })
 
-router.get('/today', async (req, res) => {
+// GET schedules for a specific day
+router.get('/day/:date', async (req, res) => {
 	try {
-		const { wellId } = req.params
+		const { wellId, date } = req.params
 		const well = await Well.findById(wellId).lean()
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
+		const targetDate = moment(date)
+		if (!targetDate.isValid()) {
+			return res.status(400).json({ message: 'تاریخ نامعتبر است.' })
+		}
+
 		const startDate = moment(well.cycleStartDate)
-		const daysPassed = Math.floor(moment().diff(startDate, 'days'))
+		const daysPassed = Math.floor(targetDate.diff(startDate, 'days'))
 		const dayInCycle = (daysPassed % well.cycleDays) + 1
+
+		const todayMoment = moment()
+		const daysPassedToday = todayMoment.diff(startDate, 'days')
+		const todayDayInCycle = (daysPassedToday % well.cycleDays) + 1
 
 		const schedulesToday = await Schedule.find({ well: wellId, day: dayInCycle }).lean()
 		const results = []
 
-		// Group schedules by land/group
 		const grouped = {}
 		for (const sched of schedulesToday) {
 			const key = sched.targetType === 'land' ? `land-${sched.land}` : `group-${sched.landGroup}`
@@ -195,6 +214,7 @@ router.get('/today', async (req, res) => {
 					lastIrrigation,
 					nextIrrigation: nextIrrigation.toISOString(),
 					dayInCycle,
+					todayDayInCycle,
 					landId: schedule.targetType === 'land' ? schedule.land : undefined,
 					groupId: schedule.targetType === 'group' ? schedule.landGroup : undefined,
 					startTime: schedule.startTime,
@@ -219,7 +239,7 @@ router.get('/today', async (req, res) => {
 		return res.status(200).json({ schedules: results })
 	} catch (err) {
 		console.error(err)
-		return res.status(500).json({ message: 'خطا در دریافت زمان‌بندی‌های امروز.' })
+		return res.status(500).json({ message: 'خطا در دریافت زمان‌بندی‌ها.' })
 	}
 })
 

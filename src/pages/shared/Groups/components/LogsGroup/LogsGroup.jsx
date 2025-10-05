@@ -191,7 +191,6 @@ const LogsGroup = ({ wellId, group }) => {
 			console.error('خطا در پایان آبیاری گروهی:', e)
 		}
 	}
-	console.log(logs)
 
 	return (
 		<div className={styles.container}>
