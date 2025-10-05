@@ -195,7 +195,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 					</Flex>
 				</Flex>
 
-				<ProgressBar progressRatio={progressRatio} />
+				{isToday && <ProgressBar progressRatio={progressRatio} />}
 			</Flex>
 		</Card>
 	)
