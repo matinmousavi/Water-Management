@@ -8,6 +8,7 @@ import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import { calculateTotalDuration } from '../../utils/calculateTotalDuration.js'
+import { checkIrrigationConflict } from '../../utils/checkIrrigationConflict.js'
 
 const router = Router()
 
@@ -188,21 +189,24 @@ router.post('/', async (req, res) => {
 		const wellDocument = await Well.findById(wellId)
 		if (!wellDocument) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
-		// Group irrigation
+		let landIdsToCheck = []
+
 		if (landGroupId) {
 			const groupDocument = wellDocument.landGroups.find(g => g.groupId.toString() === landGroupId)
 			if (!groupDocument) return res.status(404).json({ message: 'گروه پیدا نشد.' })
+			landIdsToCheck = groupDocument.lands.map(l => l.toString())
+		} else {
+			if (!landId) return res.status(400).json({ message: 'شناسه زمین (landId) الزامی است.' })
+			landIdsToCheck = [landId.toString()]
+		}
 
-			const activeIrrigation = await Irrigation.findOne({
-				land: { $in: groupDocument.lands },
-				well: wellId,
-				isOngoing: true,
-				endedAt: null,
-			})
-			if (activeIrrigation) return res.status(400).json({ message: 'یک یا چند زمین این گروه در حال آبیاری هستند.' })
+		const conflictMessage = await checkIrrigationConflict({ wellId, landIds: landIdsToCheck, startedAt, endedAt, isOngoing })
+		if (conflictMessage) return res.status(400).json({ message: conflictMessage })
 
-			const createdLogs = []
-			for (const land of groupDocument.lands) {
+		const createdLogs = []
+
+		if (landGroupId) {
+			for (const land of landIdsToCheck) {
 				const created = await Irrigation.create({
 					land,
 					well: wellId,
@@ -217,63 +221,35 @@ router.post('/', async (req, res) => {
 				createdLogs.push(created)
 				await sendIrrigationNotificationToLandOwner({ landId: land, irrigationDocument: created, endedAt, currentUser })
 			}
-
-			const populatedLogs = await Irrigation.find({ _id: { $in: createdLogs.map(log => log._id) } })
-				.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
-				.populate('well', 'title landGroups')
-				.populate('createdBy', 'fullName mobile')
-				.lean()
-
-			for (const log of populatedLogs) {
-				log.landGroupTitle = await getLandGroupTitle(log, log.well)
-			}
-
-			return res.status(201).json({ message: 'آبیاری گروهی با موفقیت ثبت شد.', irrigations: populatedLogs })
+		} else {
+			const created = await Irrigation.create({
+				land: landId,
+				well: wellId,
+				startedAt,
+				endedAt,
+				note,
+				isOngoing,
+				createdBy: currentUser._id,
+				isGroupLog: false,
+			})
+			createdLogs.push(created)
+			await sendIrrigationNotificationToLandOwner({ landId, irrigationDocument: created, endedAt, currentUser })
 		}
 
-		// Single irrigation
-		if (!landId) return res.status(400).json({ message: 'شناسه زمین (landId) الزامی است.' })
-
-		// Check if land currently in a group (no endDate)
-		const landDocument = await Land.findById(landId)
-		const currentMembership = landDocument.groupMemberships.find(m => m.wellId.toString() === wellId && !m.endDate)
-		if (currentMembership) return res.status(400).json({ message: 'این زمین عضو گروه فعال است. آبیاری انفرادی مجاز نیست.' })
-
-		const existingIrrigation = await Irrigation.findOne({
-			land: landId,
-			well: wellId,
-			isOngoing: true,
-			endedAt: null,
-		})
-		if (existingIrrigation) return res.status(400).json({ message: 'این زمین هم‌اکنون در حال آبیاری با این چاه است.' })
-
-		const createdIrrigation = await Irrigation.create({
-			land: landId,
-			well: wellId,
-			startedAt,
-			endedAt,
-			note,
-			isOngoing,
-			createdBy: currentUser._id,
-			isGroupLog: false,
-		})
-
-		const irrigationDocument = await Irrigation.findById(createdIrrigation._id)
+		const populatedLogs = await Irrigation.find({ _id: { $in: createdLogs.map(l => l._id) } })
 			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
 			.populate('well', 'title landGroups')
 			.populate('createdBy', 'fullName mobile')
 			.lean()
 
-		irrigationDocument.landGroupTitle = await getLandGroupTitle(irrigationDocument, irrigationDocument.well)
+		for (const log of populatedLogs) {
+			log.landGroupTitle = await getLandGroupTitle(log, log.well)
+		}
 
-		await sendIrrigationNotificationToLandOwner({
-			landId: irrigationDocument.land._id,
-			irrigationDocument,
-			endedAt,
-			currentUser,
+		return res.status(201).json({
+			message: landGroupId ? 'آبیاری گروهی با موفقیت ثبت شد.' : 'آبیاری با موفقیت ثبت شد.',
+			irrigations: populatedLogs,
 		})
-
-		return res.status(201).json({ message: 'آبیاری با موفقیت ثبت شد.', irrigation: irrigationDocument })
 	} catch (err) {
 		console.error(err)
 		if (err.name === 'ValidationError') {
@@ -322,17 +298,41 @@ router.patch('/:irrigationId', async (req, res) => {
 		if (!irrigationDocument) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
 
 		const currentUser = req.user
+		const { startedAt, endedAt, isOngoing } = extractStartAndEndTimes(req.body)
+
+		let landIdsToCheck = []
+
+		if (irrigationDocument.landGroup) {
+			const wellDocument = await Well.findById(irrigationDocument.well)
+			const groupDocument = wellDocument.landGroups.find(g => g.groupId.toString() === irrigationDocument.landGroup.toString())
+			landIdsToCheck = groupDocument.lands.map(l => l.toString())
+		} else {
+			landIdsToCheck = [irrigationDocument.land.toString()]
+		}
+
+		const conflictMessage = await checkIrrigationConflict({
+			wellId: irrigationDocument.well,
+			landIds: landIdsToCheck,
+			startedAt,
+			endedAt,
+			isOngoing,
+			excludeId: irrigationDocument._id,
+		})
+		if (conflictMessage) return res.status(400).json({ message: conflictMessage })
 
 		if (irrigationDocument.landGroup) {
 			const groupDocuments = await Irrigation.find({
 				well: irrigationDocument.well,
 				landGroup: irrigationDocument.landGroup,
 			})
-			const updatedGroup = await updateGroupIrrigationLogs({ groupIrrigationDocuments: groupDocuments, requestBody: req.body, currentUser })
+			const updatedGroup = await updateGroupIrrigationLogs({
+				groupIrrigationDocuments: groupDocuments,
+				requestBody: req.body,
+				currentUser,
+			})
 			return res.status(200).json({ message: 'آبیاری گروهی ویرایش شد.', irrigations: updatedGroup })
 		}
 
-		const { startedAt, endedAt, isOngoing } = extractStartAndEndTimes(req.body)
 		if (startedAt) irrigationDocument.startedAt = startedAt
 		if (endedAt) irrigationDocument.endedAt = endedAt
 
