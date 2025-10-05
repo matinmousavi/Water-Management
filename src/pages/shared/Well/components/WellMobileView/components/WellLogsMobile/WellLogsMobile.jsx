@@ -79,7 +79,7 @@ const WellLogsMobile = ({ wellId, data }) => {
 			setIsOver(over)
 
 			if (countdownRef.current) {
-				countdownRef.current.innerText = over ? `-${formatTime(Math.abs(diff))}` : formatTime(diff)
+				countdownRef.current.innerText = over ? `${formatTime(Math.abs(diff))}-` : formatTime(diff)
 				countdownRef.current.style.color = over ? 'red' : 'green'
 			}
 		}, 1000)

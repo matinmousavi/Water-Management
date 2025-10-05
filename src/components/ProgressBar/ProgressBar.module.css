@@ -1,8 +1,14 @@
 .progressWrapper {
 	display: flex;
 	direction: ltr;
+	overflow: hidden;
+	height: 8px;
+	border-radius: 4px;
+	background: #e0e0e0;
+	gap: 4px;
 }
 
 .progressSection {
 	position: relative;
+	transition: flex-basis 0.3s ease;
 }
