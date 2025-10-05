@@ -6,7 +6,7 @@ import useNotification from '../../../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import EditIrrigationLog from '../../../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
 import { useUser } from '../../../../../../../../../contexts/UserContext'
 
@@ -20,6 +20,15 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const [editableGroup, setEditableGroup] = useState(null)
 	const [viewableLog, setViewableLog] = useState(null)
 	const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+	const [isScrollable, setIsScrollable] = useState(window.innerWidth < 1024)
+
+	useEffect(() => {
+		const handleResize = () => {
+			setIsScrollable(window.innerWidth < 1024)
+		}
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	const groupedData = useMemo(() => {
 		const rows = []
@@ -88,10 +97,12 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		setIsViewModalOpen(true)
 	}
 
+	const colWidth = isScrollable ? 211 : undefined
+
 	const columns = [
 		{
 			title: 'تاریخ',
-			width: 200,
+			width: colWidth,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
@@ -102,7 +113,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		},
 		{
 			title: 'نام گروه',
-			width: 150,
+			width: colWidth,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
@@ -113,7 +124,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		},
 		{
 			title: 'ساعت شروع',
-			width: 120,
+			width: colWidth,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
@@ -125,7 +136,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		{
 			title: 'مدت زمان آبیاری',
 			key: 'duration',
-			width: 160,
+			width: colWidth,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				const display = record.isOngoing ? 'در حال آبیاری' : record.sharedDuration || '--'
@@ -137,12 +148,12 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		},
 		{
 			title: 'عنوان زمین',
-			width: 180,
+			width: colWidth,
 			render: (_, record) => <Link to={`/lands/${record.land?._id}`}>{record.land?.title}</Link>,
 		},
 		{
 			title: 'مالک زمین',
-			width: 180,
+			width: colWidth,
 			render: (_, record) =>
 				record.land?.owner ? (
 					isAdmin ? (
@@ -157,7 +168,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		{
 			title: 'توضیحات',
 			key: 'note',
-			width: 120,
+			width: colWidth,
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
@@ -205,7 +216,9 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 				rowKey={record => record.groupKey || record._id}
 				pagination={false}
 				bordered
-				scroll={{ x: totalWidth }}
+				scroll={{
+					x: isScrollable ? 'max-content' : false,
+				}}
 			/>
 
 			<Modal

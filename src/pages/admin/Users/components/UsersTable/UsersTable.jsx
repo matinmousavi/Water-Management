@@ -45,6 +45,13 @@ const UsersTable = ({ usersData }) => {
 	const [containerRef, height] = useContainerHeight(40)
 	const [pageSize, setPageSize] = useState(6)
 	const tableWrapperRef = useRef(null)
+	const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1024)
+
+	useEffect(() => {
+		const handleResize = () => setIsSmallScreen(window.innerWidth < 1024)
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	}, [])
 
 	useEffect(() => {
 		if (!tableWrapperRef.current) return
@@ -58,11 +65,13 @@ const UsersTable = ({ usersData }) => {
 		}
 	}, [height, usersData])
 
+	const colWidth = isSmallScreen ? 211 : undefined
+
 	const columns = [
 		{
 			dataIndex: 'profilePicture',
 			key: 'profilePicture',
-			width: 52,
+			width: isSmallScreen ? 52 : undefined,
 			render: (_, record) =>
 				record?.profilePicture?.url ? (
 					<Avatar src={record.profilePicture.url} size={35} icon={<UserOutlined />} />
@@ -74,7 +83,7 @@ const UsersTable = ({ usersData }) => {
 			title: 'نام و نام‌خانوادگی',
 			dataIndex: 'fullName',
 			key: 'fullName',
-			width: 211,
+			width: colWidth,
 			...getColumnSearchProps('fullName'),
 			render: (_, record) => <Link to={record._id}>{record.fullName}</Link>,
 		},
@@ -82,7 +91,7 @@ const UsersTable = ({ usersData }) => {
 			title: 'نقش',
 			dataIndex: 'role',
 			key: 'role',
-			width: 211,
+			width: colWidth,
 			filters: roleFilters,
 			onFilter: (value, record) => record.role === value,
 			render: role => roleLabels[role] || role,
@@ -91,21 +100,21 @@ const UsersTable = ({ usersData }) => {
 			title: 'شماره تماس',
 			dataIndex: 'mobile',
 			key: 'mobile',
-			width: 211,
+			width: colWidth,
 			...getColumnSearchProps('mobile'),
 		},
 		{
 			title: 'آدرس ایمیل',
 			dataIndex: 'email',
 			key: 'email',
-			width: 211,
+			width: colWidth,
 			render: email => email || '--',
 		},
 		{
 			title: 'کد حساب‌داری',
 			dataIndex: 'accountingCode',
 			key: 'accountingCode',
-			width: 211,
+			width: colWidth,
 			...getColumnSearchProps('accountingCode'),
 			render: accountingCode => accountingCode || '--',
 		},
@@ -113,7 +122,7 @@ const UsersTable = ({ usersData }) => {
 			title: 'وضعیت',
 			dataIndex: 'status',
 			key: 'status',
-			width: 211,
+			width: colWidth,
 			filters: statusFilters,
 			onFilter: (value, record) => record.status === value,
 			render: status => <Tag color={status === 'active' ? 'green' : 'red'}>{status === 'active' ? 'فعال' : 'غیرفعال'}</Tag>,
@@ -140,7 +149,10 @@ const UsersTable = ({ usersData }) => {
 					dataSource={usersData}
 					rowKey={record => record._id}
 					bordered
-					scroll={{ y: height }}
+					scroll={{
+						x: isSmallScreen ? 'max-content' : false,
+						y: height,
+					}}
 				/>
 			</div>
 		</div>
