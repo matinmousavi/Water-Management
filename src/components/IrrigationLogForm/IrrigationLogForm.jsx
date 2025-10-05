@@ -52,7 +52,7 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 						{/* زمین‌های بدون گروه */}
 						{landsNotInGroups.map(land => (
 							<Option key={land._id} value={land._id}>
-								{land.title}
+								{land.title} - {land.owner?.fullName}
 							</Option>
 						))}
 
@@ -78,7 +78,12 @@ const IrrigationLogForm = ({ form, lands = [], landGroups = [], mode, type = 'ad
 					</Col>
 					<Col span={11}>
 						<Form.Item name='startTime' noStyle rules={[{ required: true, message: 'ساعت شروع الزامی است' }]}>
-							<TimePicker placeholder='ساعت' format='HH:mm' size={isMobile ? 'middle' : 'large'} disabled={type === 'irrigator' && mode === 'edit'} />
+							<TimePicker
+								placeholder='ساعت'
+								format='HH:mm'
+								size={isMobile ? 'middle' : 'large'}
+								disabled={type === 'irrigator' && mode === 'edit'}
+							/>
 						</Form.Item>
 					</Col>
 				</Row>
