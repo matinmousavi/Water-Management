@@ -56,12 +56,17 @@ const LandLogsMobile = ({ data }) => {
 					const response = await api.get(`wells/${well._id}`)
 					const allLogs = response?.well?.logs || []
 					const ongoing = allLogs.find(log => log.isOngoing)
+
 					if (ongoing?.land && ongoing.land._id !== data._id) {
+						const irrigatingLand = await api.get(`lands/${ongoing.land._id}`)
+
 						setCurrentIrrigatingWell({
 							...well,
 							land: ongoing.land,
 							irrigationStartedAt: well.irrigationStartedAt,
 							ongoingIrrigationId: ongoing._id,
+							ongoingRemainingWater: irrigatingLand?.land.wells[0].remainingWater,
+							ongoingRequiredWater: irrigatingLand?.land.wells[0].requiredWater,
 						})
 						break
 					}
@@ -164,18 +169,14 @@ const LandLogsMobile = ({ data }) => {
 				endTime: selectedTime.toISOString(),
 			})
 
-			// 🔥 پاک کردن مقدار از localStorage برای زمین قبلی
 			removeIrrigationStartTime(endOtherLandId)
 			localStorage.removeItem(`irrigation_start_${endOtherLandId}`)
 
-			// 🔄 ریست state‌های مربوطه
 			setEndOtherLandId(null)
 			setEndOtherStartTime(null)
 
-			// قبل از نمایش مودال شروع زمین جدید
 			setLogs(prev => prev.filter(l => !l.isOngoing || l.land._id !== endOtherLandId))
-			// ✅ نمایش مودال شروع آبیاری زمین جدید
-			setShowStartDrawer(true) // ✅ پاک‌سازی state‌ها پس از پایان آبیاری زمین دیگر
+			setShowStartDrawer(true)
 			setCurrentIrrigatingWell(null)
 			setShowWellInUseWarning(false)
 		} catch (e) {

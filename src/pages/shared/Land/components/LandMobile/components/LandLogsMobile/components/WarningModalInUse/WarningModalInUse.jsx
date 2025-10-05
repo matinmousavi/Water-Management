@@ -11,7 +11,6 @@ import styles from './WarningModalInUse.module.css'
 
 const { Text } = Typography
 
-// تبدیل "02:00" به میلی‌ثانیه
 const parseDurationToMs = str => {
 	if (!str) return null
 	const [h, m] = str.split(':').map(Number)
@@ -39,13 +38,8 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 	if (!isOpen || !well?.land) return null
 
 	const landId = well.land._id
-	const requiredWaterMs = parseDurationToMs(well?.requiredWater) || 2 * 60 * 60 * 1000 // پیش‌فرض ۲ ساعت
-	const remainingWaterMs = parseDurationToMs(well?.remainingWater) || requiredWaterMs
-	/* console.log('landId', landId)
-	console.log('startedAt', startedAt)
-	console.log('requiredWaterMs', requiredWaterMs)
-	console.log('remainingWaterMs', remainingWaterMs) */
-	console.log(well)
+	const requiredWaterMs = parseDurationToMs(well?.ongoingRequiredWater) || 2 * 60 * 60 * 1000
+	const remainingWaterMs = parseDurationToMs(well?.ongoingRemainingWater) || requiredWaterMs
 
 	return (
 		<ModalMobile
