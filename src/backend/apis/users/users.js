@@ -5,6 +5,8 @@ import File from '../../models/File.model.js'
 import User from '../../models/User.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import Well from '../../models/Well.model.js'
+import Land from '../../models/Land.model.js'
 
 const router = Router()
 
@@ -112,14 +114,24 @@ router.post('/', async (req, res) => {
 	}
 })
 
-// GET a single user by ID
+// GET a single user by ID with related resources embedded in user
 router.get('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
-		const user = await User.findById(userId).populate('profilePicture')
+		const user = await User.findById(userId).populate('profilePicture').lean()
+
 		if (!user) {
 			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
 		}
+
+		if (user.role === 'irrigator') {
+			const wells = await Well.find({ irrigator: user._id }).select('_id title')
+			user.wells = wells
+		} else if (user.role === 'landOwner') {
+			const lands = await Land.find({ owner: user._id }).select('_id title')
+			user.lands = lands
+		}
+
 		return res.status(200).json({ user })
 	} catch (err) {
 		console.error(err.message)
