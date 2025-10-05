@@ -11,6 +11,7 @@ import EndNoticeDrawer from './components/EndNoticeDrawer/EndNoticeDrawer'
 import TableLogsMobile from './components/TableLogsMobile/TableLogsMobile'
 import WarningModalInUse from './components/WarningModalInUse/WarningModalInUse'
 import TimerDisplay from '../../../../../../../components/TimerDisplay/TimerDisplay'
+import { removeIrrigationStartTime, getIrrigationStartTime } from '../../../../../../../utils/irrigationStorage'
 
 import styles from './LandLogsMobile.module.css'
 
@@ -38,6 +39,8 @@ const LandLogsMobile = ({ data }) => {
 	const [showWellInUseWarning, setShowWellInUseWarning] = useState(false)
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
 	const [startedAt, setStartedAt] = useState(null)
+	const [endOtherLandId, setEndOtherLandId] = useState(null)
+	const [endOtherStartTime, setEndOtherStartTime] = useState(null)
 
 	const lsKey = `irrigation_start_${landId}`
 
@@ -152,10 +155,29 @@ const LandLogsMobile = ({ data }) => {
 	const handleEndOtherSelected = async selectedTime => {
 		setShowEndOtherDrawer(false)
 		try {
+			if (!currentIrrigatingWell?.ongoingIrrigationId || !endOtherLandId) {
+				console.warn('اطلاعات زمین دیگر ناقص است.')
+				return
+			}
+
 			await api.patch(`irrigations/${currentIrrigatingWell.ongoingIrrigationId}`, {
 				endTime: selectedTime.toISOString(),
 			})
-			setShowStartDrawer(true)
+
+			// 🔥 پاک کردن مقدار از localStorage برای زمین قبلی
+			removeIrrigationStartTime(endOtherLandId)
+			localStorage.removeItem(`irrigation_start_${endOtherLandId}`)
+
+			// 🔄 ریست state‌های مربوطه
+			setEndOtherLandId(null)
+			setEndOtherStartTime(null)
+
+			// قبل از نمایش مودال شروع زمین جدید
+			setLogs(prev => prev.filter(l => !l.isOngoing || l.land._id !== endOtherLandId))
+			// ✅ نمایش مودال شروع آبیاری زمین جدید
+			setShowStartDrawer(true) // ✅ پاک‌سازی state‌ها پس از پایان آبیاری زمین دیگر
+			setCurrentIrrigatingWell(null)
+			setShowWellInUseWarning(false)
 		} catch (e) {
 			console.error('خطا در پایان آبیاری زمین دیگر:', e)
 			alert('خطا در پایان آبیاری زمین دیگر. لطفاً دوباره تلاش کنید.')
@@ -180,9 +202,20 @@ const LandLogsMobile = ({ data }) => {
 	}
 
 	const handleEndOtherIrrigation = () => {
+		if (!currentIrrigatingWell?.land?._id) {
+			console.warn('زمین دیگر برای پایان آبیاری یافت نشد')
+			return
+		}
+
+		const prevLandId = currentIrrigatingWell.land._id
+		const startTime = getIrrigationStartTime(prevLandId)
+
+		setEndOtherLandId(prevLandId)
+		setEndOtherStartTime(startTime)
 		setShowWellInUseWarning(false)
 		setShowEndOtherDrawer(true)
 	}
+
 	const handleStop = () => {
 		const currentWell = data?.wells?.find(w => w.irrigatingLand?._id === data._id) || data?.wells?.[0]
 		const ongoingLog = logs.find(l => l.isOngoing)
@@ -243,9 +276,12 @@ const LandLogsMobile = ({ data }) => {
 			<TimeEndPickerSheet
 				isOpen={showEndOtherDrawer}
 				title='پایان آبیاری زمین دیگر'
-				subtitle='ساعت پایان آبیاری زمین دیگر را مشخص کنید.'
+				subtitle={`ساعت پایان آبیاری زمین ${currentIrrigatingWell?.land?.title} را مشخص کنید.`}
 				onSubmit={handleEndOtherSelected}
-				onClose={() => setShowEndOtherDrawer(false)}
+				onClose={() => {
+					setShowEndOtherDrawer(false)
+					setEndOtherLandId(null)
+				}}
 			/>
 
 			<EndNoticeDrawer
@@ -260,6 +296,8 @@ const LandLogsMobile = ({ data }) => {
 				onSubmit={handleEndOtherIrrigation}
 				onClose={() => setShowWellInUseWarning(false)}
 				well={currentIrrigatingWell}
+				landId={currentIrrigatingWell?.land?._id}
+				startedAt={currentIrrigatingWell?.land?.startedAt || currentIrrigatingWell?.irrigationStartedAt}
 			/>
 		</div>
 	)
