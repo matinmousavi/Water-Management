@@ -1,34 +1,45 @@
 import { Flex, Typography } from 'antd'
 import { useEffect, useState } from 'react'
+import dayjs from 'dayjs'
 
 import ModalMobile from '../../../../../../../../../components/ModalMobile/ModalMobile'
 import TimerDisplay from '../../../../../../../../../components/TimerDisplay/TimerDisplay'
 
-import { getIrrigationStartTime } from '../../../../../../../../../utils/irrigationStorage'
+import { getIrrigationStartTime, setIrrigationStartTime } from '../../../../../../../../../utils/irrigationStorage'
 
 import styles from './WarningModalInUse.module.css'
 
 const { Text } = Typography
 
+const parseDurationToMs = str => {
+	if (!str) return null
+	const [h, m] = str.split(':').map(Number)
+	return (h * 60 * 60 + m * 60) * 1000
+}
+
 const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 	const [startedAt, setStartedAt] = useState(null)
 
 	useEffect(() => {
-		const landId = well?.land?._id
-		if (!landId) {
-			console.error('landId is missing:', landId)
-			return
+		if (!well?.land?._id) return
+
+		const landId = well.land._id
+		let irrigationStartTime = getIrrigationStartTime(landId)
+
+		if (!irrigationStartTime && well.irrigationStartedAt) {
+			const apiStart = dayjs(well.irrigationStartedAt).valueOf()
+			setIrrigationStartTime(landId, apiStart)
+			irrigationStartTime = apiStart
 		}
 
-		const irrigationStartTime = getIrrigationStartTime(landId)
+		if (irrigationStartTime) setStartedAt(irrigationStartTime)
+	}, [well?.land?._id, well?.irrigationStartedAt])
 
-		if (!irrigationStartTime) {
-			console.warn('irrigationStartTime not found in localStorage for landId:', landId)
-			return
-		}
+	if (!isOpen || !well?.land) return null
 
-		setStartedAt(irrigationStartTime)
-	}, [well?.land?._id])
+	const landId = well.land._id
+	const requiredWaterMs = parseDurationToMs(well?.ongoingRequiredWater) || 2 * 60 * 60 * 1000
+	const remainingWaterMs = parseDurationToMs(well?.ongoingRemainingWater) || requiredWaterMs
 
 	return (
 		<ModalMobile
@@ -41,10 +52,11 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 			handleSubmit={onSubmit}
 		>
 			<Flex vertical gap={2}>
+				{' '}
 				<Text className={styles.subtitle}>
 					هنوز مدت زمان
 					<span className={styles.countdown}>
-						<TimerDisplay startedAt={startedAt} />
+						<TimerDisplay landId={landId} startedAt={startedAt} requiredWaterMs={requiredWaterMs} remainingWaterMs={remainingWaterMs} />
 					</span>
 					به پایان زمان آبیاری زمین {well?.land?.title} باقی مانده است.
 				</Text>
