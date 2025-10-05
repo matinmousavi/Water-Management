@@ -9,7 +9,7 @@ const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
 const CENTER_INDEX = Math.floor(VISIBLE_COUNT / 2)
 
-const TimeStartPickerSheet = ({ onSubmit, now, onClose, isOpen = true }) => {
+const TimeStartPickerSheet = ({ onSubmit, now: externalNow, onClose, isOpen = true }) => {
 	const apiTime = useAPI()
 	apiTime.init('settings/irrigations')
 
@@ -17,25 +17,36 @@ const TimeStartPickerSheet = ({ onSubmit, now, onClose, isOpen = true }) => {
 	const [selectedIndex, setSelectedIndex] = useState(30)
 	const listRef = useRef(null)
 	const scrollTimeout = useRef(null)
+	const now = externalNow ? dayjs(externalNow) : dayjs()
+	const [initialized, setInitialized] = useState(false)
 
 	useEffect(() => {
-		if (!isOpen || !now) return
+		if (!isOpen) {
+			setInitialized(false)
+			return
+		}
+
+		if (!now || !apiTime.data) return
+		if (initialized) return
+
 		const margin = apiTime.data?.data?.logTimeMarginMinutes?.time || 30
 		const base = dayjs(now).subtract(margin, 'minute')
+
 		const list = []
 		for (let i = 0; i <= margin; i++) {
-			list.push(base.add(i, 'minute'))
+			list.push(base.add(i, 'minute').clone())
 		}
 		setMinuteRange(list)
-
-		const currentIndex = list.findIndex(t => t.hour() === dayjs(now).hour() && t.minute() === dayjs(now).minute())
+		const currentIndex = list.findIndex(t => t.hour() === now.hour() && t.minute() === now.minute())
 		setSelectedIndex(currentIndex >= 0 ? currentIndex : list.length - 1)
-	}, [apiTime.data, now, isOpen])
+
+		setInitialized(true)
+	}, [apiTime.data, now, isOpen, initialized])
 
 	useEffect(() => {
 		if (listRef.current && minuteRange.length > 0) {
 			const scrollPos = selectedIndex * ITEM_HEIGHT
-			listRef.current.scrollTo({ top: scrollPos, behavior: 'instant' })
+			listRef.current.scrollTo({ top: scrollPos, behavior: 'auto' })
 		}
 	}, [minuteRange, selectedIndex])
 
@@ -56,7 +67,7 @@ const TimeStartPickerSheet = ({ onSubmit, now, onClose, isOpen = true }) => {
 		}, 100)
 	}
 
-	const selectedTime = minuteRange[selectedIndex] || dayjs()
+	const selectedTime = minuteRange[selectedIndex] || now
 	const selectedHour = selectedTime.hour().toString().padStart(2, '0')
 
 	const renderMinuteList = () => (
