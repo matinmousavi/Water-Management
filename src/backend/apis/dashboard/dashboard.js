@@ -77,8 +77,8 @@ router.get('/', async (req, res) => {
 		const wellsData = []
 
 		const sortedLogs = irrigations.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
-
 		const processedGroups = new Set()
+		const scheduleCache = {}
 
 		for (const log of sortedLogs) {
 			if (!log.well) continue
@@ -91,9 +91,8 @@ router.get('/', async (req, res) => {
 			const daysPassed = Math.floor((logStartDate.valueOf() - startDate.getTime()) / (1000 * 60 * 60 * 24))
 			const dayInCycle = (daysPassed % well.cycleDays) + 1
 
-			let key = log._id
-			let landTitle = log.land?.title || null
-			let groupInfo = null
+			let land = undefined
+			let landGroup = undefined
 
 			if (log.landGroup) {
 				const groupKey = `${log.landGroup}-${log.startedAt}-${log.endedAt}`
@@ -101,34 +100,46 @@ router.get('/', async (req, res) => {
 				processedGroups.add(groupKey)
 
 				const group = well.landGroups.find(g => g.groupId.toString() === log.landGroup.toString())
-				if (group) {
-					groupInfo = { id: group.groupId, title: group.title }
-				} else {
-					groupInfo = { id: log.landGroup, title: log.landGroup.toString() }
+				landGroup = {
+					id: log.landGroup,
+					title: group ? group.title : log.landGroup.toString(),
 				}
-
-				landTitle = null
-				key = log.landGroup + '-' + log.startedAt
+			} else if (log.land) {
+				land = {
+					id: log.land._id,
+					title: log.land.title,
+				}
 			}
 
-			const schedulesForStatus = await Schedule.find({
-				well: well._id,
-				status: 'active',
-				day: dayInCycle,
-				$or: [
-					{ targetType: 'land', land: log.land?._id },
-					{ targetType: 'group', landGroup: log.landGroup },
-				],
-			}).lean()
+			const cacheKeyForStatus = `${well._id}-${dayInCycle}`
+			const cacheKeyForProgress = `${well._id}-all`
 
-			const schedulesForProgress = await Schedule.find({
-				well: well._id,
-				status: 'active',
-				$or: [
-					{ targetType: 'land', land: log.land?._id },
-					{ targetType: 'group', landGroup: log.landGroup },
-				],
-			}).lean()
+			if (!scheduleCache[cacheKeyForStatus]) {
+				scheduleCache[cacheKeyForStatus] = await Schedule.find({
+					well: well._id,
+					status: 'active',
+					day: dayInCycle,
+				}).lean()
+			}
+
+			if (!scheduleCache[cacheKeyForProgress]) {
+				scheduleCache[cacheKeyForProgress] = await Schedule.find({
+					well: well._id,
+					status: 'active',
+				}).lean()
+			}
+
+			const schedulesForStatus = scheduleCache[cacheKeyForStatus].filter(
+				sch =>
+					(sch.targetType === 'land' && sch.land?.toString() === log.land?._id?.toString()) ||
+					(sch.targetType === 'group' && sch.landGroup?.toString() === log.landGroup?.toString())
+			)
+
+			const schedulesForProgress = scheduleCache[cacheKeyForProgress].filter(
+				sch =>
+					(sch.targetType === 'land' && sch.land?.toString() === log.land?._id?.toString()) ||
+					(sch.targetType === 'group' && sch.landGroup?.toString() === log.landGroup?.toString())
+			)
 
 			let totalSchedMinutes = 0
 			schedulesForProgress.forEach(sch => {
@@ -136,7 +147,10 @@ router.get('/', async (req, res) => {
 				if (!isNaN(dur) && dur > 0) totalSchedMinutes += dur
 			})
 
+			totalScheduledMinutes += totalSchedMinutes
+
 			const logDuration = log.startedAt && log.endedAt ? moment(log.endedAt).diff(moment(log.startedAt), 'minutes') : 0
+
 			totalIrrigatedMinutes += logDuration
 
 			const waterPercent = totalSchedMinutes > 0 ? Math.min(100, Math.round((logDuration / totalSchedMinutes) * 100)) : 0
@@ -165,10 +179,9 @@ router.get('/', async (req, res) => {
 			}
 
 			wellsData.push({
-				key,
-				wellName: well.title,
-				land: landTitle,
-				group: groupInfo,
+				well: { id: well._id, title: well.title },
+				...(land ? { land } : {}),
+				...(landGroup ? { landGroup } : {}),
 				startTime: moment(log.startedAt).format('HH:mm'),
 				endTime: log.endedAt ? moment(log.endedAt).format('HH:mm') : null,
 				status,
@@ -177,6 +190,7 @@ router.get('/', async (req, res) => {
 		}
 
 		const progressPercent = totalScheduledMinutes > 0 ? Math.min(100, (totalIrrigatedMinutes / totalScheduledMinutes) * 100) : 0
+
 		const unreadNotesCount = await Note.countDocuments({ user: req.user._id, isRead: false })
 
 		res.json({
