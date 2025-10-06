@@ -137,7 +137,9 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 												}}
 											>
 												<div className={styles['task-name']}>{task.title}</div>
-												<div className={styles['task-duration']}>{task.duration && formatDurationToPersian(task.duration)}</div>
+												{task.duration && task.duration.split(':')[0] !== '00' && (
+													<div className={styles['task-duration']}>{formatDurationToPersian(task.duration)}</div>
+												)}
 											</div>
 										) : (
 											<Tooltip
