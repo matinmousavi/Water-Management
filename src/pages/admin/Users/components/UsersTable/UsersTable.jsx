@@ -151,7 +151,6 @@ const UsersTable = ({ usersData }) => {
 					bordered
 					scroll={{
 						x: isSmallScreen ? 'max-content' : false,
-						y: height,
 					}}
 				/>
 			</div>
