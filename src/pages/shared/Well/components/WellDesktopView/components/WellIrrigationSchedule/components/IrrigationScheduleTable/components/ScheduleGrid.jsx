@@ -6,6 +6,17 @@ import { useUser } from '../../../../../../../../../../contexts/UserContext'
 const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotClick, isTimeSlotOccupied, getTaskPosition, currentDayInCycle }) => {
 	const [currentTimePos, setCurrentTimePos] = useState(null)
 	const { isIrrigator } = useUser()
+	const formatDurationToPersian = duration => {
+		if (!duration) return ''
+
+		const [hours, minutes] = duration.split(':').map(Number)
+
+		let result = ''
+		if (hours > 0) result += `${hours} ساعت`
+		if (minutes > 0) result += `${hours > 0 ? ' و ' : ''}${minutes} دقیقه`
+
+		return result.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])
+	}
 
 	// Update current time position every minute
 	useEffect(() => {
@@ -115,7 +126,20 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 									.map(task => {
 										const { top, height } = getTaskPosition(task)
 
-										return (
+										return isIrrigator ? (
+											<div
+												onClick={() => onTaskClick(task)}
+												className={styles['task-card']}
+												style={{
+													top: `${top}px`,
+													height: `${height}px`,
+													backgroundColor: task.color || '#e0f7e980',
+												}}
+											>
+												<div className={styles['task-name']}>{task.title}</div>
+												<div className={styles['task-duration']}>{task.duration && formatDurationToPersian(task.duration)}</div>
+											</div>
+										) : (
 											<Tooltip
 												key={task._id}
 												title={<div>مدت زمان: {task.duration && task.duration.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])}</div>}
