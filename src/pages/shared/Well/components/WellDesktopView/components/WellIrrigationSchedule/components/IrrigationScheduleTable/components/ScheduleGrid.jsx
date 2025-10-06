@@ -134,7 +134,7 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 															let text = ''
 															if (hours > 0) text += moment(hours, 'H').format('H') + ' ساعت'
 															if (minutes > 0) text += (hours > 0 ? ' و ' : '') + moment(minutes, 'm').format('m') + ' دقیقه'
-															return text.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])
+															return text
 														})()}
 													</div>
 												)}
