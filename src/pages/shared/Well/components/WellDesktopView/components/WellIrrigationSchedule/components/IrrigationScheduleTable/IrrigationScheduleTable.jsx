@@ -110,7 +110,7 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 			}))
 	}, [lands, landGroups])
 
-	const groupOptions = useMemo(() => landGroups.map(g => ({ value: g._id, label: `${g.title} (گروه)` })), [landGroups])
+	const groupOptions = useMemo(() => landGroups.map(g => ({ value: g.groupId, label: `${g.title} (گروه)` })), [landGroups])
 
 	const selectOptions = useMemo(() => {
 		if (landOptions.length === 0) return groupOptions
@@ -141,7 +141,7 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 				if (task.type === 'land') targetValue = task.landId
 				else if (task.type === 'group') {
 					const matchingGroup = landGroups.find(g => g._id === task.groupId || g.title === task.title)
-					if (matchingGroup) targetValue = matchingGroup._id
+					if (matchingGroup) targetValue = matchingGroup.groupId
 				}
 
 				form.setFieldsValue({
