@@ -65,17 +65,49 @@ const Dashboard = () => {
 	const columns = [
 		{
 			title: 'عنوان چاه',
-			dataIndex: 'wellName',
-			key: 'wellName',
-			render: name => <Link>{name}</Link>,
-			...getColumnSearchProps('wellName'),
+			dataIndex: ['well', 'title'],
+			key: 'well',
+			render: (_, record) => (record.well?.id ? <Link to={`/wells/${record.well.id}`}>{record.well.title}</Link> : '---'),
+			...getColumnSearchProps('well.title'),
 		},
 		{
 			title: 'زمین/گروه',
-			dataIndex: 'land',
-			key: 'land',
-			render: text => <Link>{text}</Link>,
-			...getColumnSearchProps('land'),
+			dataIndex: ['land', 'title'],
+			key: 'landOrGroup',
+			render: (_, record) => {
+				if (record.land) {
+					return <Link to={`/lands/${record.land.id}`}>{record.land.title}</Link>
+				} else if (record.landGroup) {
+					return <Link to={`/wells/${record.well.id}`}>{record.landGroup.title}</Link>
+				}
+				return '---'
+			},
+			onFilter: (value, record) =>
+				record.land?.title?.toLowerCase().includes(value.toLowerCase()) || record.landGroup?.title?.toLowerCase().includes(value.toLowerCase()),
+			filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+				<div style={{ padding: 8 }}>
+					<Input
+						ref={searchInput}
+						placeholder='جستجو در زمین/گروه'
+						value={selectedKeys[0]}
+						onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+						onPressEnter={() => confirm()}
+						style={{ marginBottom: 8, display: 'block' }}
+					/>
+					<Flex gap={8} justify='space-between'>
+						<a onClick={() => confirm()}>اعمال</a>
+						<a
+							onClick={() => {
+								clearFilters()
+								confirm()
+							}}
+						>
+							پاک‌سازی
+						</a>
+					</Flex>
+				</div>
+			),
+			filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
 		},
 		{
 			title: 'ساعت شروع آبیاری',
@@ -83,7 +115,7 @@ const Dashboard = () => {
 			key: 'startTime',
 			render: (time, record) => (
 				<Flex align='center' gap={8}>
-					{time}
+					{time || '---'}
 					{record.status === 'تاخیر' && getStatusTag('تاخیر')}
 				</Flex>
 			),
@@ -97,31 +129,26 @@ const Dashboard = () => {
 					if (record.status === 'در حال آبیاری') return getStatusTag(record.status)
 					return (
 						<Flex align='center' gap={8}>
-							<div>{time}</div>
+							<div>{time || '---'}</div>
 							{getStatusTag(record.status)}
 						</Flex>
 					)
 				}
-				return time
+				return time || '---'
 			},
 		},
 		{
 			title: 'وضعیت دریافت آب',
 			dataIndex: 'waterStatus',
 			key: 'waterStatus',
-			render: value => <Progress percent={value} size='small' strokeColor={value === 100 ? '#52c41a' : value > 50 ? '#FFC916' : '#f5222d'} />,
+			render: value => <Progress percent={value ?? 0} size='small' strokeColor={value === 100 ? '#52c41a' : value > 50 ? '#FFC916' : '#f5222d'} />,
 		},
 	]
 
 	if (!api.data) return <Loading />
 
-	const wellsData = (api.data?.wells || []).map(item => ({
-		...item,
-		land: item.land ? item.land.title || item.land.id : item.group ? item.group.title || item.group.id : '---',
-	}))
-
-	const delayedLogs = wellsData.filter(w => w.status === 'تاخیر')
-	const outOfScheduleLogs = wellsData.filter(w => w.status === 'خارج از زمانبندی')
+	const delayedLogs = api.data?.wells.filter(w => w.status === 'تاخیر')
+	const outOfScheduleLogs = api.data?.wells.filter(w => w.status === 'خارج از زمانبندی')
 
 	const cardsData = {
 		totalIrrigatedMinutes: api.data?.totalIrrigatedMinutes ?? 0,
@@ -146,9 +173,11 @@ const Dashboard = () => {
 					وضعیت آبیاری امروز
 				</Title>
 				<Table
-					dataSource={wellsData}
+					dataSource={api.data?.wells || []}
 					columns={columns}
-					rowKey={record => record.key}
+					rowKey={(record, index) =>
+						record.land?.id || record.landGroup?.id ? `${record.well.id}-${record.land?.id || record.landGroup?.id}` : `${record.well.id}-${index}`
+					}
 					locale={{ emptyText: 'داده‌ای موجود نیست' }}
 					bordered
 					scroll={{ x: 'max-content' }}

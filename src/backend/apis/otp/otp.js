@@ -64,7 +64,6 @@ router.post('/verify', async (req, res) => {
 
 		const FIXED_OTP = '1111'
 		if (otp === FIXED_OTP) {
-			console.log(otp)
 			const user = await User.findOne({ mobile })
 			if (!user) {
 				return res.status(400).json({ message: 'کاربر با این شماره وجود ندارد.' })
