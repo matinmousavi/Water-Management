@@ -1,4 +1,5 @@
 import Irrigation from '../models/Irrigation.model.js'
+import Well from '../models/Well.model.js'
 import moment from 'moment-jalaali'
 
 export const checkIrrigationConflict = async ({ wellId, landIds = [], excludeId = null, startedAt, endedAt, isOngoing }) => {
@@ -16,7 +17,20 @@ export const checkIrrigationConflict = async ({ wellId, landIds = [], excludeId 
 	}
 
 	for (const irrigation of irrigations) {
-		const irrigationLandIds = irrigation.landGroup ? irrigation.landGroupLands : [irrigation.land.toString()]
+		let irrigationLandIds = []
+
+		if (irrigation.isGroupLog && irrigation.landGroupLands) {
+			irrigationLandIds = irrigation.landGroupLands.map(l => l.toString())
+		} else if (irrigation.isGroupLog && irrigation.landGroup) {
+			const well = await Well.findById(irrigation.well).lean()
+			const group = well.landGroups.find(g => g.groupId.toString() === irrigation.landGroup.toString())
+			if (group && group.lands) {
+				irrigationLandIds = group.lands.map(l => l.toString())
+			}
+		} else {
+			irrigationLandIds = [irrigation.land.toString()]
+		}
+
 		const overlapLand = landIds.some(l => irrigationLandIds.includes(l.toString()))
 		if (!overlapLand) continue
 
