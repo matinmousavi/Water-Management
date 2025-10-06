@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Tooltip } from 'antd'
 import styles from '../IrrigationScheduleTable.module.css'
 import { useUser } from '../../../../../../../../../../contexts/UserContext'
+import moment from 'moment-jalaali'
 
 const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotClick, isTimeSlotOccupied, getTaskPosition, currentDayInCycle }) => {
 	const [currentTimePos, setCurrentTimePos] = useState(null)
@@ -138,7 +139,15 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 											>
 												<div className={styles['task-name']}>{task.title}</div>
 												{task.duration && task.duration.split(':')[0] !== '00' && (
-													<div className={styles['task-duration']}>{formatDurationToPersian(task.duration)}</div>
+													<div className={styles['task-duration']}>
+														{(() => {
+															const [hours, minutes] = task.duration.split(':').map(Number)
+															let text = ''
+															if (hours > 0) text += moment(hours, 'H').format('H') + ' ساعت'
+															if (minutes > 0) text += (hours > 0 ? ' و ' : '') + moment(minutes, 'm').format('m') + ' دقیقه'
+															return text.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])
+														})()}
+													</div>
 												)}
 											</div>
 										) : (
