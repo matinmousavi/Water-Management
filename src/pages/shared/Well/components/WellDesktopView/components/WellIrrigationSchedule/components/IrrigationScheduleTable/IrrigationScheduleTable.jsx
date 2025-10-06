@@ -13,7 +13,7 @@ import { useUser } from '../../../../../../../../../contexts/UserContext'
 
 dayjs.extend(isBetween)
 
-function numberToPersianOrdinal(n) {
+const numberToPersianOrdinal = n => {
 	const ordinals = {
 		1: 'اول',
 		2: 'دوم',
@@ -51,7 +51,7 @@ function numberToPersianOrdinal(n) {
 
 const OFF_HOURS_COLOR = '#00000033'
 
-export default function IrrigationScheduleTable({ wellId, selectedSnapshot, lands = [], landGroups = [], editable = true, cycleDays: cycleDaysProp }) {
+const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGroups = [], editable = true, cycleDays: cycleDaysProp }) => {
 	const [tasks, setTasks] = useState([])
 	const [isModalVisible, setIsModalVisible] = useState(false)
 	const [editingTask, setEditingTask] = useState(null)
@@ -92,14 +92,11 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 	}, [wellId, selectedSnapshot, editable])
 
 	const currentDayInCycle = useMemo(() => {
-		if (!cycleStartDate) return -1 // اگر تاریخی ست نشده بود، هیچ روزی هایلایت نشه
-
+		if (!cycleStartDate) return -1
 		const today = dayjs()
 		const startDate = dayjs(cycleStartDate)
 		const dayDifference = today.diff(startDate, 'day')
-
-		if (dayDifference < 0) return -1 // اگر هنوز دوره شروع نشده
-
+		if (dayDifference < 0) return -1
 		return (dayDifference % cycleDays) + 1
 	}, [cycleStartDate, cycleDays])
 
@@ -124,6 +121,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		]
 	}, [landOptions, groupOptions])
 
+	const [scheduleType, setScheduleType] = useState('land')
+
 	const resetModal = () => {
 		setEditingTask(null)
 		setSelectedDay(null)
@@ -133,28 +132,18 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		setIsModalVisible(false)
 	}
 
-	const [scheduleType, setScheduleType] = useState('land')
-
 	const handleTaskClick = editable
 		? task => {
 				setEditingTask(task)
 				setSelectedDay(task.day)
 
-				let targetValue = null
-				// برای مقابله با ناهماهنگی API، هر دو اسم 'type' و 'targetType' را چک می‌کنیم
-				const taskType = task.type || task.targetType
-
-				if (taskType === 'land') {
-					// دیتا فلت است، پس مستقیم از ID روی خود تسک استفاده می‌کنیم
-					// برای اطمینان، هم 'id' و هم '_id' را چک می‌کنیم
-					targetValue = task._id || task.id
-				} else if (taskType === 'group') {
-					// این راه حل قبلی برای گروه‌هاست که درست کار می‌کند
-					const matchingGroup = landGroups.find(g => g.title === task.title)
-					if (matchingGroup) {
-						targetValue = matchingGroup.groupId
-					}
+				let targetValue = undefined
+				if (task.type === 'land') targetValue = task.landId
+				else if (task.type === 'group') {
+					const matchingGroup = landGroups.find(g => g._id === task.groupId || g.title === task.title)
+					if (matchingGroup) targetValue = matchingGroup._id
 				}
+
 				form.setFieldsValue({
 					target: targetValue,
 					startTime: dayjs(task.startTime),
@@ -163,7 +152,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					color: task.color || '#e0f7e980',
 				})
 
-				setScheduleType(task.targetType === 'off' ? 'off' : 'land')
+				setScheduleType(task.type === 'off' ? 'off' : 'land')
 				setIsModalVisible(true)
 		  }
 		: undefined
@@ -188,7 +177,6 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		? async () => {
 				try {
 					const values = await form.validateFields()
-
 					setIsLoading(true)
 
 					let payload
@@ -218,12 +206,10 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					else await api.post(`/wells/${wellId}/schedules`, payload)
 
 					openNotification('success', 'زمان‌بندی ذخیره شد')
-
 					resetModal()
-
 					await fetchSchedules()
 				} catch (err) {
-					openNotification('error', `${err.error.message}`)
+					openNotification('error', `${err.error?.message || 'خطا'}`)
 				} finally {
 					setIsLoading(false)
 				}
@@ -296,3 +282,5 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		</>
 	)
 }
+
+export default IrrigationScheduleTable

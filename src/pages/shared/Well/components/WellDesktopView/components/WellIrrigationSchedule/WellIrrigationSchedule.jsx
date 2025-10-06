@@ -8,7 +8,7 @@ import { useUser } from '../../../../../../../contexts/UserContext'
 const { Title } = Typography
 const { Option } = Select
 
-export default function IrrigationSchedule({ wellId, lands = [], landGroups = [] }) {
+const IrrigationSchedule = ({ wellId, lands = [], landGroups = [] }) => {
 	const [selectedSnapshot, setSelectedSnapshot] = useState(null)
 	const [snapshots, setSnapshots] = useState([])
 	const [isModalVisible, setIsModalVisible] = useState(false)
@@ -20,6 +20,7 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 	const screens = useBreakpoint()
 	const isMobile = screens.xs
 	const { isAdmin } = useUser()
+
 	const fetchSnapshots = async () => {
 		try {
 			setLoading(true)
@@ -36,7 +37,6 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 		if (wellId) fetchSnapshots()
 	}, [wellId])
 
-	// ✅ Handle select snapshot (restore)
 	const handleSelectChange = async value => {
 		setSelectedSnapshot(value)
 		try {
@@ -47,13 +47,11 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 		}
 	}
 
-	// ✅ Open modal
 	const handleCreateNewSnapshotClick = () => {
 		setNewSnapshotName('')
 		setIsModalVisible(true)
 	}
 
-	// ✅ Create new snapshot
 	const handleModalOk = async () => {
 		if (!newSnapshotName.trim()) {
 			openNotification('warning', 'نام جدول الزامی است')
@@ -85,7 +83,7 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 
 					<div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
 						<Spin spinning={loading}>
-							{isAdmin ? (
+							{isAdmin && (
 								<Select
 									value={selectedSnapshot}
 									onChange={handleSelectChange}
@@ -121,7 +119,7 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 										</Option>
 									))}
 								</Select>
-							) : null}
+							)}
 						</Spin>
 					</div>
 				</Flex>
@@ -145,3 +143,5 @@ export default function IrrigationSchedule({ wellId, lands = [], landGroups = []
 		</>
 	)
 }
+
+export default IrrigationSchedule

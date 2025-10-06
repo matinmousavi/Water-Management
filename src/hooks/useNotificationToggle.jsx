@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import useAPI from './useAPI'
 
-export default function useNotificationToggle({ landId, initialValue }) {
+const useNotificationToggle = ({ landId, initialValue }) => {
 	const [enabled, setEnabled] = useState(initialValue)
 	const [loading, setLoading] = useState(false)
 	const api = useAPI()
@@ -29,3 +29,5 @@ export default function useNotificationToggle({ landId, initialValue }) {
 
 	return { enabled, loading, toggle }
 }
+
+export default useNotificationToggle

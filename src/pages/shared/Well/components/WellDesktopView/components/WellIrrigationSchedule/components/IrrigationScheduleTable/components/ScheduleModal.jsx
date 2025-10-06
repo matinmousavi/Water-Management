@@ -21,8 +21,7 @@ const colorPalette = [
 
 const OFF_HOURS_COLOR = '#00000033'
 
-export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions, scheduleType, setScheduleType }) {
-
+const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions, scheduleType, setScheduleType }) => {
 	const handleScheduleTypeChange = e => {
 		setScheduleType(e.target.value)
 		form.setFieldsValue({
@@ -143,3 +142,5 @@ export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoa
 		</Modal>
 	)
 }
+
+export default ScheduleModal

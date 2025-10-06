@@ -1,12 +1,11 @@
-import { createContext } from 'react'
-import { use, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import { Spin, Flex } from 'antd'
 import useAPI from '../hooks/useAPI'
 import Errors from '../pages/public/errors/Errors'
 
 const UserContext = createContext()
 
-export default function UserProvider({ children }) {
+const UserProvider = ({ children }) => {
 	const [user, setUser] = useState(false)
 	const [initLoading, setInitLoading] = useState(true)
 	const api = useAPI()
@@ -67,6 +66,6 @@ export default function UserProvider({ children }) {
 	return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
 }
 
-export function useUser() {
-	return use(UserContext)
-}
+const useUser = () => useContext(UserContext)
+
+export { UserProvider, useUser }
