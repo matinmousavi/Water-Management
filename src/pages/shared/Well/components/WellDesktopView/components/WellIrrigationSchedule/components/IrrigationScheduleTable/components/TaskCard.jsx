@@ -17,7 +17,7 @@ const colorPalette = [
 	'#cfd8dc80',
 ]
 
-export default function TaskCard({ task, onClick }) {
+const TaskCard = ({ task, onClick }) => {
 	const { title, color } = task
 
 	return (
@@ -35,3 +35,5 @@ export default function TaskCard({ task, onClick }) {
 		</div>
 	)
 }
+
+export default TaskCard

@@ -15,7 +15,7 @@ const EditWell = ({ initialValue, setData, setPageTitle }) => {
 	const wellApi = useAPI()
 	const irrigatorsApi = useAPI()
 	const { openNotification } = useNotification()
-	const { setCycleDays } = useWell()
+	const { setCycleDays, setCycleStartDate } = useWell()
 
 	const handleOpen = () => {
 		irrigatorsApi.init('users', { role: 'irrigator' })
@@ -47,6 +47,7 @@ const EditWell = ({ initialValue, setData, setPageTitle }) => {
 				openNotification('success', 'عملیات موفق', 'چاه با موفقیت ویرایش شد.')
 				setData?.({ well: response.well })
 				setCycleDays(response.well.cycleDays)
+				setCycleStartDate(response.well.cycleStartDate)
 
 				if (typeof setPageTitle === 'function') {
 					const newTitle = response.well.title

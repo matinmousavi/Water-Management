@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react'
 import { Modal, Form, Select, TimePicker, Row, Col, Button, Radio, Input } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -22,20 +21,7 @@ const colorPalette = [
 
 const OFF_HOURS_COLOR = '#00000033'
 
-export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions, scheduleType, setScheduleType }) {
-	useEffect(() => {
-		if (editingTask) {
-			const type = editingTask.targetType === 'off' ? 'off' : 'land'
-			setScheduleType(type)
-			form.setFieldsValue({
-				color: type === 'off' ? OFF_HOURS_COLOR : editingTask.color,
-			})
-		} else {
-			setScheduleType('land')
-			form.setFieldsValue({ color: colorPalette[0] })
-		}
-	}, [editingTask, form, setScheduleType])
-
+const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions, scheduleType, setScheduleType }) => {
 	const handleScheduleTypeChange = e => {
 		setScheduleType(e.target.value)
 		form.setFieldsValue({
@@ -156,3 +142,5 @@ export default function ScheduleModal({ visible, onCancel, onOk, onDelete, isLoa
 		</Modal>
 	)
 }
+
+export default ScheduleModal

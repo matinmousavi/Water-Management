@@ -13,7 +13,7 @@ import { useUser } from '../../../../../../../../../contexts/UserContext'
 
 dayjs.extend(isBetween)
 
-function numberToPersianOrdinal(n) {
+const numberToPersianOrdinal = n => {
 	const ordinals = {
 		1: 'اول',
 		2: 'دوم',
@@ -51,7 +51,7 @@ function numberToPersianOrdinal(n) {
 
 const OFF_HOURS_COLOR = '#00000033'
 
-export default function IrrigationScheduleTable({ wellId, selectedSnapshot, lands = [], landGroups = [], editable = true, cycleDays: cycleDaysProp }) {
+const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGroups = [], editable = true, cycleDays: cycleDaysProp }) => {
 	const [tasks, setTasks] = useState([])
 	const [isModalVisible, setIsModalVisible] = useState(false)
 	const [editingTask, setEditingTask] = useState(null)
@@ -61,8 +61,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 	const api = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
-
-	const cycleDaysFromContext = editable ? useWell().cycleDays : null
+	const { cycleDays: cycleDaysContext, cycleStartDate } = useWell()
+	const cycleDaysFromContext = editable ? cycleDaysContext : null
 	const cycleDays = editable ? cycleDaysFromContext : cycleDaysProp || 7
 	const daysOfWeek = useMemo(() => Array.from({ length: cycleDays }, (_, i) => `روز ${numberToPersianOrdinal(i + 1)}`), [cycleDays])
 
@@ -91,7 +91,14 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		if (wellId) fetchSchedules()
 	}, [wellId, selectedSnapshot, editable])
 
-	const currentDayInCycle = tasks[0]?.dayInCycle
+	const currentDayInCycle = useMemo(() => {
+		if (!cycleStartDate) return -1
+		const today = dayjs()
+		const startDate = dayjs(cycleStartDate)
+		const dayDifference = today.diff(startDate, 'day')
+		if (dayDifference < 0) return -1
+		return (dayDifference % cycleDays) + 1
+	}, [cycleStartDate, cycleDays])
 
 	const landOptions = useMemo(() => {
 		const landsInGroups = landGroups.flatMap(g => g.lands)
@@ -103,7 +110,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 			}))
 	}, [lands, landGroups])
 
-	const groupOptions = useMemo(() => landGroups.map(g => ({ value: g.groupId, label: `${g.title} (گروه)` })), [landGroups])
+	const groupOptions = useMemo(() => landGroups.map(g => ({ value: g._id, label: `${g.title} (گروه)` })), [landGroups])
 
 	const selectOptions = useMemo(() => {
 		if (landOptions.length === 0) return groupOptions
@@ -114,6 +121,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		]
 	}, [landOptions, groupOptions])
 
+	const [scheduleType, setScheduleType] = useState('land')
+
 	const resetModal = () => {
 		setEditingTask(null)
 		setSelectedDay(null)
@@ -123,16 +132,17 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		setIsModalVisible(false)
 	}
 
-	const [scheduleType, setScheduleType] = useState('land')
-
 	const handleTaskClick = editable
 		? task => {
 				setEditingTask(task)
 				setSelectedDay(task.day)
 
-				let targetValue = null
-				if (task.targetType === 'land' && task.land) targetValue = task.land._id
-				else if (task.targetType === 'group' && task.landGroup) targetValue = task.landGroup._id
+				let targetValue = undefined
+				if (task.type === 'land') targetValue = task.landId
+				else if (task.type === 'group') {
+					const matchingGroup = landGroups.find(g => g._id === task.groupId || g.title === task.title)
+					if (matchingGroup) targetValue = matchingGroup._id
+				}
 
 				form.setFieldsValue({
 					target: targetValue,
@@ -142,7 +152,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					color: task.color || '#e0f7e980',
 				})
 
-				setScheduleType(task.targetType === 'off' ? 'off' : 'land')
+				setScheduleType(task.type === 'off' ? 'off' : 'land')
 				setIsModalVisible(true)
 		  }
 		: undefined
@@ -167,7 +177,6 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		? async () => {
 				try {
 					const values = await form.validateFields()
-
 					setIsLoading(true)
 
 					let payload
@@ -197,12 +206,10 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 					else await api.post(`/wells/${wellId}/schedules`, payload)
 
 					openNotification('success', 'زمان‌بندی ذخیره شد')
-
 					resetModal()
-
 					await fetchSchedules()
 				} catch (err) {
-					openNotification('error', `${err.error.message}`)
+					openNotification('error', `${err.error?.message || 'خطا'}`)
 				} finally {
 					setIsLoading(false)
 				}
@@ -255,6 +262,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				isTimeSlotOccupied={isTimeSlotOccupied}
 				getTaskPosition={getTaskPosition}
 				currentDayInCycle={currentDayInCycle}
+				cycleStartDate={cycleStartDate}
 			/>
 
 			{editable && isAdmin && (
@@ -274,3 +282,5 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		</>
 	)
 }
+
+export default IrrigationScheduleTable
