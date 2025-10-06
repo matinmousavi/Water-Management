@@ -140,10 +140,7 @@ const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotCl
 												)}
 											</div>
 										) : (
-											<Tooltip
-												key={task._id}
-												title={<div>مدت زمان: {task.duration && task.duration.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])}</div>}
-											>
+											<Tooltip key={task._id} title={<div>مدت زمان: {task.duration && task.duration}</div>}>
 												<div
 													onClick={() => onTaskClick(task)}
 													className={styles['task-card']}
