@@ -23,6 +23,7 @@ const Well = () => {
 	const [landsData, setLandsData] = useState({ lands: [], landGroups: [] })
 	const [irrigatorWells, setIrrigatorWells] = useState()
 	const [cycleDays, setCycleDays] = useState(0)
+	const [cycleStartDate, setCycleStartDate] = useState()
 
 	wellId
 		? api.init(`wells/${wellId}`)
@@ -42,6 +43,7 @@ const Well = () => {
 				landGroups: fetchedWell.landGroups || [],
 			})
 			setCycleDays(fetchedWell.cycleDays || 0)
+			setCycleStartDate(fetchedWell.cycleStartDate)
 		}
 	}, [api.data])
 
@@ -59,6 +61,8 @@ const Well = () => {
 	const contextValue = {
 		cycleDays,
 		setCycleDays,
+		cycleStartDate,
+		setCycleStartDate,
 	}
 
 	return (

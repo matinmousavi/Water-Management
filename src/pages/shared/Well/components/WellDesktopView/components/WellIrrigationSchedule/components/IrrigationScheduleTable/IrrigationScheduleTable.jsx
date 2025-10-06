@@ -61,8 +61,8 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 	const api = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
-
-	const cycleDaysFromContext = editable ? useWell().cycleDays : null
+	const { cycleDays: cycleDaysContext, cycleStartDate } = useWell()
+	const cycleDaysFromContext = editable ? cycleDaysContext : null
 	const cycleDays = editable ? cycleDaysFromContext : cycleDaysProp || 7
 	const daysOfWeek = useMemo(() => Array.from({ length: cycleDays }, (_, i) => `روز ${numberToPersianOrdinal(i + 1)}`), [cycleDays])
 
@@ -91,7 +91,17 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 		if (wellId) fetchSchedules()
 	}, [wellId, selectedSnapshot, editable])
 
-	const currentDayInCycle = tasks[0]?.dayInCycle
+	const currentDayInCycle = useMemo(() => {
+		if (!cycleStartDate) return -1 // اگر تاریخی ست نشده بود، هیچ روزی هایلایت نشه
+
+		const today = dayjs()
+		const startDate = dayjs(cycleStartDate)
+		const dayDifference = today.diff(startDate, 'day')
+
+		if (dayDifference < 0) return -1 // اگر هنوز دوره شروع نشده
+
+		return (dayDifference % cycleDays) + 1
+	}, [cycleStartDate, cycleDays])
 
 	const landOptions = useMemo(() => {
 		const landsInGroups = landGroups.flatMap(g => g.lands)
@@ -103,7 +113,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 			}))
 	}, [lands, landGroups])
 
-	const groupOptions = useMemo(() => landGroups.map(g => ({ value: g.groupId, label: `${g.title} (گروه)` })), [landGroups])
+	const groupOptions = useMemo(() => landGroups.map(g => ({ value: g._id, label: `${g.title} (گروه)` })), [landGroups])
 
 	const selectOptions = useMemo(() => {
 		if (landOptions.length === 0) return groupOptions
@@ -131,9 +141,20 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				setSelectedDay(task.day)
 
 				let targetValue = null
-				if (task.targetType === 'land' && task.land) targetValue = task.land._id
-				else if (task.targetType === 'group' && task.landGroup) targetValue = task.landGroup._id
+				// برای مقابله با ناهماهنگی API، هر دو اسم 'type' و 'targetType' را چک می‌کنیم
+				const taskType = task.type || task.targetType
 
+				if (taskType === 'land') {
+					// دیتا فلت است، پس مستقیم از ID روی خود تسک استفاده می‌کنیم
+					// برای اطمینان، هم 'id' و هم '_id' را چک می‌کنیم
+					targetValue = task._id || task.id
+				} else if (taskType === 'group') {
+					// این راه حل قبلی برای گروه‌هاست که درست کار می‌کند
+					const matchingGroup = landGroups.find(g => g.title === task.title)
+					if (matchingGroup) {
+						targetValue = matchingGroup.groupId
+					}
+				}
 				form.setFieldsValue({
 					target: targetValue,
 					startTime: dayjs(task.startTime),
@@ -255,6 +276,7 @@ export default function IrrigationScheduleTable({ wellId, selectedSnapshot, land
 				isTimeSlotOccupied={isTimeSlotOccupied}
 				getTaskPosition={getTaskPosition}
 				currentDayInCycle={currentDayInCycle}
+				cycleStartDate={cycleStartDate}
 			/>
 
 			{editable && isAdmin && (
