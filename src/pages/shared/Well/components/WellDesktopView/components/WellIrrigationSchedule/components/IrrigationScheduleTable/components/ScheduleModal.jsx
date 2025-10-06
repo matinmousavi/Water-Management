@@ -1,6 +1,8 @@
 import { Modal, Form, Select, TimePicker, Row, Col, Button, Radio, Input } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+dayjs.extend(duration)
 
 const colorPalette = [
 	'#e0f7e980',
@@ -30,6 +32,21 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 		})
 	}
 
+	const startTime = Form.useWatch('startTime', form)
+	const endTime = Form.useWatch('endTime', form)
+
+	let displayDuration = '—'
+	if (startTime && endTime) {
+		const start = dayjs(startTime)
+		const end = dayjs(endTime)
+		if (end.isAfter(start)) {
+			const diff = dayjs.duration(end.diff(start))
+			const hours = diff.hours()
+			const minutes = diff.minutes()
+			displayDuration = `${hours > 0 ? `${hours} ساعت ` : ''}${minutes > 0 ? `${minutes} دقیقه` : ''}`
+		}
+	}
+
 	return (
 		<Modal
 			title={editingTask ? 'ویرایش زمان‌بندی' : 'افزودن زمان‌بندی'}
@@ -56,22 +73,24 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 					)}
 					<div>
 						<Button key='cancel' onClick={onCancel} style={{ marginLeft: 8 }}>
-							لغو
+							انصراف
 						</Button>
 						<Button key='submit' type='primary' loading={isLoading} onClick={onOk}>
-							تایید
+							ثبت
 						</Button>
 					</div>
 				</div>
 			}
 		>
 			<Form form={form} layout='horizontal' labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} colon={false}>
-				<Form.Item label='نوع برنامه' style={{ marginBottom: 24 }}>
-					<Radio.Group value={scheduleType} onChange={handleScheduleTypeChange}>
-						<Radio value='land'>زمین</Radio>
-						<Radio value='off'>ساعت خاموشی</Radio>
-					</Radio.Group>
-				</Form.Item>
+				{!editingTask && (
+					<Form.Item label='نوع زمان بندی' style={{ marginBottom: 24 }}>
+						<Radio.Group value={scheduleType} onChange={handleScheduleTypeChange}>
+							<Radio value='land'>زمین</Radio>
+							<Radio value='off'>ساعت خاموشی</Radio>
+						</Radio.Group>
+					</Form.Item>
+				)}
 
 				{scheduleType === 'land' && (
 					<Form.Item label='زمین' name='target' rules={[{ required: scheduleType === 'land', message: 'لطفا زمین را انتخاب کنید' }]}>
@@ -111,6 +130,12 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 					</Row>
 				</Form.Item>
 
+				{!editingTask && (
+					<Form.Item label='مدت زمان آبیاری'>
+						<span>{displayDuration}</span>
+					</Form.Item>
+				)}
+
 				<Form.Item label='رنگ'>
 					{scheduleType === 'land' ? (
 						<Form.Item name='color' noStyle rules={[{ required: scheduleType === 'land' }]}>
@@ -138,6 +163,11 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 						</div>
 					)}
 				</Form.Item>
+				{editingTask && (
+					<Form.Item label='مدت زمان آبیاری'>
+						<span>{displayDuration}</span>
+					</Form.Item>
+				)}
 			</Form>
 		</Modal>
 	)
