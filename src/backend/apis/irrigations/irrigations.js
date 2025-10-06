@@ -205,50 +205,33 @@ router.post('/', async (req, res) => {
 
 		const createdLogs = []
 
-		if (landGroupId) {
-			for (const land of landIdsToCheck) {
-				const created = await Irrigation.create({
-					land,
-					well: wellId,
-					startedAt,
-					endedAt,
-					note,
-					isOngoing,
-					createdBy: currentUser._id,
-					landGroup: landGroupId,
-					isGroupLog: true,
-				})
-				createdLogs.push(created)
-				await sendIrrigationNotificationToLandOwner({ landId: land, irrigationDocument: created, endedAt, currentUser })
-			}
-		} else {
+		for (const land of landIdsToCheck) {
 			const created = await Irrigation.create({
-				land: landId,
+				land,
 				well: wellId,
 				startedAt,
 				endedAt,
 				note,
 				isOngoing,
 				createdBy: currentUser._id,
-				isGroupLog: false,
+				landGroup: landGroupId || null,
+				isGroupLog: Boolean(landGroupId),
 			})
 			createdLogs.push(created)
-			await sendIrrigationNotificationToLandOwner({ landId, irrigationDocument: created, endedAt, currentUser })
+			await sendIrrigationNotificationToLandOwner({ landId: land, irrigationDocument: created, endedAt, currentUser })
 		}
 
-		const populatedLogs = await Irrigation.find({ _id: { $in: createdLogs.map(l => l._id) } })
+		const irrigation = await Irrigation.findById(createdLogs[0]._id)
 			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
 			.populate('well', 'title landGroups')
 			.populate('createdBy', 'fullName mobile')
 			.lean()
 
-		for (const log of populatedLogs) {
-			log.landGroupTitle = await getLandGroupTitle(log, log.well)
-		}
+		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
 
 		return res.status(201).json({
 			message: landGroupId ? 'آبیاری گروهی با موفقیت ثبت شد.' : 'آبیاری با موفقیت ثبت شد.',
-			irrigations: populatedLogs,
+			irrigation,
 		})
 	} catch (err) {
 		console.error(err)
