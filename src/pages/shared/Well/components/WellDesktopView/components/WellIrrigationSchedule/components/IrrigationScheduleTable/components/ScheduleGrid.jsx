@@ -7,17 +7,6 @@ import moment from 'moment-jalaali'
 const ScheduleGrid = ({ daysOfWeek, timeSlots, tasks, onTaskClick, onEmptySlotClick, isTimeSlotOccupied, getTaskPosition, currentDayInCycle }) => {
 	const [currentTimePos, setCurrentTimePos] = useState(null)
 	const { isIrrigator } = useUser()
-	const formatDurationToPersian = duration => {
-		if (!duration) return ''
-
-		const [hours, minutes] = duration.split(':').map(Number)
-
-		let result = ''
-		if (hours > 0) result += `${hours} ساعت`
-		if (minutes > 0) result += `${hours > 0 ? ' و ' : ''}${minutes} دقیقه`
-
-		return result.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])
-	}
 
 	// Update current time position every minute
 	useEffect(() => {
