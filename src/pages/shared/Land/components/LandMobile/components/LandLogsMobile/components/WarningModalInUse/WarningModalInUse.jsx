@@ -19,6 +19,7 @@ const parseDurationToMs = str => {
 
 const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 	const [startedAt, setStartedAt] = useState(null)
+	console.log(well)
 
 	useEffect(() => {
 		if (!well?.land?._id) return

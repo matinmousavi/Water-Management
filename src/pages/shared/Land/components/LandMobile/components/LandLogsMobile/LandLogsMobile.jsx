@@ -297,8 +297,6 @@ const LandLogsMobile = ({ data }) => {
 				onSubmit={handleEndOtherIrrigation}
 				onClose={() => setShowWellInUseWarning(false)}
 				well={currentIrrigatingWell}
-				landId={currentIrrigatingWell?.land?._id}
-				startedAt={currentIrrigatingWell?.land?.startedAt || currentIrrigatingWell?.irrigationStartedAt}
 			/>
 		</div>
 	)

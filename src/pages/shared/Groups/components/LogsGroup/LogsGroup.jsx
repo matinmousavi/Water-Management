@@ -14,6 +14,7 @@ import TimeEndPickerSheet from '../../../Land/components/LandMobile/components/L
 import DescriptionModalCell from '../../../Land/components/LandMobile/components/LandLogsMobile/components/DescriptionModalCell/DescriptionModalCell'
 import EndNoticeDrawer from '../../../Land/components/LandMobile/components/LandLogsMobile/components/EndNoticeDrawer/EndNoticeDrawer'
 import TimerDisplay from '../../../../../components/TimerDisplay/TimerDisplay'
+import WarningModalInUse from '../../../Land/components/LandMobile/components/LandLogsMobile/components/WarningModalInUse/WarningModalInUse'
 
 dayjs.extend(jalaliday)
 dayjs.extend(customParseFormat)
@@ -30,8 +31,9 @@ const LogsGroup = ({ wellId }) => {
 	const { groupId } = useParams()
 	const api = useAPI()
 	const apiTime = useAPI()
+	const apiWell = useAPI()
+	apiWell.init(`wells/${wellId}`)
 	apiTime.init('settings/irrigations')
-
 	const [logs, setLogs] = useState([])
 	const [groupData, setGroupData] = useState(null)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
@@ -40,6 +42,7 @@ const LogsGroup = ({ wellId }) => {
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [startedAt, setStartedAt] = useState(null)
 	const [currentTime, setCurrentTime] = useState(dayjs())
+	const [isOpenWarning, setIsOpenWarning] = useState(false)
 
 	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
 
@@ -77,7 +80,13 @@ const LogsGroup = ({ wellId }) => {
 
 	const handleOpenStart = () => {
 		setCurrentTime(dayjs())
-		setShowStartDrawer(true)
+		const logss = apiWell?.data?.well?.logs
+		const ongoingLog = logss?.find(log => log.isOngoing)
+		if (ongoingLog) {
+			setIsOpenWarning(true)
+		} else {
+			setShowStartDrawer(true)
+		}
 	}
 
 	const columns = [
@@ -143,19 +152,37 @@ const LogsGroup = ({ wellId }) => {
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
 		try {
-			const ongoing = logs.find(l => l.isOngoing)
-			if (!ongoing) return
+			const ongoing = apiWell.data?.well?.logs?.find(l => l.isOngoing)
+			console.log(ongoing)
+
+			if (!ongoing) {
+				const groupOngoing = logs.find(item => item.isOngoing && item.startedAt)
+				console.log(groupOngoing)
+
+				const t = dayjs(time, 'HH:mm')
+				const combinedGroup = dayjs(groupOngoing.startedAt).hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
+
+				await api.patch(`irrigations/${groupOngoing._id}`, {
+					endTime: combinedGroup.toISOString(),
+				})
+				await getLogsFromAPI()
+				await fetchGroupData()
+				//localStorage.removeItem(lsKey)
+
+				setIsIrrigating(false)
+				setStartedAt(null)
+			}
 
 			const t = dayjs(time, 'HH:mm')
 			const combined = dayjs(ongoing.startedAt).hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 
 			await api.patch(`irrigations/${ongoing._id}`, {
 				endTime: combined.toISOString(),
-				isOngoing: false,
 			})
 
 			await getLogsFromAPI()
 			await fetchGroupData()
+			//localStorage.removeItem(lsKey)
 
 			setIsIrrigating(false)
 			setStartedAt(null)
@@ -163,6 +190,13 @@ const LogsGroup = ({ wellId }) => {
 			console.error('خطا در پایان آبیاری گروهی:', e.response?.data || e)
 		}
 	}
+	const ongoingLog = apiWell.data?.well?.logs?.find(log => log.isOngoing)
+	const handleWarningModal = () => {
+		setIsOpenWarning(false)
+
+		setShowEndDrawer(true)
+	}
+	console.log(groupData)
 
 	return (
 		<div className={styles.container}>
@@ -181,7 +215,6 @@ const LogsGroup = ({ wellId }) => {
 					/>
 				</Flex>
 			</Card>
-
 			<div className={styles.footer}>
 				{isIrrigating ? (
 					<Flex align='center' gap={12} className={styles.footerContent}>
@@ -202,7 +235,6 @@ const LogsGroup = ({ wellId }) => {
 					</Button>
 				)}
 			</div>
-
 			<TimeStartPickerSheet isOpen={showStartDrawer} now={currentTime} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 			<TimeEndPickerSheet
 				isOpen={showEndDrawer}
@@ -225,6 +257,17 @@ const LogsGroup = ({ wellId }) => {
 					/>
 				}
 				onClose={() => setEndNoticeDrawer(false)}
+			/>
+			<WarningModalInUse
+				isOpen={isOpenWarning}
+				onClose={() => setIsOpenWarning(false)}
+				well={{
+					land: ongoingLog?.land,
+					irrigationStartedAt: ongoingLog?.startedAt,
+					ongoingRequiredWater: groupData?.requiredWater,
+					ongoingRemainingWater: groupData?.remainingWater,
+				}}
+				onSubmit={handleWarningModal}
 			/>
 		</div>
 	)
