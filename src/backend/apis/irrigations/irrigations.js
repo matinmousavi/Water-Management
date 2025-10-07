@@ -12,7 +12,7 @@ import { checkIrrigationConflict } from '../../utils/checkIrrigationConflict.js'
 
 const router = Router()
 
-// Merge date and time
+// Utility: merge date + time into a Date object
 const mergeDateTime = (dateStr, timeStr) => {
 	const date = dayjs(dateStr)
 	const time = dayjs(timeStr)
@@ -20,12 +20,11 @@ const mergeDateTime = (dateStr, timeStr) => {
 	return new Date(combined.format())
 }
 
-// Extract start and end times
+// Utility: extract start/end and ongoing
 const extractStartAndEndTimes = body => {
 	const now = new Date()
-	let startedAt,
-		endedAt,
-		isOngoing = body.isOngoing
+	let startedAt, endedAt
+	let isOngoing = body.isOngoing
 
 	if (body.startDate && body.startTime) startedAt = mergeDateTime(body.startDate, body.startTime)
 	else if (body.startTime) startedAt = mergeDateTime(now, body.startTime)
@@ -41,26 +40,22 @@ const extractStartAndEndTimes = body => {
 	return { startedAt, endedAt, isOngoing }
 }
 
-// Get land group title (current or historical)
+// Get land group title for display
 const getLandGroupTitle = async (irrigation, well) => {
 	if (!irrigation.landGroup) {
 		const landDocument = await Land.findById(irrigation.land)
-		if (landDocument?.groupMemberships?.length) {
-			const membership = landDocument.groupMemberships.find(
-				m =>
-					m.wellId.toString() === irrigation.well.toString() &&
-					m.startDate <= irrigation.startedAt &&
-					(!m.endDate || m.endDate >= irrigation.startedAt)
-			)
-			return membership ? membership.groupTitle : null
-		}
-		return null
+		if (!landDocument?.groupMemberships?.length) return null
+		const membership = landDocument.groupMemberships.find(
+			m => m.wellId.toString() === irrigation.well.toString() && m.startDate <= irrigation.startedAt && (!m.endDate || m.endDate >= irrigation.startedAt)
+		)
+		return membership ? membership.groupTitle : null
 	}
+	if (!well?.landGroups) return null
 	const group = well.landGroups.find(g => g.groupId.toString() === irrigation.landGroup.toString())
 	return group ? group.title : null
 }
 
-// Send SMS notifications
+// Send SMS to land owner
 const sendIrrigationNotificationToLandOwner = async ({ landId, irrigationDocument, endedAt, currentUser }) => {
 	const landDocument = await Land.findById(landId).populate('owner', 'fullName mobile notificationsEnabled')
 	if (!landDocument?.notificationsEnabled || !landDocument.owner?.mobile) return
@@ -96,7 +91,7 @@ const updateGroupIrrigationLogs = async ({ groupIrrigationDocuments, requestBody
 
 	for (const irrigationDocument of groupIrrigationDocuments) {
 		if (startedAt) irrigationDocument.startedAt = startedAt
-		if (endedAt) irrigationDocument.endedAt = endedAt
+		if (endedAt && !irrigationDocument.endedAt) irrigationDocument.endedAt = endedAt // Don't overwrite finished logs
 
 		Object.entries(requestBody).forEach(([fieldName, fieldValue]) => {
 			if (!['startDate', 'startTime', 'endDate', 'endTime', 'createdBy'].includes(fieldName)) {
@@ -106,6 +101,17 @@ const updateGroupIrrigationLogs = async ({ groupIrrigationDocuments, requestBody
 
 		irrigationDocument.isOngoing = isOngoing
 		irrigationDocument.createdBy = currentUser._id
+
+		// Update duration only if log hasn't ended yet
+		if (!irrigationDocument.endedAt) {
+			irrigationDocument.duration = calculateTotalDuration({
+				landId: irrigationDocument.land,
+				landGroupId: irrigationDocument.landGroup || null,
+				isOngoing: irrigationDocument.isOngoing,
+				startedAt: irrigationDocument.startedAt,
+				endedAt: irrigationDocument.endedAt,
+			})
+		}
 
 		await irrigationDocument.save()
 		await sendIrrigationNotificationToLandOwner({ landId: irrigationDocument.land, irrigationDocument, endedAt, currentUser })
@@ -122,10 +128,16 @@ const updateGroupIrrigationLogs = async ({ groupIrrigationDocuments, requestBody
 
 	for (const irrigation of updatedIrrigations) {
 		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
-		irrigation.totalReceivedWater = await calculateTotalDuration({
-			landId: irrigation.landGroup ? null : irrigation.land._id,
-			landGroupId: irrigation.landGroup || null,
-		})
+
+		// Only calculate duration for ongoing logs, finished logs keep their value
+		if (!irrigation.endedAt) {
+			irrigation.totalReceivedWater = await calculateTotalDuration({
+				landId: irrigation.landGroup ? null : irrigation.land._id,
+				landGroupId: irrigation.landGroup || null,
+			})
+		} else {
+			irrigation.totalReceivedWater = irrigation.duration
+		}
 	}
 
 	return updatedIrrigations
@@ -151,29 +163,58 @@ router.get('/', async (req, res) => {
 
 		if (safeQuery.landGroup) {
 			const uniqueLogsMap = new Map()
-
 			for (const log of irrigations) {
 				const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
 				if (!uniqueLogsMap.has(key)) {
 					uniqueLogsMap.set(key, log)
 				}
 			}
-
 			irrigations = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
 		}
 
 		for (const irrigation of irrigations) {
 			irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
-			irrigation.totalReceivedWater = await calculateTotalDuration({
-				landId: irrigation.landGroup ? null : irrigation.land?._id,
-				landGroupId: irrigation.landGroup || null,
-			})
+			irrigation.totalReceivedWater = irrigation.endedAt
+				? irrigation.duration
+				: await calculateTotalDuration({
+						landId: irrigation.landGroup ? null : irrigation.land?._id,
+						landGroupId: irrigation.landGroup || null,
+				  })
 		}
 
 		res.status(200).json({ irrigations })
 	} catch (err) {
 		console.error(err.message)
 		res.status(500).json({ message: 'خطا در دریافت لاگ‌های آبیاری!' })
+	}
+})
+
+// GET single irrigation
+router.get('/:irrigationId', async (req, res) => {
+	try {
+		const { irrigationId } = req.params
+		if (!mongoose.isValidObjectId(irrigationId)) return res.status(400).json({ message: 'شناسه آبیاری معتبر نیست.' })
+
+		const irrigation = await Irrigation.findById(irrigationId)
+			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
+			.populate('well', 'title landGroups')
+			.populate('createdBy', 'fullName mobile')
+			.lean()
+
+		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })
+
+		irrigation.landGroupTitle = await getLandGroupTitle(irrigation, irrigation.well)
+		irrigation.totalReceivedWater = irrigation.endedAt
+			? irrigation.duration
+			: await calculateTotalDuration({
+					landId: irrigation.landGroup ? null : irrigation.land._id,
+					landGroupId: irrigation.landGroup || null,
+			  })
+
+		res.status(200).json({ irrigation })
+	} catch (err) {
+		console.error(err.message)
+		res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
 })
 
@@ -190,7 +231,6 @@ router.post('/', async (req, res) => {
 		if (!wellDocument) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
 		let landIdsToCheck = []
-
 		if (landGroupId) {
 			const groupDocument = wellDocument.landGroups.find(g => g.groupId.toString() === landGroupId)
 			if (!groupDocument) return res.status(404).json({ message: 'گروه پیدا نشد.' })
@@ -216,6 +256,7 @@ router.post('/', async (req, res) => {
 				createdBy: currentUser._id,
 				landGroup: landGroupId || null,
 				isGroupLog: Boolean(landGroupId),
+				duration: endedAt ? calculateTotalDuration({ landId: land, landGroupId: landGroupId || null, startedAt, endedAt }) : null,
 			})
 			createdLogs.push(created)
 			await sendIrrigationNotificationToLandOwner({ landId: land, irrigationDocument: created, endedAt, currentUser })
@@ -284,7 +325,6 @@ router.patch('/:irrigationId', async (req, res) => {
 		const { startedAt, endedAt, isOngoing } = extractStartAndEndTimes(req.body)
 
 		let landIdsToCheck = []
-
 		if (irrigationDocument.landGroup) {
 			const wellDocument = await Well.findById(irrigationDocument.well)
 			const groupDocument = wellDocument.landGroups.find(g => g.groupId.toString() === irrigationDocument.landGroup.toString())
@@ -317,7 +357,7 @@ router.patch('/:irrigationId', async (req, res) => {
 		}
 
 		if (startedAt) irrigationDocument.startedAt = startedAt
-		if (endedAt) irrigationDocument.endedAt = endedAt
+		if (endedAt && !irrigationDocument.endedAt) irrigationDocument.endedAt = endedAt
 
 		Object.entries(req.body).forEach(([fieldName, fieldValue]) => {
 			if (!['startDate', 'startTime', 'endDate', 'endTime', 'createdBy'].includes(fieldName)) {
@@ -327,6 +367,16 @@ router.patch('/:irrigationId', async (req, res) => {
 
 		irrigationDocument.isOngoing = isOngoing
 		irrigationDocument.createdBy = currentUser._id
+
+		if (!irrigationDocument.endedAt) {
+			irrigationDocument.duration = calculateTotalDuration({
+				landId: irrigationDocument.land,
+				landGroupId: irrigationDocument.landGroup || null,
+				isOngoing: irrigationDocument.isOngoing,
+				startedAt: irrigationDocument.startedAt,
+				endedAt: irrigationDocument.endedAt,
+			})
+		}
 
 		await irrigationDocument.save()
 

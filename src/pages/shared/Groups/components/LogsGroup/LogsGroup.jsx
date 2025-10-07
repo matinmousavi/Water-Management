@@ -26,80 +26,59 @@ const parseTimeToMs = str => {
 	return (h * 60 * 60 + m * 60) * 1000
 }
 
-const LogsGroup = ({ wellId, group }) => {
+const LogsGroup = ({ wellId }) => {
 	const { groupId } = useParams()
 	const api = useAPI()
 	const apiTime = useAPI()
 	apiTime.init('settings/irrigations')
-	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
 
 	const [logs, setLogs] = useState([])
+	const [groupData, setGroupData] = useState(null)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [isIrrigating, setIsIrrigating] = useState(false)
 	const [startedAt, setStartedAt] = useState(null)
-	const [durationMs, setDurationMs] = useState(null)
 	const [currentTime, setCurrentTime] = useState(dayjs())
 
-	const lsKey = `irrigation_group_start_${groupId}`
+	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
+
+	const fetchGroupData = async () => {
+		try {
+			const response = await api.get(`wells/${wellId}/land-groups/${groupId}`)
+			setGroupData(response)
+		} catch (e) {
+			console.error('خطا در دریافت اطلاعات گروه:', e.response?.data || e)
+		}
+	}
 
 	const getLogsFromAPI = async () => {
 		try {
 			const response = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
 			setLogs(response?.irrigations || [])
+
+			const ongoingLog = response?.irrigations?.find(log => log.isOngoing)
+			if (ongoingLog) {
+				setIsIrrigating(true)
+				setStartedAt(ongoingLog.startedAt)
+			} else {
+				setIsIrrigating(false)
+				setStartedAt(null)
+			}
 		} catch (e) {
-			console.error('خطا در دریافت لاگ‌ها:', e)
+			console.error('خطا در دریافت لاگ‌ها:', e.response?.data || e)
 		}
 	}
 
 	useEffect(() => {
 		getLogsFromAPI()
+		fetchGroupData()
 	}, [groupId, wellId])
 
 	const handleOpenStart = () => {
 		setCurrentTime(dayjs())
 		setShowStartDrawer(true)
 	}
-
-	useEffect(() => {
-		if (!logs || logs.length === 0) {
-			setIsIrrigating(false)
-			setStartedAt(null)
-			setDurationMs(null)
-			localStorage.removeItem(lsKey)
-			return
-		}
-
-		const ongoingLog = logs.find(log => log.isOngoing)
-		if (!ongoingLog) {
-			setIsIrrigating(false)
-			setStartedAt(null)
-			setDurationMs(0)
-			localStorage.removeItem(lsKey)
-			return
-		}
-
-		setIsIrrigating(true)
-		const apiStartMs = dayjs(ongoingLog.startedAt).valueOf()
-		const lsValMs = Number(localStorage.getItem(lsKey)) || null
-
-		if (!lsValMs || Number.isNaN(lsValMs)) {
-			localStorage.setItem(lsKey, String(apiStartMs))
-			setStartedAt(apiStartMs)
-		} else {
-			const drift = Math.abs(lsValMs - apiStartMs)
-			if (drift > 2000) {
-				localStorage.setItem(lsKey, String(apiStartMs))
-				setStartedAt(apiStartMs)
-			} else {
-				setStartedAt(lsValMs)
-			}
-		}
-
-		const durationStr = ongoingLog.receivedWater || ongoingLog.requiredWater || '02:00'
-		setDurationMs(parseTimeToMs(durationStr))
-	}, [logs])
 
 	const columns = [
 		{
@@ -124,10 +103,8 @@ const LogsGroup = ({ wellId, group }) => {
 			key: 'duration',
 			render: (_, record) => {
 				if (record?.isOngoing) return 'در حال آبیاری'
-
 				const timeStr = record?.receivedWater || record?.duration
 				if (!timeStr) return '--'
-
 				const [h, m] = timeStr.split(':').map(Number)
 				return h === 0 ? `${m} دقیقه` : `${h} ساعت${m > 0 ? ` و ${m} دقیقه` : ''}`
 			},
@@ -142,9 +119,8 @@ const LogsGroup = ({ wellId, group }) => {
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
 		try {
-			const now = dayjs()
 			const t = dayjs(selectedTime, 'HH:mm')
-			const combined = now.hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
+			const combined = dayjs().startOf('day').hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 
 			const response = await api.post('irrigations', {
 				landGroupId: groupId,
@@ -153,16 +129,14 @@ const LogsGroup = ({ wellId, group }) => {
 				isOngoing: true,
 			})
 
-			const newLog = response?.irrigations?.[0]
+			const newLog = response?.irrigation
 			if (newLog) {
-				const startMs = dayjs(newLog.startedAt).valueOf()
-				localStorage.setItem(lsKey, String(startMs))
-				setStartedAt(startMs)
+				setStartedAt(newLog.startedAt)
 				setIsIrrigating(true)
 				setLogs(prev => [newLog, ...prev])
 			}
 		} catch (e) {
-			console.error('خطا در شروع آبیاری گروهی:', e)
+			console.error('خطا در شروع آبیاری گروهی:', e.response?.data || e)
 		}
 	}
 
@@ -180,15 +154,13 @@ const LogsGroup = ({ wellId, group }) => {
 				isOngoing: false,
 			})
 
-			const updated = await api.get(`irrigations?landGroup=${groupId}&well=${wellId}`)
-			setLogs(updated.irrigations || [])
+			await getLogsFromAPI()
+			await fetchGroupData()
 
 			setIsIrrigating(false)
 			setStartedAt(null)
-			setDurationMs(null)
-			localStorage.removeItem(lsKey)
 		} catch (e) {
-			console.error('خطا در پایان آبیاری گروهی:', e)
+			console.error('خطا در پایان آبیاری گروهی:', e.response?.data || e)
 		}
 	}
 
@@ -215,10 +187,9 @@ const LogsGroup = ({ wellId, group }) => {
 					<Flex align='center' gap={12} className={styles.footerContent}>
 						<Text className={styles.timerText}>
 							<TimerDisplay
-								landId={groupId}
 								startedAt={startedAt}
-								requiredWaterMs={parseTimeToMs(group?.requiredWater)}
-								remainingWaterMs={parseTimeToMs(group?.remainingWater)}
+								requiredWaterMs={parseTimeToMs(groupData?.requiredWater)}
+								remainingWaterMs={parseTimeToMs(groupData?.remainingWater)}
 							/>
 						</Text>
 						<Button type='default' className={styles.textBtn} onClick={() => setEndNoticeDrawer(true)}>
@@ -248,10 +219,9 @@ const LogsGroup = ({ wellId, group }) => {
 				}}
 				timer={
 					<TimerDisplay
-						landId={groupId}
 						startedAt={startedAt}
-						requiredWaterMs={parseTimeToMs(group?.requiredWater)}
-						remainingWaterMs={parseTimeToMs(group?.remainingWater)}
+						requiredWaterMs={parseTimeToMs(groupData?.requiredWater)}
+						remainingWaterMs={parseTimeToMs(groupData?.remainingWater)}
 					/>
 				}
 				onClose={() => setEndNoticeDrawer(false)}

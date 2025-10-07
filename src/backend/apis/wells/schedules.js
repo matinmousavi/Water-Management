@@ -159,13 +159,35 @@ router.get('/day/:date', async (req, res) => {
 			const totalSchedulesInCycle = allSchedulesInCycle.length
 			const totalRequiredMs = getTotalDurationMs(allSchedulesInCycle)
 
-			const irrigationsInCycle = await Irrigation.find({
-				well: wellId,
-				...targetFilter,
-			}).lean()
+			let irrigationsInCycle = []
+			if (schedGroup.targetType === 'group') {
+				const raw = await Irrigation.find({
+					well: wellId,
+					landGroup: schedGroup.landGroup,
+					isGroupLog: true,
+					endedAt: { $ne: null },
+				})
+					.sort({ startedAt: 1 })
+					.lean()
+
+				const uniqueMap = new Map()
+				for (const ir of raw) {
+					if (!ir.startedAt || !ir.endedAt) continue
+					const key2 = `${new Date(ir.startedAt).getTime()}-${new Date(ir.endedAt).getTime()}`
+					if (!uniqueMap.has(key2)) uniqueMap.set(key2, ir)
+				}
+				irrigationsInCycle = Array.from(uniqueMap.values())
+			} else {
+				irrigationsInCycle = await Irrigation.find({
+					well: wellId,
+					land: schedGroup.land,
+					isGroupLog: false,
+					endedAt: { $ne: null },
+				}).lean()
+			}
 
 			const receivedMsInCycle = irrigationsInCycle.reduce((sum, log) => {
-				if (!log.endedAt) return sum
+				if (!log.startedAt || !log.endedAt) return sum
 				return sum + (new Date(log.endedAt) - new Date(log.startedAt))
 			}, 0)
 
@@ -192,7 +214,11 @@ router.get('/day/:date', async (req, res) => {
 						irrigationEndsAt = startedAt.clone().add(durationMs, 'ms')
 					}
 
-					const lastLog = await Irrigation.findOne(targetFilter).sort({ startedAt: -1 }).lean()
+					const lastLog = await Irrigation.findOne({
+						...targetFilter,
+					})
+						.sort({ startedAt: -1 })
+						.lean()
 					lastIrrigation = lastLog?.startedAt || null
 				}
 
