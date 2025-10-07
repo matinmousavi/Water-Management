@@ -1,7 +1,7 @@
 import { Flex, Grid, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
 import UsersTable from './components/UsersTable/UsersTable'
-import Loading from '../../../components/Loading/Loading'
+import Loading from '../../../components/common/Loading/Loading'
 import AddUser from './components/AddUser/AddUser'
 
 const Users = () => {

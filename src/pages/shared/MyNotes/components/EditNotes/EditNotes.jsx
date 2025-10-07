@@ -3,7 +3,7 @@ import { Form, Input } from 'antd'
 
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
-import ModalMobile from '../../../../../components/ModalMobile/ModalMobile'
+import ModalMobile from '../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
 
 import styles from './EditNotes.module.css'
 

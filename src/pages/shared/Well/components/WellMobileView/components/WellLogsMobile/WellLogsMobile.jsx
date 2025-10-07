@@ -9,7 +9,7 @@ import iconTree from '../../../../../../../assets/icons/ri_tree-line.svg'
 import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg'
 import iconTreeGroup from '../../../../../../../assets/icons/treeGroup.svg'
 
-import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
+import ProgressBar from '../../../../../../../components/common/ProgressBar/ProgressBar'
 
 const { Text } = Typography
 

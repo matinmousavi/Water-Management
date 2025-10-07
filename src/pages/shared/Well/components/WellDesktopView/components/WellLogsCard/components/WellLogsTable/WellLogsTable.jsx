@@ -7,7 +7,7 @@ import useAPI from '../../../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
 import { useRef, useState, useMemo, useEffect } from 'react'
-import EditIrrigationLog from '../../../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
+import EditIrrigationLog from '../../../../../../../../../components/irrigation/EditIrrigationLog/EditIrrigationLog'
 import { useUser } from '../../../../../../../../../contexts/UserContext'
 
 const WellLogsTable = ({ data, setLogs, wellStatus }) => {

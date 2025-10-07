@@ -1,5 +1,5 @@
 import { Button, Flex, Form, Input, Empty, Card, Typography } from 'antd'
-import ModalMobile from '../../../../../../../components/ModalMobile/ModalMobile'
+import ModalMobile from '../../../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
 import styles from './WellNotesMobile.module.css'
 import { useState } from 'react'
 import useAPI from '../../../../../../../hooks/useAPI'

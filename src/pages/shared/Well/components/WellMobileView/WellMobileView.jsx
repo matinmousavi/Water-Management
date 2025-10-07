@@ -9,7 +9,7 @@ import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
 import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
 import useAPI from '../../../../../hooks/useAPI'
-import Loading from '../../../../../components/Loading/Loading'
+import Loading from '../../../../../components/common/Loading/Loading'
 
 import styles from './WellMobileView.module.css'
 

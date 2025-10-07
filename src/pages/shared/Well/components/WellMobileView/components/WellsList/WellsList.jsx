@@ -1,7 +1,7 @@
 // WellsList.jsx
 import { Button, Flex, List } from 'antd'
 import styles from './WellsList.module.css'
-import ModalMobile from '../../../../../../../components/ModalMobile/ModalMobile'
+import ModalMobile from '../../../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
 
 const WellsList = ({ open, onClose, data, setData }) => {
 	return (

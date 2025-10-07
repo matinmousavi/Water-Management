@@ -5,7 +5,7 @@ import useNotification from '../../../../../../../hooks/useNotification'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useModal from '../../../../../../../hooks/useModal'
 import moment from 'moment-jalaali'
-import EditIrrigationLog from '../../../../../../../components/EditIrrigationLog/EditIrrigationLog'
+import EditIrrigationLog from '../../../../../../../components/irrigation/EditIrrigationLog/EditIrrigationLog'
 import { useUser } from '../../../../../../../contexts/UserContext'
 
 const LandLogsTable = ({ data, setLogs, status }) => {
@@ -95,15 +95,7 @@ const LandLogsTable = ({ data, setLogs, status }) => {
 
 	return (
 		<>
-			<Table
-				size='middle'
-				dataSource={data}
-				columns={columns}
-				rowKey={record => record._id}
-				pagination={false}
-				bordered
-				scroll={{ x: totalWidth }}
-			/>
+			<Table size='middle' dataSource={data} columns={columns} rowKey={record => record._id} pagination={false} bordered scroll={{ x: totalWidth }} />
 			{editableLog && <EditIrrigationLog data={editableLog} setLogs={setLogs} onClose={() => setEditableLog(null)} page='well' />}
 
 			<Modal

@@ -4,7 +4,7 @@ import styles from './LandMobile.module.css'
 import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
 import LandNotesMobile from './components/LandMobileNotes/LandNotesMobile'
 import LandLogsMobile from './components/LandLogsMobile/LandLogsMobile'
-import HeaderIrrigation from '../../../../../components/HeaderIrrigation/HeaderIrrigation'
+import HeaderIrrigation from '../../../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 
 const LandMobile = ({ landData }) => {
 	const items = [

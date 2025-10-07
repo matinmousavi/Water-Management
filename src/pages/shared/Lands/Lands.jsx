@@ -1,6 +1,6 @@
 import { Flex, Grid, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
-import Loading from '../../../components/Loading/Loading'
+import Loading from '../../../components/common/Loading/Loading'
 import LandsTable from './components/LandsTable/LandsTable'
 import { useUser } from '../../../contexts/UserContext'
 import AddLand from './components/AddLand/AddLand'

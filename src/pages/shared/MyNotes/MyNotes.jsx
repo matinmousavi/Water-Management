@@ -6,14 +6,14 @@ import useAPI from '../../../hooks/useAPI'
 
 import moment from 'moment-jalaali'
 
-import Loading from '../../../components/Loading/Loading'
+import Loading from '../../../components/common/Loading/Loading'
 import EditNotes from './components/EditNotes/EditNotes'
 
 import styles from './MyNotes.module.css'
 
 import { EditOutlined } from '@ant-design/icons'
 import NotesIcon from '../../../assets/icons/NotesIcon.svg'
-import HeaderIrrigation from '../../../components/HeaderIrrigation/HeaderIrrigation'
+import HeaderIrrigation from '../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 
 const MyNotes = () => {
 	const [editingNoteId, setEditingNoteId] = useState(null)

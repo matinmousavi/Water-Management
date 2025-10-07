@@ -1,9 +1,9 @@
 import { Flex, Button, Typography, Card, Table } from 'antd'
 import moment from 'moment-jalaali'
-import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
+import DescriptionModalCell from '../../../../../../../../../components/responsive/mobile/DescriptionModalCell/DescriptionModalCell'
 import styles from './TableLogsMobile.module.css'
 import useAPI from '../../../../../../../../../hooks/useAPI'
-import TimerDisplay from '../../../../../../../../../components/TimerDisplay/TimerDisplay'
+import TimerDisplay from '../../../../../../../../../components/common/TimerDisplay/TimerDisplay'
 
 const { Text } = Typography
 

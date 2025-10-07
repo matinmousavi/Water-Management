@@ -5,7 +5,7 @@ import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
 
 import NotesListMobile from './components/MobileNotesList/NotesListMobile'
-import ModalMobile from '../../../../../../../components/ModalMobile/ModalMobile'
+import ModalMobile from '../../../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
 
 import styles from './LandNotesMobile.module.css'
 

@@ -1,11 +1,11 @@
 import { Flex, Grid, Switch, Typography } from 'antd'
 
 import useAPI from '../../../hooks/useAPI'
-import Loading from '../../../components/Loading/Loading'
+import Loading from '../../../components/common/Loading/Loading'
 import LandInfo from './components/LandInfo/LandInfo'
-import MetaTitle from '../../../components/MetaTitle/MetaTitle'
-import DeleteCard from '../../../components/DeleteCard/DeleteCard'
-import BackButton from '../../../components/BackButton/BackButton'
+import MetaTitle from '../../../components/common/MetaTitle/MetaTitle'
+import DeleteCard from '../../../components/common/DeleteCard/DeleteCard'
+import BackButton from '../../../components/common/BackButton/BackButton'
 
 import LandLogsCard from './components/LandLogsCard/LandLogsCard'
 import { useUser } from '../../../contexts/UserContext'
@@ -16,7 +16,7 @@ import useNotification from '../../../hooks/useNotification'
 import useNotificationToggle from '../../../hooks/useNotificationToggle'
 import LandStatus from './components/LandStatus'
 import { BellOutlined } from '@ant-design/icons'
-import Notes from '../../../components/Notes/Notes'
+import Notes from '../../../components/common/Notes/Notes'
 const { Title } = Typography
 
 const Land = () => {

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { useUser } from '../contexts/UserContext'
 
-import Loading from '../components/Loading/Loading'
+import Loading from '../components/common/Loading/Loading'
 
 const AdminRoutes = lazy(() => import('./AdminRoutes'))
 const IrrigatorRoutes = lazy(() => import('./IrrigatorRoutes'))
