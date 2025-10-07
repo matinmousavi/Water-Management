@@ -4,7 +4,7 @@ import { EditOutlined } from '@ant-design/icons'
 import useModal from '../../../../../../../hooks/useModal'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
-import UserForm from '../../../../../../../components/User/UserForm/UserForm'
+import UserForm from '../../../../../../../components/forms/UserForm/UserForm'
 
 const EditUser = ({ initialValue, setData, setPageTitle }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()
