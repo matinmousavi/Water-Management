@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import useModal from '../../../../../hooks/useModal'
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
-import UserForm from '../../../../../components/User/UserForm/UserForm'
+import UserForm from '../../../../../components/forms/UserForm/UserForm'
 
 const AddUser = ({ setUser }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()

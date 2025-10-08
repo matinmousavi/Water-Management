@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import Layouts from '../layouts/Layouts'
 
 import Dashboard from '../pages/admin/Dashboard/Dashboard'
-import Profile from '../pages/shared/Profile/Profile'
+import Profile from '../pages/admin/Profile/Profile'
 import Land from '../pages/shared/Land/Land'
 import Well from '../pages/shared/Well/Well'
 import Lands from '../pages/shared/Lands/Lands'
