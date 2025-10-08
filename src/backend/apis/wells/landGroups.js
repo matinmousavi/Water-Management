@@ -122,7 +122,6 @@ router.get('/:groupId', async (req, res) => {
 		const daysPassed = Math.floor((Date.now() - startDate) / (1000 * 60 * 60 * 24))
 		const cyclesPassed = Math.floor(daysPassed / well.cycleDays)
 		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
-		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
 		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
 		const totalSchedulesInCycle = schedules.length
@@ -133,46 +132,37 @@ router.get('/:groupId', async (req, res) => {
 			landGroup: group.groupId,
 			isGroupLog: true,
 			startedAt: { $gte: cycleStart },
-			endedAt: { $lte: cycleEnd },
-		}).lean()
+		})
+			.sort({ startedAt: -1 })
+			.lean()
 
-		const uniqueLogsMap = new Map()
+		const mergedLogs = []
+		let ongoingMerged = null
+
 		for (const log of irrigations) {
-			const key = `${new Date(log.startedAt).getTime()}-${log.endedAt ? new Date(log.endedAt).getTime() : 'null'}`
-			if (!uniqueLogsMap.has(key)) {
-				uniqueLogsMap.set(key, log)
+			if (log.isOngoing) {
+				if (!ongoingMerged) {
+					ongoingMerged = { ...log }
+				} else {
+					ongoingMerged.startedAt = new Date(Math.min(new Date(ongoingMerged.startedAt), new Date(log.startedAt)))
+				}
+			} else {
+				mergedLogs.push(log)
 			}
 		}
+		if (ongoingMerged) mergedLogs.unshift(ongoingMerged)
 
-		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
-
-		const receivedMs = logs.reduce((sum, log) => {
-			if (!log.endedAt) return sum
-			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
+		const receivedMs = mergedLogs.reduce((sum, log) => {
+			if (!log.isOngoing && log.endedAt) {
+				return sum + (new Date(log.endedAt) - new Date(log.startedAt))
+			}
+			return sum
 		}, 0)
 
-		const nextIrrigationLog = await Irrigation.find({
-			well: wellId,
-			landGroup: group.groupId,
-			endedAt: null,
-			isGroupLog: true,
-		})
-			.sort({ startedAt: 1 })
-			.lean()
+		const nextIrrigationLog = mergedLogs.find(log => log.isOngoing) || null
+		const nextIrrigation = nextIrrigationLog?.startedAt || null
 
-		const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
-
-		const notes = await Note.find({
-			type: 'landGroup',
-			reference: group.groupId,
-		})
-			.sort({ createdAt: -1 })
-			.lean()
-
-		const requiredWater = msToHoursMinutes(totalRequiredMs)
-		const receivedWater = msToHoursMinutes(receivedMs)
-		const remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
-		const receivedWaterInCycle = msToHoursMinutes(receivedMs)
+		const notes = await Note.find({ type: 'landGroup', reference: group.groupId }).sort({ createdAt: -1 }).lean()
 
 		return res.status(200).json({
 			groupId: group.groupId,
@@ -190,14 +180,13 @@ router.get('/:groupId', async (req, res) => {
 					: null,
 				location: land.location || '',
 			})),
-			lastIrrigation: logs.length ? logs[logs.length - 1].startedAt : null,
+			lastIrrigation: mergedLogs.length ? mergedLogs[0].startedAt : null,
 			nextIrrigation,
-			requiredWater,
-			receivedWater,
-			remainingWater,
+			requiredWater: msToHoursMinutes(totalRequiredMs),
+			receivedWater: msToHoursMinutes(receivedMs),
+			remainingWater: msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs)),
 			totalSchedulesInCycle,
-			receivedWaterInCycle,
-			logs,
+			logs: mergedLogs,
 			notes,
 		})
 	} catch (err) {

@@ -1,10 +1,10 @@
 import { Flex } from 'antd'
 import LandItemGroup from './components/LandItemGroup/LandItemGroup'
 
-const LandGroupLands = ({ data, group }) => {
+const LandGroupLands = ({ lands, group }) => {
 	return (
 		<Flex gap={16} vertical>
-			{data?.map(land => (
+			{lands?.map(land => (
 				<LandItemGroup key={land._id} data={land} group={group} />
 			))}
 		</Flex>

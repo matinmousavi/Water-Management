@@ -52,16 +52,19 @@ const irrigationSchema = new mongoose.Schema(
 	{ timestamps: true }
 )
 
-// Automatically calculates duration in HH:mm format if endedAt is provided.
+function msToHms(ms) {
+	if (!ms || ms <= 0) return '00:00:00'
+	const totalSeconds = Math.floor(ms / 1000)
+	const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
+	const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
+	const seconds = String(totalSeconds % 60).padStart(2, '0')
+	return `${hours}:${minutes}:${seconds}`
+}
+
 irrigationSchema.pre('save', function (next) {
-	if (this.endedAt && this.startedAt) {
-		const diffMs = this.endedAt - this.startedAt
-		const totalSeconds = Math.floor(diffMs / 1000)
-
-		const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
-		const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
-
-		this.duration = `${hours}:${minutes}`
+	if (this.startedAt && this.endedAt) {
+		const diffMs = new Date(this.endedAt) - new Date(this.startedAt)
+		this.duration = msToHms(diffMs)
 	}
 	next()
 })
