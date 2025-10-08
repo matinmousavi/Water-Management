@@ -20,8 +20,6 @@ const LandGroup = () => {
 
 	const landGroupData = landGroupApi.data
 
-	console.log('landGroupData:', landGroupData)
-
 	if (landGroupApi.isLoading) return <Loading />
 
 	const items = [

@@ -11,7 +11,7 @@ import EndNoticeDrawer from '../../../../../../../components/responsive/mobile/E
 import TableLogsMobile from './components/TableLogsMobile/TableLogsMobile'
 import WarningModalInUse from '../../../../../../../components/responsive/mobile/WarningModalInUse/WarningModalInUse'
 import TimerDisplay from '../../../../../../../components/common/TimerDisplay/TimerDisplay'
-import { removeIrrigationStartTime, getIrrigationStartTime } from '../../../../../../../utils/irrigationStorage'
+import { removeIrrigationStartTime } from '../../../../../../../utils/irrigationStorage'
 
 import styles from './LandLogsMobile.module.css'
 
@@ -40,7 +40,6 @@ const LandLogsMobile = ({ data }) => {
 	const [currentIrrigatingWell, setCurrentIrrigatingWell] = useState(null)
 	const [startedAt, setStartedAt] = useState(null)
 	const [endOtherLandId, setEndOtherLandId] = useState(null)
-	const [endOtherStartTime, setEndOtherStartTime] = useState(null)
 
 	const lsKey = `irrigation_start_${landId}`
 
@@ -56,20 +55,33 @@ const LandLogsMobile = ({ data }) => {
 					const response = await api.get(`wells/${well._id}`)
 					const allLogs = response?.well?.logs || []
 					const ongoing = allLogs.find(log => log.isOngoing)
+					if (!ongoing) continue
 
-					if (ongoing?.land && ongoing.land._id !== data._id) {
+					if (ongoing.isGroupLog && ongoing.landGroup) {
+						const groupRes = await api.get(`wells/${well._id}/land-groups/${ongoing.landGroup}`)
+						setCurrentIrrigatingWell({
+							...well,
+							group: groupRes?.group,
+							irrigationStartedAt: ongoing.startedAt,
+							ongoingIrrigationId: ongoing._id,
+							ongoingRemainingWater: groupRes?.group?.remainingWater,
+							ongoingRequiredWater: groupRes?.group?.requiredWater,
+							logs: allLogs,
+						})
+					} else if (ongoing.land && ongoing.land._id !== data._id) {
 						const irrigatingLand = await api.get(`lands/${ongoing.land._id}`)
-
 						setCurrentIrrigatingWell({
 							...well,
 							land: ongoing.land,
-							irrigationStartedAt: well.irrigationStartedAt,
+							irrigationStartedAt: ongoing.startedAt,
 							ongoingIrrigationId: ongoing._id,
 							ongoingRemainingWater: irrigatingLand?.land.wells[0].remainingWater,
 							ongoingRequiredWater: irrigatingLand?.land.wells[0].requiredWater,
+							logs: allLogs,
 						})
-						break
 					}
+
+					if (ongoing.isOngoing) break
 				} catch (e) {
 					console.error('خطا در دریافت اطلاعات چاه:', e)
 				}
@@ -115,20 +127,27 @@ const LandLogsMobile = ({ data }) => {
 			const combined = now.set('hour', t.hour()).set('minute', t.minute())
 
 			const currentWell = data?.wells?.[0]
-
-			const res = await api.post('irrigations', {
+			const payload = {
 				landId,
 				wellId: currentWell?._id,
-				startTime: combined.toISOString(),
 				isOngoing: true,
-			})
+				startedAt: combined.toISOString(),
+			}
 
+			if (currentIrrigatingWell?.group?._id) payload.landGroupId = currentIrrigatingWell.group._id
+
+			const res = await api.post('irrigations', payload)
 			const startedAtServer = res?.irrigation?.startedAt
 			const startMs = startedAtServer ? dayjs(startedAtServer).valueOf() : combined.valueOf()
 			localStorage.setItem(lsKey, String(startMs))
 			setStartedAt(startMs)
 			setIsIrrigating(true)
-			setLogs(prev => [res?.irrigation, ...prev])
+
+			if (payload.landGroupId) {
+				setLogs(prev => [res?.irrigation, ...prev.filter(l => !l.isGroupLog || l.landGroup !== payload.landGroupId)])
+			} else {
+				setLogs(prev => [res?.irrigation, ...prev])
+			}
 		} catch (e) {
 			console.error('خطا در ارسال زمان شروع آبیاری:', e)
 		}
@@ -140,18 +159,22 @@ const LandLogsMobile = ({ data }) => {
 			const ongoing = logs.find(item => item.isOngoing && item.startedAt)
 			if (!ongoing) return
 
-			const now = dayjs()
 			const t = dayjs(time, 'HH:mm')
-			const combined = now.set('hour', t.hour()).set('minute', t.minute()).set('second', 0).set('millisecond', 0)
+			const combined = dayjs(ongoing.startedAt).hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 
-			const res = await api.patch(`irrigations/${ongoing._id}`, {
-				endTime: combined.toISOString(),
-			})
+			const payload = { endedAt: combined.toISOString() }
+			const endpoint = `irrigations/${ongoing._id}`
+			const res = await api.patch(endpoint, payload)
 
 			localStorage.removeItem(lsKey)
 			setIsIrrigating(false)
 			setStartedAt(null)
-			setLogs(prev => prev.filter(l => l._id !== ongoing._id).concat(res?.irrigation))
+
+			if (ongoing.isGroupLog) {
+				setLogs(prev => prev.map(l => (l.isGroupLog && l.landGroup === ongoing.landGroup ? res?.irrigation : l)))
+			} else {
+				setLogs(prev => prev.map(l => (l._id === ongoing._id ? res?.irrigation : l)))
+			}
 		} catch (e) {
 			console.error('خطا در ثبت زمان پایان آبیاری:', e)
 		}
@@ -160,10 +183,7 @@ const LandLogsMobile = ({ data }) => {
 	const handleEndOtherSelected = async selectedTime => {
 		setShowEndOtherDrawer(false)
 		try {
-			if (!currentIrrigatingWell?.ongoingIrrigationId || !endOtherLandId) {
-				console.warn('اطلاعات زمین دیگر ناقص است.')
-				return
-			}
+			if (!currentIrrigatingWell?.ongoingIrrigationId || !endOtherLandId) return
 
 			await api.patch(`irrigations/${currentIrrigatingWell.ongoingIrrigationId}`, {
 				endTime: selectedTime.toISOString(),
@@ -171,11 +191,9 @@ const LandLogsMobile = ({ data }) => {
 
 			removeIrrigationStartTime(endOtherLandId)
 			localStorage.removeItem(`irrigation_start_${endOtherLandId}`)
-
 			setEndOtherLandId(null)
-			setEndOtherStartTime(null)
 
-			setLogs(prev => prev.filter(l => !l.isOngoing || l.land._id !== endOtherLandId))
+			setLogs(prev => prev.filter(l => !l.isOngoing || (l.land && l.land._id !== endOtherLandId)))
 			setShowStartDrawer(true)
 			setCurrentIrrigatingWell(null)
 			setShowWellInUseWarning(false)
@@ -203,44 +221,10 @@ const LandLogsMobile = ({ data }) => {
 	}
 
 	const handleEndOtherIrrigation = () => {
-		if (!currentIrrigatingWell?.land?._id) {
-			console.warn('زمین دیگر برای پایان آبیاری یافت نشد')
-			return
-		}
-
-		const prevLandId = currentIrrigatingWell.land._id
-		const startTime = getIrrigationStartTime(prevLandId)
-
-		setEndOtherLandId(prevLandId)
-		setEndOtherStartTime(startTime)
+		if (!currentIrrigatingWell?.land?._id) return
+		setEndOtherLandId(currentIrrigatingWell.land._id)
 		setShowWellInUseWarning(false)
 		setShowEndOtherDrawer(true)
-	}
-
-	const handleStop = () => {
-		const currentWell = data?.wells?.find(w => w.irrigatingLand?._id === data._id) || data?.wells?.[0]
-		const ongoingLog = logs.find(l => l.isOngoing)
-
-		if (!ongoingLog) {
-			setEndNoticeDrawer(false)
-			setShowEndDrawer(true)
-			return
-		}
-
-		const startedAtMs = dayjs(ongoingLog.startedAt).valueOf()
-		const nowMs = Date.now()
-		const elapsedMs = nowMs - startedAtMs
-
-		let totalReceived = currentWell?.receivedWater || 0
-		const flowRate = currentWell?.flowRate || 1
-		totalReceived += elapsedMs * flowRate
-		if (totalReceived >= currentWell?.requiredWater || elapsedMs >= remainingMs) {
-			setEndNoticeDrawer(false)
-			setShowEndDrawer(true)
-		} else {
-			setEndNoticeDrawer(true)
-			setShowEndDrawer(false)
-		}
 	}
 
 	const currentWell = data?.wells?.find(w => w.irrigatingLand?._id === data._id) || data?.wells?.[0]
@@ -254,7 +238,7 @@ const LandLogsMobile = ({ data }) => {
 			<TableLogsMobile
 				data={data}
 				logs={logs}
-				handleStop={handleStop}
+				handleStop={() => setEndNoticeDrawer(true)}
 				onStartClick={handleStartClick}
 				isIrrigating={isIrrigating}
 				startedAt={startedAt}
@@ -296,7 +280,12 @@ const LandLogsMobile = ({ data }) => {
 				isOpen={showWellInUseWarning}
 				onSubmit={handleEndOtherIrrigation}
 				onClose={() => setShowWellInUseWarning(false)}
-				well={currentIrrigatingWell}
+				well={{
+					...currentIrrigatingWell,
+					logs: currentIrrigatingWell?.logs || [],
+					requiredWater: currentIrrigatingWell?.ongoingRequiredWater,
+					remainingWater: currentIrrigatingWell?.ongoingRemainingWater,
+				}}
 			/>
 		</div>
 	)

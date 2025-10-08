@@ -101,7 +101,6 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 			_isOptimistic: true,
 		}
 
-		// آپدیت همزمان هر دو state
 		startTransition(() => {
 			addOptimisticLog({
 				action: 'START_IRRIGATION',
@@ -111,13 +110,6 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 		setLogs(prev => [optimisticLog, ...prev])
 
 		try {
-			console.log('شروع آبیاری - ارسال درخواست:', {
-				landGroupId: groupId,
-				wellId,
-				startTime: combined.toISOString(),
-				isOngoing: true,
-			})
-
 			const response = await api.post('irrigations', {
 				landGroupId: groupId,
 				wellId,
@@ -125,12 +117,8 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 				isOngoing: true,
 			})
 
-			console.log('شروع آبیاری - پاسخ API:', response)
-
 			const created = response?.irrigation
 			if (created) {
-				console.log('شروع آبیاری - لاگ ایجاد شده:', created)
-
 				startTransition(() => {
 					addOptimisticLog({
 						action: 'REPLACE_TEMP',
@@ -172,14 +160,6 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 		const originalId = ongoingLog._id
 		const isTempLog = String(originalId).startsWith('temp-')
 
-		console.log('پایان آبیاری - اطلاعات:', {
-			originalId,
-			isTempLog,
-			endedAtISO,
-			startedAt: ongoingLog.startedAt,
-		})
-
-		// آپدیت همزمان هر دو state
 		startTransition(() => {
 			addOptimisticLog({
 				action: 'END_IRRIGATION',
@@ -192,7 +172,6 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 			let response
 
 			if (isTempLog) {
-				console.log('پایان آبیاری - ایجاد لاگ جدید (موقت)')
 				response = await api.post('irrigations', {
 					landGroupId: groupId,
 					wellId,
@@ -201,23 +180,15 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 					isOngoing: false,
 				})
 			} else {
-				console.log('پایان آبیاری - آپدیت لاگ موجود:', originalId)
 				response = await api.patch(`irrigations/${originalId}`, {
 					endTime: endedAtISO,
 					isOngoing: false,
 				})
 			}
 
-			console.log('پایان آبیاری - پاسخ API:', response)
-
 			const updatedLog = response?.irrigation
 			if (updatedLog) {
-				console.log('پایان آبیاری - لاگ آپدیت شده:', updatedLog)
-
-				// بررسی کنیم که آیا لاگ واقعاً پایان یافته
 				if (updatedLog.isOngoing) {
-					console.warn('⚠️ لاگ هنوز isOngoing: true است! این یک مشکل سروری است.')
-					// به صورت دستی وضعیت رو اصلاح می‌کنیم
 					updatedLog.isOngoing = false
 				}
 
@@ -233,12 +204,8 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 					setLogs(prev => prev.map(l => (l._id === originalId ? updatedLog : l)))
 				}
 
-				// رفرش داده‌های گروه
-				console.log('رفرش داده‌های گروه...')
 				const landGroupResponse = await landGroupApi.get(`wells/${wellId}/land-groups/${groupId}`)
-				console.log('داده‌های گروه بعد از پایان آبیاری:', landGroupResponse)
 
-				// آپدیت مقادیر آب از داده‌های گروه
 				if (landGroupResponse?.remainingWater) {
 					setLocalRemainingWater(landGroupResponse.remainingWater)
 				}
@@ -252,9 +219,7 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 			console.error('خطا در پایان آبیاری گروهی:', error)
 			console.error('جزئیات خطا:', error.response?.data || error.message)
 
-			// Rollback به state قبلی
 			const currentLogs = logs
-			console.log('انجام rollback به state قبلی:', currentLogs)
 
 			startTransition(() => {
 				addOptimisticLog({
@@ -273,20 +238,8 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 		setShowEndDrawer(true)
 	}
 
-	// استفاده از مقادیر محلی که با API آپدیت می‌شوند
 	const updatedRequiredWater = landGroupApi.data?.requiredWater ?? localRequiredWater ?? requiredWater
 	const updatedRemainingWater = landGroupApi.data?.remainingWater ?? localRemainingWater ?? remainingWater
-
-	console.log('مقادیر آب:', {
-		requiredWater,
-		remainingWater,
-		localRequiredWater,
-		localRemainingWater,
-		landGroupRequired: landGroupApi.data?.requiredWater,
-		landGroupRemaining: landGroupApi.data?.remainingWater,
-		finalRequired: updatedRequiredWater,
-		finalRemaining: updatedRemainingWater,
-	})
 
 	return (
 		<div className={styles.container}>
@@ -355,10 +308,12 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 				isOpen={isOpenWarning}
 				onClose={() => setIsOpenWarning(false)}
 				well={{
+					logs: ongoingLog ? [{ ...ongoingLog }] : [],
+					requiredWater: updatedRequiredWater,
+					remainingWater: updatedRemainingWater,
 					land: ongoingLog?.land,
-					irrigationStartedAt: ongoingLog?.startedAt,
-					ongoingRequiredWater: updatedRequiredWater,
-					ongoingRemainingWater: updatedRemainingWater,
+					landGroup: ongoingLog?.landGroup,
+					landGroupTitle: ongoingLog?.landGroupTitle,
 				}}
 				onSubmit={handleWarningModal}
 			/>

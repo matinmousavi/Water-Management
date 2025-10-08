@@ -8,6 +8,7 @@ import landGroupsRouter from './landGroups.js'
 import schedulesRouter from './schedules.js'
 import snapshotsRouter from './snapshots.js'
 import { pickFields } from '../../utils/pickFields.js'
+import Schedule from '../../models/Schedule.model.js'
 
 const router = Router()
 
@@ -16,6 +17,21 @@ const getLandGroupTitle = (landGroupId, well) => {
 	if (!landGroupId || !well || !well.landGroups) return null
 	const group = well.landGroups.find(g => g.groupId.toString() === landGroupId.toString())
 	return group ? group.title : null
+}
+
+function msToHoursMinutes(ms) {
+	const totalMinutes = Math.floor(ms / 60000)
+	const hours = Math.floor(totalMinutes / 60)
+	const minutes = totalMinutes % 60
+	return `${hours}:${minutes.toString().padStart(2, '0')}`
+}
+
+function getTotalDurationMs(schedules) {
+	return schedules.reduce((sum, s) => {
+		const start = new Date(s.startTime)
+		const end = new Date(s.endTime)
+		return sum + (end - start)
+	}, 0)
 }
 
 // GET all wells with filters and fields query params
@@ -155,10 +171,46 @@ router.get('/:wellId', async (req, res) => {
 				.sort({ createdAt: -1 })
 				.lean()
 
-			logs = logs.map(log => ({
-				...log,
-				landGroupTitle: getLandGroupTitle(log.landGroup, well),
-			}))
+			logs = await Promise.all(
+				logs.map(async log => {
+					const landGroupTitle = getLandGroupTitle(log.landGroup, well)
+					let requiredWater = null
+					let receivedWater = null
+					let remainingWater = null
+
+					if (!log.endedAt) {
+						const schedules = await Schedule.find({
+							well: wellId,
+							landGroup: log.landGroup || log.land,
+						}).lean()
+
+						const totalRequiredMs = getTotalDurationMs(schedules)
+
+						const previousIrrigations = await Irrigation.find({
+							well: wellId,
+							landGroup: log.landGroup || log.land,
+							isGroupLog: log.isGroupLog || false,
+							endedAt: { $exists: true },
+						}).lean()
+
+						const receivedMs = previousIrrigations.reduce((sum, l) => {
+							return sum + (new Date(l.endedAt) - new Date(l.startedAt))
+						}, 0)
+
+						requiredWater = msToHoursMinutes(totalRequiredMs)
+						receivedWater = msToHoursMinutes(receivedMs)
+						remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
+					}
+
+					return {
+						...log,
+						landGroupTitle,
+						requiredWater,
+						receivedWater,
+						remainingWater,
+					}
+				})
+			)
 
 			well.logs = logs
 		}
