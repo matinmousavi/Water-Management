@@ -4,15 +4,9 @@ import mongoose from 'mongoose'
 import Irrigation from '../../models/Irrigation.model.js'
 import Schedule from '../../models/Schedule.model.js'
 import Note from '../../models/Note.model.js'
+import { msToHoursMinutes } from '../../../utils/format.js'
 
 const router = Router({ mergeParams: true })
-
-function msToHoursMinutes(ms) {
-	const totalMinutes = Math.floor(ms / 60000)
-	const hours = Math.floor(totalMinutes / 60)
-	const minutes = totalMinutes % 60
-	return `${hours}:${minutes.toString().padStart(2, '0')}`
-}
 
 function getTotalDurationMs(schedules) {
 	return schedules.reduce((sum, s) => {

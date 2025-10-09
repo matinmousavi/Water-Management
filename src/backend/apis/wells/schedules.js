@@ -4,20 +4,13 @@ import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import moment from 'moment-jalaali'
+import { msToHoursMinutes } from '../../../utils/format.js'
 
 const router = Router({ mergeParams: true })
 
 // helper function to check overlap
 function isOverlapping(start1, end1, start2, end2) {
 	return start1 < end2 && start2 < end1
-}
-
-// Helper: convert milliseconds to "HH:mm"
-function msToHoursMinutes(ms) {
-	const totalMinutes = Math.floor(ms / 60000)
-	const hours = Math.floor(totalMinutes / 60)
-	const minutes = totalMinutes % 60
-	return `${hours}:${minutes.toString().padStart(2, '0')}`
 }
 
 // Helper: sum duration of schedules

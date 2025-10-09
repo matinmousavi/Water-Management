@@ -9,6 +9,7 @@ import schedulesRouter from './schedules.js'
 import snapshotsRouter from './snapshots.js'
 import { pickFields } from '../../utils/pickFields.js'
 import Schedule from '../../models/Schedule.model.js'
+import { msToHoursMinutes } from '../../../utils/format.js'
 
 const router = Router()
 
@@ -17,13 +18,6 @@ const getLandGroupTitle = (landGroupId, well) => {
 	if (!landGroupId || !well || !well.landGroups) return null
 	const group = well.landGroups.find(g => g.groupId.toString() === landGroupId.toString())
 	return group ? group.title : null
-}
-
-function msToHoursMinutes(ms) {
-	const totalMinutes = Math.floor(ms / 60000)
-	const hours = Math.floor(totalMinutes / 60)
-	const minutes = totalMinutes % 60
-	return `${hours}:${minutes.toString().padStart(2, '0')}`
 }
 
 function getTotalDurationMs(schedules) {
