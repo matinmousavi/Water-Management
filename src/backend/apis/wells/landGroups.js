@@ -126,7 +126,7 @@ router.get('/:groupId', async (req, res) => {
 			landGroup: group.groupId,
 			isGroupLog: true,
 			startedAt: { $gte: cycleStart },
-			endedAt: { $lte: cycleEnd },
+			$or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
 		}).lean()
 
 		const uniqueLogsMap = new Map()
@@ -137,7 +137,7 @@ router.get('/:groupId', async (req, res) => {
 			}
 		}
 
-		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
+		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
 		const receivedMs = logs.reduce((sum, log) => {
 			if (!log.endedAt) return sum
@@ -182,7 +182,7 @@ router.get('/:groupId', async (req, res) => {
 					: null,
 				location: land.location || '',
 			})),
-			lastIrrigation: logs.length ? logs[logs.length - 1].startedAt : null,
+			lastIrrigation: logs.length ? logs[0].createdAt : null,
 			nextIrrigation,
 			requiredWater,
 			receivedWater,

@@ -33,6 +33,7 @@ const irrigationSchema = new mongoose.Schema(
 		},
 		duration: {
 			type: String,
+			default: null,
 		},
 		note: {
 			type: String,
@@ -52,19 +53,18 @@ const irrigationSchema = new mongoose.Schema(
 	{ timestamps: true }
 )
 
-function msToHms(ms) {
-	if (!ms || ms <= 0) return '00:00:00'
-	const totalSeconds = Math.floor(ms / 1000)
-	const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
-	const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
-	const seconds = String(totalSeconds % 60).padStart(2, '0')
-	return `${hours}:${minutes}:${seconds}`
+function msToHm(ms) {
+	if (!ms || ms <= 0) return '00:00'
+	const totalMinutes = Math.floor(ms / 60000)
+	const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+	const minutes = String(totalMinutes % 60).padStart(2, '0')
+	return `${hours}:${minutes}`
 }
 
 irrigationSchema.pre('save', function (next) {
 	if (this.startedAt && this.endedAt) {
 		const diffMs = new Date(this.endedAt) - new Date(this.startedAt)
-		this.duration = msToHms(diffMs)
+		this.duration = msToHm(diffMs)
 	}
 	next()
 })
