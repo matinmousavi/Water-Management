@@ -27,7 +27,12 @@ const LandGroup = () => {
 			key: 'logs',
 			label: 'لاگ توزیع',
 			children: (
-				<LandGroupLogs initialLogs={landGroupData.logs} requiredWater={landGroupData.requiredWater} remainingWater={landGroupData.remainingWater} />
+				<LandGroupLogs
+					initialLogs={landGroupData.logs}
+					receivedWater={landGroupData.receivedWater}
+					requiredWater={landGroupData.requiredWater}
+					remainingWater={landGroupData.remainingWater}
+				/>
 			),
 		},
 		{

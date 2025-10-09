@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import jalaliday from 'jalaliday'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
-import { useState, useOptimistic, useTransition } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router'
 import useAPI from '../../../../../hooks/useAPI'
 
@@ -23,74 +23,76 @@ const { Text } = Typography
 
 const parseTimeToMs = str => {
 	if (!str) return 0
-	const [h, m] = str.split(':').map(Number)
-	return (h * 60 * 60 + m * 60) * 1000
+	const isNegative = str.startsWith('-')
+	const cleanStr = isNegative ? str.substring(1) : str
+	const [h, m] = cleanStr.split(':').map(Number)
+	const ms = (h * 60 * 60 + m * 60) * 1000
+	return isNegative ? -ms : ms
 }
 
-const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
+const normalizeLogs = rawLogs =>
+	(Array.isArray(rawLogs) ? rawLogs : []).map(l => ({
+		...l,
+		isOngoing: Boolean(l.isOngoing),
+	}))
+
+const LandGroupLogs = ({ initialLogs = [], receivedWater, requiredWater, remainingWater }) => {
 	const { wellId, groupId } = useParams()
 	const api = useAPI()
 	const apiTime = useAPI()
 	const landGroupApi = useAPI()
-
 	const { openNotification } = useNotification()
 
-	const [isPending, startTransition] = useTransition()
-	const [logs, setLogs] = useState(initialLogs || [])
 	const [currentTime, setCurrentTime] = useState(dayjs())
+	const [logs, setLogs] = useState(normalizeLogs(initialLogs))
 	const [localRequiredWater, setLocalRequiredWater] = useState(requiredWater)
 	const [localRemainingWater, setLocalRemainingWater] = useState(remainingWater)
-
-	const [optimisticLogs, addOptimisticLog] = useOptimistic(logs, (state, { action, payload }) => {
-		switch (action) {
-			case 'START_IRRIGATION':
-				return [payload.optimisticLog, ...state]
-
-			case 'END_IRRIGATION':
-				return state.map(log => (log._id === payload.originalId ? { ...log, isOngoing: false, endedAt: payload.endedAt } : log))
-
-			case 'REPLACE_TEMP':
-				return state.map(log => (log._id === payload.tempId ? payload.actualLog : log))
-
-			case 'ROLLBACK':
-				return state.filter(log => log._id !== payload.tempId)
-
-			case 'UPDATE_LOGS':
-				return payload.newLogs
-
-			default:
-				return state
-		}
-	})
-
+	const [localReceivedWater, setLocalReceivedWater] = useState(receivedWater)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
 	const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
 	const [isOpenWarning, setIsOpenWarning] = useState(false)
 
-	const ongoingLog = optimisticLogs.find(log => log.isOngoing)
+	apiTime.init('settings/irrigations')
+	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
+
+	const latestLog = logs[0] ?? null
+	const ongoingLog = latestLog?.isOngoing ? latestLog : null
 	const isIrrigating = Boolean(ongoingLog)
 	const startedAt = ongoingLog?.startedAt ?? null
 
-	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
+	const updatedRequiredWater = localRequiredWater ?? requiredWater
+	const updatedRemainingWater = localRemainingWater ?? remainingWater
+	const updatedReceivedWater = localReceivedWater ?? receivedWater
+
+	const calculateActualRemainingWater = () => {
+		const requiredMs = parseTimeToMs(updatedRequiredWater)
+		const receivedMs = parseTimeToMs(updatedReceivedWater)
+		const remainingMs = requiredMs - receivedMs
+
+		if (remainingMs < 0 && parseTimeToMs(updatedRemainingWater) === 0) {
+			return remainingMs
+		}
+
+		return parseTimeToMs(updatedRemainingWater)
+	}
+
+	const actualRemainingWaterMs = calculateActualRemainingWater()
 
 	const handleOpenStart = () => {
 		setCurrentTime(dayjs())
-		if (ongoingLog) {
-			setIsOpenWarning(true)
-		} else {
-			setShowStartDrawer(true)
-		}
+		if (ongoingLog) setIsOpenWarning(true)
+		else setShowStartDrawer(true)
 	}
 
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
+		if (ongoingLog) return
 
 		const t = dayjs(selectedTime, 'HH:mm')
 		const combined = dayjs().startOf('day').hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
-
 		const tempId = `temp-${Date.now()}`
-		const optimisticLog = {
+		const newLog = {
 			_id: tempId,
 			landGroup: groupId,
 			well: wellId,
@@ -98,81 +100,42 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 			isOngoing: true,
 			note: '',
 			duration: null,
-			_isOptimistic: true,
 		}
 
-		startTransition(() => {
-			addOptimisticLog({
-				action: 'START_IRRIGATION',
-				payload: { optimisticLog },
-			})
-		})
-		setLogs(prev => [optimisticLog, ...prev])
+		setLogs(prev => [newLog, ...prev])
 
 		try {
-			const response = await api.post('irrigations', {
+			const resp = await api.post('irrigations', {
 				landGroupId: groupId,
 				wellId,
 				startTime: combined.toISOString(),
 				isOngoing: true,
 			})
-
-			const created = response?.irrigation
+			const created = resp?.irrigation
 			if (created) {
-				startTransition(() => {
-					addOptimisticLog({
-						action: 'REPLACE_TEMP',
-						payload: { tempId, actualLog: created },
-					})
-				})
-				setLogs(prev => prev.map(l => (l._id === tempId ? created : l)))
-
-				openNotification('success', 'آبیاری با موفقیت شروع شد')
+				setLogs(prev => prev.map(log => (log._id === tempId ? { ...created, isOngoing: Boolean(created.isOngoing) } : log)))
 			}
-		} catch (error) {
-			console.error('خطا در شروع آبیاری گروهی:', error)
-			console.error('جزئیات خطا:', error.response?.data || error.message)
-
-			startTransition(() => {
-				addOptimisticLog({
-					action: 'ROLLBACK',
-					payload: { tempId },
-				})
-			})
-			setLogs(prev => prev.filter(l => l._id !== tempId))
-
+		} catch (err) {
+			console.error(err)
+			setLogs(prev => prev.filter(log => log._id !== tempId))
 			openNotification('error', 'خطا در شروع آبیاری')
 		}
 	}
 
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
-
-		if (!ongoingLog) {
-			openNotification('error', 'لاگ فعالی یافت نشد')
-			return
-		}
+		if (!ongoingLog) return openNotification('error', 'لاگ فعالی یافت نشد')
 
 		const t = dayjs(time, 'HH:mm')
 		const combined = dayjs(ongoingLog.startedAt).hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 		const endedAtISO = combined.toISOString()
-
 		const originalId = ongoingLog._id
-		const isTempLog = String(originalId).startsWith('temp-')
 
-		startTransition(() => {
-			addOptimisticLog({
-				action: 'END_IRRIGATION',
-				payload: { originalId, endedAt: endedAtISO },
-			})
-		})
-		setLogs(prev => prev.map(l => (l._id === originalId ? { ...l, isOngoing: false, endedAt: endedAtISO } : l)))
+		setLogs(prev => prev.map(log => (log._id === originalId ? { ...log, isOngoing: false, endedAt: endedAtISO } : log)))
 
 		try {
-			let response
-
-			if (isTempLog) {
-				response = await api.post('irrigations', {
+			if (String(originalId).startsWith('temp-')) {
+				await api.post('irrigations', {
 					landGroupId: groupId,
 					wellId,
 					startTime: ongoingLog.startedAt,
@@ -180,55 +143,21 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 					isOngoing: false,
 				})
 			} else {
-				response = await api.patch(`irrigations/${originalId}`, {
-					endTime: endedAtISO,
-					isOngoing: false,
-				})
+				await api.patch(`irrigations/${originalId}`, { endTime: endedAtISO, isOngoing: false })
 			}
 
-			const updatedLog = response?.irrigation
-			if (updatedLog) {
-				if (updatedLog.isOngoing) {
-					updatedLog.isOngoing = false
-				}
+			const landGroupResponse = await landGroupApi.get(`wells/${wellId}/land-groups/${groupId}`)
+			const rawNewLogs = landGroupResponse?.logs ?? []
+			const finalLogs = rawNewLogs.filter(l => !String(l._id).startsWith('temp-')).map(l => ({ ...l }))
+			setLogs(finalLogs)
 
-				if (isTempLog) {
-					startTransition(() => {
-						addOptimisticLog({
-							action: 'REPLACE_TEMP',
-							payload: { tempId: originalId, actualLog: updatedLog },
-						})
-					})
-					setLogs(prev => prev.map(l => (l._id === originalId ? updatedLog : l)))
-				} else {
-					setLogs(prev => prev.map(l => (l._id === originalId ? updatedLog : l)))
-				}
+			if (landGroupResponse?.remainingWater !== undefined) setLocalRemainingWater(landGroupResponse.remainingWater)
+			if (landGroupResponse?.requiredWater !== undefined) setLocalRequiredWater(landGroupResponse.requiredWater)
+			if (landGroupResponse?.requiredWater !== undefined) setLocalReceivedWater(landGroupResponse.receivedWater)
 
-				const landGroupResponse = await landGroupApi.get(`wells/${wellId}/land-groups/${groupId}`)
-
-				if (landGroupResponse?.remainingWater) {
-					setLocalRemainingWater(landGroupResponse.remainingWater)
-				}
-				if (landGroupResponse?.requiredWater) {
-					setLocalRequiredWater(landGroupResponse.requiredWater)
-				}
-
-				openNotification('success', 'آبیاری با موفقیت پایان یافت')
-			}
+			openNotification('success', 'آبیاری با موفقیت پایان یافت')
 		} catch (error) {
-			console.error('خطا در پایان آبیاری گروهی:', error)
-			console.error('جزئیات خطا:', error.response?.data || error.message)
-
-			const currentLogs = logs
-
-			startTransition(() => {
-				addOptimisticLog({
-					action: 'UPDATE_LOGS',
-					payload: { newLogs: currentLogs },
-				})
-			})
-			setLogs(currentLogs)
-
+			console.error(error)
 			openNotification('error', 'خطا در پایان آبیاری')
 		}
 	}
@@ -238,15 +167,12 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 		setShowEndDrawer(true)
 	}
 
-	const updatedRequiredWater = landGroupApi.data?.requiredWater ?? localRequiredWater ?? requiredWater
-	const updatedRemainingWater = landGroupApi.data?.remainingWater ?? localRemainingWater ?? remainingWater
-
 	return (
 		<div className={styles.container}>
 			<Card>
 				<Flex vertical gap={8}>
-					<Text className={styles.titleLogs}>لاگ توزیع آب ({optimisticLogs.length})</Text>
-					<MobileLogsTable logs={optimisticLogs} descriptionEditHours={descriptionEditHours} isPending={isPending} />
+					<Text className={styles.titleLogs}>لاگ توزیع آب ({logs.length})</Text>
+					<MobileLogsTable logs={logs} descriptionEditHours={descriptionEditHours} />
 				</Flex>
 			</Card>
 
@@ -255,29 +181,24 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 					<Flex align='center' gap={12} className={styles.footerContent}>
 						<Text className={styles.timerText}>
 							<TimerDisplay
+								key={latestLog?._id ?? 'no-ongoing'}
 								startedAt={startedAt}
 								requiredWaterMs={parseTimeToMs(updatedRequiredWater)}
-								remainingWaterMs={parseTimeToMs(updatedRemainingWater)}
+								remainingWaterMs={actualRemainingWaterMs}
 							/>
 						</Text>
-						<Button type='default' className={styles.textBtn} onClick={() => setEndNoticeDrawer(true)} loading={isPending}>
+						<Button type='default' className={styles.textBtn} onClick={() => setEndNoticeDrawer(true)}>
 							پایان آبیاری
 						</Button>
 					</Flex>
 				) : (
-					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={handleOpenStart} loading={isPending}>
+					<Button type='primary' className={`button-modal ${styles.btnModal}`} block onClick={handleOpenStart}>
 						شروع آبیاری
 					</Button>
 				)}
 			</div>
 
-			<TimeStartPickerSheet
-				isOpen={showStartDrawer}
-				now={currentTime}
-				onSubmit={handleTimeStartSelected}
-				onClose={() => setShowStartDrawer(false)}
-				loading={isPending}
-			/>
+			<TimeStartPickerSheet isOpen={showStartDrawer} now={currentTime} onSubmit={handleTimeStartSelected} onClose={() => setShowStartDrawer(false)} />
 
 			<TimeEndPickerSheet
 				isOpen={showEndDrawer}
@@ -285,7 +206,6 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 				subtitle='ساعت پایان آبیاری گروهی را مشخص کنید.'
 				onSubmit={handleTimeEndSelected}
 				onClose={() => setShowEndDrawer(false)}
-				loading={isPending}
 			/>
 
 			<EndNoticeDrawer
@@ -294,13 +214,7 @@ const LandGroupLogs = ({ initialLogs = [], requiredWater, remainingWater }) => {
 					setEndNoticeDrawer(false)
 					setShowEndDrawer(true)
 				}}
-				timer={
-					<TimerDisplay
-						startedAt={startedAt}
-						requiredWaterMs={parseTimeToMs(updatedRequiredWater)}
-						remainingWaterMs={parseTimeToMs(updatedRemainingWater)}
-					/>
-				}
+				timer={<TimerDisplay startedAt={startedAt} requiredWaterMs={parseTimeToMs(updatedRequiredWater)} remainingWaterMs={actualRemainingWaterMs} />}
 				onClose={() => setEndNoticeDrawer(false)}
 			/>
 

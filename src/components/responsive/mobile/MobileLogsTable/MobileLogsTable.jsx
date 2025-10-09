@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Spin, Table } from 'antd'
 import moment from 'moment-jalaali'
 import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
 import styles from './MobileLogsTable.module.css'
@@ -28,7 +28,7 @@ const MobileLogsTable = ({ logs = [], descriptionEditHours }) => {
 			render: (_, record) => {
 				if (record?.isOngoing) return 'در حال آبیاری'
 				const timeStr = record?.receivedWater || record?.duration
-				if (!timeStr) return '--'
+				if (!timeStr) return <Spin size='small' />
 				const [h, m] = timeStr.split(':').map(Number)
 				return h === 0 ? `${m} دقیقه` : `${h} ساعت${m > 0 ? ` و ${m} دقیقه` : ''}`
 			},

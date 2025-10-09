@@ -1,4 +1,4 @@
-import { Flex, Tabs, Typography } from 'antd'
+import { Flex, Tabs } from 'antd'
 import tree from '../../../../../assets/icons/tree_bold.svg'
 import styles from './LandMobile.module.css'
 import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
@@ -11,7 +11,15 @@ const LandMobile = ({ landData }) => {
 		{
 			key: 'logs',
 			label: 'لاگ توزیع',
-			children: <LandLogsMobile data={landData} />,
+			children: (
+				<LandLogsMobile
+					initialLogs={landData.logs}
+					wellId={landData.wells[0]._id}
+					receivedWater={landData.receivedWater}
+					requiredWater={landData.requiredWater}
+					remainingWater={landData.remainingWater}
+				/>
+			),
 		},
 		{
 			key: 'specifications',
