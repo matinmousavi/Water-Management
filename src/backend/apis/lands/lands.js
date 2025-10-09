@@ -8,7 +8,7 @@ import Schedule from '../../models/Schedule.model.js'
 
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
-import { msToHoursMinutes } from '../../../utils/format.js'
+import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
 
 const router = Router()
 
@@ -101,18 +101,9 @@ router.get('/:landId', async (req, res) => {
 				if (!well._id) return well
 
 				const schedules = await Schedule.find({ well: well._id, land: land._id }).lean()
-
-				const totalRequiredMs = schedules.reduce((sum, s) => {
-					const start = new Date(s.startTime)
-					const end = new Date(s.endTime)
-					return sum + (end - start)
-				}, 0)
-
+				const totalRequiredMs = sumScheduleDurationsMs(schedules)
 				const irrigations = await Irrigation.find({ well: well._id, land: land._id }).lean()
-				const receivedMs = irrigations.reduce((sum, log) => {
-					if (!log.endedAt) return sum
-					return sum + (new Date(log.endedAt) - new Date(log.startedAt))
-				}, 0)
+				const receivedMs = sumIrrigationDurationsMs(irrigations)
 
 				totalRequiredMsAllWells += totalRequiredMs
 				totalReceivedMsAllWells += receivedMs
@@ -121,11 +112,11 @@ router.get('/:landId', async (req, res) => {
 
 				const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
 
+				const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
+
 				return {
 					...well,
-					requiredWater: msToHoursMinutes(totalRequiredMs),
-					receivedWater: msToHoursMinutes(receivedMs),
-					remainingWater: msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs)),
+					...waterMetrics,
 					nextIrrigation,
 				}
 			})
@@ -137,9 +128,7 @@ router.get('/:landId', async (req, res) => {
 		return res.status(200).json({
 			land: {
 				...landWithWells,
-				requiredWater: msToHoursMinutes(totalRequiredMsAllWells),
-				receivedWater: msToHoursMinutes(totalReceivedMsAllWells),
-				remainingWater: msToHoursMinutes(Math.max(0, totalRequiredMsAllWells - totalReceivedMsAllWells)),
+				...buildWaterMetrics({ requiredMs: totalRequiredMsAllWells, receivedMs: totalReceivedMsAllWells }),
 				wells: wellsWithWaterData,
 				logs,
 				notes,

@@ -4,22 +4,13 @@ import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import moment from 'moment-jalaali'
-import { msToHoursMinutes } from '../../../utils/format.js'
+import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
 
 const router = Router({ mergeParams: true })
 
 // helper function to check overlap
 function isOverlapping(start1, end1, start2, end2) {
 	return start1 < end2 && start2 < end1
-}
-
-// Helper: sum duration of schedules
-function getTotalDurationMs(schedules) {
-	return schedules.reduce((sum, s) => {
-		const start = new Date(s.startTime)
-		const end = new Date(s.endTime)
-		return sum + (end - start)
-	}, 0)
 }
 
 // Helper: calculate duration between start and end in "HH:mm"
@@ -150,7 +141,7 @@ router.get('/day/:date', async (req, res) => {
 			}).lean()
 
 			const totalSchedulesInCycle = allSchedulesInCycle.length
-			const totalRequiredMs = getTotalDurationMs(allSchedulesInCycle)
+			const totalRequiredMs = sumScheduleDurationsMs(allSchedulesInCycle)
 
 			let irrigationsInCycle = []
 			if (schedGroup.targetType === 'group') {
@@ -179,10 +170,8 @@ router.get('/day/:date', async (req, res) => {
 				}).lean()
 			}
 
-			const receivedMsInCycle = irrigationsInCycle.reduce((sum, log) => {
-				if (!log.startedAt || !log.endedAt) return sum
-				return sum + (new Date(log.endedAt) - new Date(log.startedAt))
-			}, 0)
+			const receivedMsInCycle = sumIrrigationDurationsMs(irrigationsInCycle)
+			const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs: receivedMsInCycle })
 
 			for (const schedule of grouped[key]) {
 				let irrigationInProgress = false
@@ -244,11 +233,9 @@ router.get('/day/:date', async (req, res) => {
 					irrigationInProgress,
 					irrigationStartedAt,
 					irrigationEndsAt,
-					requiredWater: msToHoursMinutes(totalRequiredMs),
-					receivedWater: msToHoursMinutes(receivedMsInCycle),
-					remainingWater: msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMsInCycle)),
+					...waterMetrics,
 					totalSchedulesInCycle,
-					receivedWaterInCycle: msToHoursMinutes(receivedMsInCycle),
+					receivedWaterInCycle: waterMetrics.receivedWater,
 				})
 			}
 		}

@@ -9,7 +9,7 @@ import schedulesRouter from './schedules.js'
 import snapshotsRouter from './snapshots.js'
 import { pickFields } from '../../utils/pickFields.js'
 import Schedule from '../../models/Schedule.model.js'
-import { msToHoursMinutes } from '../../../utils/format.js'
+import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
 
 const router = Router()
 
@@ -18,14 +18,6 @@ const getLandGroupTitle = (landGroupId, well) => {
 	if (!landGroupId || !well || !well.landGroups) return null
 	const group = well.landGroups.find(g => g.groupId.toString() === landGroupId.toString())
 	return group ? group.title : null
-}
-
-function getTotalDurationMs(schedules) {
-	return schedules.reduce((sum, s) => {
-		const start = new Date(s.startTime)
-		const end = new Date(s.endTime)
-		return sum + (end - start)
-	}, 0)
 }
 
 // GET all wells with filters and fields query params
@@ -178,7 +170,7 @@ router.get('/:wellId', async (req, res) => {
 							landGroup: log.landGroup || log.land,
 						}).lean()
 
-						const totalRequiredMs = getTotalDurationMs(schedules)
+						const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
 						const previousIrrigations = await Irrigation.find({
 							well: wellId,
@@ -187,13 +179,12 @@ router.get('/:wellId', async (req, res) => {
 							endedAt: { $exists: true },
 						}).lean()
 
-						const receivedMs = previousIrrigations.reduce((sum, l) => {
-							return sum + (new Date(l.endedAt) - new Date(l.startedAt))
-						}, 0)
+						const receivedMs = sumIrrigationDurationsMs(previousIrrigations)
+						const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
 
-						requiredWater = msToHoursMinutes(totalRequiredMs)
-						receivedWater = msToHoursMinutes(receivedMs)
-						remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
+						requiredWater = waterMetrics.requiredWater
+						receivedWater = waterMetrics.receivedWater
+						remainingWater = waterMetrics.remainingWater
 					}
 
 					return {
