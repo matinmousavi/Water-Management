@@ -27,20 +27,6 @@ const notificationRepresentation = notification => ({
 router.get('/', async (req, res) => {
 	try {
                 const projection = getProjection(req)
-                if (projection) {
-                        const requiredFields = [
-                                'sentBy',
-                                'message',
-                                'medium',
-                                'recipientGroup',
-                                'recipients',
-                                'sentAt',
-                                'meta',
-                        ]
-                        requiredFields.forEach(field => {
-                                projection[field] = 1
-                        })
-                }
                 const notifications = await Notification.find({}, projection ?? undefined)
                         .sort({ createdAt: -1 })
                         .populate('sentBy', 'fullName')

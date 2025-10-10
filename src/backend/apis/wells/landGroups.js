@@ -13,12 +13,6 @@ router.get('/', async (req, res) => {
 	try {
                 const { wellId } = req.params
                 const wellProjection = getProjection(req)
-                if (wellProjection) {
-                        const requiredWellFields = ['landGroups', 'cycleDays', 'cycleStartDate']
-                        requiredWellFields.forEach(field => {
-                                wellProjection[field] = 1
-                        })
-                }
                 const well = await Well.findById(wellId, wellProjection ?? undefined)
                         .populate('landGroups.lands')
                         .lean()
@@ -33,31 +27,11 @@ router.get('/', async (req, res) => {
 
 		for (const group of well.landGroups) {
                         const scheduleProjection = getProjection(req)
-                        if (scheduleProjection) {
-                                const requiredFields = ['landGroup', 'targetType', 'startTime', 'endTime']
-                                requiredFields.forEach(field => {
-                                        scheduleProjection[field] = 1
-                                })
-                        }
                         const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }, scheduleProjection ?? undefined).lean()
 			const totalSchedulesInCycle = schedules.length
 			const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
                         const irrigationProjection = getProjection(req)
-                        if (irrigationProjection) {
-                                const requiredFields = [
-                                        'well',
-                                        'landGroup',
-                                        'isGroupLog',
-                                        'startedAt',
-                                        'endedAt',
-                                        'duration',
-                                        'createdAt',
-                                ]
-                                requiredFields.forEach(field => {
-                                        irrigationProjection[field] = 1
-                                })
-                        }
                         const irrigations = await Irrigation.find({
                                 well: wellId,
                                 landGroup: group.groupId,
@@ -123,12 +97,6 @@ router.get('/:groupId', async (req, res) => {
 		const { wellId, groupId } = req.params
 
                 const wellProjection = getProjection(req)
-                if (wellProjection) {
-                        const requiredWellFields = ['landGroups', 'cycleDays', 'cycleStartDate']
-                        requiredWellFields.forEach(field => {
-                                wellProjection[field] = 1
-                        })
-                }
                 const well = await Well.findById(wellId, wellProjection ?? undefined)
                         .populate({
                                 path: 'landGroups.lands',
@@ -148,30 +116,10 @@ router.get('/:groupId', async (req, res) => {
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
                 const scheduleProjection = getProjection(req)
-                if (scheduleProjection) {
-                        const requiredFields = ['landGroup', 'targetType', 'startTime', 'endTime', 'day']
-                        requiredFields.forEach(field => {
-                                scheduleProjection[field] = 1
-                        })
-                }
                 const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }, scheduleProjection ?? undefined).lean()
 		const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
                 const irrigationProjection = getProjection(req)
-                if (irrigationProjection) {
-                        const requiredFields = [
-                                'well',
-                                'landGroup',
-                                'isGroupLog',
-                                'startedAt',
-                                'endedAt',
-                                'duration',
-                                'createdAt',
-                        ]
-                        requiredFields.forEach(field => {
-                                irrigationProjection[field] = 1
-                        })
-                }
                 const irrigations = await Irrigation.find({
                         well: wellId,
                         landGroup: group.groupId,

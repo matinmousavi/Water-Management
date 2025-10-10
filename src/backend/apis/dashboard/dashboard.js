@@ -100,49 +100,13 @@ function isLogOutOfSchedule(log, schedule, bufferMinutes = 2) {
 router.get('/', async (req, res) => {
 	try {
                 const wellProjection = getProjection(req)
-                if (wellProjection) {
-                        const requiredFields = ['status', 'cycleStartDate', 'cycleDays', 'landGroups', 'title']
-                        requiredFields.forEach(field => {
-                                wellProjection[field] = 1
-                        })
-                }
                 const wells = await Well.find({ status: 'active' }, wellProjection ?? undefined).lean()
                 const irrigationProjection = getProjection(req)
-                if (irrigationProjection) {
-                        const requiredFields = [
-                                'well',
-                                'land',
-                                'landGroup',
-                                'startedAt',
-                                'endedAt',
-                                'isOngoing',
-                                'duration',
-                                'createdAt',
-                        ]
-                        requiredFields.forEach(field => {
-                                irrigationProjection[field] = 1
-                        })
-                }
                 const irrigations = await Irrigation.find({}, irrigationProjection ?? undefined)
                         .populate('well')
                         .populate('land')
                         .lean()
                 const scheduleProjection = getProjection(req)
-                if (scheduleProjection) {
-                        const requiredFields = [
-                                'well',
-                                'status',
-                                'targetType',
-                                'land',
-                                'landGroup',
-                                'startTime',
-                                'endTime',
-                                'day',
-                        ]
-                        requiredFields.forEach(field => {
-                                scheduleProjection[field] = 1
-                        })
-                }
 
 		let totalIrrigatedMinutes = 0
 		let delayedStartCount = 0

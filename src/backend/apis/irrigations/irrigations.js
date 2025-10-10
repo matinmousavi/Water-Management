@@ -153,24 +153,6 @@ router.get('/', async (req, res) => {
 		})
 
                 const projection = getProjection(req)
-                if (projection) {
-                        const requiredFields = [
-                                'land',
-                                'well',
-                                'createdBy',
-                                'landGroup',
-                                'duration',
-                                'startedAt',
-                                'endedAt',
-                                'isGroupLog',
-                                'isOngoing',
-                                'note',
-                                'createdAt',
-                        ]
-                        requiredFields.forEach(field => {
-                                projection[field] = 1
-                        })
-                }
 
                 let irrigations = await Irrigation.find(filter, projection ?? undefined)
                         .populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
@@ -273,23 +255,6 @@ router.get('/:irrigationId', async (req, res) => {
 		if (!mongoose.isValidObjectId(irrigationId)) return res.status(400).json({ message: 'شناسه آبیاری معتبر نیست.' })
 
                 const projection = getProjection(req)
-                if (projection) {
-                        const requiredFields = [
-                                'land',
-                                'well',
-                                'createdBy',
-                                'landGroup',
-                                'duration',
-                                'startedAt',
-                                'endedAt',
-                                'isGroupLog',
-                                'isOngoing',
-                                'note',
-                        ]
-                        requiredFields.forEach(field => {
-                                projection[field] = 1
-                        })
-                }
 
                 const irrigation = await Irrigation.findById(irrigationId, projection ?? undefined)
                         .populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
