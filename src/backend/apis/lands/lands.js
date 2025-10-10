@@ -13,23 +13,20 @@ import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } f
 const router = Router()
 
 async function attachWells(land, { includeLandGroups = false } = {}) {
-        const projection = {
-                _id: 1,
-                title: 1,
-                licenseCode: 1,
-                cycleDays: 1,
-                irrigator: 1,
-        }
+	const projection = {
+		_id: 1,
+		title: 1,
+		licenseCode: 1,
+		cycleDays: 1,
+		irrigator: 1,
+	}
 
-        if (includeLandGroups) {
-                projection.landGroups = 1
-        }
+	if (includeLandGroups) {
+		projection.landGroups = 1
+	}
 
-        const wells = await Well.find({ lands: land._id })
-                .select(projection)
-                .populate('irrigator', '_id fullName mobile')
-                .lean()
-        return { ...land, wells }
+	const wells = await Well.find({ lands: land._id }).select(projection).populate('irrigator', '_id fullName mobile').lean()
+	return { ...land, wells }
 }
 
 // GET all lands with optional filters
@@ -49,9 +46,11 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-                const projection = getProjection(req)
-                const lands = await Land.find(filter, projection ?? undefined).populate('owner').lean()
-                const landsWithWells = await Promise.all(lands.map(landItem => attachWells(landItem)))
+		const projection = getProjection(req)
+		const lands = await Land.find(filter, projection ?? undefined)
+			.populate('owner')
+			.lean()
+		const landsWithWells = await Promise.all(lands.map(landItem => attachWells(landItem)))
 		return res.status(200).json({ lands: landsWithWells })
 	} catch (err) {
 		console.error(err.message)
@@ -68,115 +67,117 @@ router.get('/:landId', async (req, res) => {
 			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
 		}
 
-                const projection = getProjection(req)
-                const land = await Land.findById(landId, projection ?? undefined).populate('owner').lean()
+		const projection = getProjection(req)
+		const land = await Land.findById(landId, projection ?? undefined)
+			.populate('owner')
+			.lean()
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
 		}
 
-                const landWithWells = await attachWells(land, { includeLandGroups: true })
-                const wellIds = landWithWells.wells?.map(well => well._id) || []
+		const landWithWells = await attachWells(land, { includeLandGroups: true })
+		const wellIds = landWithWells.wells?.map(well => well._id) || []
 
-                const ongoingIrrigations = await Irrigation.find({
-                        well: { $in: wellIds },
-                        isOngoing: true,
-                })
-                        .select('well land landGroup startedAt')
-                        .populate('land', '_id title')
-                        .lean()
+		const ongoingIrrigations = await Irrigation.find({
+			well: { $in: wellIds },
+			isOngoing: true,
+		})
+			.select('well land landGroup startedAt')
+			.populate('land', '_id title')
+			.lean()
 
-                const landGroupTitlesByWellId = new Map()
-                for (const well of landWithWells.wells || []) {
-                        if (!well?._id) continue
+		const landGroupTitlesByWellId = new Map()
+		for (const well of landWithWells.wells || []) {
+			if (!well?._id) continue
 
-                        const groups = new Map()
-                        for (const group of well.landGroups || []) {
-                                if (!group?.groupId) continue
-                                groups.set(group.groupId.toString(), group.title)
-                        }
+			const groups = new Map()
+			for (const group of well.landGroups || []) {
+				if (!group?.groupId) continue
+				groups.set(group.groupId.toString(), group.title)
+			}
 
-                        landGroupTitlesByWellId.set(well._id.toString(), groups)
-                }
+			landGroupTitlesByWellId.set(well._id.toString(), groups)
+		}
 
-                const ongoingMap = new Map()
-                for (const irrigation of ongoingIrrigations) {
-                        const wellKey = irrigation.well?.toString()
-                        if (!wellKey) continue
+		const ongoingMap = new Map()
+		for (const irrigation of ongoingIrrigations) {
+			const wellKey = irrigation.well?.toString()
+			if (!wellKey) continue
 
-                        if (irrigation.land) {
-                                ongoingMap.set(wellKey, {
-                                        type: 'land',
-                                        id: irrigation.land._id.toString(),
-                                        title: irrigation.land.title,
-                                        startedAt: irrigation.startedAt,
-                                })
-                                continue
-                        }
+			if (irrigation.land) {
+				ongoingMap.set(wellKey, {
+					type: 'land',
+					id: irrigation.land._id.toString(),
+					title: irrigation.land.title,
+					startedAt: irrigation.startedAt,
+				})
+				continue
+			}
 
-                        if (irrigation.landGroup) {
-                                const landGroupId = irrigation.landGroup.toString()
-                                const groups = landGroupTitlesByWellId.get(wellKey)
-                                const title = groups?.get(landGroupId) || ''
+			if (irrigation.landGroup) {
+				const landGroupId = irrigation.landGroup.toString()
+				const groups = landGroupTitlesByWellId.get(wellKey)
+				const title = groups?.get(landGroupId) || ''
 
-                                ongoingMap.set(wellKey, {
-                                        type: 'landGroup',
-                                        id: landGroupId,
-                                        title,
-                                        startedAt: irrigation.startedAt,
-                                })
-                        }
-                }
+				ongoingMap.set(wellKey, {
+					type: 'landGroup',
+					id: landGroupId,
+					title,
+					startedAt: irrigation.startedAt,
+				})
+			}
+		}
 
-                const wellsWithDetails = await Promise.all(
-                        (landWithWells.wells || []).map(async well => {
-                                const wellId = well?._id ? well._id.toString() : null
-                                const irrigationInfo = wellId ? ongoingMap.get(wellId) : null
+		const wellsWithDetails = await Promise.all(
+			(landWithWells.wells || []).map(async well => {
+				const wellId = well?._id ? well._id.toString() : null
+				const irrigationInfo = wellId ? ongoingMap.get(wellId) : null
 
-                                let totalRequiredMs = 0
-                                let receivedMs = 0
-                                let nextIrrigation = null
+				let totalRequiredMs = 0
+				let receivedMs = 0
+				let nextIrrigation = null
 
-                                if (well._id) {
-                                        const schedules = await Schedule.find({ well: well._id, land: land._id }).lean()
-                                        totalRequiredMs = sumScheduleDurationsMs(schedules)
+				if (well._id) {
+					const schedules = await Schedule.find({ well: well._id, land: land._id }).lean()
+					totalRequiredMs = sumScheduleDurationsMs(schedules)
 
-                                        const irrigations = await Irrigation.find({ well: well._id, land: land._id }).lean()
-                                        receivedMs = sumIrrigationDurationsMs(irrigations)
+					const irrigations = await Irrigation.find({ well: well._id, land: land._id }).lean()
+					receivedMs = sumIrrigationDurationsMs(irrigations)
 
-                                        const nextIrrigationLog = await Irrigation.find({
-                                                well: well._id,
-                                                land: land._id,
-                                                endedAt: null,
-                                        })
-                                                .sort({ startedAt: 1 })
-                                                .lean()
+					const nextIrrigationLog = await Irrigation.find({
+						well: well._id,
+						land: land._id,
+						endedAt: null,
+					})
+						.sort({ startedAt: 1 })
+						.lean()
 
-                                        nextIrrigation = nextIrrigationLog[0]?.startedAt || null
-                                }
+					nextIrrigation = nextIrrigationLog[0]?.startedAt || null
+				}
 
-                                const { landGroups, ...wellData } = well
+				const { landGroups, ...wellData } = well
 
-                                const wellWithMetrics = {
-                                        ...wellData,
-                                        isOngoing: !!irrigationInfo,
-                                        nextIrrigation,
-                                }
+				const wellWithMetrics = {
+					...wellData,
+					isOngoing: !!irrigationInfo,
+					nextIrrigation,
+				}
 
-                                if (irrigationInfo) {
-                                        wellWithMetrics.irrigationTarget = irrigationInfo
-                                }
+				if (irrigationInfo) {
+					wellWithMetrics.irrigationTarget = irrigationInfo
+				}
 
-                                return {
-                                        well: wellWithMetrics,
-                                        requiredMs: totalRequiredMs,
-                                        receivedMs,
-                                }
-                        })
-                )
+				return {
+					well: wellWithMetrics,
+					requiredMs: totalRequiredMs,
+					receivedMs,
+				}
+			})
+		)
 
-                const totalRequiredMsAllWells = wellsWithDetails.reduce((sum, item) => sum + item.requiredMs, 0)
-                const totalReceivedMsAllWells = wellsWithDetails.reduce((sum, item) => sum + item.receivedMs, 0)
-                const wellsWithWaterData = wellsWithDetails.map(item => item.well)
+		const totalRequiredMsAllWells = wellsWithDetails.reduce((sum, item) => sum + item.requiredMs, 0)
+		const totalReceivedMsAllWells = wellsWithDetails.reduce((sum, item) => sum + item.receivedMs, 0)
+		const wellsWithWaterData = wellsWithDetails.map(item => item.well)
 
 		const logs = await Irrigation.find({ land: land._id }).sort({ updatedAt: -1 }).lean()
 		const notes = await Note.find({ reference: land._id, type: 'land' }).populate('user', '_id fullName').lean()

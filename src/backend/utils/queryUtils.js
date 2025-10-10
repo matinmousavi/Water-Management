@@ -4,13 +4,13 @@
  * @returns {Record<string, string>} Sanitized query containing only string values.
  */
 export const sanitizeQuery = query => {
-        const sanitized = {}
-        for (const key in query) {
-                if (typeof query[key] === 'string') {
-                        sanitized[key] = query[key]
-                }
-        }
-        return sanitized
+	const sanitized = {}
+	for (const key in query) {
+		if (typeof query[key] === 'string') {
+			sanitized[key] = query[key]
+		}
+	}
+	return sanitized
 }
 
 /**
@@ -19,19 +19,19 @@ export const sanitizeQuery = query => {
  * @returns {Record<string, 1> | null} Projection object or null when no fields were requested.
  */
 export const getProjection = req => {
-        const fieldsParam = req?.query?.fields
-        if (typeof fieldsParam !== 'string' || !fieldsParam.trim()) {
-                return null
-        }
+	const fieldsParam = req?.query?.fields
+	if (typeof fieldsParam !== 'string' || !fieldsParam.trim()) {
+		return null
+	}
 
-        const projection = {}
-        fieldsParam
-                .split(',')
-                .map(field => field.trim())
-                .filter(Boolean)
-                .forEach(field => {
-                        projection[field] = 1
-                })
+	const projection = {}
+	fieldsParam
+		.split(',')
+		.map(field => field.trim())
+		.filter(Boolean)
+		.forEach(field => {
+			projection[field] = 1
+		})
 
-        return Object.keys(projection).length ? projection : null
+	return Object.keys(projection).length ? projection : null
 }

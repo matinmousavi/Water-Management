@@ -33,22 +33,15 @@ const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
 		}
 	}
 
-        return (
-                <BottomSheetModal
-                        height={322}
-                        open={open}
-                        title='ویرایش یادداشت'
-                        onClose={onClose}
-                        onSubmit={handleSubmit}
-                        loading={notesApi.isLoading}
-                >
-                        <div className={styles.container}>
-                                <Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-                                        <Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={6} />
-                                </Form.Item>
-                        </div>
-                </BottomSheetModal>
-        )
+	return (
+		<BottomSheetModal height={322} open={open} title='ویرایش یادداشت' onClose={onClose} onSubmit={handleSubmit} loading={notesApi.isLoading}>
+			<div className={styles.container}>
+				<Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+					<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={6} />
+				</Form.Item>
+			</div>
+		</BottomSheetModal>
+	)
 }
 
 export default EditNotes

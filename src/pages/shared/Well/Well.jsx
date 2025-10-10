@@ -29,7 +29,7 @@ const Well = () => {
 		? api.init(`wells/${wellId}`)
 		: api.init('wells', {
 				filters: { irrigator: user._id },
-		  })
+			})
 
 	useEffect(() => {
 		const fetchedWell = api.data?.well || api.data?.wells?.[0]
@@ -69,9 +69,9 @@ const Well = () => {
 		<WellProvider value={contextValue}>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
-                                {isMobile && isIrrigator && (
-                                        <WellMobile wellId={well?._id} setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
-                                )}
+				{isMobile && isIrrigator && (
+					<WellMobile wellId={well?._id} setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
+				)}
 				{(isAdmin || (isIrrigator && !isMobile)) && (
 					<WellDesktopView
 						title={title}

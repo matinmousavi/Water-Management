@@ -49,8 +49,8 @@ const SchedulesMobile = () => {
 		}
 	}, [filterWells, selectedWellId, selectedWell])
 
-        return (
-                <>
+	return (
+		<>
 			<HeaderIrrigation
 				selectData={filterWells}
 				setSelect={well => {

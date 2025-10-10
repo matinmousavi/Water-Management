@@ -12,15 +12,15 @@ const LandMobile = ({ landData, landId }) => {
 			key: 'logs',
 			label: 'لاگ توزیع',
 			children: (
-                                <IrrigationLogsMobile
-                                        entityType='land'
-                                        entityId={landId}
-                                        wellId={landData.wells?.[0]?._id}
-                                        initialLogs={landData.logs}
-                                        receivedWater={landData.receivedWater}
-                                        requiredWater={landData.requiredWater}
-                                        remainingWater={landData.remainingWater}
-                                />
+				<IrrigationLogsMobile
+					entityType='land'
+					entityId={landId}
+					wellId={landData.wells?.[0]?._id}
+					initialLogs={landData.logs}
+					receivedWater={landData.receivedWater}
+					requiredWater={landData.requiredWater}
+					remainingWater={landData.remainingWater}
+				/>
 			),
 		},
 		{
@@ -28,11 +28,11 @@ const LandMobile = ({ landData, landId }) => {
 			label: 'مشخصات',
 			children: <LandInfoMobile data={landData} />,
 		},
-                {
-                        key: 'notes',
-                        label: 'یادداشت ها',
-                        children: <LandNotesMobile notesData={landData?.notes} />,
-                },
+		{
+			key: 'notes',
+			label: 'یادداشت ها',
+			children: <LandNotesMobile notesData={landData?.notes} />,
+		},
 	]
 
 	return (

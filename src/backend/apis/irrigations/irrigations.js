@@ -152,12 +152,12 @@ router.get('/', async (req, res) => {
 			if (safeQuery[field]) filter[field] = safeQuery[field]
 		})
 
-                const projection = getProjection(req)
+		const projection = getProjection(req)
 
-                let irrigations = await Irrigation.find(filter, projection ?? undefined)
-                        .populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
-                        .populate('well', 'title landGroups')
-                        .populate('createdBy', 'fullName mobile')
+		let irrigations = await Irrigation.find(filter, projection ?? undefined)
+			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
+			.populate('well', 'title landGroups')
+			.populate('createdBy', 'fullName mobile')
 			.sort({ createdAt: -1 })
 			.lean()
 
@@ -254,12 +254,12 @@ router.get('/:irrigationId', async (req, res) => {
 		const { irrigationId } = req.params
 		if (!mongoose.isValidObjectId(irrigationId)) return res.status(400).json({ message: 'شناسه آبیاری معتبر نیست.' })
 
-                const projection = getProjection(req)
+		const projection = getProjection(req)
 
-                const irrigation = await Irrigation.findById(irrigationId, projection ?? undefined)
-                        .populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
-                        .populate('well', 'title landGroups')
-                        .populate('createdBy', 'fullName mobile')
+		const irrigation = await Irrigation.findById(irrigationId, projection ?? undefined)
+			.populate({ path: 'land', populate: { path: 'owner', select: 'fullName mobile' }, select: 'title owner' })
+			.populate('well', 'title landGroups')
+			.populate('createdBy', 'fullName mobile')
 			.lean()
 
 		if (!irrigation) return res.status(404).json({ message: 'آبیاری پیدا نشد.' })

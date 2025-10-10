@@ -11,9 +11,9 @@ const WellLandsCard = ({ wellLands, wellStatus, landGroups, setLandsData }) => {
 	const api = useAPI()
 	const { wellId } = useParams()
 	const { isAdmin } = useUser()
-	const { useBreakpoint } = Grid;
-	const screens = useBreakpoint();
-	const isMobile = screens.xs;
+	const { useBreakpoint } = Grid
+	const screens = useBreakpoint()
+	const isMobile = screens.xs
 
 	const rawLands = api.data.lands || wellLands
 	const lands = Array.from(new Map(rawLands.map(item => [item._id, item])).values())

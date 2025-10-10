@@ -8,9 +8,9 @@ const router = Router({ mergeParams: true })
 // GET all snapshots for a well
 router.get('/', async (req, res) => {
 	try {
-                const { wellId } = req.params
-                const projection = getProjection(req)
-                const snapshots = await ScheduleSnapshot.find({ well: wellId }, projection ?? undefined).lean()
+		const { wellId } = req.params
+		const projection = getProjection(req)
+		const snapshots = await ScheduleSnapshot.find({ well: wellId }, projection ?? undefined).lean()
 		return res.status(200).json({ snapshots })
 	} catch (err) {
 		console.error(err)

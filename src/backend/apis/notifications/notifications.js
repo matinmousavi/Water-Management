@@ -26,10 +26,10 @@ const notificationRepresentation = notification => ({
 
 router.get('/', async (req, res) => {
 	try {
-                const projection = getProjection(req)
-                const notifications = await Notification.find({}, projection ?? undefined)
-                        .sort({ createdAt: -1 })
-                        .populate('sentBy', 'fullName')
+		const projection = getProjection(req)
+		const notifications = await Notification.find({}, projection ?? undefined)
+			.sort({ createdAt: -1 })
+			.populate('sentBy', 'fullName')
 
 		const data = notifications.map(notificationRepresentation)
 

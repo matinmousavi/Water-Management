@@ -63,7 +63,7 @@ const Land = () => {
 		<>
 			<MetaTitle>{pageTitle ? `زمین ${pageTitle}` : 'جزئیات زمین'}</MetaTitle>
 
-                        {isMobile && isIrrigator && <LandMobile landData={landData} landId={landId} />}
+			{isMobile && isIrrigator && <LandMobile landData={landData} landId={landId} />}
 			{((isIrrigator && !isMobile) || isAdmin) && (
 				<Flex vertical gap={16}>
 					<Flex className='heading-container' align='center' justify='space-between'>

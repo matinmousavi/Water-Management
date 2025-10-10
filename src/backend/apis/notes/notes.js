@@ -66,12 +66,12 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-                const projection = getProjection(req)
+		const projection = getProjection(req)
 
-                let notes = await Note.find(mongoFilter, projection ?? undefined)
-                        .populate('user', 'fullName')
-                        .sort({ createdAt: -1 })
-                        .lean()
+		let notes = await Note.find(mongoFilter, projection ?? undefined)
+			.populate('user', 'fullName')
+			.sort({ createdAt: -1 })
+			.lean()
 
 		notes = await Promise.all(
 			notes.map(async note => ({
@@ -140,13 +140,13 @@ router.post('/', async (req, res) => {
 
 // GET single note by ID, with optional fields
 router.get('/:noteId', async (req, res) => {
-        try {
-                const { fields } = req.query
-                const projection = getProjection(req)
+	try {
+		const { fields } = req.query
+		const projection = getProjection(req)
 
-                let note = await Note.findById(req.params.noteId, projection ?? undefined)
-                        .populate('user', 'fullName')
-                        .lean()
+		let note = await Note.findById(req.params.noteId, projection ?? undefined)
+			.populate('user', 'fullName')
+			.lean()
 
 		if (!note) {
 			return res.status(404).json({ error: 'یادداشت پیدا نشد.' })

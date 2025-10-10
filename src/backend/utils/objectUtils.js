@@ -5,10 +5,10 @@
  * @returns {Record<string, any>} New object containing only requested fields.
  */
 export const pickFields = (source, fields) => {
-        if (!fields) return source
-        const selected = {}
-        fields.split(',').forEach(field => {
-                if (source[field] !== undefined) selected[field] = source[field]
-        })
-        return selected
+	if (!fields) return source
+	const selected = {}
+	fields.split(',').forEach(field => {
+		if (source[field] !== undefined) selected[field] = source[field]
+	})
+	return selected
 }

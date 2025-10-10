@@ -1,38 +1,38 @@
 .section {
-        position: relative;
+	position: relative;
 }
 
 .addButtonBar {
-        position: fixed;
-        height: 75px;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        z-index: 2;
-        background-color: #ffffff;
-        width: 100vw;
-        padding: 16px;
+	position: fixed;
+	height: 75px;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	z-index: 2;
+	background-color: #ffffff;
+	width: 100vw;
+	padding: 16px;
 }
 
 .addButtonBar button {
-        width: 100%;
-        border: 1px solid #0066ee;
-        color: #0066ee;
-        font-size: 1rem !important;
-        font-weight: 500 !important;
-        border-radius: 8px !important;
+	width: 100%;
+	border: 1px solid #0066ee;
+	color: #0066ee;
+	font-size: 1rem !important;
+	font-weight: 500 !important;
+	border-radius: 8px !important;
 }
 
 .listWrapper {
-        padding-bottom: 90px;
+	padding-bottom: 90px;
 }
 
 .modalContainer {
-        height: 100%;
-        padding: 0 16px;
+	height: 100%;
+	padding: 0 16px;
 }
 
 .textArea {
-        height: 100% !important;
-        border-radius: 6px;
+	height: 100% !important;
+	border-radius: 6px;
 }

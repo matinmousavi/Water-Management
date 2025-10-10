@@ -28,7 +28,7 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 		const today = moment().startOf('day')
 		const target = moment(d).startOf('day')
 
-                const dayNum = convertEnglishDigitsToPersian(target.jDate())
+		const dayNum = convertEnglishDigitsToPersian(target.jDate())
 		const monthName = target.format('jMMMM')
 
 		let suffix = ''
@@ -135,16 +135,16 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 								</>
 							),
 						},
-                                                {
-                                                        key: 'notes',
-                                                        label: 'یادداشت‌ها',
-                                                        children: <WellNotesMobile wellId={irrigatorWells?._id || wellIdFromParams} />,
-                                                },
-                                        ]}
-                                />
-                        )}
-                </>
-        )
+						{
+							key: 'notes',
+							label: 'یادداشت‌ها',
+							children: <WellNotesMobile wellId={irrigatorWells?._id || wellIdFromParams} />,
+						},
+					]}
+				/>
+			)}
+		</>
+	)
 }
 
 export default WellMobile
