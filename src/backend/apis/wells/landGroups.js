@@ -171,22 +171,63 @@ router.get('/:groupId', async (req, res) => {
 
                 let irrigationTarget = null
                 if (ongoingIrrigation?.land) {
+                        const landId = ongoingIrrigation.land._id
+                        const [targetSchedules, targetIrrigations] = await Promise.all([
+                                Schedule.find({ well: wellId, land: landId }).lean(),
+                                Irrigation.find({ well: wellId, land: landId }).lean(),
+                        ])
+
+                        const targetWaterMetrics = buildWaterMetrics({
+                                requiredMs: sumScheduleDurationsMs(targetSchedules),
+                                receivedMs: sumIrrigationDurationsMs(targetIrrigations),
+                        })
+
                         irrigationTarget = {
                                 type: 'land',
-                                id: ongoingIrrigation.land._id.toString(),
+                                id: landId.toString(),
                                 title: ongoingIrrigation.land.title,
                                 startedAt: ongoingIrrigation.startedAt,
+                                ...targetWaterMetrics,
                         }
                 } else if (ongoingIrrigation?.landGroup) {
+                        const targetGroupId = ongoingIrrigation.landGroup
                         const targetGroup = well.landGroups?.find(
-                                g => g.groupId?.toString() === ongoingIrrigation.landGroup?.toString(),
+                                g => g.groupId?.toString() === targetGroupId?.toString(),
                         )
+
+                        const [targetSchedules, targetIrrigationsRaw] = await Promise.all([
+                                Schedule.find({ well: wellId, landGroup: targetGroupId }).lean(),
+                                Irrigation.find({
+                                        well: wellId,
+                                        landGroup: targetGroupId,
+                                        isGroupLog: true,
+                                        startedAt: { $gte: cycleStart },
+                                        $or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
+                                }).lean(),
+                        ])
+
+                        const uniqueTargetLogsMap = new Map()
+                        for (const log of targetIrrigationsRaw) {
+                                const key = `${new Date(log.startedAt).getTime()}-${
+                                        log.endedAt ? new Date(log.endedAt).getTime() : 'null'
+                                }`
+                                if (!uniqueTargetLogsMap.has(key)) {
+                                        uniqueTargetLogsMap.set(key, log)
+                                }
+                        }
+
+                        const targetLogs = Array.from(uniqueTargetLogsMap.values())
+                        const targetWaterMetrics = buildWaterMetrics({
+                                requiredMs: sumScheduleDurationsMs(targetSchedules),
+                                receivedMs: sumIrrigationDurationsMs(targetLogs),
+                        })
 
                         irrigationTarget = {
                                 type: 'landGroup',
-                                id: ongoingIrrigation.landGroup.toString(),
+                                id: targetGroupId.toString(),
                                 title: targetGroup?.title || '',
                                 startedAt: ongoingIrrigation.startedAt,
+                                ...targetWaterMetrics,
                         }
                 }
 
