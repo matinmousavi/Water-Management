@@ -5,6 +5,7 @@ import Well from '../../models/Well.model.js'
 import User from '../../models/User.model.js'
 import Schedule from '../../models/Schedule.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
+import { getProjection } from '../../utils/queryUtils.js'
 
 const router = Router()
 
@@ -98,8 +99,14 @@ function isLogOutOfSchedule(log, schedule, bufferMinutes = 2) {
 
 router.get('/', async (req, res) => {
 	try {
-		const wells = await Well.find({ status: 'active' }).lean()
-		const irrigations = await Irrigation.find().populate('well').populate('land').lean()
+                const wellProjection = getProjection(req)
+                const wells = await Well.find({ status: 'active' }, wellProjection ?? undefined).lean()
+                const irrigationProjection = getProjection(req)
+                const irrigations = await Irrigation.find({}, irrigationProjection ?? undefined)
+                        .populate('well')
+                        .populate('land')
+                        .lean()
+                const scheduleProjection = getProjection(req)
 
 		let totalIrrigatedMinutes = 0
 		let delayedStartCount = 0
@@ -145,19 +152,19 @@ router.get('/', async (req, res) => {
 			const cacheKeyForStatus = `${well._id}-${dayInCycle}`
 			const cacheKeyForProgress = `${well._id}-all`
 
-			if (!scheduleCache[cacheKeyForStatus]) {
-				scheduleCache[cacheKeyForStatus] = await Schedule.find({
-					well: well._id,
-					status: 'active',
-					day: dayInCycle,
-				}).lean()
-			}
+                        if (!scheduleCache[cacheKeyForStatus]) {
+                                scheduleCache[cacheKeyForStatus] = await Schedule.find({
+                                        well: well._id,
+                                        status: 'active',
+                                        day: dayInCycle,
+                                }, scheduleProjection ?? undefined).lean()
+                        }
 
-			if (!scheduleCache[cacheKeyForProgress]) {
-				scheduleCache[cacheKeyForProgress] = await Schedule.find({
-					well: well._id,
-					status: 'active',
-				}).lean()
+                        if (!scheduleCache[cacheKeyForProgress]) {
+                                scheduleCache[cacheKeyForProgress] = await Schedule.find({
+                                        well: well._id,
+                                        status: 'active',
+                                }, scheduleProjection ?? undefined).lean()
 			}
 
 			const schedulesForStatus = scheduleCache[cacheKeyForStatus].filter(
@@ -247,7 +254,11 @@ router.get('/', async (req, res) => {
 // GET unread notes for admin dashboard
 router.get('/notes', async (req, res) => {
 	try {
-		let notes = await Note.find({ isRead: false }).populate('user', 'fullName').sort({ createdAt: -1 }).lean()
+                const projection = getProjection(req)
+                let notes = await Note.find({ isRead: false }, projection ?? undefined)
+                        .populate('user', 'fullName')
+                        .sort({ createdAt: -1 })
+                        .lean()
 
 		notes = await Promise.all(
 			notes.map(async note => ({

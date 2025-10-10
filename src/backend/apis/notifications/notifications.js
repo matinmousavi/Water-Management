@@ -2,6 +2,7 @@ import { Router } from 'express'
 import User from '../../models/User.model.js'
 import Well from '../../models/Well.model.js'
 import Notification from '../../models/Notification.model.js'
+import { getProjection } from '../../utils/queryUtils.js'
 import sendSMS from '../../../services/sendSMS.js'
 
 const router = Router()
@@ -25,7 +26,10 @@ const notificationRepresentation = notification => ({
 
 router.get('/', async (req, res) => {
 	try {
-		const notifications = await Notification.find().sort({ createdAt: -1 }).populate('sentBy', 'fullName')
+                const projection = getProjection(req)
+                const notifications = await Notification.find({}, projection ?? undefined)
+                        .sort({ createdAt: -1 })
+                        .populate('sentBy', 'fullName')
 
 		const data = notifications.map(notificationRepresentation)
 

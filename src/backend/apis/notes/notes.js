@@ -4,7 +4,7 @@ import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import User from '../../models/User.model.js'
 import { pickFields } from '../../utils/objectUtils.js'
-import { sanitizeQuery } from '../../utils/queryUtils.js'
+import { getProjection, sanitizeQuery } from '../../utils/queryUtils.js'
 
 const router = Router()
 
@@ -66,9 +66,12 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-		const projection = fields ? fields.replace(/,/g, ' ') : ''
+                const projection = getProjection(req)
 
-		let notes = await Note.find(mongoFilter).select(projection).populate('user', 'fullName').sort({ createdAt: -1 }).lean()
+                let notes = await Note.find(mongoFilter, projection ?? undefined)
+                        .populate('user', 'fullName')
+                        .sort({ createdAt: -1 })
+                        .lean()
 
 		notes = await Promise.all(
 			notes.map(async note => ({
@@ -137,11 +140,13 @@ router.post('/', async (req, res) => {
 
 // GET single note by ID, with optional fields
 router.get('/:noteId', async (req, res) => {
-	try {
-		const { fields } = req.query
-		const projection = fields ? fields.replace(/,/g, ' ') : ''
+        try {
+                const { fields } = req.query
+                const projection = getProjection(req)
 
-		let note = await Note.findById(req.params.noteId).select(projection).populate('user', 'fullName').lean()
+                let note = await Note.findById(req.params.noteId, projection ?? undefined)
+                        .populate('user', 'fullName')
+                        .lean()
 
 		if (!note) {
 			return res.status(404).json({ error: 'یادداشت پیدا نشد.' })

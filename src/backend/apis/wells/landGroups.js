@@ -5,13 +5,17 @@ import Irrigation from '../../models/Irrigation.model.js'
 import Schedule from '../../models/Schedule.model.js'
 import Note from '../../models/Note.model.js'
 import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/metricsUtils.js'
+import { getProjection } from '../../utils/queryUtils.js'
 
 const router = Router({ mergeParams: true })
 
 router.get('/', async (req, res) => {
 	try {
-		const { wellId } = req.params
-		const well = await Well.findById(wellId).populate('landGroups.lands').select('landGroups cycleDays cycleStartDate').lean()
+                const { wellId } = req.params
+                const wellProjection = getProjection(req)
+                const well = await Well.findById(wellId, wellProjection ?? undefined)
+                        .populate('landGroups.lands')
+                        .lean()
 
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
@@ -22,17 +26,19 @@ router.get('/', async (req, res) => {
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
 		for (const group of well.landGroups) {
-			const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
+                        const scheduleProjection = getProjection(req)
+                        const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }, scheduleProjection ?? undefined).lean()
 			const totalSchedulesInCycle = schedules.length
 			const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
-			const irrigations = await Irrigation.find({
-				well: wellId,
-				landGroup: group.groupId,
-				isGroupLog: true,
-				startedAt: { $gte: cycleStart },
-				endedAt: { $lte: cycleEnd },
-			}).lean()
+                        const irrigationProjection = getProjection(req)
+                        const irrigations = await Irrigation.find({
+                                well: wellId,
+                                landGroup: group.groupId,
+                                isGroupLog: true,
+                                startedAt: { $gte: cycleStart },
+                                endedAt: { $lte: cycleEnd },
+                        }, irrigationProjection ?? undefined).lean()
 
 			const receivedMs = sumIrrigationDurationsMs(irrigations)
 			const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
@@ -90,12 +96,13 @@ router.get('/:groupId', async (req, res) => {
 	try {
 		const { wellId, groupId } = req.params
 
-		const well = await Well.findById(wellId)
-			.populate({
-				path: 'landGroups.lands',
-				populate: { path: 'owner', model: 'User', select: 'fullName mobile address' },
-			})
-			.lean()
+                const wellProjection = getProjection(req)
+                const well = await Well.findById(wellId, wellProjection ?? undefined)
+                        .populate({
+                                path: 'landGroups.lands',
+                                populate: { path: 'owner', model: 'User', select: 'fullName mobile address' },
+                        })
+                        .lean()
 
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
@@ -108,16 +115,18 @@ router.get('/:groupId', async (req, res) => {
 		const cycleStart = new Date(startDate.getTime() + cyclesPassed * well.cycleDays * 24 * 60 * 60 * 1000)
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
-		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
+                const scheduleProjection = getProjection(req)
+                const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }, scheduleProjection ?? undefined).lean()
 		const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
-		const irrigations = await Irrigation.find({
-			well: wellId,
-			landGroup: group.groupId,
-			isGroupLog: true,
-			startedAt: { $gte: cycleStart },
-			$or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
-		}).lean()
+                const irrigationProjection = getProjection(req)
+                const irrigations = await Irrigation.find({
+                        well: wellId,
+                        landGroup: group.groupId,
+                        isGroupLog: true,
+                        startedAt: { $gte: cycleStart },
+                        $or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
+                }, irrigationProjection ?? undefined).lean()
 
 		const uniqueLogsMap = new Map()
 		for (const log of irrigations) {
@@ -131,23 +140,24 @@ router.get('/:groupId', async (req, res) => {
 
 		const receivedMs = sumIrrigationDurationsMs(logs)
 
-		const nextIrrigationLog = await Irrigation.find({
-			well: wellId,
-			landGroup: group.groupId,
-			endedAt: null,
-			isGroupLog: true,
-		})
-			.sort({ startedAt: 1 })
-			.lean()
+                const nextIrrigationLog = await Irrigation.find({
+                        well: wellId,
+                        landGroup: group.groupId,
+                        endedAt: null,
+                        isGroupLog: true,
+                }, irrigationProjection ?? undefined)
+                        .sort({ startedAt: 1 })
+                        .lean()
 
 		const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
 
-		const notes = await Note.find({
-			type: 'landGroup',
-			reference: group.groupId,
-		})
-			.sort({ createdAt: -1 })
-			.lean()
+                const notesProjection = getProjection(req)
+                const notes = await Note.find({
+                        type: 'landGroup',
+                        reference: group.groupId,
+                }, notesProjection ?? undefined)
+                        .sort({ createdAt: -1 })
+                        .lean()
 
 		const { requiredWater, receivedWater, remainingWater } = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
 
