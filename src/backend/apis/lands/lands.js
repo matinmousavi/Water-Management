@@ -163,7 +163,31 @@ router.get('/:landId', async (req, res) => {
                                 }
 
                                 if (irrigationInfo) {
-                                        wellWithMetrics.irrigationTarget = irrigationInfo
+                                        let targetRequiredMs = 0
+                                        let targetReceivedMs = 0
+
+                                        if (irrigationInfo.type === 'land') {
+                                                targetRequiredMs = totalRequiredMs
+                                                targetReceivedMs = receivedMs
+                                        } else if (irrigationInfo.type === 'landGroup') {
+                                                const [groupSchedules, groupIrrigations] = await Promise.all([
+                                                        Schedule.find({ well: well._id, landGroup: irrigationInfo.id }).lean(),
+                                                        Irrigation.find({ well: well._id, landGroup: irrigationInfo.id }).lean(),
+                                                ])
+
+                                                targetRequiredMs = sumScheduleDurationsMs(groupSchedules)
+                                                targetReceivedMs = sumIrrigationDurationsMs(groupIrrigations)
+                                        }
+
+                                        const waterMetrics = buildWaterMetrics({
+                                                requiredMs: targetRequiredMs,
+                                                receivedMs: targetReceivedMs,
+                                        })
+
+                                        wellWithMetrics.irrigationTarget = {
+                                                ...irrigationInfo,
+                                                ...waterMetrics,
+                                        }
                                 }
 
                                 return {
