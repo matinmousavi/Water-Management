@@ -1,14 +1,16 @@
 import { Router } from 'express'
 import Schedule from '../../models/Schedule.model.js'
 import ScheduleSnapshot from '../../models/ScheduleSnapshot.model.js'
+import { getProjection } from '../../utils/queryUtils.js'
 
 const router = Router({ mergeParams: true })
 
 // GET all snapshots for a well
 router.get('/', async (req, res) => {
 	try {
-		const { wellId } = req.params
-		const snapshots = await ScheduleSnapshot.find({ well: wellId }).lean()
+                const { wellId } = req.params
+                const projection = getProjection(req)
+                const snapshots = await ScheduleSnapshot.find({ well: wellId }, projection ?? undefined).lean()
 		return res.status(200).json({ snapshots })
 	} catch (err) {
 		console.error(err)

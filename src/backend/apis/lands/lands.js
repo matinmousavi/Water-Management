@@ -7,7 +7,7 @@ import Note from '../../models/Note.model.js'
 import Schedule from '../../models/Schedule.model.js'
 
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
-import { sanitizeQuery } from '../../utils/queryUtils.js'
+import { getProjection, sanitizeQuery } from '../../utils/queryUtils.js'
 import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/metricsUtils.js'
 
 const router = Router()
@@ -34,7 +34,8 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-		const lands = await Land.find(filter).populate('owner').lean()
+                const projection = getProjection(req)
+                const lands = await Land.find(filter, projection ?? undefined).populate('owner').lean()
 		const landsWithWells = await Promise.all(lands.map(attachWells))
 		return res.status(200).json({ lands: landsWithWells })
 	} catch (err) {
@@ -52,7 +53,8 @@ router.get('/:landId', async (req, res) => {
 			return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
 		}
 
-		const land = await Land.findById(landId).populate('owner').lean()
+                const projection = getProjection(req)
+                const land = await Land.findById(landId, projection ?? undefined).populate('owner').lean()
 		if (!land) {
 			return res.status(404).json({ message: 'زمین پیدا نشد.' })
 		}

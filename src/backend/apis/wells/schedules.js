@@ -3,6 +3,7 @@ import Schedule from '../../models/Schedule.model.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
+import { getProjection } from '../../utils/queryUtils.js'
 import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/metricsUtils.js'
 
 const router = Router({ mergeParams: true })
@@ -40,11 +41,35 @@ function calcDuration(startTime, endTime) {
 // GET all schedules
 router.get('/', async (req, res) => {
 	try {
-		const { wellId } = req.params
-		const well = await Well.findById(wellId).lean()
-		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+                const { wellId } = req.params
+                const wellProjection = getProjection(req)
+                if (wellProjection) {
+                        const requiredWellFields = ['cycleStartDate', 'cycleDays']
+                        requiredWellFields.forEach(field => {
+                                wellProjection[field] = 1
+                        })
+                }
+                const well = await Well.findById(wellId, wellProjection ?? undefined).lean()
+                if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
-		const schedules = await Schedule.find({ well: wellId }).lean()
+                const scheduleProjection = getProjection(req)
+                if (scheduleProjection) {
+                        const requiredFields = [
+                                'targetType',
+                                'title',
+                                'land',
+                                'landGroup',
+                                'startTime',
+                                'endTime',
+                                'day',
+                                'color',
+                                'status',
+                        ]
+                        requiredFields.forEach(field => {
+                                scheduleProjection[field] = 1
+                        })
+                }
+                const schedules = await Schedule.find({ well: wellId }, scheduleProjection ?? undefined).lean()
 		const results = []
 
 		const startDate = new Date(well.cycleStartDate)
@@ -59,10 +84,23 @@ router.get('/', async (req, res) => {
 			let irrigationEndsAt = null
 
 			if (schedule.targetType !== 'off') {
-				const ongoingLog = await Irrigation.findOne({
-					isOngoing: true,
-					...(schedule.targetType === 'land' ? { land: schedule.land, isGroupLog: false } : { landGroup: schedule.landGroup, isGroupLog: true }),
-				}).lean()
+                                const irrigationProjection = getProjection(req)
+                                if (irrigationProjection) {
+                                        const requiredFields = [
+                                                'isOngoing',
+                                                'land',
+                                                'landGroup',
+                                                'startedAt',
+                                                'endedAt',
+                                        ]
+                                        requiredFields.forEach(field => {
+                                                irrigationProjection[field] = 1
+                                        })
+                                }
+                                const ongoingLog = await Irrigation.findOne({
+                                        isOngoing: true,
+                                        ...(schedule.targetType === 'land' ? { land: schedule.land, isGroupLog: false } : { landGroup: schedule.landGroup, isGroupLog: true }),
+                                }, irrigationProjection ?? undefined).lean()
 
 				if (ongoingLog) {
 					irrigationInProgress = true
@@ -76,10 +114,14 @@ router.get('/', async (req, res) => {
 				}
 
 				if (schedule.targetType === 'land' && schedule.land) {
-					const lastLog = await Irrigation.findOne({ land: schedule.land, isGroupLog: false }).sort({ startedAt: -1 }).lean()
+                                        const lastLog = await Irrigation.findOne({ land: schedule.land, isGroupLog: false }, irrigationProjection ?? undefined)
+                                                .sort({ startedAt: -1 })
+                                                .lean()
 					lastIrrigation = lastLog?.startedAt || null
 				} else if (schedule.targetType === 'group' && schedule.landGroup) {
-					const lastLog = await Irrigation.findOne({ landGroup: schedule.landGroup, isGroupLog: true }).sort({ startedAt: -1 }).lean()
+                                        const lastLog = await Irrigation.findOne({ landGroup: schedule.landGroup, isGroupLog: true }, irrigationProjection ?? undefined)
+                                                .sort({ startedAt: -1 })
+                                                .lean()
 					lastIrrigation = lastLog?.startedAt || null
 				}
 			}
@@ -116,9 +158,16 @@ router.get('/', async (req, res) => {
 // GET schedules for a specific day
 router.get('/day/:date', async (req, res) => {
 	try {
-		const { wellId, date } = req.params
-		const well = await Well.findById(wellId).lean()
-		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
+                const { wellId, date } = req.params
+                const wellProjection = getProjection(req)
+                if (wellProjection) {
+                        const requiredWellFields = ['cycleStartDate', 'cycleDays']
+                        requiredWellFields.forEach(field => {
+                                wellProjection[field] = 1
+                        })
+                }
+                const well = await Well.findById(wellId, wellProjection ?? undefined).lean()
+                if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
                 const targetDate = new Date(date)
                 if (Number.isNaN(targetDate.getTime())) {
@@ -133,7 +182,24 @@ router.get('/day/:date', async (req, res) => {
                 const daysPassedToday = diffInDays(today, startDate)
                 const todayDayInCycle = (daysPassedToday % well.cycleDays) + 1
 
-		const schedulesToday = await Schedule.find({ well: wellId, day: dayInCycle }).lean()
+                const scheduleProjection = getProjection(req)
+                if (scheduleProjection) {
+                        const requiredFields = [
+                                'targetType',
+                                'title',
+                                'land',
+                                'landGroup',
+                                'startTime',
+                                'endTime',
+                                'day',
+                                'color',
+                                'status',
+                        ]
+                        requiredFields.forEach(field => {
+                                scheduleProjection[field] = 1
+                        })
+                }
+                const schedulesToday = await Schedule.find({ well: wellId, day: dayInCycle }, scheduleProjection ?? undefined).lean()
 		const results = []
 
 		const grouped = {}
@@ -149,25 +215,42 @@ router.get('/day/:date', async (req, res) => {
 			const targetFilter =
 				schedGroup.targetType === 'land' ? { land: schedGroup.land, isGroupLog: false } : { landGroup: schedGroup.landGroup, isGroupLog: true }
 
-			const allSchedulesInCycle = await Schedule.find({
-				well: wellId,
-				targetType: schedGroup.targetType,
-				...(schedGroup.targetType === 'land' ? { land: schedGroup.land } : { landGroup: schedGroup.landGroup }),
-			}).lean()
+                        const allSchedulesInCycle = await Schedule.find({
+                                well: wellId,
+                                targetType: schedGroup.targetType,
+                                ...(schedGroup.targetType === 'land' ? { land: schedGroup.land } : { landGroup: schedGroup.landGroup }),
+                        }, scheduleProjection ?? undefined).lean()
 
 			const totalSchedulesInCycle = allSchedulesInCycle.length
 			const totalRequiredMs = sumScheduleDurationsMs(allSchedulesInCycle)
 
-			let irrigationsInCycle = []
-			if (schedGroup.targetType === 'group') {
-				const raw = await Irrigation.find({
-					well: wellId,
-					landGroup: schedGroup.landGroup,
-					isGroupLog: true,
-					endedAt: { $ne: null },
-				})
-					.sort({ startedAt: 1 })
-					.lean()
+                        const irrigationProjection = getProjection(req)
+                        if (irrigationProjection) {
+                                const requiredFields = [
+                                        'well',
+                                        'land',
+                                        'landGroup',
+                                        'isGroupLog',
+                                        'isOngoing',
+                                        'startedAt',
+                                        'endedAt',
+                                        'duration',
+                                        'createdAt',
+                                ]
+                                requiredFields.forEach(field => {
+                                        irrigationProjection[field] = 1
+                                })
+                        }
+                        let irrigationsInCycle = []
+                        if (schedGroup.targetType === 'group') {
+                                const raw = await Irrigation.find({
+                                        well: wellId,
+                                        landGroup: schedGroup.landGroup,
+                                        isGroupLog: true,
+                                        endedAt: { $ne: null },
+                                }, irrigationProjection ?? undefined)
+                                        .sort({ startedAt: 1 })
+                                        .lean()
 
 				const uniqueMap = new Map()
 				for (const ir of raw) {
@@ -177,12 +260,12 @@ router.get('/day/:date', async (req, res) => {
 				}
 				irrigationsInCycle = Array.from(uniqueMap.values())
 			} else {
-				irrigationsInCycle = await Irrigation.find({
-					well: wellId,
-					land: schedGroup.land,
-					isGroupLog: false,
-					endedAt: { $ne: null },
-				}).lean()
+                                irrigationsInCycle = await Irrigation.find({
+                                        well: wellId,
+                                        land: schedGroup.land,
+                                        isGroupLog: false,
+                                        endedAt: { $ne: null },
+                                }, irrigationProjection ?? undefined).lean()
 			}
 
 			const receivedMsInCycle = sumIrrigationDurationsMs(irrigationsInCycle)
@@ -194,11 +277,11 @@ router.get('/day/:date', async (req, res) => {
 				let irrigationEndsAt = null
 				let lastIrrigation = null
 
-				if (!isOff) {
-					const ongoingLog = await Irrigation.findOne({
-						isOngoing: true,
-						...targetFilter,
-					}).lean()
+                                if (!isOff) {
+                                        const ongoingLog = await Irrigation.findOne({
+                                                isOngoing: true,
+                                                ...targetFilter,
+                                        }, irrigationProjection ?? undefined).lean()
 
                                         if (ongoingLog) {
                                                 irrigationInProgress = true
@@ -211,11 +294,11 @@ router.get('/day/:date', async (req, res) => {
                                                 irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
                                         }
 
-					const lastLog = await Irrigation.findOne({
-						...targetFilter,
-					})
-						.sort({ startedAt: -1 })
-						.lean()
+                                        const lastLog = await Irrigation.findOne({
+                                                ...targetFilter,
+                                        }, irrigationProjection ?? undefined)
+                                                .sort({ startedAt: -1 })
+                                                .lean()
 					lastIrrigation = lastLog?.startedAt || null
 				}
 
