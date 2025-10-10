@@ -6,7 +6,7 @@ import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import HeaderIrrigation from '../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 import Loading from '../../../components/common/Loading/Loading'
-import LandGroupLogs from './components/LandGroupLogs/LandGroupLogs'
+import MobileIrrigationLogs from '../../../components/responsive/mobile/MobileIrrigationLogs/MobileIrrigationLogs'
 import LandGroupLands from './components/LandGroupLands/LandGroupLands'
 import LandGroupNotes from './components/LandGroupNotes/LandGroupNotes'
 
@@ -23,18 +23,21 @@ const LandGroup = () => {
 	if (landGroupApi.isLoading) return <Loading />
 
 	const items = [
-		{
-			key: 'logs',
-			label: 'لاگ توزیع',
-			children: (
-				<LandGroupLogs
-					initialLogs={landGroupData.logs}
-					receivedWater={landGroupData.receivedWater}
-					requiredWater={landGroupData.requiredWater}
-					remainingWater={landGroupData.remainingWater}
-				/>
-			),
-		},
+                {
+                        key: 'logs',
+                        label: 'لاگ توزیع',
+                        children: (
+                                <MobileIrrigationLogs
+                                        entityType='landGroup'
+                                        entityId={groupId}
+                                        wellId={wellId}
+                                        initialLogs={landGroupData.logs}
+                                        receivedWater={landGroupData.receivedWater}
+                                        requiredWater={landGroupData.requiredWater}
+                                        remainingWater={landGroupData.remainingWater}
+                                />
+                        ),
+                },
 		{
 			key: 'lands',
 			label: 'زمین ها',
