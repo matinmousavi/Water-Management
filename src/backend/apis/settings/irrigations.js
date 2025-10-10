@@ -6,11 +6,11 @@ const router = Router()
 
 router.get('/', async (req, res) => {
 	try {
-		const projection = getProjection(req)
-		if (projection) {
-			projection.irrigations = 1
-		}
-		const settings = await Setting.findOne({}, projection ?? undefined).lean()
+                const projection = getProjection(req)
+                if (projection) {
+                        projection.irrigations = 1
+                }
+                const settings = await Setting.findOne({}, projection ?? undefined).lean()
 
 		if (!settings) return res.status(404).json({ error: 'تنظیمات یافت نشد' })
 

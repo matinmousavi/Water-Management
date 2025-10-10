@@ -151,7 +151,7 @@ const LandsTable = ({ landsData = [] }) => {
 									total: landsData.length,
 									pageSize,
 									showSizeChanger: false,
-								}
+							  }
 							: false
 					}
 					scroll={{

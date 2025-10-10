@@ -141,7 +141,7 @@ const UsersTable = ({ usersData }) => {
 									total: usersData.length,
 									pageSize,
 									showSizeChanger: false,
-								}
+							  }
 							: false
 					}
 					className={styles.table}

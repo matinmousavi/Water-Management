@@ -1,15 +1,15 @@
 /* desktop */
 @media (min-width: 1440px) {
-	.button-container {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-top: 24px;
-	}
-	.delete-button {
-		color: #f5222d !important;
-	}
-	.cancel-button {
-		margin-left: 8px;
-	}
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+    }
+    .delete-button {
+        color: #F5222D !important;
+    }
+    .cancel-button {
+        margin-left: 8px;
+    }
 }

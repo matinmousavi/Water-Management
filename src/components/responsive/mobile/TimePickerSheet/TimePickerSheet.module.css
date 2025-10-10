@@ -1,88 +1,88 @@
 .container_fixed {
-	width: 100%;
-	height: auto;
-	position: relative;
+        width: 100%;
+        height: auto;
+        position: relative;
 }
 
 .container {
-	width: 100%;
-	padding: 24px 0;
-	user-select: none;
+        width: 100%;
+        padding: 24px 0;
+        user-select: none;
 }
 
 .btn_sheet {
-	width: 24px;
-	height: 4px;
-	background-color: rgba(209, 212, 221, 1);
-	border-radius: 4px;
-	margin: 0 auto 24px;
+        width: 24px;
+        height: 4px;
+        background-color: rgba(209, 212, 221, 1);
+        border-radius: 4px;
+        margin: 0 auto 24px;
 }
 
 .title {
-	text-align: center;
-	font-size: 14px;
-	font-weight: 500;
-	color: #3e3e3e;
-	margin-bottom: 8px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        color: #3e3e3e;
+        margin-bottom: 8px;
 }
 
 .subtitle {
-	text-align: center;
-	font-size: 14px;
-	font-weight: 400;
-	color: rgba(0, 0, 0, 0.88);
-	margin-bottom: 24px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.88);
+        margin-bottom: 24px;
 }
 
 .container_time_lines {
-	position: relative;
+        position: relative;
 }
 
 .clone {
-	width: 20px;
-	font-size: 20px;
-	font-weight: 600;
-	text-align: center;
+        width: 20px;
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
 }
 
 .hour {
-	font-size: 20px;
-	font-weight: 600;
-	text-align: center;
-	padding-right: 10px;
-	color: #000;
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+        padding-right: 10px;
+        color: #000;
 }
 
 .container_buttons {
-	display: flex;
-	gap: 16px;
-	padding: 0 16px;
+        display: flex;
+        gap: 16px;
+        padding: 0 16px;
 }
 
 .btn {
-	width: 50%;
+        width: 50%;
 }
 
 .containerItemScroll:nth-child(1) {
-	background-color: red;
+        background-color: red;
 }
 
 .itemList {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 }
 
 .no-scrollbar::-webkit-scrollbar {
-	display: none;
+        display: none;
 }
 .no-scrollbar {
-	-ms-overflow-style: none;
-	scrollbar-width: none;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
 }
 
 .timePart {
-	font-size: 20px;
-	font-weight: 600;
-	user-select: none;
+        font-size: 20px;
+        font-weight: 600;
+        user-select: none;
 }

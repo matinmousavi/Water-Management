@@ -129,7 +129,7 @@ const WellsTable = ({ WellsData }) => {
 									total: WellsData.length,
 									pageSize,
 									showSizeChanger: false,
-								}
+							  }
 							: false
 					}
 					scroll={{ y: height }}

@@ -41,67 +41,72 @@ const getReference = async (type, refId) => {
 const MINUTE_IN_MS = 60 * 1000
 
 function startOfDay(date) {
-	const ref = new Date(date)
-	ref.setHours(0, 0, 0, 0)
-	return ref
+        const ref = new Date(date)
+        ref.setHours(0, 0, 0, 0)
+        return ref
 }
 
 function withTime(base, timeSource) {
-	const result = new Date(base)
-	result.setHours(timeSource.getHours(), timeSource.getMinutes(), timeSource.getSeconds() || 0, timeSource.getMilliseconds() || 0)
-	return result
+        const result = new Date(base)
+        result.setHours(
+                timeSource.getHours(),
+                timeSource.getMinutes(),
+                timeSource.getSeconds() || 0,
+                timeSource.getMilliseconds() || 0,
+        )
+        return result
 }
 
 function diffInMinutes(later, earlier) {
-	return Math.trunc((later.getTime() - earlier.getTime()) / MINUTE_IN_MS)
+        return Math.trunc((later.getTime() - earlier.getTime()) / MINUTE_IN_MS)
 }
 
 function addMinutes(date, minutes) {
-	return new Date(date.getTime() + minutes * MINUTE_IN_MS)
+        return new Date(date.getTime() + minutes * MINUTE_IN_MS)
 }
 
 function formatTimeHHmm(date) {
-	return new Intl.DateTimeFormat('en-GB', {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: false,
-	}).format(date)
+        return new Intl.DateTimeFormat('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+        }).format(date)
 }
 
 function scheduleTimesForDate(schedule, referenceDay = startOfDay(new Date())) {
-	const ref = startOfDay(referenceDay)
-	const startTime = new Date(schedule.startTime)
-	const endTime = new Date(schedule.endTime)
+        const ref = startOfDay(referenceDay)
+        const startTime = new Date(schedule.startTime)
+        const endTime = new Date(schedule.endTime)
 
-	const schedStart = withTime(ref, startTime)
-	let schedEnd = withTime(ref, endTime)
+        const schedStart = withTime(ref, startTime)
+        let schedEnd = withTime(ref, endTime)
 
-	if (schedEnd.getTime() <= schedStart.getTime()) {
-		schedEnd = addMinutes(schedEnd, 24 * 60)
-	}
+        if (schedEnd.getTime() <= schedStart.getTime()) {
+                schedEnd = addMinutes(schedEnd, 24 * 60)
+        }
 
-	return { schedStart, schedEnd }
+        return { schedStart, schedEnd }
 }
 
 function isLogOutOfSchedule(log, schedule, bufferMinutes = 2) {
-	const { schedStart, schedEnd } = scheduleTimesForDate(schedule, new Date(log.startedAt))
-	const logStart = new Date(log.startedAt)
-	const logEnd = new Date(log.endedAt || log.startedAt)
-	const beforeAllowed = addMinutes(schedStart, -bufferMinutes)
-	const afterAllowed = addMinutes(schedEnd, bufferMinutes)
-	return logStart.getTime() < beforeAllowed.getTime() || logEnd.getTime() > afterAllowed.getTime()
+        const { schedStart, schedEnd } = scheduleTimesForDate(schedule, new Date(log.startedAt))
+        const logStart = new Date(log.startedAt)
+        const logEnd = new Date(log.endedAt || log.startedAt)
+        const beforeAllowed = addMinutes(schedStart, -bufferMinutes)
+        const afterAllowed = addMinutes(schedEnd, bufferMinutes)
+        return logStart.getTime() < beforeAllowed.getTime() || logEnd.getTime() > afterAllowed.getTime()
 }
 
 router.get('/', async (req, res) => {
 	try {
-		const wellProjection = getProjection(req)
-		const wells = await Well.find({ status: 'active' }, wellProjection ?? undefined).lean()
-		const irrigationProjection = getProjection(req)
-		const irrigations = await Irrigation.find({}, irrigationProjection ?? undefined)
-			.populate('well')
-			.populate('land')
-			.lean()
-		const scheduleProjection = getProjection(req)
+                const wellProjection = getProjection(req)
+                const wells = await Well.find({ status: 'active' }, wellProjection ?? undefined).lean()
+                const irrigationProjection = getProjection(req)
+                const irrigations = await Irrigation.find({}, irrigationProjection ?? undefined)
+                        .populate('well')
+                        .populate('land')
+                        .lean()
+                const scheduleProjection = getProjection(req)
 
 		let totalIrrigatedMinutes = 0
 		let delayedStartCount = 0
@@ -119,9 +124,9 @@ router.get('/', async (req, res) => {
 			const well = wells.find(w => w._id.toString() === log.well._id.toString())
 			if (!well) continue
 
-			const logStartDate = new Date(log.startedAt)
-			const startDate = new Date(well.cycleStartDate)
-			const daysPassed = Math.floor((logStartDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+                        const logStartDate = new Date(log.startedAt)
+                        const startDate = new Date(well.cycleStartDate)
+                        const daysPassed = Math.floor((logStartDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
 			const dayInCycle = (daysPassed % well.cycleDays) + 1
 
 			let land = undefined
@@ -147,25 +152,19 @@ router.get('/', async (req, res) => {
 			const cacheKeyForStatus = `${well._id}-${dayInCycle}`
 			const cacheKeyForProgress = `${well._id}-all`
 
-			if (!scheduleCache[cacheKeyForStatus]) {
-				scheduleCache[cacheKeyForStatus] = await Schedule.find(
-					{
-						well: well._id,
-						status: 'active',
-						day: dayInCycle,
-					},
-					scheduleProjection ?? undefined
-				).lean()
-			}
+                        if (!scheduleCache[cacheKeyForStatus]) {
+                                scheduleCache[cacheKeyForStatus] = await Schedule.find({
+                                        well: well._id,
+                                        status: 'active',
+                                        day: dayInCycle,
+                                }, scheduleProjection ?? undefined).lean()
+                        }
 
-			if (!scheduleCache[cacheKeyForProgress]) {
-				scheduleCache[cacheKeyForProgress] = await Schedule.find(
-					{
-						well: well._id,
-						status: 'active',
-					},
-					scheduleProjection ?? undefined
-				).lean()
+                        if (!scheduleCache[cacheKeyForProgress]) {
+                                scheduleCache[cacheKeyForProgress] = await Schedule.find({
+                                        well: well._id,
+                                        status: 'active',
+                                }, scheduleProjection ?? undefined).lean()
 			}
 
 			const schedulesForStatus = scheduleCache[cacheKeyForStatus].filter(
@@ -181,16 +180,19 @@ router.get('/', async (req, res) => {
 			)
 
 			let totalSchedMinutes = 0
-			schedulesForProgress.forEach(sch => {
-				const start = new Date(sch.startTime)
-				const end = new Date(sch.endTime)
-				const dur = diffInMinutes(end, start)
-				if (!Number.isNaN(dur) && dur > 0) totalSchedMinutes += dur
-			})
+                        schedulesForProgress.forEach(sch => {
+                                const start = new Date(sch.startTime)
+                                const end = new Date(sch.endTime)
+                                const dur = diffInMinutes(end, start)
+                                if (!Number.isNaN(dur) && dur > 0) totalSchedMinutes += dur
+                        })
 
 			totalScheduledMinutes += totalSchedMinutes
 
-			const logDuration = log.startedAt && log.endedAt ? diffInMinutes(new Date(log.endedAt), new Date(log.startedAt)) : 0
+                        const logDuration =
+                                log.startedAt && log.endedAt
+                                        ? diffInMinutes(new Date(log.endedAt), new Date(log.startedAt))
+                                        : 0
 
 			totalIrrigatedMinutes += logDuration
 
@@ -207,24 +209,24 @@ router.get('/', async (req, res) => {
 			} else {
 				const firstSchedule = schedulesForStatus[0]
 				if (firstSchedule) {
-					const { schedStart, schedEnd } = scheduleTimesForDate(firstSchedule, logStartDate)
-					const logEnd = new Date(log.endedAt)
-					const endDiff = diffInMinutes(schedEnd, logEnd)
-					if (endDiff > 5) {
-						status = 'توقف زودهنگام'
-					} else if (new Date(log.startedAt).getTime() > schedStart.getTime()) {
-						status = 'تاخیر'
-						delayedStartCount++
-					}
-				}
-			}
+                                        const { schedStart, schedEnd } = scheduleTimesForDate(firstSchedule, logStartDate)
+                                        const logEnd = new Date(log.endedAt)
+                                        const endDiff = diffInMinutes(schedEnd, logEnd)
+                                        if (endDiff > 5) {
+                                                status = 'توقف زودهنگام'
+                                        } else if (new Date(log.startedAt).getTime() > schedStart.getTime()) {
+                                                status = 'تاخیر'
+                                                delayedStartCount++
+                                        }
+                                }
+                        }
 
-			wellsData.push({
-				well: { id: well._id, title: well.title },
-				...(land ? { land } : {}),
-				...(landGroup ? { landGroup } : {}),
-				startTime: formatTimeHHmm(new Date(log.startedAt)),
-				endTime: log.endedAt ? formatTimeHHmm(new Date(log.endedAt)) : null,
+                        wellsData.push({
+                                well: { id: well._id, title: well.title },
+                                ...(land ? { land } : {}),
+                                ...(landGroup ? { landGroup } : {}),
+                                startTime: formatTimeHHmm(new Date(log.startedAt)),
+                                endTime: log.endedAt ? formatTimeHHmm(new Date(log.endedAt)) : null,
 				status,
 				waterStatus: waterPercent,
 			})
@@ -252,11 +254,11 @@ router.get('/', async (req, res) => {
 // GET unread notes for admin dashboard
 router.get('/notes', async (req, res) => {
 	try {
-		const projection = getProjection(req)
-		let notes = await Note.find({ isRead: false }, projection ?? undefined)
-			.populate('user', 'fullName')
-			.sort({ createdAt: -1 })
-			.lean()
+                const projection = getProjection(req)
+                let notes = await Note.find({ isRead: false }, projection ?? undefined)
+                        .populate('user', 'fullName')
+                        .sort({ createdAt: -1 })
+                        .lean()
 
 		notes = await Promise.all(
 			notes.map(async note => ({

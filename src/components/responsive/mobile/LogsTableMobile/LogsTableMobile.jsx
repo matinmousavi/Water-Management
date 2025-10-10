@@ -36,7 +36,7 @@ const LogsTableMobile = ({ logs = [], descriptionEditHours }) => {
 		{
 			title: 'توضیحات',
 			key: 'note',
-			render: (_, record) => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
+                        render: (_, record) => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
 		},
 	]
 
@@ -48,10 +48,10 @@ const LogsTableMobile = ({ logs = [], descriptionEditHours }) => {
 			scroll={{ x: 'max-content' }}
 			pagination={false}
 			className={styles.table}
-			dataSource={logs}
-			columns={columns}
-		/>
-	)
+                        dataSource={logs}
+                        columns={columns}
+                />
+        )
 }
 
 export default LogsTableMobile

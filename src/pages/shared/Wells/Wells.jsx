@@ -15,7 +15,7 @@ const Wells = () => {
 		? wellsApi.init(`wells`)
 		: wellsApi.init('wells', {
 				filters: { irrigator: user._id },
-			})
+		  })
 	if (!wellsApi.data) return <Loading />
 
 	return (

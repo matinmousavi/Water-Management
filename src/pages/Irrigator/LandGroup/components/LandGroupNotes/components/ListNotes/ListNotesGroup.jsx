@@ -84,15 +84,15 @@ const ListNotesGroup = ({ notes = [], loading, noteApi, openNotification }) => {
 				))}
 			</Flex>
 
-			<BottomSheetModal
-				form={editForm}
-				onClose={onClose}
-				height={322}
-				open={openEdit}
-				loading={noteApi.isLoading}
-				onSubmit={handleEditSubmit}
-				title='ویرایش یادداشت'
-			>
+                        <BottomSheetModal
+                                form={editForm}
+                                onClose={onClose}
+                                height={322}
+                                open={openEdit}
+                                loading={noteApi.isLoading}
+                                onSubmit={handleEditSubmit}
+                                title='ویرایش یادداشت'
+                        >
 				<Form.Item noStyle className={styles.itemForm} name='text'>
 					<div className={styles.modalContainer}>
 						<Input.TextArea
@@ -105,9 +105,9 @@ const ListNotesGroup = ({ notes = [], loading, noteApi, openNotification }) => {
 						/>
 					</div>
 				</Form.Item>
-			</BottomSheetModal>
-		</>
-	)
+                        </BottomSheetModal>
+                </>
+        )
 }
 
 export default ListNotesGroup

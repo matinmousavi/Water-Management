@@ -24,15 +24,15 @@ const ContactInfoDisplay = ({ userData }) => {
 						{w.title}
 						{index < userData.wells.length - 1 ? ' , ' : ''}
 					</Link>
-				))
+			  ))
 			: userData?.role === 'landOwner'
-				? userData.lands?.map((l, index) => (
-						<Link key={l._id} to={`/lands/${l._id}`}>
-							{l.title}
-							{index < userData.lands.length - 1 ? ', ' : ''}
-						</Link>
-					))
-				: '-'
+			? userData.lands?.map((l, index) => (
+					<Link key={l._id} to={`/lands/${l._id}`}>
+						{l.title}
+						{index < userData.lands.length - 1 ? ', ' : ''}
+					</Link>
+			  ))
+			: '-'
 
 	const contactInfo = [
 		{ label: 'نقش', value: getRoleLabel(userData?.role) },
@@ -44,8 +44,8 @@ const ContactInfoDisplay = ({ userData }) => {
 		...(userData?.role === 'irrigator'
 			? [{ label: 'چاه', value: wellsOrLands || '-' }]
 			: userData?.role === 'landOwner'
-				? [{ label: 'زمین‌', value: wellsOrLands || '-' }]
-				: []),
+			? [{ label: 'زمین‌', value: wellsOrLands || '-' }]
+			: []),
 	]
 
 	return (

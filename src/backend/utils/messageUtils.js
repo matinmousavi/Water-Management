@@ -7,10 +7,10 @@ import Setting from '../models/Setting.model.js'
  * @returns {string} Rendered template text.
  */
 export const renderTemplate = (template, variables = {}) =>
-	template.replace(/{{(.*?)}}/g, (_, key) => {
-		const value = variables[key.trim()]
-		return value !== undefined ? value : ''
-	})
+        template.replace(/{{(.*?)}}/g, (_, key) => {
+                const value = variables[key.trim()]
+                return value !== undefined ? value : ''
+        })
 
 /**
  * Sends an SMS message using a stored template and contextual variables.
@@ -18,23 +18,23 @@ export const renderTemplate = (template, variables = {}) =>
  * @returns {Promise<void>}
  */
 export const sendTemplatedSMS = async ({ to, key, variables = {} }) => {
-	const settings = await Setting.findOne().lean()
+        const settings = await Setting.findOne().lean()
 
-	if (!settings || !Array.isArray(settings.messageTemplates)) {
-		throw new Error('هیچ قالب پیامی در تنظیمات موجود نیست.')
-	}
+        if (!settings || !Array.isArray(settings.messageTemplates)) {
+                throw new Error('هیچ قالب پیامی در تنظیمات موجود نیست.')
+        }
 
-	const template = settings.messageTemplates.find(messageTemplate => messageTemplate.key === key)
+        const template = settings.messageTemplates.find(messageTemplate => messageTemplate.key === key)
 
-	if (!template) {
-		throw new Error(`پیام با کلید '${key}' یافت نشد.`)
-	}
+        if (!template) {
+                throw new Error(`پیام با کلید '${key}' یافت نشد.`)
+        }
 
-	const message = renderTemplate(template.text, variables)
+        const message = renderTemplate(template.text, variables)
 
-	console.log('📨 گیرنده پیام:', to)
-	console.log('📤 پیام ساخته‌شده:', message)
+        console.log('📨 گیرنده پیام:', to)
+        console.log('📤 پیام ساخته‌شده:', message)
 
-	// ارسال پیام:
-	// return sendSMS({ to, message })
+        // ارسال پیام:
+        // return sendSMS({ to, message })
 }

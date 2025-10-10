@@ -154,7 +154,7 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 
 				setScheduleType(task.type === 'off' ? 'off' : 'land')
 				setIsModalVisible(true)
-			}
+		  }
 		: undefined
 
 	const handleEmptySlotClick = editable
@@ -170,7 +170,7 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 				})
 				setScheduleType('land')
 				setIsModalVisible(true)
-			}
+		  }
 		: undefined
 
 	const handleModalOk = editable
@@ -213,7 +213,7 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 				} finally {
 					setIsLoading(false)
 				}
-			}
+		  }
 		: undefined
 
 	const handleDeleteTask = editable
@@ -227,7 +227,7 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 				} catch {
 					openNotification('error', 'خطا', 'خطا در حذف زمان‌بندی')
 				}
-			}
+		  }
 		: undefined
 
 	const getTaskPosition = task => {

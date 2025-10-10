@@ -61,23 +61,23 @@ const LandGroupNotes = ({ groupId }) => {
 
 			<ListNotesGroup notes={noteApi.data?.notes || []} loading={noteApi.isLoading} noteApi={noteApi} openNotification={openNotification} />
 
-			<BottomSheetModal
-				form={addForm}
-				onClose={onClose}
-				height={322}
-				open={open}
-				loading={noteApi.isLoading}
-				onSubmit={handleSubmitNote}
-				title='افزودن یادداشت'
-			>
+                        <BottomSheetModal
+                                form={addForm}
+                                onClose={onClose}
+                                height={322}
+                                open={open}
+                                loading={noteApi.isLoading}
+                                onSubmit={handleSubmitNote}
+                                title='افزودن یادداشت'
+                        >
 				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 					<div className={styles.modalContainer}>
 						<Input.TextArea className={styles.textArea} />
 					</div>
 				</Form.Item>
-			</BottomSheetModal>
-		</Flex>
-	)
+                        </BottomSheetModal>
+                </Flex>
+        )
 }
 
 export default LandGroupNotes

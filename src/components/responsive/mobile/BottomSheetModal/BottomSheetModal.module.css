@@ -1,93 +1,93 @@
 .bottomSheetRoot :global(.ant-drawer .ant-drawer-body) {
-	padding-top: 0 !important;
+        padding-top: 0 !important;
 }
 .drawer {
-	border-radius: 16px 16px 0 0 !important;
+        border-radius: 16px 16px 0 0 !important;
 }
 .content {
-	height: 100%;
-	justify-content: space-between;
+        height: 100%;
+        justify-content: space-between;
 }
 .header {
-	min-height: 40px;
-	align-items: center;
-	display: flex;
-	justify-content: center;
+        min-height: 40px;
+        align-items: center;
+        display: flex;
+        justify-content: center;
 }
 .dragHandle {
-	border: none;
-	background: transparent;
-	padding: 12px 16px;
-	cursor: pointer;
+        border: none;
+        background: transparent;
+        padding: 12px 16px;
+        cursor: pointer;
 }
 
 .dragHandle:focus-visible {
-	outline: 2px solid #0066ee;
-	border-radius: 12px;
+        outline: 2px solid #0066ee;
+        border-radius: 12px;
 }
 
 .dragHandleBar {
-	width: 24px;
-	border-top: 4px solid #d1d4dd;
-	border-radius: 2px;
-	margin: 0 16px;
-	display: block;
+        width: 24px;
+        border-top: 4px solid #d1d4dd;
+        border-radius: 2px;
+        margin: 0 16px;
+        display: block;
 }
 .touchSurface {
-	height: 100%;
+        height: 100%;
 }
 .confirmButton,
 .cancelButton {
-	padding: 11px;
-	height: 40px !important;
-	flex: 1;
-	font-size: 16px !important;
-	font-weight: 500 !important;
-	border-radius: 8px !important;
+        padding: 11px;
+        height: 40px !important;
+        flex: 1;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        border-radius: 8px !important;
 }
 .cancelButton {
-	border: 1px solid #0066ee !important;
-	color: #0066ee !important;
+        border: 1px solid #0066ee !important;
+        color: #0066ee !important;
 }
 .title {
-	font-size: 14px !important;
-	font-weight: 500 !important;
-	text-align: center;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        text-align: center;
 }
 .form {
-	height: 100%;
-	justify-content: space-between;
+        height: 100%;
+        justify-content: space-between;
 }
 .body {
-	height: 100%;
+        height: 100%;
 }
 .footer {
-	padding: 0 16px 16px 16px !important;
+        padding: 0 16px 16px 16px !important;
 }
 
 @media (min-width: 768px) {
-	.bottomSheetRoot :global(.ant-card-body) {
-		width: 100% !important;
-	}
-	.form {
+        .bottomSheetRoot :global(.ant-card-body) {
+                width: 100% !important;
+        }
+        .form {
 		width: 100% !important;
 	}
 }
 
 @media (min-width: 1024px) {
-	.bottomSheetRoot :global(.ant-card-body) {
-		width: 100% !important;
-	}
-	.form {
+        .bottomSheetRoot :global(.ant-card-body) {
+                width: 100% !important;
+        }
+        .form {
 		width: 100% !important;
 	}
 }
 
 @media (min-width: 1440px) {
-	.bottomSheetRoot :global(.ant-card-body) {
-		width: 100% !important;
-	}
-	.form {
+        .bottomSheetRoot :global(.ant-card-body) {
+                width: 100% !important;
+        }
+        .form {
 		width: 100% !important;
 	}
 }

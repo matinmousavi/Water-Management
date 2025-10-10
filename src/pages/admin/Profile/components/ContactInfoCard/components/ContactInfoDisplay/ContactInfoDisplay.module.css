@@ -7,8 +7,8 @@
 	height: 124px;
 	font-size: 40px;
 }
-@media (min-width: 1024px) {
+@media (min-width: 1024px){
 	.container_avatar {
-		margin-bottom: 0;
-	}
+	margin-bottom: 0;
+}
 }

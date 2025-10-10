@@ -34,10 +34,8 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-		const projection = getProjection(req)
-		const users = await User.find(filter, projection ?? undefined)
-			.populate('profilePicture')
-			.lean()
+                const projection = getProjection(req)
+                const users = await User.find(filter, projection ?? undefined).populate('profilePicture').lean()
 		return res.status(200).json({ users })
 	} catch (err) {
 		console.error(err.message)
@@ -121,13 +119,11 @@ router.post('/', async (req, res) => {
 router.get('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
-		const projection = getProjection(req)
-		if (projection) {
-			projection.role = 1
-		}
-		const user = await User.findById(userId, projection ?? undefined)
-			.populate('profilePicture')
-			.lean()
+                const projection = getProjection(req)
+                if (projection) {
+                        projection.role = 1
+                }
+                const user = await User.findById(userId, projection ?? undefined).populate('profilePicture').lean()
 
 		if (!user) {
 			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
