@@ -159,11 +159,51 @@ router.get('/:groupId', async (req, res) => {
                         .sort({ createdAt: -1 })
                         .lean()
 
-		const { requiredWater, receivedWater, remainingWater } = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
+                const { requiredWater, receivedWater, remainingWater } = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
 
-		return res.status(200).json({
-			groupId: group.groupId,
-			title: group.title,
+                const ongoingIrrigation = await Irrigation.findOne({
+                        well: wellId,
+                        isOngoing: true,
+                })
+                        .select('land landGroup startedAt')
+                        .populate('land', '_id title')
+                        .lean()
+
+                let irrigationTarget = null
+                if (ongoingIrrigation?.land) {
+                        irrigationTarget = {
+                                type: 'land',
+                                id: ongoingIrrigation.land._id.toString(),
+                                title: ongoingIrrigation.land.title,
+                                startedAt: ongoingIrrigation.startedAt,
+                        }
+                } else if (ongoingIrrigation?.landGroup) {
+                        const targetGroup = well.landGroups?.find(
+                                g => g.groupId?.toString() === ongoingIrrigation.landGroup?.toString(),
+                        )
+
+                        irrigationTarget = {
+                                type: 'landGroup',
+                                id: ongoingIrrigation.landGroup.toString(),
+                                title: targetGroup?.title || '',
+                                startedAt: ongoingIrrigation.startedAt,
+                        }
+                }
+
+                const wells = well
+                        ? [
+                                  {
+                                          _id: well._id,
+                                          title: well.title,
+                                          isOngoing: Boolean(irrigationTarget),
+                                          ...(irrigationTarget ? { irrigationTarget } : {}),
+                                  },
+                          ]
+                        : []
+
+                return res.status(200).json({
+                        groupId: group.groupId,
+                        title: group.title,
 			lands: group.lands.map(land => ({
 				_id: land._id,
 				title: land.title,
@@ -179,12 +219,13 @@ router.get('/:groupId', async (req, res) => {
 			})),
 			lastIrrigation: logs.length ? logs[0].createdAt : null,
 			nextIrrigation,
-			requiredWater,
-			receivedWater,
-			remainingWater,
-			logs,
-			notes,
-		})
+                        requiredWater,
+                        receivedWater,
+                        remainingWater,
+                        logs,
+                        notes,
+                        wells,
+                })
 	} catch (err) {
 		console.error(err)
 		return res.status(500).json({ message: 'خطا در دریافت اطلاعات گروه.' })
