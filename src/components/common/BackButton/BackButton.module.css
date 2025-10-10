@@ -1,6 +1,7 @@
 .button {
 	border: none;
 	cursor: pointer;
+	background: transparent;
 }
 .icon {
 	color: #00000073;
