@@ -5,8 +5,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useState } from 'react'
 
 import styles from './IrrigationLogsMobile.module.css'
-import TimeEndPickerSheet from '../TimeEndPickerSheet/TimeEndPickerSheet'
-import TimeStartPickerSheet from '../TimeStartPickerSheet/TimeStartPickerSheet'
+import TimePickerSheet from '../TimePickerSheet/TimePickerSheet'
 import EndNoticeDrawer from '../EndNoticeDrawer/EndNoticeDrawer'
 import LogsTableMobile from '../LogsTableMobile/LogsTableMobile'
 import TimerDisplay from '../../../common/TimerDisplay/TimerDisplay'
@@ -18,6 +17,8 @@ const { Text } = Typography
 
 dayjs.extend(jalaliday)
 dayjs.extend(customParseFormat)
+
+const END_TIME_MARGIN_MINUTES = 30
 
 const parseTimeToMs = str => {
         if (!str) return 0
@@ -53,7 +54,6 @@ const IrrigationLogsMobile = ({
         const entityApi = useAPI()
         const { openNotification } = useNotification()
 
-        const [currentTime, setCurrentTime] = useState(dayjs())
         const [logs, setLogs] = useState(normalizeLogs(initialLogs))
         const [localRequiredWater, setLocalRequiredWater] = useState(requiredWater)
         const [localRemainingWater, setLocalRemainingWater] = useState(remainingWater)
@@ -62,9 +62,22 @@ const IrrigationLogsMobile = ({
         const [showEndDrawer, setShowEndDrawer] = useState(false)
         const [endNoticeDrawer, setEndNoticeDrawer] = useState(false)
         const [isOpenWarning, setIsOpenWarning] = useState(false)
+        const [startPickerValue, setStartPickerValue] = useState(dayjs())
+        const [endPickerValue, setEndPickerValue] = useState(dayjs())
+
+        const handleStartPickerChange = time => {
+                const candidate = dayjs(time)
+                if (candidate.isValid()) setStartPickerValue(candidate)
+        }
+
+        const handleEndPickerChange = time => {
+                const candidate = dayjs(time)
+                if (candidate.isValid()) setEndPickerValue(candidate)
+        }
 
         apiTime.init('settings/irrigations')
         const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
+        const logTimeMarginMinutes = apiTime.data?.data?.logTimeMarginMinutes?.time ?? 30
 
         const latestLog = logs[0] ?? null
         const ongoingLog = latestLog?.isOngoing ? latestLog : null
@@ -90,7 +103,8 @@ const IrrigationLogsMobile = ({
         const actualRemainingWaterMs = calculateActualRemainingWater()
 
         const handleOpenStart = () => {
-                setCurrentTime(dayjs())
+                const now = dayjs()
+                setStartPickerValue(now)
                 if (ongoingLog) setIsOpenWarning(true)
                 else setShowStartDrawer(true)
         }
@@ -117,8 +131,14 @@ const IrrigationLogsMobile = ({
                 setShowStartDrawer(false)
                 if (ongoingLog) return
 
-                const t = dayjs(selectedTime, 'HH:mm')
-                const combined = dayjs().startOf('day').hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
+                const normalized = dayjs(selectedTime)
+                if (!normalized.isValid()) return
+                const combined = dayjs()
+                        .startOf('day')
+                        .hour(normalized.hour())
+                        .minute(normalized.minute())
+                        .second(0)
+                        .millisecond(0)
                 const tempLog = buildTempLog(combined)
 
                 setLogs(prev => [tempLog, ...prev])
@@ -190,7 +210,8 @@ const IrrigationLogsMobile = ({
                 setShowEndDrawer(false)
                 if (!ongoingLog) return openNotification('error', 'لاگ فعالی یافت نشد')
 
-                const t = dayjs(time, 'HH:mm')
+                const t = dayjs(time)
+                if (!t.isValid()) return
                 const combined = dayjs(ongoingLog.startedAt)
                         .hour(t.hour())
                         .minute(t.minute())
@@ -230,6 +251,7 @@ const IrrigationLogsMobile = ({
 
         const handleWarningModal = () => {
                 setIsOpenWarning(false)
+                setEndPickerValue(dayjs())
                 setShowEndDrawer(true)
         }
 
@@ -269,25 +291,37 @@ const IrrigationLogsMobile = ({
                                 )}
                         </div>
 
-                        <TimeStartPickerSheet
-                                isOpen={showStartDrawer}
-                                now={currentTime}
-                                onSubmit={handleTimeStartSelected}
+                        <TimePickerSheet
+                                open={showStartDrawer}
+                                value={startPickerValue}
+                                onChange={handleStartPickerChange}
+                                onConfirm={handleTimeStartSelected}
                                 onClose={() => setShowStartDrawer(false)}
+                                title='ثبت زمان شروع آبیاری'
+                                subtitle='ساعت شروع آبیاری را مشخص کنید.'
+                                confirmText='ثبت'
+                                cancelText='بازگشت'
+                                marginMinutesBackward={logTimeMarginMinutes}
                         />
 
-                        <TimeEndPickerSheet
-                                isOpen={showEndDrawer}
+                        <TimePickerSheet
+                                open={showEndDrawer}
+                                value={endPickerValue}
+                                onChange={handleEndPickerChange}
+                                onConfirm={handleTimeEndSelected}
+                                onClose={() => setShowEndDrawer(false)}
                                 title='ثبت زمان پایان آبیاری'
                                 subtitle='ساعت پایان آبیاری زمین را مشخص کنید.'
-                                onSubmit={handleTimeEndSelected}
-                                onClose={() => setShowEndDrawer(false)}
+                                confirmText='ثبت'
+                                cancelText='بازگشت'
+                                marginMinutesBackward={END_TIME_MARGIN_MINUTES}
                         />
 
                         <EndNoticeDrawer
                                 isOpen={endNoticeDrawer}
                                 onSubmit={() => {
                                         setEndNoticeDrawer(false)
+                                        setEndPickerValue(dayjs())
                                         setShowEndDrawer(true)
                                 }}
                                 timer={
