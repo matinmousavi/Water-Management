@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Typography, Flex, Tabs, Empty, Button } from 'antd'
 import { CaretDownOutlined, CaretUpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { useSearchParams } from 'react-router-dom'
 import moment from 'moment-jalaali'
 import { convertEnglishDigitsToPersian } from '../../../../../utils/stringUtils'
 
@@ -15,20 +14,40 @@ import styles from './WellMobile.module.css'
 
 const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 	const [openWellList, setOpenWellList] = useState(false)
-	const [searchParams, setSearchParams] = useSearchParams()
 	const schedulesApi = useAPI()
 	const schedules = schedulesApi?.data?.schedules
-
 	const [date, setDate] = useState(moment())
 
-	const goNextDay = () => setDate(d => moment(d).add(1, 'day'))
-	const goPrevDay = () => setDate(d => moment(d).subtract(1, 'day'))
+	const fetchSchedules = async selectedDate => {
+		try {
+			const isoDate = selectedDate.startOf('day').toISOString()
+			await schedulesApi.get(`wells/${irrigatorWells?._id}/schedules/day/${isoDate}`)
+		} catch (err) {
+			console.error('خطا در دریافت زمان‌بندی:', err)
+		}
+	}
+
+	if (!schedules && irrigatorWells?._id) {
+		fetchSchedules(date)
+	}
+
+	const goNextDay = async () => {
+		const newDate = moment(date).add(1, 'day')
+		setDate(newDate)
+		await fetchSchedules(newDate)
+	}
+
+	const goPrevDay = async () => {
+		const newDate = moment(date).subtract(1, 'day')
+		setDate(newDate)
+		await fetchSchedules(newDate)
+	}
 
 	const renderLabel = d => {
 		const today = moment().startOf('day')
 		const target = moment(d).startOf('day')
 
-                const dayNum = convertEnglishDigitsToPersian(target.jDate())
+		const dayNum = convertEnglishDigitsToPersian(target.jDate())
 		const monthName = target.format('jMMMM')
 
 		let suffix = ''
@@ -39,39 +58,12 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 		return `${dayNum} ${monthName}${suffix}`
 	}
 
-	const wellIdFromParams = searchParams.get('wellId')
-
-	useEffect(() => {
-		if (!wellIdFromParams && filterWells?.length > 0) {
-			const firstWell = filterWells[0]
-			setSearchParams(prev => {
-				const params = new URLSearchParams(prev)
-				params.set('wellId', firstWell._id)
-				return params
-			})
-			setIrrigatorWells(firstWell)
-		}
-	}, [wellIdFromParams, filterWells])
-
-	useEffect(() => {
-		const id = irrigatorWells?._id || wellIdFromParams
-		if (id && date) {
-			const isoDate = date.toISOString()
-			schedulesApi.init(`wells/${id}/schedules/day/${isoDate}`)
-			setIrrigatorWells(prev => (prev?._id === id ? prev : { _id: id }))
-		}
-	}, [irrigatorWells?._id, wellIdFromParams, date])
-
 	const onCloseWellList = () => setOpenWellList(false)
 
-	const handleWellSelect = well => {
+	const handleWellSelect = async well => {
 		setIrrigatorWells(well)
-		setSearchParams(prev => {
-			const params = new URLSearchParams(prev)
-			params.set('wellId', well._id)
-			return params
-		})
 		onCloseWellList()
+		await fetchSchedules(date)
 	}
 
 	return filterWells?.length === 0 ? (
@@ -83,7 +75,7 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 			<Flex style={{ position: 'relative' }} gap={8} justify='center' align='center'>
 				<img src='/assets/icons/Vector.svg' alt='icon' />
 				<Typography.Title level={2} className='text-h2'>
-					چاه {irrigatorWells?.title || wellIdFromParams}
+					چاه {irrigatorWells?.title || irrigatorWells?._id}
 				</Typography.Title>
 				{filterWells?.length <= 1 ? null : openWellList ? (
 					<CaretUpOutlined onClick={() => setOpenWellList(false)} style={{ color: '#00000073' }} />
@@ -106,14 +98,12 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 								<>
 									<Flex vertical gap={16}>
 										{schedules?.length > 0 ? (
-											schedules.map(log => (
-												<WellLogsMobile wellId={irrigatorWells?._id || wellIdFromParams} key={log?._id || log.id} data={log} />
-											))
+											schedules.map(log => <WellLogsMobile wellId={irrigatorWells?._id} key={log?._id || log.id} data={log} />)
 										) : (
 											<Empty />
 										)}
 									</Flex>
-									{schedules?.length > 0 && (
+									{schedules?.length >= 0 && (
 										<div className={styles.datePager} dir='rtl'>
 											<Button type='link' onClick={goPrevDay} className={styles.btn}>
 												<span>
@@ -135,16 +125,16 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 								</>
 							),
 						},
-                                                {
-                                                        key: 'notes',
-                                                        label: 'یادداشت‌ها',
-                                                        children: <WellNotesMobile wellId={irrigatorWells?._id || wellIdFromParams} />,
-                                                },
-                                        ]}
-                                />
-                        )}
-                </>
-        )
+						{
+							key: 'notes',
+							label: 'یادداشت‌ها',
+							children: <WellNotesMobile wellId={irrigatorWells?._id} />,
+						},
+					]}
+				/>
+			)}
+		</>
+	)
 }
 
 export default WellMobile
