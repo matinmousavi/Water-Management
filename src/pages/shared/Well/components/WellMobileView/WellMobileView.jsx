@@ -7,7 +7,7 @@ import english2persian from '../../../../../utils/english2persian'
 
 import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
-import WellNotesMobile from './components/WellNotesMobile/WellNotesMobile'
+import WellMobileNotes from './components/WellMobileNotes/WellMobileNotes'
 import useAPI from '../../../../../hooks/useAPI'
 import Loading from '../../../../../components/common/Loading/Loading'
 
@@ -134,11 +134,11 @@ const WellMobileView = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 								</>
 							),
 						},
-						{
-							key: 'notes',
-							label: 'یادداشت‌ها',
-							children: <WellNotesMobile wellId={irrigatorWells?._id || wellIdFromParams} />,
-						},
+                                                {
+                                                        key: 'notes',
+                                                        label: 'یادداشت‌ها',
+                                                        children: <WellMobileNotes wellId={irrigatorWells?._id || wellIdFromParams} />,
+                                                },
 					]}
 				/>
 			)}
