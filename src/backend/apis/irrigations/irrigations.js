@@ -1,12 +1,12 @@
 import { Router } from 'express'
 import mongoose from '../../config/database.js'
 import Irrigation from '../../models/Irrigation.model.js'
-import { sendTemplatedSMS } from '../../utils/sendTemplatedSMS.js'
+import { sendTemplatedSMS } from '../../utils/messageUtils.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
-import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import { sanitizeQuery } from '../../utils/queryUtils.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
-import { checkIrrigationConflict } from '../../utils/checkIrrigationConflict.js'
+import { checkIrrigationConflict } from '../../utils/irrigationUtils.js'
 
 const router = Router()
 

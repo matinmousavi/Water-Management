@@ -4,7 +4,7 @@ import fs from 'fs'
 import File from '../../models/File.model.js'
 import User from '../../models/User.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
-import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import { sanitizeQuery } from '../../utils/queryUtils.js'
 import Well from '../../models/Well.model.js'
 import Land from '../../models/Land.model.js'
 
