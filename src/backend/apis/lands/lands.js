@@ -172,7 +172,11 @@ router.get('/:landId', async (req, res) => {
                                         } else if (irrigationInfo.type === 'landGroup') {
                                                 const [groupSchedules, groupIrrigations] = await Promise.all([
                                                         Schedule.find({ well: well._id, landGroup: irrigationInfo.id }).lean(),
-                                                        Irrigation.find({ well: well._id, landGroup: irrigationInfo.id }).lean(),
+                                                        Irrigation.find({
+                                                                well: well._id,
+                                                                landGroup: irrigationInfo.id,
+                                                                isGroupLog: true,
+                                                        }).lean(),
                                                 ])
 
                                                 targetRequiredMs = sumScheduleDurationsMs(groupSchedules)
