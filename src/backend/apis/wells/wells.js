@@ -3,13 +3,13 @@ import Well from '../../models/Well.model.js'
 import Note from '../../models/Note.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
-import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import { getProjection, sanitizeQuery } from '../../utils/queryUtils.js'
 import landGroupsRouter from './landGroups.js'
 import schedulesRouter from './schedules.js'
 import snapshotsRouter from './snapshots.js'
-import { pickFields } from '../../utils/pickFields.js'
+import { pickFields } from '../../utils/objectUtils.js'
 import Schedule from '../../models/Schedule.model.js'
-import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
+import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/metricsUtils.js'
 
 const router = Router()
 
@@ -48,22 +48,32 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-		const projection = fields ? fields.replace(/,/g, ' ') : ''
+                const requestedFields = typeof fields === 'string'
+                        ? fields.split(',').map(field => field.trim()).filter(Boolean)
+                        : []
+                const projection = getProjection(req)
+                if (projection) {
+                        if (!fields || requestedFields.includes('logs')) {
+                                projection.landGroups = 1
+                        }
+                        if (!fields || requestedFields.includes('lands')) {
+                                projection.lands = 1
+                        }
+                }
 
-		let wells = await Well.find(mongoFilter)
-			.select(projection)
-			.populate({
-				path: 'lands',
-				populate: { path: 'owner', select: 'fullName mobile' },
-			})
+                let wells = await Well.find(mongoFilter, projection ?? undefined)
+                        .populate({
+                                path: 'lands',
+                                populate: { path: 'owner', select: 'fullName mobile' },
+                        })
 			.populate({ path: 'irrigator', select: 'fullName mobile' })
 			.lean()
 
 		wells = await Promise.all(
 			wells.map(async well => {
-				const includeLogs = !fields || fields.split(',').includes('logs')
-				const includeNotes = !fields || fields.split(',').includes('notes')
-				const includeLands = !fields || fields.split(',').includes('lands')
+                                const includeLogs = !fields || requestedFields.includes('logs')
+                                const includeNotes = !fields || requestedFields.includes('notes')
+                                const includeLands = !fields || requestedFields.includes('lands')
 
 				if (includeLogs) {
 					const logs = await Irrigation.find({ well: well._id })
@@ -124,16 +134,25 @@ router.get('/', async (req, res) => {
 router.get('/:wellId', async (req, res) => {
 	try {
 		const { wellId } = req.params
-		const { fields } = req.query
+                const { fields } = req.query
+                const requestedFields = typeof fields === 'string'
+                        ? fields.split(',').map(field => field.trim()).filter(Boolean)
+                        : []
+                const projection = getProjection(req)
+                if (projection) {
+                        if (!fields || requestedFields.includes('logs')) {
+                                projection.landGroups = 1
+                        }
+                        if (!fields || requestedFields.includes('lands')) {
+                                projection.lands = 1
+                        }
+                }
 
-		const projection = fields ? fields.replace(/,/g, ' ') : ''
-
-		let well = await Well.findById(wellId)
-			.select(projection)
-			.populate({
-				path: 'lands',
-				populate: { path: 'owner', select: 'fullName mobile' },
-				select: 'title status owner area location',
+                let well = await Well.findById(wellId, projection ?? undefined)
+                        .populate({
+                                path: 'lands',
+                                populate: { path: 'owner', select: 'fullName mobile' },
+                                select: 'title status owner area location',
 			})
 			.populate({ path: 'irrigator', select: 'fullName mobile' })
 			.lean()
@@ -142,9 +161,9 @@ router.get('/:wellId', async (req, res) => {
 			return res.status(404).json({ message: 'چاه پیدا نشد.' })
 		}
 
-		const includeLogs = !fields || fields.split(',').includes('logs')
-		const includeNotes = !fields || fields.split(',').includes('notes')
-		const includeLands = !fields || fields.split(',').includes('lands')
+                const includeLogs = !fields || requestedFields.includes('logs')
+                const includeNotes = !fields || requestedFields.includes('notes')
+                const includeLands = !fields || requestedFields.includes('lands')
 
 		if (includeLogs) {
 			let logs = await Irrigation.find({ well: wellId })

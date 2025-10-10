@@ -4,7 +4,7 @@ import fs from 'fs'
 import File from '../../models/File.model.js'
 import User from '../../models/User.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
-import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import { getProjection, sanitizeQuery } from '../../utils/queryUtils.js'
 import Well from '../../models/Well.model.js'
 import Land from '../../models/Land.model.js'
 
@@ -34,7 +34,8 @@ router.get('/', async (req, res) => {
 			}
 		})
 
-		const users = await User.find(filter).populate('profilePicture').lean()
+                const projection = getProjection(req)
+                const users = await User.find(filter, projection ?? undefined).populate('profilePicture').lean()
 		return res.status(200).json({ users })
 	} catch (err) {
 		console.error(err.message)
@@ -118,7 +119,11 @@ router.post('/', async (req, res) => {
 router.get('/:userId', async (req, res) => {
 	try {
 		const { userId } = req.params
-		const user = await User.findById(userId).populate('profilePicture').lean()
+                const projection = getProjection(req)
+                if (projection) {
+                        projection.role = 1
+                }
+                const user = await User.findById(userId, projection ?? undefined).populate('profilePicture').lean()
 
 		if (!user) {
 			return res.status(404).json({ message: 'کاربر پیدا نشد.' })

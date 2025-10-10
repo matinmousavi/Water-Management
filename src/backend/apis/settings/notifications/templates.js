@@ -1,12 +1,17 @@
 import { Router } from 'express'
 import Setting from '../../../models/Setting.model.js'
+import { getProjection } from '../../../utils/queryUtils.js'
 
 const router = Router()
 
 // GET all message templates
 router.get('/', async (req, res) => {
 	try {
-		const setting = await Setting.findOne().lean()
+                const projection = getProjection(req)
+                if (projection) {
+                        projection.messageTemplates = 1
+                }
+                const setting = await Setting.findOne({}, projection ?? undefined).lean()
 		res.json({ templates: setting?.messageTemplates || [] })
 	} catch (err) {
 		console.error(err.message)
@@ -18,7 +23,11 @@ router.get('/', async (req, res) => {
 router.get('/:key', async (req, res) => {
 	try {
 		const { key } = req.params
-		const setting = await Setting.findOne().lean()
+                const projection = getProjection(req)
+                if (projection) {
+                        projection.messageTemplates = 1
+                }
+                const setting = await Setting.findOne({}, projection ?? undefined).lean()
 		const template = setting?.messageTemplates?.find(t => t.key === key)
 
 		if (!template) {

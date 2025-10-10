@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import dayjs from 'dayjs'
 
-import english2persian from '../../../../utils/english2persian'
+import { convertEnglishDigitsToPersian } from '../../../../utils/stringUtils'
 import BottomSheetModal from '../BottomSheetModal/BottomSheetModal'
 
 import styles from './TimePickerSheet.module.css'
@@ -180,7 +180,7 @@ const TimePickerSheet = ({
                                                                 className='item-scroll'
                                                                 onClick={() => emitSelection(idx)}
                                                         >
-                                                                {english2persian(minute)}
+                                                                {convertEnglishDigitsToPersian(minute)}
                                                         </div>
                                                 )
                                         })}
@@ -236,7 +236,7 @@ const TimePickerSheet = ({
                                 >
                                         {renderMinuteList()}
                                         <div className={styles.clone}>:</div>
-                                        <div className={styles.hour}>{english2persian(selectedHour)}</div>
+                                        <div className={styles.hour}>{convertEnglishDigitsToPersian(selectedHour)}</div>
                                 </div>
                         </div>
                 </BottomSheetModal>

@@ -3,7 +3,7 @@ import User from '../models/User.model.js'
 import Well from '../models/Well.model.js'
 import Land from '../models/Land.model.js'
 import Setting from '../models/Setting.model.js'
-import { syncLandsToWells } from '../utils/oneTimeTasks.js'
+import { syncLandsToWells } from '../utils/syncUtils.js'
 
 mongoose
 	.connect(`mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`)
