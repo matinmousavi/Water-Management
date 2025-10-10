@@ -1,5 +1,5 @@
 import { Button, Flex, Form, Input, Empty, Card, Typography } from 'antd'
-import ModalMobile from '../../../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
+import BottomSheetModal from '../../../../../../../components/responsive/mobile/BottomSheetModal/BottomSheetModal'
 import styles from './WellNotesMobile.module.css'
 import { useState } from 'react'
 import useAPI from '../../../../../../../hooks/useAPI'
@@ -112,39 +112,39 @@ const WellNotesMobile = ({ wellId }) => {
 				)}
 			</Flex>
 
-			<ModalMobile
-				height={322}
-				open={openEdit}
-				title='ویرایش یادداشت'
-				onClose={onClose}
-				handleSubmit={handleEditSubmit}
-				loading={notesApi.isLoading}
-				form={editForm}
-			>
+                        <BottomSheetModal
+                                height={322}
+                                open={openEdit}
+                                title='ویرایش یادداشت'
+                                onClose={onClose}
+                                onSubmit={handleEditSubmit}
+                                loading={notesApi.isLoading}
+                                form={editForm}
+                        >
 				<div className={styles.modalContainer}>
 					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 						<Input.TextArea className={styles.textArea} rows={6} />
 					</Form.Item>
 				</div>
-			</ModalMobile>
+                        </BottomSheetModal>
 
-			<ModalMobile
-				height={322}
-				open={openAdd}
-				title='افزودن یادداشت'
-				onClose={onClose}
-				handleSubmit={handleSubmitNote}
-				loading={notesApi.isLoading}
-				form={addForm}
-			>
+                        <BottomSheetModal
+                                height={322}
+                                open={openAdd}
+                                title='افزودن یادداشت'
+                                onClose={onClose}
+                                onSubmit={handleSubmitNote}
+                                loading={notesApi.isLoading}
+                                form={addForm}
+                        >
 				<Form.Item noStyle name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 					<div className={styles.modalContainer}>
 						<Input.TextArea className={styles.textArea} />
 					</div>
 				</Form.Item>
-			</ModalMobile>
-		</>
-	)
+                        </BottomSheetModal>
+                </>
+        )
 }
 
 export default WellNotesMobile

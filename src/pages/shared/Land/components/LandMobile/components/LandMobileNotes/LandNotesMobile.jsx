@@ -5,7 +5,7 @@ import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
 
 import NotesListMobile from './components/MobileNotesList/NotesListMobile'
-import ModalMobile from '../../../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
+import BottomSheetModal from '../../../../../../../components/responsive/mobile/BottomSheetModal/BottomSheetModal'
 
 import styles from './LandNotesMobile.module.css'
 
@@ -103,23 +103,23 @@ const LandNotesMobile = ({ notesData: initialNotes }) => {
 				</div>
 			</div>
 
-			<ModalMobile
-				form={noteForm}
-				onClose={onClose}
-				height={322}
-				open={open}
-				loading={notesApi.isLoading}
-				handleSubmit={handleSubmitNote}
-				title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
-			>
+                        <BottomSheetModal
+                                form={noteForm}
+                                onClose={onClose}
+                                height={322}
+                                open={open}
+                                loading={notesApi.isLoading}
+                                onSubmit={handleSubmitNote}
+                                title={isNoteEditMode ? 'ویرایش یادداشت' : 'افزودن یادداشت'}
+                        >
 				<div className={styles.modalContainer}>
 					<Form.Item name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 						<Input.TextArea className={styles.textArea} rows={6} />
 					</Form.Item>
 				</div>
-			</ModalMobile>
-		</>
-	)
+                        </BottomSheetModal>
+                </>
+        )
 }
 
 export default LandNotesMobile

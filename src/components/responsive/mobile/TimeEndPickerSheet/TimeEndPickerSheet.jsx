@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import english2persian from '../../../../utils/english2persian'
 import styles from './TimeEndPickerSheet.module.css'
 import dayjs from 'dayjs'
-import ModalMobile from '../ModalMobile/ModalMobile'
+import BottomSheetModal from '../BottomSheetModal/BottomSheetModal'
 
 const ITEM_HEIGHT = 56
 const VISIBLE_COUNT = 3
@@ -108,8 +108,16 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true, title = 'ثبت 
 		onSubmit && onSubmit(timeToSend)
 	}
 
-	return (
-		<ModalMobile height={389} open={isOpen} onClose={onClose} title={title} okText='ثبت' closeText='بازگشت' handleSubmit={handleSubmit}>
+        return (
+                <BottomSheetModal
+                        height={389}
+                        open={isOpen}
+                        onClose={onClose}
+                        title={title}
+                        okText='ثبت'
+                        closeText='بازگشت'
+                        onSubmit={handleSubmit}
+                >
 			<div className={styles.subtitle}>{subtitle}</div>
 
 			<div className={styles.container_time_lines}>
@@ -150,8 +158,8 @@ const TimeEndPickerSheet = ({ onSubmit, onClose, isOpen = true, title = 'ثبت 
 					<div className={styles.hour}>{english2persian(selectedHour)}</div>
 				</div>
 			</div>
-		</ModalMobile>
-	)
+                </BottomSheetModal>
+        )
 }
 
 export default TimeEndPickerSheet

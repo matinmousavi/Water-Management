@@ -1,9 +1,9 @@
-import { Card, Flex, Typography, Button, Form, Input, Spin } from 'antd'
+import { Card, Flex, Typography, Button, Form, Input } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import moment from 'moment-jalaali'
 import { useState } from 'react'
 import styles from './ListNotesGroup.module.css'
-import ModalMobile from '../../../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
+import BottomSheetModal from '../../../../../../../components/responsive/mobile/BottomSheetModal/BottomSheetModal'
 
 const ListNotesGroup = ({ notes = [], loading, noteApi, openNotification }) => {
 	const { Title, Text } = Typography
@@ -84,15 +84,15 @@ const ListNotesGroup = ({ notes = [], loading, noteApi, openNotification }) => {
 				))}
 			</Flex>
 
-			<ModalMobile
-				form={editForm}
-				onClose={onClose}
-				height={322}
-				open={openEdit}
-				loading={noteApi.isLoading}
-				handleSubmit={handleEditSubmit}
-				title='ویرایش یادداشت'
-			>
+                        <BottomSheetModal
+                                form={editForm}
+                                onClose={onClose}
+                                height={322}
+                                open={openEdit}
+                                loading={noteApi.isLoading}
+                                onSubmit={handleEditSubmit}
+                                title='ویرایش یادداشت'
+                        >
 				<Form.Item noStyle className={styles.itemForm} name='text'>
 					<div className={styles.modalContainer}>
 						<Input.TextArea
@@ -105,9 +105,9 @@ const ListNotesGroup = ({ notes = [], loading, noteApi, openNotification }) => {
 						/>
 					</div>
 				</Form.Item>
-			</ModalMobile>
-		</>
-	)
+                        </BottomSheetModal>
+                </>
+        )
 }
 
 export default ListNotesGroup

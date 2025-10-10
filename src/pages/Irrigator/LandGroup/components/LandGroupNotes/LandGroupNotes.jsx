@@ -1,7 +1,7 @@
 import { Button, Flex, Form, Input } from 'antd'
 import styles from './LandGroupNotes.module.css'
 import { useState, useEffect } from 'react'
-import ModalMobile from '../../../../../components/responsive/mobile/ModalMobile/ModalMobile'
+import BottomSheetModal from '../../../../../components/responsive/mobile/BottomSheetModal/BottomSheetModal'
 import ListNotesGroup from './components/ListNotes/ListNotesGroup'
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
@@ -61,23 +61,23 @@ const LandGroupNotes = ({ groupId }) => {
 
 			<ListNotesGroup notes={noteApi.data?.notes || []} loading={noteApi.isLoading} noteApi={noteApi} openNotification={openNotification} />
 
-			<ModalMobile
-				form={addForm}
-				onClose={onClose}
-				height={322}
-				open={open}
-				loading={noteApi.isLoading}
-				handleSubmit={handleSubmitNote}
-				title='افزودن یادداشت'
-			>
+                        <BottomSheetModal
+                                form={addForm}
+                                onClose={onClose}
+                                height={322}
+                                open={open}
+                                loading={noteApi.isLoading}
+                                onSubmit={handleSubmitNote}
+                                title='افزودن یادداشت'
+                        >
 				<Form.Item noStyle className={styles.itemForm} name='text' rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
 					<div className={styles.modalContainer}>
 						<Input.TextArea className={styles.textArea} />
 					</div>
 				</Form.Item>
-			</ModalMobile>
-		</Flex>
-	)
+                        </BottomSheetModal>
+                </Flex>
+        )
 }
 
 export default LandGroupNotes

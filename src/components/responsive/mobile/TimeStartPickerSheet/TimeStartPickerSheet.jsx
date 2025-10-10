@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import english2persian from '../../../../utils/english2persian'
 import styles from './TimeStartPickerSheet.module.css'
 import dayjs from 'dayjs'
-import ModalMobile from '../ModalMobile/ModalMobile'
+import BottomSheetModal from '../BottomSheetModal/BottomSheetModal'
 import useAPI from '../../../../hooks/useAPI'
 
 const ITEM_HEIGHT = 56
@@ -124,8 +124,16 @@ const TimeStartPickerSheet = ({ onSubmit, now: externalNow, onClose, isOpen = tr
 		onSubmit && onSubmit(timeToSend)
 	}
 
-	return (
-		<ModalMobile open={isOpen} height={389} onClose={onClose} title='ثبت زمان شروع آبیاری' okText='ثبت' closeText='بازگشت' handleSubmit={handleSubmit}>
+        return (
+                <BottomSheetModal
+                        open={isOpen}
+                        height={389}
+                        onClose={onClose}
+                        title='ثبت زمان شروع آبیاری'
+                        okText='ثبت'
+                        closeText='بازگشت'
+                        onSubmit={handleSubmit}
+                >
 			<div className={styles.subtitle}>ساعت شروع آبیاری را مشخص کنید.</div>
 
 			<div className={styles.container_time_lines}>
@@ -166,8 +174,8 @@ const TimeStartPickerSheet = ({ onSubmit, now: externalNow, onClose, isOpen = tr
 					<div className={styles.hour}>{english2persian(selectedHour)}</div>
 				</div>
 			</div>
-		</ModalMobile>
-	)
+                </BottomSheetModal>
+        )
 }
 
 export default TimeStartPickerSheet
