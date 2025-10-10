@@ -113,24 +113,25 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 											<Empty />
 										)}
 									</Flex>
+									{schedules?.length > 0 && (
+										<div className={styles.datePager} dir='rtl'>
+											<Button type='link' onClick={goPrevDay} className={styles.btn}>
+												<span>
+													<RightOutlined />
+												</span>
+												<span>روز قبل</span>
+											</Button>
 
-									<div className={styles.datePager} dir='rtl'>
-										<Button type='link' onClick={goPrevDay} className={styles.btn}>
-											<span>
-												<RightOutlined />
-											</span>
-											<span>روز قبل</span>
-										</Button>
+											<div className={styles.date}>{renderLabel(date)}</div>
 
-										<div className={styles.date}>{renderLabel(date)}</div>
-
-										<Button type='link' onClick={goNextDay} className={styles.btn}>
-											<span>روز بعد</span>
-											<span>
-												<LeftOutlined />
-											</span>
-										</Button>
-									</div>
+											<Button type='link' onClick={goNextDay} className={styles.btn}>
+												<span>روز بعد</span>
+												<span>
+													<LeftOutlined />
+												</span>
+											</Button>
+										</div>
+									)}
 								</>
 							),
 						},
