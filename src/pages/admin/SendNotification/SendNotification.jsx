@@ -1,14 +1,14 @@
 import useAPI from '../../../hooks/useAPI'
 import { Flex, Grid, Typography } from 'antd'
-import Loading from '../../../components/Loading/Loading'
+import Loading from '../../../components/common/Loading/Loading'
 import MessageSender from './components/MessageSender/MessageSender'
 import SentNotificationsTable from './components/SentNotificationsTable/SentNotificationsTable'
 
 const SendNotification = () => {
 	const api = useAPI()
-	const { useBreakpoint } = Grid;
-	const screens = useBreakpoint();
-	const isMobile = screens.xs;
+	const { useBreakpoint } = Grid
+	const screens = useBreakpoint()
+	const isMobile = screens.xs
 
 	api.init('notifications')
 

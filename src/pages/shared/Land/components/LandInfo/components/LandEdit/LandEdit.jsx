@@ -2,7 +2,7 @@ import { Button, Flex, Form, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { useCallback } from 'react'
 
-import LandForm from '../../../../../../../components/Land/LandForm/LandForm'
+import LandForm from '../../../../../../../components/forms/LandForm/LandForm'
 import useModal from '../../../../../../../hooks/useModal'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'

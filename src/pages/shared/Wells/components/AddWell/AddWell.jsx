@@ -3,7 +3,7 @@ import { Button, Flex, Modal, Form } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import useModal from '../../../../../hooks/useModal'
 import useAPI from '../../../../../hooks/useAPI'
-import WellForm from '../../../../../components/Well/WellForm/WellForm'
+import WellForm from '../../../../../components/forms/WellForm/WellForm'
 import useNotification from '../../../../../hooks/useNotification'
 
 const AddWell = ({ wellsApi }) => {

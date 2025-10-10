@@ -1,11 +1,11 @@
 import { Typography, Flex } from 'antd'
-import BackButton from '../../../../../components/BackButton/BackButton'
+import BackButton from '../../../../../components/common/BackButton/BackButton'
 import WellStatus from './components/WellStatus/WellStatus'
 import WellInfoCard from './components/WellInfoCard/WellInfoCard'
 import WellLandsCard from './components/WellLandsCard/WellLandsCard'
 import WellLogCard from './components/WellLogsCard/WellLogsCard'
 import WellIrrigationSchedule from './components/WellIrrigationSchedule/WellIrrigationSchedule'
-import Notes from '../../../../../components/Notes/Notes'
+import Notes from '../../../../../components/common/Notes/Notes'
 
 const WellDesktopView = ({ title, well, status, setStatus, landsData, setLandsData, logs, setLogs, actualWellId, setTitle }) => {
 	return (

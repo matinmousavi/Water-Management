@@ -1,15 +1,32 @@
 import Irrigation from '../models/Irrigation.model.js'
 import Well from '../models/Well.model.js'
 import Land from '../models/Land.model.js'
-import moment from 'moment-jalaali'
+
+function startOfDay(date) {
+        const d = new Date(date)
+        d.setHours(0, 0, 0, 0)
+        return d
+}
+
+function isSameDay(a, b) {
+        return startOfDay(a).getTime() === startOfDay(b).getTime()
+}
+
+function formatTimeHHmm(date) {
+        return new Intl.DateTimeFormat('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+        }).format(date)
+}
 
 export const checkIrrigationConflict = async ({ wellId, landIds = [], excludeId = null, startedAt, endedAt, isOngoing }) => {
 	const query = { well: wellId }
 	if (excludeId) query._id = { $ne: excludeId }
 
-	const irrigations = await Irrigation.find(query).lean()
-	const newStart = moment(startedAt)
-	const newEnd = endedAt ? moment(endedAt) : null
+        const irrigations = await Irrigation.find(query).lean()
+        const newStart = new Date(startedAt)
+        const newEnd = endedAt ? new Date(endedAt) : null
 
 	if (isOngoing) {
 		if (irrigations.some(i => i.isOngoing)) return 'این چاه در حال حاضر در حال آبیاری است.'
@@ -58,14 +75,15 @@ export const checkIrrigationConflict = async ({ wellId, landIds = [], excludeId 
 		const overlapLand = landIds.some(l => irrigationLandIds.includes(l.toString()))
 		if (!overlapLand) continue
 
-		const existingStart = moment(irrigation.startedAt)
-		const existingEnd = irrigation.endedAt ? moment(irrigation.endedAt) : null
+                const existingStart = new Date(irrigation.startedAt)
+                const existingEnd = irrigation.endedAt ? new Date(irrigation.endedAt) : null
 
-		if (!existingEnd) return 'همپوشانی با یک لاگ در حال آبیاری وجود دارد.'
-		if (newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart)) return 'همپوشانی با یک لاگ موجود وجود دارد.'
-		if (existingStart.isSame(newStart, 'day') && existingStart.format('HH:mm') === newStart.format('HH:mm'))
-			return 'ساعت شروع این لاگ با یک لاگ موجود در همان روز روی همان چاه و زمین/گروه همپوشانی دارد.'
-	}
+                if (!existingEnd) return 'همپوشانی با یک لاگ در حال آبیاری وجود دارد.'
+                if (newEnd && newStart.getTime() < existingEnd.getTime() && newEnd.getTime() > existingStart.getTime())
+                        return 'همپوشانی با یک لاگ موجود وجود دارد.'
+                if (isSameDay(existingStart, newStart) && formatTimeHHmm(existingStart) === formatTimeHHmm(newStart))
+                        return 'ساعت شروع این لاگ با یک لاگ موجود در همان روز روی همان چاه و زمین/گروه همپوشانی دارد.'
+        }
 
 	return null
 }

@@ -2,7 +2,7 @@ import { Flex } from 'antd'
 import Irrigations from './components/Irrigations/Irrigations'
 import Notifications from './components/Notifications/Notifications'
 import useAPI from '../../../hooks/useAPI'
-import Loading from '../../../components/Loading/Loading'
+import Loading from '../../../components/common/Loading/Loading'
 
 const Settings = () => {
 	const api = useAPI()

@@ -3,7 +3,7 @@ import { Form, Input } from 'antd'
 
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
-import ModalMobile from '../../../../../components/ModalMobile/ModalMobile'
+import BottomSheetModal from '../../../../../components/responsive/mobile/BottomSheetModal/BottomSheetModal'
 
 import styles from './EditNotes.module.css'
 
@@ -33,15 +33,22 @@ const EditNotes = ({ open, onClose, text, id, setNotesData }) => {
 		}
 	}
 
-	return (
-		<ModalMobile height={322} open={open} title='ویرایش یادداشت' onClose={onClose} handleSubmit={handleSubmit} loading={notesApi.isLoading}>
-			<div className={styles.container}>
-				<Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
-					<Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={6} />
-				</Form.Item>
-			</div>
-		</ModalMobile>
-	)
+        return (
+                <BottomSheetModal
+                        height={322}
+                        open={open}
+                        title='ویرایش یادداشت'
+                        onClose={onClose}
+                        onSubmit={handleSubmit}
+                        loading={notesApi.isLoading}
+                >
+                        <div className={styles.container}>
+                                <Form.Item noStyle className={styles.itemForm} rules={[{ required: true, message: 'لطفاً متن یادداشت را وارد کنید' }]}>
+                                        <Input.TextArea className={styles.textArea} value={editedText} onChange={e => setEditedText(e.target.value)} rows={6} />
+                                </Form.Item>
+                        </div>
+                </BottomSheetModal>
+        )
 }
 
 export default EditNotes

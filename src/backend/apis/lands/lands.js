@@ -8,6 +8,7 @@ import Schedule from '../../models/Schedule.model.js'
 
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
 import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
 
 const router = Router()
 
@@ -92,60 +93,42 @@ router.get('/:landId', async (req, res) => {
 				}
 			}) || []
 
-		// --- اضافه کردن مقادیر آب و چرخه ---
+		let totalRequiredMsAllWells = 0
+		let totalReceivedMsAllWells = 0
+
 		const wellsWithWaterData = await Promise.all(
 			wellsWithStatus.map(async well => {
 				if (!well._id) return well
 
-				// پیدا کردن تمام زمانبندی‌ها برای این چاه
 				const schedules = await Schedule.find({ well: well._id, land: land._id }).lean()
-				const totalSchedulesInCycle = schedules.length
-
-				const totalRequiredMs = schedules.reduce((sum, s) => {
-					const start = new Date(s.startTime)
-					const end = new Date(s.endTime)
-					return sum + (end - start)
-				}, 0)
-
+				const totalRequiredMs = sumScheduleDurationsMs(schedules)
 				const irrigations = await Irrigation.find({ well: well._id, land: land._id }).lean()
-				const receivedMs = irrigations.reduce((sum, log) => {
-					if (!log.endedAt) return sum
-					return sum + (new Date(log.endedAt) - new Date(log.startedAt))
-				}, 0)
+				const receivedMs = sumIrrigationDurationsMs(irrigations)
+
+				totalRequiredMsAllWells += totalRequiredMs
+				totalReceivedMsAllWells += receivedMs
 
 				const nextIrrigationLog = await Irrigation.find({ well: well._id, land: land._id, endedAt: null }).sort({ startedAt: 1 }).lean()
 
 				const nextIrrigation = nextIrrigationLog[0]?.startedAt || null
 
+				const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
+
 				return {
 					...well,
-					requiredWater: `${Math.floor(totalRequiredMs / 3600000)}:${Math.floor((totalRequiredMs % 3600000) / 60000)
-						.toString()
-						.padStart(2, '0')}`,
-					receivedWater: `${Math.floor(receivedMs / 3600000)}:${Math.floor((receivedMs % 3600000) / 60000)
-						.toString()
-						.padStart(2, '0')}`,
-					remainingWater: `${Math.max(0, Math.floor((totalRequiredMs - receivedMs) / 3600000))}:${Math.max(
-						0,
-						Math.floor(((totalRequiredMs - receivedMs) % 3600000) / 60000)
-					)
-						.toString()
-						.padStart(2, '0')}`,
+					...waterMetrics,
 					nextIrrigation,
-					totalSchedulesInCycle,
-					receivedWaterInCycle: `${Math.floor(receivedMs / 3600000)}:${Math.floor((receivedMs % 3600000) / 60000)
-						.toString()
-						.padStart(2, '0')}`,
 				}
 			})
 		)
 
-		const logs = await Irrigation.find({ land: land._id }).sort({ date: -1 }).lean()
+		const logs = await Irrigation.find({ land: land._id }).sort({ updatedAt: -1 }).lean()
 		const notes = await Note.find({ reference: land._id, type: 'land' }).populate('user', '_id fullName').lean()
 
 		return res.status(200).json({
 			land: {
 				...landWithWells,
+				...buildWaterMetrics({ requiredMs: totalRequiredMsAllWells, receivedMs: totalReceivedMsAllWells }),
 				wells: wellsWithWaterData,
 				logs,
 				notes,

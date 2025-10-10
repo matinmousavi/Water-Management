@@ -4,23 +4,9 @@ import mongoose from 'mongoose'
 import Irrigation from '../../models/Irrigation.model.js'
 import Schedule from '../../models/Schedule.model.js'
 import Note from '../../models/Note.model.js'
+import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
 
 const router = Router({ mergeParams: true })
-
-function msToHoursMinutes(ms) {
-	const totalMinutes = Math.floor(ms / 60000)
-	const hours = Math.floor(totalMinutes / 60)
-	const minutes = totalMinutes % 60
-	return `${hours}:${minutes.toString().padStart(2, '0')}`
-}
-
-function getTotalDurationMs(schedules) {
-	return schedules.reduce((sum, s) => {
-		const start = new Date(s.startTime)
-		const end = new Date(s.endTime)
-		return sum + (end - start)
-	}, 0)
-}
 
 router.get('/', async (req, res) => {
 	try {
@@ -38,7 +24,7 @@ router.get('/', async (req, res) => {
 		for (const group of well.landGroups) {
 			const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
 			const totalSchedulesInCycle = schedules.length
-			const totalRequiredMs = getTotalDurationMs(schedules)
+			const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
 			const irrigations = await Irrigation.find({
 				well: wellId,
@@ -48,16 +34,14 @@ router.get('/', async (req, res) => {
 				endedAt: { $lte: cycleEnd },
 			}).lean()
 
-			const receivedMs = irrigations.reduce((sum, log) => {
-				if (!log.endedAt) return sum
-				return sum + (new Date(log.endedAt) - new Date(log.startedAt))
-			}, 0)
+			const receivedMs = sumIrrigationDurationsMs(irrigations)
+			const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
 
-			group.requiredWater = msToHoursMinutes(totalRequiredMs)
-			group.receivedWater = msToHoursMinutes(receivedMs)
-			group.remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
+			group.requiredWater = waterMetrics.requiredWater
+			group.receivedWater = waterMetrics.receivedWater
+			group.remainingWater = waterMetrics.remainingWater
 			group.totalSchedulesInCycle = totalSchedulesInCycle
-			group.receivedWaterInCycle = msToHoursMinutes(receivedMs)
+			group.receivedWaterInCycle = waterMetrics.receivedWater
 		}
 
 		return res.status(200).json({ landGroups: well.landGroups || [] })
@@ -125,15 +109,14 @@ router.get('/:groupId', async (req, res) => {
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 24 * 60 * 60 * 1000)
 
 		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
-		const totalSchedulesInCycle = schedules.length
-		const totalRequiredMs = getTotalDurationMs(schedules)
+		const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
 		const irrigations = await Irrigation.find({
 			well: wellId,
 			landGroup: group.groupId,
 			isGroupLog: true,
 			startedAt: { $gte: cycleStart },
-			endedAt: { $lte: cycleEnd },
+			$or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
 		}).lean()
 
 		const uniqueLogsMap = new Map()
@@ -144,12 +127,9 @@ router.get('/:groupId', async (req, res) => {
 			}
 		}
 
-		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
+		const logs = Array.from(uniqueLogsMap.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
-		const receivedMs = logs.reduce((sum, log) => {
-			if (!log.endedAt) return sum
-			return sum + (new Date(log.endedAt) - new Date(log.startedAt))
-		}, 0)
+		const receivedMs = sumIrrigationDurationsMs(logs)
 
 		const nextIrrigationLog = await Irrigation.find({
 			well: wellId,
@@ -169,10 +149,7 @@ router.get('/:groupId', async (req, res) => {
 			.sort({ createdAt: -1 })
 			.lean()
 
-		const requiredWater = msToHoursMinutes(totalRequiredMs)
-		const receivedWater = msToHoursMinutes(receivedMs)
-		const remainingWater = msToHoursMinutes(Math.max(0, totalRequiredMs - receivedMs))
-		const receivedWaterInCycle = msToHoursMinutes(receivedMs)
+		const { requiredWater, receivedWater, remainingWater } = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
 
 		return res.status(200).json({
 			groupId: group.groupId,
@@ -190,13 +167,11 @@ router.get('/:groupId', async (req, res) => {
 					: null,
 				location: land.location || '',
 			})),
-			lastIrrigation: logs.length ? logs[logs.length - 1].startedAt : null,
+			lastIrrigation: logs.length ? logs[0].createdAt : null,
 			nextIrrigation,
 			requiredWater,
 			receivedWater,
 			remainingWater,
-			totalSchedulesInCycle,
-			receivedWaterInCycle,
 			logs,
 			notes,
 		})

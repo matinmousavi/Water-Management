@@ -1,28 +1,38 @@
-import { Flex, Tabs, Typography } from 'antd'
+import { Flex, Tabs } from 'antd'
 import tree from '../../../../../assets/icons/tree_bold.svg'
 import styles from './LandMobile.module.css'
 import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
-import LandNotesMobile from './components/LandMobileNotes/LandNotesMobile'
-import LandLogsMobile from './components/LandLogsMobile/LandLogsMobile'
-import HeaderIrrigation from '../../../../../components/HeaderIrrigation/HeaderIrrigation'
+import LandNotesMobile from './components/LandNotesMobile/LandNotesMobile'
+import IrrigationLogsMobile from '../../../../../components/responsive/mobile/IrrigationLogsMobile/IrrigationLogsMobile'
+import HeaderIrrigation from '../../../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 
-const LandMobile = ({ landData }) => {
+const LandMobile = ({ landData, landId }) => {
 	const items = [
 		{
 			key: 'logs',
 			label: 'لاگ توزیع',
-			children: <LandLogsMobile data={landData} />,
+			children: (
+                                <IrrigationLogsMobile
+                                        entityType='land'
+                                        entityId={landId}
+                                        wellId={landData.wells?.[0]?._id}
+                                        initialLogs={landData.logs}
+                                        receivedWater={landData.receivedWater}
+                                        requiredWater={landData.requiredWater}
+                                        remainingWater={landData.remainingWater}
+                                />
+			),
 		},
 		{
 			key: 'specifications',
 			label: 'مشخصات',
 			children: <LandInfoMobile data={landData} />,
 		},
-		{
-			key: 'notes',
-			label: 'یادداشت ها',
-			children: <LandNotesMobile notesData={landData?.notes} />,
-		},
+                {
+                        key: 'notes',
+                        label: 'یادداشت ها',
+                        children: <LandNotesMobile notesData={landData?.notes} />,
+                },
 	]
 
 	return (

@@ -8,7 +8,7 @@ import iconClock from '../../../../../../../assets/icons/ClockCircleOutlined.svg
 import iconLocation from '../../../../../../../assets/icons/EnvironmentOutlined.svg'
 import iconContacts from '../../../../../../../assets/icons/ContactsOutlined.svg'
 import iconPhone from '../../../../../../../assets/icons/PhoneOutlined.svg'
-import ProgressBar from '../../../../../../../components/ProgressBar/ProgressBar'
+import ProgressBar from '../../../../../../../components/common/ProgressBar/ProgressBar'
 
 moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
 

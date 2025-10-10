@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import useModal from '../../../../../hooks/useModal'
 import useAPI from '../../../../../hooks/useAPI'
 import useNotification from '../../../../../hooks/useNotification'
-import LandForm from '../../../../../components/Land/LandForm/LandForm'
+import LandForm from '../../../../../components/forms/LandForm/LandForm'
 
 const AddLand = ({ setData }) => {
 	const { isOpen, open, close, handleAfterChange } = useModal()

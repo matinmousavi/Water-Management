@@ -1,6 +1,6 @@
 import { Flex, Grid, Typography } from 'antd'
 import useAPI from '../../../hooks/useAPI'
-import Loading from '../../../components/Loading/Loading'
+import Loading from '../../../components/common/Loading/Loading'
 import WellsTable from './components/TableWells/WellsTable'
 import { useUser } from '../../../contexts/UserContext'
 import AddWell from './components/AddWell/AddWell'

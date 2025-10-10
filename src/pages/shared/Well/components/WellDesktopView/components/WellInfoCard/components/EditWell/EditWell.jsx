@@ -3,7 +3,7 @@ import { EditOutlined } from '@ant-design/icons'
 import { useCallback } from 'react'
 import dayjs from 'dayjs'
 
-import WellForm from '../../../../../../../../../components/Well/WellForm/WellForm'
+import WellForm from '../../../../../../../../../components/forms/WellForm/WellForm'
 import useModal from '../../../../../../../../../hooks/useModal'
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../../../hooks/useNotification'

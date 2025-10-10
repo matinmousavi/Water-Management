@@ -8,6 +8,8 @@ import landGroupsRouter from './landGroups.js'
 import schedulesRouter from './schedules.js'
 import snapshotsRouter from './snapshots.js'
 import { pickFields } from '../../utils/pickFields.js'
+import Schedule from '../../models/Schedule.model.js'
+import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
 
 const router = Router()
 
@@ -155,10 +157,45 @@ router.get('/:wellId', async (req, res) => {
 				.sort({ createdAt: -1 })
 				.lean()
 
-			logs = logs.map(log => ({
-				...log,
-				landGroupTitle: getLandGroupTitle(log.landGroup, well),
-			}))
+			logs = await Promise.all(
+				logs.map(async log => {
+					const landGroupTitle = getLandGroupTitle(log.landGroup, well)
+					let requiredWater = null
+					let receivedWater = null
+					let remainingWater = null
+
+					if (!log.endedAt) {
+						const schedules = await Schedule.find({
+							well: wellId,
+							landGroup: log.landGroup || log.land,
+						}).lean()
+
+						const totalRequiredMs = sumScheduleDurationsMs(schedules)
+
+						const previousIrrigations = await Irrigation.find({
+							well: wellId,
+							landGroup: log.landGroup || log.land,
+							isGroupLog: log.isGroupLog || false,
+							endedAt: { $exists: true },
+						}).lean()
+
+						const receivedMs = sumIrrigationDurationsMs(previousIrrigations)
+						const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
+
+						requiredWater = waterMetrics.requiredWater
+						receivedWater = waterMetrics.receivedWater
+						remainingWater = waterMetrics.remainingWater
+					}
+
+					return {
+						...log,
+						landGroupTitle,
+						requiredWater,
+						receivedWater,
+						remainingWater,
+					}
+				})
+			)
 
 			well.logs = logs
 		}

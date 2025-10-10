@@ -1,6 +1,6 @@
 import { Card, Flex, Typography } from 'antd'
 import LandLogsTable from './components/LandLogsTable/LandLogsTable'
-import AddIrrigationLog from '../../../../../components/AddIrrigationLog/AddIrrigationLog'
+import AddIrrigationLog from '../../../../../components/irrigation/AddIrrigationLog/AddIrrigationLog'
 
 const { Title } = Typography
 
