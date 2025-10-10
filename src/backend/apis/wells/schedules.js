@@ -3,14 +3,29 @@ import Schedule from '../../models/Schedule.model.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
-import moment from 'moment-jalaali'
 import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/waterMetrics.js'
 
 const router = Router({ mergeParams: true })
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000
+
+function startOfDay(date) {
+        const d = new Date(date)
+        d.setHours(0, 0, 0, 0)
+        return d
+}
+
+function diffInDays(later, earlier) {
+        return Math.floor((startOfDay(later).getTime() - startOfDay(earlier).getTime()) / DAY_IN_MS)
+}
+
+function addDays(date, days) {
+        return new Date(new Date(date).getTime() + days * DAY_IN_MS)
+}
+
 // helper function to check overlap
 function isOverlapping(start1, end1, start2, end2) {
-	return start1 < end2 && start2 < end1
+        return start1 < end2 && start2 < end1
 }
 
 // Helper: calculate duration between start and end in "HH:mm"
@@ -105,18 +120,18 @@ router.get('/day/:date', async (req, res) => {
 		const well = await Well.findById(wellId).lean()
 		if (!well) return res.status(404).json({ message: 'چاه پیدا نشد.' })
 
-		const targetDate = moment(date)
-		if (!targetDate.isValid()) {
-			return res.status(400).json({ message: 'تاریخ نامعتبر است.' })
-		}
+                const targetDate = new Date(date)
+                if (Number.isNaN(targetDate.getTime())) {
+                        return res.status(400).json({ message: 'تاریخ نامعتبر است.' })
+                }
 
-		const startDate = moment(well.cycleStartDate)
-		const daysPassed = Math.floor(targetDate.diff(startDate, 'days'))
-		const dayInCycle = (daysPassed % well.cycleDays) + 1
+                const startDate = new Date(well.cycleStartDate)
+                const daysPassed = diffInDays(targetDate, startDate)
+                const dayInCycle = (daysPassed % well.cycleDays) + 1
 
-		const todayMoment = moment()
-		const daysPassedToday = todayMoment.diff(startDate, 'days')
-		const todayDayInCycle = (daysPassedToday % well.cycleDays) + 1
+                const today = new Date()
+                const daysPassedToday = diffInDays(today, startDate)
+                const todayDayInCycle = (daysPassedToday % well.cycleDays) + 1
 
 		const schedulesToday = await Schedule.find({ well: wellId, day: dayInCycle }).lean()
 		const results = []
@@ -185,16 +200,16 @@ router.get('/day/:date', async (req, res) => {
 						...targetFilter,
 					}).lean()
 
-					if (ongoingLog) {
-						irrigationInProgress = true
-						irrigationStartedAt = ongoingLog.startedAt
+                                        if (ongoingLog) {
+                                                irrigationInProgress = true
+                                                irrigationStartedAt = ongoingLog.startedAt
 
-						const startTime = moment(schedule.startTime)
-						const endTime = moment(schedule.endTime)
-						const startedAt = moment(irrigationStartedAt)
-						const durationMs = endTime.diff(startTime)
-						irrigationEndsAt = startedAt.clone().add(durationMs, 'ms')
-					}
+                                                const startTime = new Date(schedule.startTime)
+                                                const endTime = new Date(schedule.endTime)
+                                                const startedAt = new Date(irrigationStartedAt)
+                                                const durationMs = endTime.getTime() - startTime.getTime()
+                                                irrigationEndsAt = new Date(startedAt.getTime() + durationMs)
+                                        }
 
 					const lastLog = await Irrigation.findOne({
 						...targetFilter,
@@ -204,23 +219,23 @@ router.get('/day/:date', async (req, res) => {
 					lastIrrigation = lastLog?.startedAt || null
 				}
 
-				const now = moment()
-				let nextIrrigation = moment(schedule.startTime)
-				if (nextIrrigation.isBefore(now)) {
-					const endTime = moment(schedule.endTime)
-					if (endTime.isAfter(now)) {
-						nextIrrigation = now.clone()
-					} else {
-						nextIrrigation = moment(schedule.startTime).add(well.cycleDays, 'days')
-					}
-				}
+                                const now = new Date()
+                                let nextIrrigation = new Date(schedule.startTime)
+                                if (nextIrrigation.getTime() < now.getTime()) {
+                                        const endTime = new Date(schedule.endTime)
+                                        if (endTime.getTime() > now.getTime()) {
+                                                nextIrrigation = new Date(now)
+                                        } else {
+                                                nextIrrigation = addDays(schedule.startTime, well.cycleDays)
+                                        }
+                                }
 
-				results.push({
+                                results.push({
 					id: schedule._id,
 					type: schedule.targetType,
 					title: schedule.title,
 					lastIrrigation,
-					nextIrrigation: nextIrrigation.toISOString(),
+                                        nextIrrigation: nextIrrigation.toISOString(),
 					dayInCycle,
 					todayDayInCycle,
 					landId: schedule.targetType === 'land' ? schedule.land : undefined,

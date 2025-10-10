@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import moment from 'moment-jalaali'
 import Note from '../../models/Note.model.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
@@ -38,31 +37,63 @@ const getReference = async (type, refId) => {
 	return { id: refId, title: doc.title }
 }
 
-function scheduleTimesForDate(schedule, referenceDay = moment().startOf('day')) {
-	const ref = moment(referenceDay).startOf('day')
-	const s = moment(schedule.startTime)
-	const e = moment(schedule.endTime)
-	const schedStart = ref
-		.clone()
-		.hour(s.hour())
-		.minute(s.minute())
-		.second(s.second() || 0)
-	let schedEnd = ref
-		.clone()
-		.hour(e.hour())
-		.minute(e.minute())
-		.second(e.second() || 0)
-	if (!schedEnd.isAfter(schedStart)) schedEnd.add(1, 'day')
-	return { schedStart, schedEnd }
+const MINUTE_IN_MS = 60 * 1000
+
+function startOfDay(date) {
+        const ref = new Date(date)
+        ref.setHours(0, 0, 0, 0)
+        return ref
+}
+
+function withTime(base, timeSource) {
+        const result = new Date(base)
+        result.setHours(
+                timeSource.getHours(),
+                timeSource.getMinutes(),
+                timeSource.getSeconds() || 0,
+                timeSource.getMilliseconds() || 0,
+        )
+        return result
+}
+
+function diffInMinutes(later, earlier) {
+        return Math.trunc((later.getTime() - earlier.getTime()) / MINUTE_IN_MS)
+}
+
+function addMinutes(date, minutes) {
+        return new Date(date.getTime() + minutes * MINUTE_IN_MS)
+}
+
+function formatTimeHHmm(date) {
+        return new Intl.DateTimeFormat('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+        }).format(date)
+}
+
+function scheduleTimesForDate(schedule, referenceDay = startOfDay(new Date())) {
+        const ref = startOfDay(referenceDay)
+        const startTime = new Date(schedule.startTime)
+        const endTime = new Date(schedule.endTime)
+
+        const schedStart = withTime(ref, startTime)
+        let schedEnd = withTime(ref, endTime)
+
+        if (schedEnd.getTime() <= schedStart.getTime()) {
+                schedEnd = addMinutes(schedEnd, 24 * 60)
+        }
+
+        return { schedStart, schedEnd }
 }
 
 function isLogOutOfSchedule(log, schedule, bufferMinutes = 2) {
-	const { schedStart, schedEnd } = scheduleTimesForDate(schedule, moment(log.startedAt))
-	const logStart = moment(log.startedAt)
-	const logEnd = moment(log.endedAt || log.startedAt)
-	const beforeAllowed = schedStart.clone().subtract(bufferMinutes, 'minutes')
-	const afterAllowed = schedEnd.clone().add(bufferMinutes, 'minutes')
-	return logStart.isBefore(beforeAllowed) || logEnd.isAfter(afterAllowed)
+        const { schedStart, schedEnd } = scheduleTimesForDate(schedule, new Date(log.startedAt))
+        const logStart = new Date(log.startedAt)
+        const logEnd = new Date(log.endedAt || log.startedAt)
+        const beforeAllowed = addMinutes(schedStart, -bufferMinutes)
+        const afterAllowed = addMinutes(schedEnd, bufferMinutes)
+        return logStart.getTime() < beforeAllowed.getTime() || logEnd.getTime() > afterAllowed.getTime()
 }
 
 router.get('/', async (req, res) => {
@@ -86,9 +117,9 @@ router.get('/', async (req, res) => {
 			const well = wells.find(w => w._id.toString() === log.well._id.toString())
 			if (!well) continue
 
-			const logStartDate = moment(log.startedAt)
-			const startDate = new Date(well.cycleStartDate)
-			const daysPassed = Math.floor((logStartDate.valueOf() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+                        const logStartDate = new Date(log.startedAt)
+                        const startDate = new Date(well.cycleStartDate)
+                        const daysPassed = Math.floor((logStartDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
 			const dayInCycle = (daysPassed % well.cycleDays) + 1
 
 			let land = undefined
@@ -142,14 +173,19 @@ router.get('/', async (req, res) => {
 			)
 
 			let totalSchedMinutes = 0
-			schedulesForProgress.forEach(sch => {
-				const dur = moment(sch.endTime).diff(moment(sch.startTime), 'minutes')
-				if (!isNaN(dur) && dur > 0) totalSchedMinutes += dur
-			})
+                        schedulesForProgress.forEach(sch => {
+                                const start = new Date(sch.startTime)
+                                const end = new Date(sch.endTime)
+                                const dur = diffInMinutes(end, start)
+                                if (!Number.isNaN(dur) && dur > 0) totalSchedMinutes += dur
+                        })
 
 			totalScheduledMinutes += totalSchedMinutes
 
-			const logDuration = log.startedAt && log.endedAt ? moment(log.endedAt).diff(moment(log.startedAt), 'minutes') : 0
+                        const logDuration =
+                                log.startedAt && log.endedAt
+                                        ? diffInMinutes(new Date(log.endedAt), new Date(log.startedAt))
+                                        : 0
 
 			totalIrrigatedMinutes += logDuration
 
@@ -166,24 +202,24 @@ router.get('/', async (req, res) => {
 			} else {
 				const firstSchedule = schedulesForStatus[0]
 				if (firstSchedule) {
-					const { schedStart, schedEnd } = scheduleTimesForDate(firstSchedule, logStartDate)
-					const logEnd = moment(log.endedAt)
-					const endDiff = schedEnd.diff(logEnd, 'minutes')
-					if (endDiff > 5) {
-						status = 'توقف زودهنگام'
-					} else if (moment(log.startedAt).isAfter(schedStart)) {
-						status = 'تاخیر'
-						delayedStartCount++
-					}
-				}
-			}
+                                        const { schedStart, schedEnd } = scheduleTimesForDate(firstSchedule, logStartDate)
+                                        const logEnd = new Date(log.endedAt)
+                                        const endDiff = diffInMinutes(schedEnd, logEnd)
+                                        if (endDiff > 5) {
+                                                status = 'توقف زودهنگام'
+                                        } else if (new Date(log.startedAt).getTime() > schedStart.getTime()) {
+                                                status = 'تاخیر'
+                                                delayedStartCount++
+                                        }
+                                }
+                        }
 
-			wellsData.push({
-				well: { id: well._id, title: well.title },
-				...(land ? { land } : {}),
-				...(landGroup ? { landGroup } : {}),
-				startTime: moment(log.startedAt).format('HH:mm'),
-				endTime: log.endedAt ? moment(log.endedAt).format('HH:mm') : null,
+                        wellsData.push({
+                                well: { id: well._id, title: well.title },
+                                ...(land ? { land } : {}),
+                                ...(landGroup ? { landGroup } : {}),
+                                startTime: formatTimeHHmm(new Date(log.startedAt)),
+                                endTime: log.endedAt ? formatTimeHHmm(new Date(log.endedAt)) : null,
 				status,
 				waterStatus: waterPercent,
 			})
