@@ -2,11 +2,11 @@ import { Button, Card, Flex, Typography } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import moment from 'moment-jalaali'
 
-import styles from './MobileNotesList.module.css'
+import styles from './NotesListMobile.module.css'
 
 const { Title, Text } = Typography
 
-const MobileNotesList = ({ notes = [], onEditNote }) => (
+const NotesListMobile = ({ notes = [], onEditNote }) => (
         <Flex vertical gap={16} className={styles.wrapper}>
                 {notes.map(note => {
                         const id = note?._id || note?.id
@@ -37,4 +37,4 @@ const MobileNotesList = ({ notes = [], onEditNote }) => (
         </Flex>
 )
 
-export default MobileNotesList
+export default NotesListMobile

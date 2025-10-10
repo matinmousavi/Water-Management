@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
-import MobileNotesPanel from '../../../../../../../components/responsive/mobile/MobileNotesPanel/MobileNotesPanel'
+import NotesPanelMobile from '../../../../../../../components/responsive/mobile/NotesPanelMobile/NotesPanelMobile'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
 
 const normalizeNoteResponse = response => response?.data || response?.note || response
 
-const LandMobileNotes = ({ notesData: initialNotes = [] }) => {
+const LandNotesMobile = ({ notesData: initialNotes = [] }) => {
         const { landId } = useParams()
         const notesApi = useAPI()
         const { openNotification } = useNotification()
@@ -57,7 +57,7 @@ const LandMobileNotes = ({ notesData: initialNotes = [] }) => {
         }
 
         return (
-                <MobileNotesPanel
+                <NotesPanelMobile
                         notes={notes}
                         onNotesChange={setNotes}
                         onAddNote={handleAddNote}
@@ -67,4 +67,4 @@ const LandMobileNotes = ({ notesData: initialNotes = [] }) => {
         )
 }
 
-export default LandMobileNotes
+export default LandNotesMobile

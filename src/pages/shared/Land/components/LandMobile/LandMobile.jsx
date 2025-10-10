@@ -2,8 +2,8 @@ import { Flex, Tabs } from 'antd'
 import tree from '../../../../../assets/icons/tree_bold.svg'
 import styles from './LandMobile.module.css'
 import LandInfoMobile from './components/LandInfoMobile/LandInfoMobile'
-import LandMobileNotes from './components/LandMobileNotes/LandMobileNotes'
-import MobileIrrigationLogs from '../../../../../components/responsive/mobile/MobileIrrigationLogs/MobileIrrigationLogs'
+import LandNotesMobile from './components/LandNotesMobile/LandNotesMobile'
+import IrrigationLogsMobile from '../../../../../components/responsive/mobile/IrrigationLogsMobile/IrrigationLogsMobile'
 import HeaderIrrigation from '../../../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 
 const LandMobile = ({ landData, landId }) => {
@@ -12,7 +12,7 @@ const LandMobile = ({ landData, landId }) => {
 			key: 'logs',
 			label: 'لاگ توزیع',
 			children: (
-                                <MobileIrrigationLogs
+                                <IrrigationLogsMobile
                                         entityType='land'
                                         entityId={landId}
                                         wellId={landData.wells?.[0]?._id}
@@ -31,7 +31,7 @@ const LandMobile = ({ landData, landId }) => {
                 {
                         key: 'notes',
                         label: 'یادداشت ها',
-                        children: <LandMobileNotes notesData={landData?.notes} />,
+                        children: <LandNotesMobile notesData={landData?.notes} />,
                 },
 	]
 

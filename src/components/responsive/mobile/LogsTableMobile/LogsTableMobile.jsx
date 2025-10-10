@@ -1,9 +1,9 @@
 import { Spin, Table } from 'antd'
 import moment from 'moment-jalaali'
 import DescriptionModalCell from '../DescriptionModalCell/DescriptionModalCell'
-import styles from './MobileLogsTable.module.css'
+import styles from './LogsTableMobile.module.css'
 
-const MobileLogsTable = ({ logs = [], descriptionEditHours }) => {
+const LogsTableMobile = ({ logs = [], descriptionEditHours }) => {
 	const columns = [
 		{
 			title: 'تاریخ',
@@ -36,7 +36,7 @@ const MobileLogsTable = ({ logs = [], descriptionEditHours }) => {
 		{
 			title: 'توضیحات',
 			key: 'note',
-			render: (_, record) => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
+                        render: (_, record) => <DescriptionModalCell record={record} descriptionEditHours={descriptionEditHours} />,
 		},
 	]
 
@@ -48,10 +48,10 @@ const MobileLogsTable = ({ logs = [], descriptionEditHours }) => {
 			scroll={{ x: 'max-content' }}
 			pagination={false}
 			className={styles.table}
-			dataSource={logs}
-			columns={columns}
-		/>
-	)
+                        dataSource={logs}
+                        columns={columns}
+                />
+        )
 }
 
-export default MobileLogsTable
+export default LogsTableMobile

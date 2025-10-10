@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button, Form, Input } from 'antd'
 
 import BottomSheetModal from '../BottomSheetModal/BottomSheetModal'
-import MobileNotesList from './components/MobileNotesList/MobileNotesList'
+import NotesListMobile from './components/NotesListMobile/NotesListMobile'
 
-import styles from './MobileNotesPanel.module.css'
+import styles from './NotesPanelMobile.module.css'
 
-const MobileNotesPanel = ({
+const NotesPanelMobile = ({
         notes = [],
         isLoading = false,
         onAddNote,
@@ -101,7 +101,7 @@ const MobileNotesPanel = ({
                         </div>
 
                         <div className={styles.listWrapper}>
-                                <MobileNotesList notes={notesList} onEditNote={handleEditNote} />
+                                <NotesListMobile notes={notesList} onEditNote={handleEditNote} />
                         </div>
 
                         <BottomSheetModal
@@ -123,4 +123,4 @@ const MobileNotesPanel = ({
         )
 }
 
-export default MobileNotesPanel
+export default NotesPanelMobile

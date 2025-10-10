@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styles from './HeaderIrrigation.module.css'
 import { ArrowRightOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons'
 import { useState } from 'react'
-import WellsList from '../../../pages/shared/Well/components/WellMobileView/components/WellsList/WellsList'
+import WellsList from '../../../pages/shared/Well/components/WellMobile/components/WellsList/WellsList'
 
 const HeaderIrrigation = ({ title, icon, isSelect = false, selectTitle, selectData, setSelect }) => {
 	const { Title } = Typography

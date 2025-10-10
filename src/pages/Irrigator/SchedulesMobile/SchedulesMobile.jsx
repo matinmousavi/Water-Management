@@ -8,7 +8,7 @@ import IrrigationScheduleTable from '../../shared/Well/components/WellDesktopVie
 import HeaderIrrigation from '../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 import { useUser } from '../../../contexts/UserContext'
 
-const SchdulesMobileView = () => {
+const SchedulesMobile = () => {
 	const { wellId: routeWellId } = useParams()
 	const api = useAPI()
 	const { user } = useUser()
@@ -49,8 +49,8 @@ const SchdulesMobileView = () => {
 		}
 	}, [filterWells, selectedWellId, selectedWell])
 
-	return (
-		<>
+        return (
+                <>
 			<HeaderIrrigation
 				selectData={filterWells}
 				setSelect={well => {
@@ -73,4 +73,4 @@ const SchdulesMobileView = () => {
 	)
 }
 
-export default SchdulesMobileView
+export default SchedulesMobile

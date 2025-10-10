@@ -4,11 +4,11 @@ import jalaliday from 'dayjs/plugin/jalaliday'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { useState } from 'react'
 
-import styles from './MobileIrrigationLogs.module.css'
+import styles from './IrrigationLogsMobile.module.css'
 import TimeEndPickerSheet from '../TimeEndPickerSheet/TimeEndPickerSheet'
 import TimeStartPickerSheet from '../TimeStartPickerSheet/TimeStartPickerSheet'
 import EndNoticeDrawer from '../EndNoticeDrawer/EndNoticeDrawer'
-import MobileLogsTable from '../MobileLogsTable/MobileLogsTable'
+import LogsTableMobile from '../LogsTableMobile/LogsTableMobile'
 import TimerDisplay from '../../../common/TimerDisplay/TimerDisplay'
 import WarningModalInUse from '../WarningModalInUse/WarningModalInUse'
 import useNotification from '../../../../hooks/useNotification'
@@ -39,7 +39,7 @@ const getEntityMetricsSource = (entityType, response) => {
         return response
 }
 
-const MobileIrrigationLogs = ({
+const IrrigationLogsMobile = ({
         entityType,
         entityId,
         wellId,
@@ -238,7 +238,7 @@ const MobileIrrigationLogs = ({
                         <Card>
                                 <Flex vertical gap={8}>
                                         <Text className={styles.titleLogs}>لاگ توزیع آب ({logs.length})</Text>
-                                        <MobileLogsTable logs={logs} descriptionEditHours={descriptionEditHours} />
+                                        <LogsTableMobile logs={logs} descriptionEditHours={descriptionEditHours} />
                                 </Flex>
                         </Card>
 
@@ -315,4 +315,4 @@ const MobileIrrigationLogs = ({
         )
 }
 
-export default MobileIrrigationLogs
+export default IrrigationLogsMobile

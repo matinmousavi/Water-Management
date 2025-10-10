@@ -7,7 +7,7 @@ import Loading from '../../../components/common/Loading/Loading'
 import MetaTitle from '../../../components/common/MetaTitle/MetaTitle'
 import DeleteCard from '../../../components/common/DeleteCard/DeleteCard'
 import { WellProvider } from './contexts/WellContext'
-import WellMobileView from './components/WellMobileView/WellMobileView'
+import WellMobile from './components/WellMobile/WellMobile'
 import WellDesktopView from './components/WellDesktopView/WellDesktopView'
 
 const Well = () => {
@@ -69,9 +69,9 @@ const Well = () => {
 		<WellProvider value={contextValue}>
 			<MetaTitle>{title ? `چاه ${title}` : 'جزئیات چاه'}</MetaTitle>
 			<Flex vertical gap={20}>
-				{isMobile && isIrrigator && (
-					<WellMobileView wellId={well?._id} setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
-				)}
+                                {isMobile && isIrrigator && (
+                                        <WellMobile wellId={well?._id} setIrrigatorWells={setIrrigatorWells} irrigatorWells={irrigatorWells} filterWells={filterWells} />
+                                )}
 				{(isAdmin || (isIrrigator && !isMobile)) && (
 					<WellDesktopView
 						title={title}

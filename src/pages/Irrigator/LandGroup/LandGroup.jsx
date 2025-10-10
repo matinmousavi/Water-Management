@@ -6,7 +6,7 @@ import { useParams } from 'react-router'
 import useAPI from '../../../hooks/useAPI'
 import HeaderIrrigation from '../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 import Loading from '../../../components/common/Loading/Loading'
-import MobileIrrigationLogs from '../../../components/responsive/mobile/MobileIrrigationLogs/MobileIrrigationLogs'
+import IrrigationLogsMobile from '../../../components/responsive/mobile/IrrigationLogsMobile/IrrigationLogsMobile'
 import LandGroupLands from './components/LandGroupLands/LandGroupLands'
 import LandGroupNotes from './components/LandGroupNotes/LandGroupNotes'
 
@@ -27,7 +27,7 @@ const LandGroup = () => {
                         key: 'logs',
                         label: 'لاگ توزیع',
                         children: (
-                                <MobileIrrigationLogs
+                                <IrrigationLogsMobile
                                         entityType='landGroup'
                                         entityId={groupId}
                                         wellId={wellId}

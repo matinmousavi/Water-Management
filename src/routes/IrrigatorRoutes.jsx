@@ -6,7 +6,7 @@ import Well from '../pages/shared/Well/Well'
 import Wells from '../pages/shared/Wells/Wells'
 import Lands from '../pages/shared/Lands/Lands'
 import MyNotes from '../pages/shared/MyNotes/MyNotes'
-import SchdulesMobileView from '../pages/Irrigator/SchdulesMobileView/SchdulesMobileView'
+import SchedulesMobile from '../pages/Irrigator/SchedulesMobile/SchedulesMobile'
 import LandGroup from '../pages/Irrigator/LandGroup/LandGroup'
 
 const IrrigatorRoutes = () => (
@@ -25,7 +25,7 @@ const IrrigatorRoutes = () => (
 			</Route>
 			<Route path='my-notes' element={<MyNotes />} />
 			<Route path='wells/:wellId/groups/:groupId' element={<LandGroup />} />
-			<Route path='schedules/:wellId' element={<SchdulesMobileView />} />
+			<Route path='schedules/:wellId' element={<SchedulesMobile />} />
 		</Route>
 	</Routes>
 )

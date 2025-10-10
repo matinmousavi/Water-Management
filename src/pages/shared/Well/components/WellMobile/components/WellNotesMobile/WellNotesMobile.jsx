@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 
-import MobileNotesPanel from '../../../../../../../components/responsive/mobile/MobileNotesPanel/MobileNotesPanel'
+import NotesPanelMobile from '../../../../../../../components/responsive/mobile/NotesPanelMobile/NotesPanelMobile'
 import useAPI from '../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../hooks/useNotification'
 
 const normalizeNoteResponse = response => response?.data || response?.note || response
 
-const WellMobileNotes = ({ wellId }) => {
+const WellNotesMobile = ({ wellId }) => {
         const notesApi = useAPI()
         const { openNotification } = useNotification()
         const [notes, setNotes] = useState([])
@@ -69,7 +69,7 @@ const WellMobileNotes = ({ wellId }) => {
         }
 
         return (
-                <MobileNotesPanel
+                <NotesPanelMobile
                         notes={notes}
                         onNotesChange={setNotes}
                         onAddNote={handleAddNote}
@@ -79,4 +79,4 @@ const WellMobileNotes = ({ wellId }) => {
         )
 }
 
-export default WellMobileNotes
+export default WellNotesMobile
