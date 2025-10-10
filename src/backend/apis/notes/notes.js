@@ -3,8 +3,8 @@ import Note from '../../models/Note.model.js'
 import Land from '../../models/Land.model.js'
 import Well from '../../models/Well.model.js'
 import User from '../../models/User.model.js'
-import { pickFields } from '../../utils/pickFields.js'
-import { sanitizeQuery } from '../../utils/sanitizeQuery.js'
+import { pickFields } from '../../utils/objectUtils.js'
+import { sanitizeQuery } from '../../utils/queryUtils.js'
 
 const router = Router()
 

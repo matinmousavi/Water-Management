@@ -4,17 +4,15 @@ import dayjs from 'dayjs'
 
 import BottomSheetModal from '../BottomSheetModal/BottomSheetModal'
 import TimerDisplay from '../../../common/TimerDisplay/TimerDisplay'
-import { getIrrigationStartTime, setIrrigationStartTime } from '../../../../utils/irrigationStorage'
+import {
+        getIrrigationStartTime,
+        setIrrigationStartTime,
+} from '../../../../utils/irrigationStorageUtils'
+import { parseDurationToMilliseconds } from '../../../../utils/timeUtils'
 
 import styles from './WarningModalInUse.module.css'
 
 const { Text } = Typography
-
-const parseDurationToMs = str => {
-	if (!str) return null
-	const [h, m] = str.split(':').map(Number)
-	return (h * 60 * 60 + m * 60) * 1000
-}
 
 const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 	const [startedAt, setStartedAt] = useState(null)
@@ -28,9 +26,9 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 	useEffect(() => {
 		if (!entityId) return
 
-		let irrigationStartTime = getIrrigationStartTime(entityId)
+                let irrigationStartTime = getIrrigationStartTime(entityId)
 
-		if (!irrigationStartTime && ongoingLog?.startedAt) {
+                if (!irrigationStartTime && ongoingLog?.startedAt) {
 			const apiStart = dayjs(ongoingLog.startedAt).valueOf()
 			setIrrigationStartTime(entityId, apiStart)
 			irrigationStartTime = apiStart
@@ -41,8 +39,9 @@ const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
 
 	if (!isOpen || !entityId) return null
 
-	const requiredWaterMs = parseDurationToMs(ongoingLog?.requiredWater) || 2 * 60 * 60 * 1000
-	const remainingWaterMs = parseDurationToMs(ongoingLog?.remainingWater) || requiredWaterMs
+        const requiredWaterMs = parseDurationToMilliseconds(ongoingLog?.requiredWater) || 2 * 60 * 60 * 1000
+        const remainingWaterMs =
+                parseDurationToMilliseconds(ongoingLog?.remainingWater) || requiredWaterMs
 
         return (
                 <BottomSheetModal

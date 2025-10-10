@@ -3,7 +3,7 @@ import { Typography, Flex, Tabs, Empty, Button } from 'antd'
 import { CaretDownOutlined, CaretUpOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import { useSearchParams } from 'react-router-dom'
 import moment from 'moment-jalaali'
-import english2persian from '../../../../../utils/english2persian'
+import { convertEnglishDigitsToPersian } from '../../../../../utils/stringUtils'
 
 import WellsList from './components/WellsList/WellsList'
 import WellLogsMobile from './components/WellLogsMobile/WellLogsMobile'
@@ -28,7 +28,7 @@ const WellMobile = ({ irrigatorWells, setIrrigatorWells, filterWells }) => {
 		const today = moment().startOf('day')
 		const target = moment(d).startOf('day')
 
-		const dayNum = english2persian(String(target.jDate()))
+                const dayNum = convertEnglishDigitsToPersian(target.jDate())
 		const monthName = target.format('jMMMM')
 
 		let suffix = ''
