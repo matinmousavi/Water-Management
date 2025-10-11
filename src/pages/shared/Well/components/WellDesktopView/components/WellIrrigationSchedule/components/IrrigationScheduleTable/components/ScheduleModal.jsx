@@ -131,7 +131,7 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 				</Form.Item>
 
 				{!editingTask && (
-					<Form.Item label='مدت زمان آبیاری'>
+					<Form.Item label={scheduleType === 'land' ? 'مدت زمان آبیاری' : 'مدت زمان خاموشی'}>
 						<span>{displayDuration}</span>
 					</Form.Item>
 				)}
@@ -164,7 +164,7 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 					)}
 				</Form.Item>
 				{editingTask && (
-					<Form.Item label='مدت زمان آبیاری'>
+					<Form.Item label={scheduleType === 'land' ? 'مدت زمان آبیاری' : 'مدت زمان خاموشی'}>
 						<span>{displayDuration}</span>
 					</Form.Item>
 				)}

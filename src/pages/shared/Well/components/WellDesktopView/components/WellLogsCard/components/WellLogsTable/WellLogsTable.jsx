@@ -10,7 +10,7 @@ import { useRef, useState, useMemo, useEffect } from 'react'
 import EditIrrigationLog from '../../../../../../../../../components/irrigation/EditIrrigationLog/EditIrrigationLog'
 import { useUser } from '../../../../../../../../../contexts/UserContext'
 
-const WellLogsTable = ({ data, setLogs, wellStatus }) => {
+const WellLogsTable = ({ data, setLogs, wellStatus, landsData }) => {
 	const wellApi = useAPI()
 	const { openNotification } = useNotification()
 	const { open, close, isOpen, handleAfterChange } = useModal()
@@ -23,9 +23,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 	const [isScrollable, setIsScrollable] = useState(window.innerWidth < 1024)
 
 	useEffect(() => {
-		const handleResize = () => {
-			setIsScrollable(window.innerWidth < 1024)
-		}
+		const handleResize = () => setIsScrollable(window.innerWidth < 1024)
 		window.addEventListener('resize', handleResize)
 		return () => window.removeEventListener('resize', handleResize)
 	}, [])
@@ -35,45 +33,36 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		const grouped = {}
 
 		data.forEach(log => {
-			const key = log.landGroup ? `${log.landGroup}_${moment(log.startedAt).format('YYYYMMDDHHmmss')}_${log._id}` : log._id
+			const key = log.landGroup ? `${log.landGroup}_${log.startedAt}` : log._id
 			if (!grouped[key]) {
-				grouped[key] = {
-					...log,
-					logs: [],
-					landGroupTitle: log.landGroupTitle || '--',
-				}
+				grouped[key] = { ...log, logs: [], landGroupTitle: log.landGroupTitle || '--' }
 			}
 			grouped[key].logs.push(log)
 		})
 
 		Object.values(grouped).forEach(group => {
-			const sharedDate = group.startedAt
-			const sharedStartedAt = group.startedAt
-			const sharedDuration = group.duration
-			const sharedNote = group.note
-
 			group.logs.forEach((log, index) => {
 				rows.push({
 					...log,
-					groupKey: log.landGroup ? `${log.landGroup}_${moment(log.startedAt).format('YYYYMMDDHHmmss')}_${log._id}` : log._id,
+					groupKey: group.landGroup ? `${group.landGroup}_${group.startedAt}` : log._id,
 					logs: group.logs,
 					isFirstRow: index === 0,
 					groupSize: group.logs.length,
-					landGroupTitle: group.landGroupTitle,
-					sharedDate,
-					sharedStartedAt,
-					sharedDuration,
-					sharedNote,
+					sharedDate: group.startedAt,
+					sharedStartedAt: group.startedAt,
+					sharedDuration: group.duration,
+					sharedNote: group.note,
 				})
 			})
 		})
 
-		return rows
+		return rows.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))
 	}, [data])
 
 	const handleDelete = async group => {
 		try {
 			const ids = group.logs.map(log => log._id)
+			// **FIX:** Reverted to original single-delete loop
 			for (const id of ids) {
 				await wellApi.delete(`irrigations/${id}`)
 			}
@@ -92,6 +81,9 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		close()
 	}
 
+	// ... بقیه کد بدون تغییر باقی می‌ماند
+	// ... (The rest of the code remains unchanged)
+
 	const handleViewNote = log => {
 		setViewableLog(log)
 		setIsViewModalOpen(true)
@@ -106,7 +98,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
-					children: record.sharedDate ? moment(record.sharedDate).locale('fa').format('dddd jD jMMMM jYYYY') : '--',
+					children: record.sharedDate ? moment.utc(record.sharedDate).locale('fa').format('dddd jD jMMMM jYYYY') : '--',
 					props: { rowSpan: record.groupSize },
 				}
 			},
@@ -128,7 +120,7 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 			render: (_, record) => {
 				if (!record.isFirstRow) return { props: { rowSpan: 0 } }
 				return {
-					children: record.sharedStartedAt ? moment(record.sharedStartedAt).locale('fa').format('HH:mm') : '--',
+					children: record.sharedStartedAt ? moment.utc(record.sharedStartedAt).locale('fa').format('HH:mm') : '--',
 					props: { rowSpan: record.groupSize },
 				}
 			},
@@ -205,8 +197,6 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 		})
 	}
 
-	const totalWidth = columns.reduce((sum, col) => sum + (col.width || 150), 0)
-
 	return (
 		<>
 			<Table
@@ -216,11 +206,8 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 				rowKey={record => record.groupKey || record._id}
 				pagination={false}
 				bordered
-				scroll={{
-					x: isScrollable ? 'max-content' : false,
-				}}
+				scroll={{ x: isScrollable ? 'max-content' : false }}
 			/>
-
 			<Modal
 				title='حذف لاگ‌های گروهی'
 				open={isOpen}
@@ -234,12 +221,10 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 			>
 				<p>آیا از حذف این گروه لاگ‌های توزیع آب اطمینان دارید؟</p>
 			</Modal>
-
-			{editableGroup && <EditIrrigationLog data={editableGroup} setLogs={setLogs} onClose={() => setEditableGroup(null)} page='well' />}
-
+			{editableGroup && <EditIrrigationLog data={editableGroup} setLogs={setLogs} onClose={() => setEditableGroup(null)} landsData={landsData} />}
 			{viewableLog && (
 				<Modal
-					title={`توضیحات لاگ ${viewableLog?.startedAt ? moment(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
+					title={`توضیحات لاگ ${viewableLog?.startedAt ? moment.utc(viewableLog.startedAt).locale('fa').format('dddd jD jMMMM jYYYY') : ''}`}
 					open={isViewModalOpen}
 					onCancel={() => {
 						setIsViewModalOpen(false)
@@ -251,6 +236,14 @@ const WellLogsTable = ({ data, setLogs, wellStatus }) => {
 							onClick={() => {
 								setEditableGroup(viewableLog)
 								setIsViewModalOpen(false)
+							}}
+							role='button'
+							tabIndex={0}
+							onKeyDown={e => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									setEditableGroup(viewableLog)
+									setIsViewModalOpen(false)
+								}
 							}}
 						>
 							<EditOutlined />
