@@ -1,6 +1,6 @@
 import { Button, Card, Flex, Typography } from 'antd'
 import moment from 'moment-jalaali'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import styles from './IrrigationLogsMobile.module.css'
 import TimePickerSheet from '../TimePickerSheet/TimePickerSheet'
@@ -12,7 +12,6 @@ import useNotification from '../../../../hooks/useNotification'
 import useAPI from '../../../../hooks/useAPI'
 
 const { Text } = Typography
-
 const END_TIME_MARGIN_MINUTES = 30
 
 const parseTimeToMs = str => {
@@ -35,7 +34,7 @@ const getEntityMetricsSource = (entityType, response) => {
 	return response
 }
 
-const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], receivedWater, requiredWater, remainingWater }) => {
+const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], receivedWater, requiredWater, currentIrrigation }) => {
 	const api = useAPI()
 	const apiTime = useAPI()
 	const entityApi = useAPI()
@@ -43,7 +42,6 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 
 	const [logs, setLogs] = useState(normalizeLogs(initialLogs))
 	const [localRequiredWater, setLocalRequiredWater] = useState(requiredWater)
-	const [localRemainingWater, setLocalRemainingWater] = useState(remainingWater)
 	const [localReceivedWater, setLocalReceivedWater] = useState(receivedWater)
 	const [showStartDrawer, setShowStartDrawer] = useState(false)
 	const [showEndDrawer, setShowEndDrawer] = useState(false)
@@ -51,6 +49,60 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 	const [isOpenWarning, setIsOpenWarning] = useState(false)
 	const [startPickerValue, setStartPickerValue] = useState(moment())
 	const [endPickerValue, setEndPickerValue] = useState(moment())
+
+	apiTime.init('settings/irrigations')
+	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
+	const logTimeMarginMinutes = apiTime.data?.data?.logTimeMarginMinutes?.time ?? 30
+
+	const updatedRequiredWater = localRequiredWater ?? requiredWater
+	const updatedReceivedWater = localReceivedWater ?? receivedWater
+
+	const latestLog = logs[0] ?? null
+	const localOngoingLog = logs.find(l => l.isOngoing) || null
+
+	const belongsHere = useMemo(() => {
+		if (!currentIrrigation) return false
+		if (currentIrrigation.type === 'land' && entityType === 'land') {
+			return currentIrrigation.landId === entityId
+		}
+		if (currentIrrigation.type === 'landGroup' && entityType === 'landGroup') {
+			return currentIrrigation.landGroupId === entityId
+		}
+		return false
+	}, [currentIrrigation, entityId, entityType])
+
+	const isLocalIrrigating = Boolean(localOngoingLog && String(localOngoingLog._id || '').startsWith('temp-'))
+	const isServerIrrigatingHere = belongsHere && Boolean(currentIrrigation?.id)
+	const isIrrigating = isLocalIrrigating || isServerIrrigatingHere
+
+	const timerProps = useMemo(() => {
+		if (isLocalIrrigating && localOngoingLog) {
+			return {
+				startedAtForDisplay: localOngoingLog.startedAt,
+				requiredMsForDisplay: parseTimeToMs(updatedRequiredWater),
+				baseReceivedMsForDisplay: parseTimeToMs(updatedReceivedWater),
+			}
+		}
+		if (isServerIrrigatingHere && currentIrrigation) {
+			return {
+				startedAtForDisplay: moment(currentIrrigation.startedAt).toISOString(),
+				requiredMsForDisplay: parseTimeToMs(currentIrrigation.requiredWater),
+				baseReceivedMsForDisplay: parseTimeToMs(currentIrrigation.receivedWater),
+			}
+		}
+		if (latestLog?.isOngoing) {
+			return {
+				startedAtForDisplay: latestLog.startedAt,
+				requiredMsForDisplay: parseTimeToMs(updatedRequiredWater),
+				baseReceivedMsForDisplay: parseTimeToMs(updatedReceivedWater),
+			}
+		}
+		return {
+			startedAtForDisplay: null,
+			requiredMsForDisplay: 0,
+			baseReceivedMsForDisplay: 0,
+		}
+	}, [isLocalIrrigating, localOngoingLog, isServerIrrigatingHere, currentIrrigation, latestLog, updatedRequiredWater, updatedReceivedWater])
 
 	const handleStartPickerChange = time => {
 		const candidate = moment(time)
@@ -62,38 +114,15 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 		if (candidate.isValid()) setEndPickerValue(candidate)
 	}
 
-	apiTime.init('settings/irrigations')
-	const descriptionEditHours = apiTime.data?.data?.descriptionEditHours?.time
-	const logTimeMarginMinutes = apiTime.data?.data?.logTimeMarginMinutes?.time ?? 30
-
-	const latestLog = logs[0] ?? null
-	const ongoingLog = latestLog?.isOngoing ? latestLog : null
-	const isIrrigating = Boolean(ongoingLog)
-	const startedAt = ongoingLog?.startedAt ?? null
-
-	const updatedRequiredWater = localRequiredWater ?? requiredWater
-	const updatedRemainingWater = localRemainingWater ?? remainingWater
-	const updatedReceivedWater = localReceivedWater ?? receivedWater
-
-	const calculateActualRemainingWater = () => {
-		const requiredMs = parseTimeToMs(updatedRequiredWater)
-		const receivedMs = parseTimeToMs(updatedReceivedWater)
-		const remainingMs = requiredMs - receivedMs
-
-		if (remainingMs < 0 && parseTimeToMs(updatedRemainingWater) === 0) {
-			return remainingMs
-		}
-
-		return parseTimeToMs(updatedRemainingWater)
-	}
-
-	const actualRemainingWaterMs = calculateActualRemainingWater()
-
 	const handleOpenStart = () => {
+		if (currentIrrigation && !belongsHere) {
+			setIsOpenWarning(true)
+			return
+		}
+		if (isServerIrrigatingHere) return
 		const now = moment()
 		setStartPickerValue(now)
-		if (ongoingLog) setIsOpenWarning(true)
-		else setShowStartDrawer(true)
+		setShowStartDrawer(true)
 	}
 
 	const buildTempLog = combined => {
@@ -106,22 +135,17 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 			note: '',
 			duration: null,
 		}
-
-		if (entityType === 'landGroup') {
-			return { ...base, landGroup: entityId }
-		}
-
+		if (entityType === 'landGroup') return { ...base, landGroup: entityId }
 		return { ...base, land: entityId }
 	}
 
 	const handleTimeStartSelected = async selectedTime => {
 		setShowStartDrawer(false)
-		if (ongoingLog) return
+		if (isIrrigating) return
 
 		const normalized = moment(selectedTime)
 		if (!normalized.isValid()) return
 		const combined = moment().startOf('day').hour(normalized.hour()).minute(normalized.minute()).second(0).millisecond(0)
-
 		const tempLog = buildTempLog(combined)
 
 		setLogs(prev => [tempLog, ...prev])
@@ -132,19 +156,11 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 				startTime: combined.toISOString(),
 				isOngoing: true,
 			}
-
 			if (entityType === 'landGroup') payload.landGroupId = entityId
 			else payload.landId = entityId
-
-			const response = await api.post('irrigations', payload)
-			const created = response?.irrigation
-
-			if (created) {
-				setLogs(prev => prev.map(log => (log._id === tempLog._id ? { ...created, isOngoing: Boolean(created.isOngoing) } : log)))
-			}
-		} catch (err) {
-			console.error(err)
-			setLogs(prev => prev.filter(log => log._id !== tempLog._id))
+			await api.post('irrigations', payload)
+		} catch {
+			setLogs(prev => prev.filter(l => l._id !== tempLog._id))
 			openNotification('error', 'خطا در شروع آبیاری')
 		}
 	}
@@ -159,7 +175,6 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 			setLogs(finalLogs)
 
 			const metricsSource = getEntityMetricsSource(entityType, response)
-			if (metricsSource?.remainingWater !== undefined) setLocalRemainingWater(metricsSource.remainingWater)
 			if (metricsSource?.requiredWater !== undefined) setLocalRequiredWater(metricsSource.requiredWater)
 			if (metricsSource?.receivedWater !== undefined) setLocalReceivedWater(metricsSource.receivedWater)
 
@@ -172,7 +187,6 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 		setLogs(finalLogs)
 
 		const metricsSource = getEntityMetricsSource(entityType, response)
-		if (metricsSource?.remainingWater !== undefined) setLocalRemainingWater(metricsSource.remainingWater)
 		if (metricsSource?.requiredWater !== undefined) setLocalRequiredWater(metricsSource.requiredWater)
 		if (metricsSource?.receivedWater !== undefined) setLocalReceivedWater(metricsSource.receivedWater)
 
@@ -181,45 +195,56 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 
 	const handleTimeEndSelected = async time => {
 		setShowEndDrawer(false)
-		if (!ongoingLog) return openNotification('error', 'لاگ فعالی یافت نشد')
+
+		const activeLocal = logs.find(l => l.isOngoing)
+		if (!activeLocal) {
+			openNotification('error', 'لاگ فعالی یافت نشد')
+			return
+		}
 
 		const t = moment(time)
 		if (!t.isValid()) return
-		const combined = moment(ongoingLog.startedAt).hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
+		const combined = moment(activeLocal.startedAt).hour(t.hour()).minute(t.minute()).second(0).millisecond(0)
 		const endedAtISO = combined.toISOString()
-		const originalId = ongoingLog._id
 
-		setLogs(prev => prev.map(log => (log._id === originalId ? { ...log, isOngoing: false, endedAt: endedAtISO } : log)))
+		setLogs(prev => prev.map(log => (String(log._id) === String(activeLocal._id) ? { ...log, isOngoing: false, endedAt: endedAtISO } : log)))
 
 		try {
-			if (String(originalId).startsWith('temp-')) {
+			if (String(activeLocal._id).startsWith('temp-')) {
 				const payload = {
 					wellId,
-					startTime: ongoingLog.startedAt,
+					startTime: activeLocal.startedAt,
 					endTime: endedAtISO,
 					isOngoing: false,
 				}
-
 				if (entityType === 'landGroup') payload.landGroupId = entityId
 				else payload.landId = entityId
-
 				await api.post('irrigations', payload)
 			} else {
-				await api.patch(`irrigations/${originalId}`, { endTime: endedAtISO, isOngoing: false })
+				await api.patch(`irrigations/${activeLocal._id}`, { endTime: endedAtISO, isOngoing: false })
 			}
 
 			await refreshEntityData()
 			openNotification('success', 'آبیاری با موفقیت پایان یافت')
-		} catch (error) {
-			console.error(error)
+		} catch {
 			openNotification('error', 'خطا در پایان آبیاری')
 		}
 	}
 
-	const handleWarningModal = () => {
+	const handleWarningModalConfirm = async () => {
 		setIsOpenWarning(false)
-		setEndPickerValue(moment())
-		setShowEndDrawer(true)
+		try {
+			await api.patch(`irrigations/${currentIrrigation.id}`, {
+				isOngoing: false,
+				endTime: new Date().toISOString(),
+			})
+			openNotification('success', 'آبیاری قبلی با موفقیت پایان یافت.')
+			const now = moment()
+			setStartPickerValue(now)
+			setShowStartDrawer(true)
+		} catch {
+			openNotification('error', 'پایان آبیاری قبلی با خطا مواجه شد.')
+		}
 	}
 
 	return (
@@ -236,10 +261,10 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 					<Flex align='center' gap={12} className={styles.footerContent}>
 						<Text className={styles.timerText}>
 							<TimerDisplay
-								key={latestLog?._id ?? 'no-ongoing'}
-								startedAt={startedAt}
-								requiredWaterMs={parseTimeToMs(updatedRequiredWater)}
-								remainingWaterMs={actualRemainingWaterMs}
+								key={(localOngoingLog?._id || currentIrrigation?.id) ?? 'no-ongoing'}
+								startedAt={timerProps.startedAtForDisplay}
+								requiredMs={timerProps.requiredMsForDisplay}
+								baseReceivedMs={timerProps.baseReceivedMsForDisplay}
 							/>
 						</Text>
 						<Button type='default' className={styles.textBtn} onClick={() => setEndNoticeDrawer(true)}>
@@ -286,20 +311,21 @@ const IrrigationLogsMobile = ({ entityType, entityId, wellId, initialLogs = [], 
 					setEndPickerValue(moment())
 					setShowEndDrawer(true)
 				}}
-				timer={<TimerDisplay startedAt={startedAt} requiredWaterMs={parseTimeToMs(updatedRequiredWater)} remainingWaterMs={actualRemainingWaterMs} />}
+				timer={
+					<TimerDisplay
+						startedAt={timerProps.startedAtForDisplay}
+						requiredMs={timerProps.requiredMsForDisplay}
+						baseReceivedMs={timerProps.baseReceivedMsForDisplay}
+					/>
+				}
 				onClose={() => setEndNoticeDrawer(false)}
 			/>
 
 			<WarningModalInUse
 				isOpen={isOpenWarning}
 				onClose={() => setIsOpenWarning(false)}
-				well={{
-					logs: ongoingLog ? [{ ...ongoingLog }] : [],
-					requiredWater: updatedRequiredWater,
-					remainingWater: updatedRemainingWater,
-					land: ongoingLog?.land,
-				}}
-				onSubmit={handleWarningModal}
+				irrigationTarget={currentIrrigation}
+				onSubmit={handleWarningModalConfirm}
 			/>
 		</div>
 	)

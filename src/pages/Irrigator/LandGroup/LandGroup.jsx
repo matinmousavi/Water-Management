@@ -19,25 +19,27 @@ const LandGroup = () => {
 	landGroupApi.init(`wells/${wellId}/land-groups/${groupId}`)
 
 	const landGroupData = landGroupApi.data
+	const currentIrrigation = landGroupData?.wells?.[0]?.irrigationTarget || null
 
 	if (landGroupApi.isLoading) return <Loading />
 
 	const items = [
-                {
-                        key: 'logs',
-                        label: 'لاگ توزیع',
-                        children: (
-                                <IrrigationLogsMobile
-                                        entityType='landGroup'
-                                        entityId={groupId}
-                                        wellId={wellId}
-                                        initialLogs={landGroupData.logs}
-                                        receivedWater={landGroupData.receivedWater}
-                                        requiredWater={landGroupData.requiredWater}
-                                        remainingWater={landGroupData.remainingWater}
-                                />
-                        ),
-                },
+		{
+			key: 'logs',
+			label: 'لاگ توزیع',
+			children: (
+				<IrrigationLogsMobile
+					entityType='landGroup'
+					entityId={groupId}
+					wellId={wellId}
+					initialLogs={landGroupData.logs}
+					currentIrrigation={currentIrrigation}
+					receivedWater={landGroupData.receivedWater}
+					requiredWater={landGroupData.requiredWater}
+					remainingWater={landGroupData.remainingWater}
+				/>
+			),
+		},
 		{
 			key: 'lands',
 			label: 'زمین ها',

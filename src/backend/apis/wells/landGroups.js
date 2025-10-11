@@ -6,6 +6,7 @@ import Schedule from '../../models/Schedule.model.js'
 import Note from '../../models/Note.model.js'
 import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/metricsUtils.js'
 import { getProjection } from '../../utils/queryUtils.js'
+import { groupIrrigationLogs } from '../../utils/irrigationUtils.js'
 
 const router = Router({ mergeParams: true })
 
@@ -28,11 +29,12 @@ router.get('/', async (req, res) => {
 		for (const group of well.landGroups) {
 			const scheduleProjection = getProjection(req)
 			const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }, scheduleProjection ?? undefined).lean()
+
 			const totalSchedulesInCycle = schedules.length
 			const totalRequiredMs = sumScheduleDurationsMs(schedules)
 
 			const irrigationProjection = getProjection(req)
-			const irrigations = await Irrigation.find(
+			const irrigationsRaw = await Irrigation.find(
 				{
 					well: wellId,
 					landGroup: group.groupId,
@@ -42,6 +44,9 @@ router.get('/', async (req, res) => {
 				},
 				irrigationProjection ?? undefined
 			).lean()
+
+			// ادغام لاگ‌های گروه برای جلوگیری از چندبرابری
+			const irrigations = groupIrrigationLogs(irrigationsRaw)
 
 			const receivedMs = sumIrrigationDurationsMs(irrigations)
 			const waterMetrics = buildWaterMetrics({ requiredMs: totalRequiredMs, receivedMs })
@@ -98,6 +103,7 @@ router.post('/', async (req, res) => {
 router.get('/:groupId', async (req, res) => {
 	try {
 		const { wellId, groupId } = req.params
+
 		const well = await Well.findById(wellId)
 			.populate({
 				path: 'landGroups.lands',
@@ -116,7 +122,8 @@ router.get('/:groupId', async (req, res) => {
 		const cycleEnd = new Date(cycleStart.getTime() + well.cycleDays * 86400000)
 
 		const schedules = await Schedule.find({ well: wellId, landGroup: group.groupId }).lean()
-		const irrigations = await Irrigation.find({
+
+		const irrigationsRaw = await Irrigation.find({
 			well: wellId,
 			landGroup: group.groupId,
 			isGroupLog: true,
@@ -124,69 +131,117 @@ router.get('/:groupId', async (req, res) => {
 			$or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
 		}).lean()
 
+		const mergedIrrigations = groupIrrigationLogs(irrigationsRaw)
+
+		const irrigationsDone = mergedIrrigations.filter(ir => !ir.isOngoing && ir.endedAt)
+		const receivedMs = sumIrrigationDurationsMs(irrigationsDone)
+		const requiredMs = sumScheduleDurationsMs(schedules)
+
 		const { requiredWater, receivedWater, remainingWater } = buildWaterMetrics({
-			requiredMs: sumScheduleDurationsMs(schedules),
-			receivedMs: sumIrrigationDurationsMs(irrigations),
+			requiredMs,
+			receivedMs,
 		})
 
-		// 🔹 Detect ongoing irrigation
-		const ongoingIrrigation = await Irrigation.findOne({ well: wellId, isOngoing: true })
-			.select('land landGroup startedAt isGroupLog wasGroupLog')
+		const ongoing = await Irrigation.findOne({ well: wellId, isOngoing: true })
+			.select('_id land landGroup startedAt isGroupLog wasGroupLog')
 			.populate('land', '_id title')
 			.lean()
 
 		let irrigationTarget = null
-		if (ongoingIrrigation) {
-			const isGroup = ongoingIrrigation.isGroupLog && !ongoingIrrigation.wasGroupLog && ongoingIrrigation.landGroup
+		if (ongoing) {
+			const isGroup = ongoing.isGroupLog && !ongoing.wasGroupLog && ongoing.landGroup
 
 			if (isGroup) {
-				const targetGroupId = ongoingIrrigation.landGroup
-				const [targetSchedules, targetIrrigations] = await Promise.all([
-					Schedule.find({ well: wellId, landGroup: targetGroupId }).lean(),
-					Irrigation.find({
+				const targetGroupId = ongoing.landGroup
+				const targetGroup = well.landGroups.find(g => g.groupId.equals(targetGroupId))
+				const title = targetGroup?.title || ''
+
+				let targetRequiredWater = requiredWater
+				let targetReceivedWater = receivedWater
+				let targetRemainingWater = remainingWater
+
+				if (!targetGroupId.equals(groupId)) {
+					const targetSchedules = await Schedule.find({
+						well: wellId,
+						landGroup: targetGroupId,
+					}).lean()
+
+					const targetIrrigationsRaw = await Irrigation.find({
 						well: wellId,
 						landGroup: targetGroupId,
 						isGroupLog: true,
-						wasGroupLog: false,
-					}).lean(),
-				])
+						startedAt: { $gte: cycleStart },
+						$or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
+					}).lean()
 
-				const metrics = buildWaterMetrics({
-					requiredMs: sumScheduleDurationsMs(targetSchedules),
-					receivedMs: sumIrrigationDurationsMs(targetIrrigations),
-				})
+					const targetMergedIrrigations = groupIrrigationLogs(targetIrrigationsRaw)
+					const targetIrrigationsDone = targetMergedIrrigations.filter(ir => !ir.isOngoing && ir.endedAt)
+					const targetReceivedMs = sumIrrigationDurationsMs(targetIrrigationsDone)
+					const targetRequiredMs = sumScheduleDurationsMs(targetSchedules)
 
-				const title = well.landGroups.find(g => g.groupId.equals(targetGroupId))?.title || ''
-				irrigationTarget = {
-					type: 'landGroup',
-					id: targetGroupId.toString(),
-					title,
-					startedAt: ongoingIrrigation.startedAt,
-					...metrics,
+					const targetMetrics = buildWaterMetrics({
+						requiredMs: targetRequiredMs,
+						receivedMs: targetReceivedMs,
+					})
+
+					targetRequiredWater = targetMetrics.requiredWater
+					targetReceivedWater = targetMetrics.receivedWater
+					targetRemainingWater = targetMetrics.remainingWater
 				}
-			} else if (ongoingIrrigation.land) {
-				const landId = ongoingIrrigation.land._id
-				const [targetSchedules, targetIrrigations] = await Promise.all([
-					Schedule.find({ well: wellId, land: landId }).lean(),
-					Irrigation.find({ well: wellId, land: landId }).lean(),
-				])
 
-				const metrics = buildWaterMetrics({
-					requiredMs: sumScheduleDurationsMs(targetSchedules),
-					receivedMs: sumIrrigationDurationsMs(targetIrrigations),
+				irrigationTarget = {
+					id: String(ongoing._id),
+					type: 'landGroup',
+					landGroupId: String(targetGroupId),
+					title,
+					startedAt: ongoing.startedAt,
+					requiredWater: targetRequiredWater,
+					receivedWater: targetReceivedWater,
+					remainingWater: targetRemainingWater,
+				}
+			} else if (ongoing.land) {
+				const targetLandId = ongoing.land._id
+
+				const targetSchedules = await Schedule.find({
+					well: wellId,
+					land: targetLandId,
+				}).lean()
+
+				const targetIrrigationsRaw = await Irrigation.find({
+					well: wellId,
+					land: targetLandId,
+					isGroupLog: false,
+					startedAt: { $gte: cycleStart },
+					$or: [{ endedAt: { $lte: cycleEnd } }, { isOngoing: true }],
+				}).lean()
+
+				const targetReceivedMs = sumIrrigationDurationsMs(targetIrrigationsRaw.filter(ir => !ir.isOngoing && ir.endedAt))
+				const targetRequiredMs = sumScheduleDurationsMs(targetSchedules)
+
+				const targetMetrics = buildWaterMetrics({
+					requiredMs: targetRequiredMs,
+					receivedMs: targetReceivedMs,
 				})
 
 				irrigationTarget = {
+					id: String(ongoing._id),
 					type: 'land',
-					id: landId.toString(),
-					title: ongoingIrrigation.land.title,
-					startedAt: ongoingIrrigation.startedAt,
-					...metrics,
+					landId: String(targetLandId),
+					title: ongoing.land.title,
+					startedAt: ongoing.startedAt,
+					requiredWater: targetMetrics.requiredWater,
+					receivedWater: targetMetrics.receivedWater,
+					remainingWater: targetMetrics.remainingWater,
 				}
 			}
 		}
 
-		const logs = irrigations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+		const logs = [...mergedIrrigations].sort((a, b) => {
+			const aT = new Date(a.createdAt || a.startedAt || 0).getTime()
+			const bT = new Date(b.createdAt || b.startedAt || 0).getTime()
+			return bT - aT
+		})
+
 		const notes = await Note.find({ type: 'landGroup', reference: group.groupId }).sort({ createdAt: -1 }).lean()
 
 		return res.status(200).json({
@@ -195,14 +250,14 @@ router.get('/:groupId', async (req, res) => {
 			requiredWater,
 			receivedWater,
 			remainingWater,
-			lastIrrigation: logs.length ? logs[0].createdAt : null,
+			lastIrrigation: logs.length ? logs[0].createdAt || logs[0].startedAt || null : null,
 			logs,
 			notes,
 			wells: [
 				{
 					_id: well._id,
 					title: well.title,
-					isOngoing: Boolean(irrigationTarget),
+					isOngoing: Boolean(ongoing),
 					...(irrigationTarget ? { irrigationTarget } : {}),
 				},
 			],

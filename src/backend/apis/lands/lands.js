@@ -74,7 +74,7 @@ router.get('/:landId', async (req, res) => {
 		const wellIds = landWithWells.wells?.map(w => w._id) || []
 
 		const ongoingIrrigations = await Irrigation.find({ well: { $in: wellIds }, isOngoing: true })
-			.select('well land landGroup startedAt isGroupLog wasGroupLog')
+			.select('_id well land landGroup startedAt isGroupLog wasGroupLog')
 			.populate('land', '_id title')
 			.lean()
 
@@ -90,24 +90,24 @@ router.get('/:landId', async (req, res) => {
 			const wellKey = irrigation.well?.toString()
 			if (!wellKey) continue
 
-			// 🔹 Identify group-level irrigation first
 			if (irrigation.isGroupLog && !irrigation.wasGroupLog && irrigation.landGroup) {
 				const landGroupId = irrigation.landGroup.toString()
 				const groupTitle = landGroupTitlesByWellId.get(wellKey)?.get(landGroupId) || ''
 				ongoingMap.set(wellKey, {
+					id: irrigation._id.toString(),
 					type: 'landGroup',
-					id: landGroupId,
+					landGroupId,
 					title: groupTitle,
 					startedAt: irrigation.startedAt,
 				})
 				continue
 			}
 
-			// 🔹 Otherwise, land-level irrigation
 			if (irrigation.land) {
 				ongoingMap.set(wellKey, {
+					id: irrigation._id.toString(),
 					type: 'land',
-					id: irrigation.land._id.toString(),
+					landId: irrigation.land._id.toString(),
 					title: irrigation.land.title,
 					startedAt: irrigation.startedAt,
 				})
@@ -143,10 +143,10 @@ router.get('/:landId', async (req, res) => {
 						targetReceivedMs = receivedMs
 					} else if (irrigationInfo.type === 'landGroup') {
 						const [schedules, irrigations] = await Promise.all([
-							Schedule.find({ well: well._id, landGroup: irrigationInfo.id }).lean(),
+							Schedule.find({ well: well._id, landGroup: irrigationInfo.landGroupId }).lean(),
 							Irrigation.find({
 								well: well._id,
-								landGroup: irrigationInfo.id,
+								landGroup: irrigationInfo.landGroupId,
 								isGroupLog: true,
 								wasGroupLog: false,
 							}).lean(),
@@ -156,10 +156,7 @@ router.get('/:landId', async (req, res) => {
 					}
 
 					const metrics = buildWaterMetrics({ requiredMs: targetRequiredMs, receivedMs: targetReceivedMs })
-					wellWithMetrics.irrigationTarget = {
-						...irrigationInfo,
-						...metrics,
-					}
+					wellWithMetrics.irrigationTarget = { ...irrigationInfo, ...metrics }
 				}
 
 				return { well: wellWithMetrics, requiredMs: totalRequiredMs, receivedMs }
@@ -181,7 +178,7 @@ router.get('/:landId', async (req, res) => {
 			},
 		})
 	} catch (err) {
-		console.error(err.message)
+		console.error(err)
 		return res.status(500).json({ message: 'خطای داخلی سرور.' })
 	}
 })
