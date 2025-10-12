@@ -71,7 +71,7 @@ const UsersTable = ({ usersData }) => {
 		{
 			dataIndex: 'profilePicture',
 			key: 'profilePicture',
-			width: isSmallScreen ? 52 : undefined,
+			width: 52,
 			render: (_, record) =>
 				record?.profilePicture?.url ? (
 					<Avatar src={record.profilePicture.url} size={35} icon={<UserOutlined />} />
