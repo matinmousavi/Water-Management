@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button, Flex, Modal, Form } from 'antd'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import useAPI from '../../../hooks/useAPI'
@@ -14,7 +14,7 @@ const combineDateTime = (date, time) => {
 	return validDate.hour(validTime.hour()).minute(validTime.minute()).second(0).millisecond(0)
 }
 
-const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData }) => {
+const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData, defaultWell, allWells }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [form] = Form.useForm()
 	const irrigationApi = useAPI()
@@ -23,6 +23,12 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 
 	const open = () => setIsOpen(true)
 	const close = () => setIsOpen(false)
+
+	useEffect(() => {
+		if (isOpen && page === 'land' && defaultWell) {
+			form.setFieldsValue({ wellId: defaultWell._id })
+		}
+	}, [isOpen, page, defaultWell, form])
 
 	const handleCancel = () => {
 		form.resetFields()
@@ -34,17 +40,16 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 			const values = await form.validateFields()
 			let payload = {}
 
-			// **FIX:** Combine date and time before creating payload
 			const combinedStartDate = combineDateTime(values.startDate, values.startTime)
 			const combinedEndDate = combineDateTime(values.endDate, values.endTime)
 
 			if (page === 'land') {
-				payload = { wellId: values.wellId || wellId, landId: landId, note: values.note || '' }
+				payload = { wellId: values.wellId, landId: landId, note: values.note || '' }
 				if (isAdmin) {
 					payload.startDate = combinedStartDate
-					payload.startTime = combinedStartDate // Send combined object
+					payload.startTime = combinedStartDate
 					payload.endDate = combinedEndDate
-					payload.endTime = combinedEndDate // Send combined object
+					payload.endTime = combinedEndDate
 					payload.isOngoing = values.isOngoing
 				} else {
 					payload.startTime = combinedStartDate
@@ -65,7 +70,6 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 					payload.endTime = values.isOngoing ? null : combinedEndDate
 					payload.endDate = values.isOngoing ? null : combinedEndDate
 				} else {
-					// This part seems to have logic for starting/stopping irrigation, kept as is.
 					if (values.isStart) {
 						payload.startDate = combinedStartDate
 						payload.startTime = combinedStartDate
@@ -113,7 +117,7 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 				cancelText='انصراف'
 				confirmLoading={irrigationApi?.isLoading}
 				forceRender
-				destroyOnClose
+				destroyOnHidden
 			>
 				<IrrigationLogForm
 					page={page}
@@ -122,6 +126,8 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 					form={form}
 					lands={landsData?.lands || []}
 					landGroups={landsData?.landGroups || []}
+					defaultWell={defaultWell}
+					allWells={allWells}
 				/>
 			</Modal>
 		</>

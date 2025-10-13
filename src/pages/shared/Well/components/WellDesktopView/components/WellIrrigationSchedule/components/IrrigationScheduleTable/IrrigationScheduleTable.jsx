@@ -179,6 +179,7 @@ const ScheduleView = ({ wellId, selectedSnapshot, lands = [], landGroups = [], e
 							color: OFF_HOURS_COLOR,
 							status: 'inactive',
 							day: selectedDay,
+							copyToAllDays: !!values.copyToAllDays,
 						}
 					} else {
 						const isGroup = groupOptions.some(g => g.value === values.target)
@@ -190,10 +191,17 @@ const ScheduleView = ({ wellId, selectedSnapshot, lands = [], landGroups = [], e
 							color: values.color,
 							status: 'active',
 							day: selectedDay,
+							copyToAllDays: !!values.copyToAllDays,
 						}
 					}
-					if (editingTask?.id) await api.patch(`/wells/${wellId}/schedules/${editingTask.id}`, payload)
-					else await api.post(`/wells/${wellId}/schedules`, payload)
+
+					if (editingTask?.id) {
+						delete payload.copyToAllDays
+						await api.patch(`/wells/${wellId}/schedules/${editingTask.id}`, payload)
+					} else {
+						await api.post(`/wells/${wellId}/schedules`, payload)
+					}
+
 					openNotification('success', 'زمان‌بندی ذخیره شد')
 					resetModal()
 					await fetchSchedules()

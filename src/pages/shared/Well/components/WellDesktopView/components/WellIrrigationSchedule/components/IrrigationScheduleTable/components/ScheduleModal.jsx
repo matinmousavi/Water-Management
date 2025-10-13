@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Modal, Form, Select, TimePicker, Row, Col, Button, Radio, Input } from 'antd'
+import { Modal, Form, Select, TimePicker, Row, Col, Button, Radio, Input, Checkbox } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
@@ -37,12 +37,9 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 	const targetId = Form.useWatch('target', form)
 
 	useEffect(() => {
-		// Only run for new tasks and when a target is selected
 		if (!editingTask && targetId) {
 			const isGroup = `${targetId}`.startsWith('group-')
 			const idToFind = isGroup ? `${targetId}`.replace('group-', '') : targetId
-
-			// Search backwards for the last task with the same land/group ID
 			const lastTask = [...tasks].reverse().find(task => {
 				if (isGroup) {
 					return task.type === 'group' && task.groupId === idToFind
@@ -53,7 +50,6 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 			if (lastTask && lastTask.color) {
 				form.setFieldsValue({ color: lastTask.color })
 			} else {
-				// If no history found, reset to the first color in the palette
 				form.setFieldsValue({ color: colorPalette[0] })
 			}
 		}
@@ -198,6 +194,12 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 						</div>
 					)}
 				</Form.Item>
+
+				{!editingTask && (
+					<Form.Item name='copyToAllDays' valuePropName='checked' wrapperCol={{ offset: 8, span: 16 }}>
+						<Checkbox>کپی در تمام روزهای دوره</Checkbox>
+					</Form.Item>
+				)}
 			</Form>
 		</Modal>
 	)

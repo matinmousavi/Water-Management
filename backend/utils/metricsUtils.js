@@ -1,4 +1,4 @@
-import { millisecondsToHoursMinutes } from '../../utils/timeUtils.js'
+import { millisecondsToHoursMinutes } from '../../src/utils/timeUtils.js'
 import { sumTimeRangeDurationsMs } from './timeRangeUtils.js'
 
 /**

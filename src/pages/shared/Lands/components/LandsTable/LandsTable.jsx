@@ -156,7 +156,6 @@ const LandsTable = ({ landsData = [] }) => {
 					}
 					scroll={{
 						x: isSmallScreen ? 'max-content' : undefined,
-						y: height,
 					}}
 					bordered
 				/>
