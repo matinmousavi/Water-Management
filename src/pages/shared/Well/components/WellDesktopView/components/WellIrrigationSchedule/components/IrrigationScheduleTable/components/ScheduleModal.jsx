@@ -14,7 +14,6 @@ const colorPalette = [
 	'#e0f7fa80',
 	'#ffebee80',
 	'#fff3e080',
-	'#f3e5f580',
 	'#ffe0b280',
 	'#e1bee780',
 	'#ffccbc80',
