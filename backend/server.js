@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import compression from 'compression'
-import api from './backend/apis/index.js'
+import api from './apis/index.js'
 
 const isProd = import.meta.env?.PROD
 const PORT = process.env.PORT || 5173
@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5173
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const publicDir = path.resolve(__dirname, isProd ? './public' : '../public')
 const uploadsDir = path.resolve(__dirname, isProd ? './uploads' : '../uploads')
-const assetsDir = path.resolve(__dirname, './assets')
+const assetsDir = path.resolve(__dirname, isProd ? './assets' : '../src/assets')
 
 async function createServer() {
 	const app = express()
@@ -50,8 +50,8 @@ async function createServer() {
 	app.use('/assets', express.static(assetsDir))
 
 	// SPA fallback
-	app.get(/.*/, (req, res, next) => {
-		const indexFile = path.resolve(__dirname, 'index.html')
+        app.get(/.*/, (req, res, next) => {
+                const indexFile = path.resolve(__dirname, isProd ? './index.html' : '../src/index.html')
 		fs.readFile(indexFile, 'utf-8', (err, html) => {
 			if (err) return next(err)
 			if (!isProd && app.vite) {
