@@ -101,7 +101,6 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 		return { rowSpan: 0 }
 	}
 
-	// 📏 عرض ستون‌ها در حالت واکنش‌گرا
 	const colWidth = isSmallScreen ? 200 : undefined
 
 	const columns = [
@@ -114,7 +113,16 @@ const WellLandsTable = ({ data, setData, wellId, landGroups }) => {
 				return (
 					<Flex align='center' gap={8}>
 						{isIrrigator ? <Link to={`/wells/${wellId}/groups/${group?.groupId}`}>{group.title}</Link> : <span>{group.title}</span>}
-						{isAdmin ? <Button type='link' icon={<EditOutlined />} onClick={() => openEditGroupModal(group)} /> : null}
+						{isAdmin ? (
+							<Button
+								type='link'
+								icon={<EditOutlined />}
+								onClick={() => {
+									const fullGroup = landGroups.find(g => g.groupId === group.groupId)
+									if (fullGroup) openEditGroupModal(fullGroup)
+								}}
+							/>
+						) : null}
 					</Flex>
 				)
 			},

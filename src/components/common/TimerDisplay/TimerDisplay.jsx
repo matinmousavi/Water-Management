@@ -1,37 +1,48 @@
 import { useEffect, useRef, useState } from 'react'
+import moment from 'moment-jalaali'
 import styles from './TimerDisplay.module.css'
 
-const formatTime = seconds => {
-	const abs = Math.abs(seconds)
-	const hrs = Math.floor(abs / 3600)
-	const mins = Math.floor((abs % 3600) / 60)
-	const secs = abs % 60
-	return `${secs.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')} : ${hrs.toString().padStart(2, '0')}`
+const pad2 = n => n.toString().padStart(2, '0')
+const formatHMS = seconds => {
+	const abs = Math.max(0, Math.floor(Math.abs(seconds)))
+	const h = Math.floor(abs / 3600)
+	const m = Math.floor((abs % 3600) / 60)
+	const s = abs % 60
+	// نمایش به فرم SS : MM : HH طبق UI فعلی
+	return `${pad2(s)} : ${pad2(m)} : ${pad2(h)}`
 }
 
-const TimerDisplay = ({ startedAt, requiredWaterMs, remainingWaterMs, onComplete }) => {
+const TimerDisplay = ({ startedAt, requiredMs, baseReceivedMs = 0, onComplete }) => {
 	const [text, setText] = useState('00 : 00 : 00')
 	const [isOvertime, setIsOvertime] = useState(false)
 	const intervalRef = useRef(null)
+	const completedRef = useRef(false)
 
 	useEffect(() => {
-		if (!startedAt || !requiredWaterMs) return
+		// ریست حالت‌ها هنگام تغییر ورودی‌ها
+		completedRef.current = false
+		setText('00 : 00 : 00')
+		setIsOvertime(false)
+
+		if (!startedAt || !requiredMs) return
+
+		const startTs = moment(startedAt).valueOf()
+		if (!Number.isFinite(startTs)) return
 
 		const tick = () => {
 			const now = Date.now()
-			const elapsed = Math.floor((now - new Date(startedAt).getTime()) / 1000)
-			const remaining = remainingWaterMs != null ? remainingWaterMs : requiredWaterMs
-			let remainingSec = Math.floor(remaining / 1000) - elapsed
+			const elapsedMs = Math.max(0, now - startTs)
+			const totalReceivedMs = Math.max(0, (baseReceivedMs || 0) + elapsedMs)
+			const remainingMs = (requiredMs || 0) - totalReceivedMs
+			const remainingSec = Math.floor(remainingMs / 1000)
 
-			if (remainingSec < 0) {
-				setIsOvertime(true)
-				setText(`${formatTime(-remainingSec)} -`)
-			} else {
-				setIsOvertime(false)
-				setText(formatTime(remainingSec))
-			}
+			const overtime = remainingSec < 0
+			setIsOvertime(overtime)
+			setText(overtime ? `${formatHMS(-remainingSec)} -` : formatHMS(remainingSec))
 
-			if (remainingSec <= -1 && onComplete) {
+			// فقط یک‌بار onComplete را صدا بزن (بعد از رد شدن حداقل ۱ ثانیه)
+			if (remainingSec <= -1 && onComplete && !completedRef.current) {
+				completedRef.current = true
 				onComplete()
 				clearInterval(intervalRef.current)
 			}
@@ -40,9 +51,8 @@ const TimerDisplay = ({ startedAt, requiredWaterMs, remainingWaterMs, onComplete
 		tick()
 		clearInterval(intervalRef.current)
 		intervalRef.current = setInterval(tick, 1000)
-
 		return () => clearInterval(intervalRef.current)
-	}, [startedAt, requiredWaterMs, remainingWaterMs, onComplete])
+	}, [startedAt, requiredMs, baseReceivedMs, onComplete])
 
 	return <span className={isOvertime ? styles.textRed : styles.textGreen}>{text}</span>
 }

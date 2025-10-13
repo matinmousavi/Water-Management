@@ -2,11 +2,9 @@ import { useState, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import { Form } from 'antd'
-
 import useAPI from '../../../../../../../../../hooks/useAPI'
 import useNotification from '../../../../../../../../../hooks/useNotification'
 import { useWell } from '../../../../../../contexts/WellContext'
-
 import ScheduleGrid from './components/ScheduleGrid'
 import ScheduleModal from './components/ScheduleModal'
 import { useUser } from '../../../../../../../../../contexts/UserContext'
@@ -51,7 +49,7 @@ const numberToPersianOrdinal = n => {
 
 const OFF_HOURS_COLOR = '#00000033'
 
-const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGroups = [], editable = true, cycleDays: cycleDaysProp }) => {
+const ScheduleView = ({ wellId, selectedSnapshot, lands = [], landGroups = [], editable = true, cycleDays, cycleStartDate }) => {
 	const [tasks, setTasks] = useState([])
 	const [isModalVisible, setIsModalVisible] = useState(false)
 	const [editingTask, setEditingTask] = useState(null)
@@ -61,9 +59,8 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 	const api = useAPI()
 	const { openNotification } = useNotification()
 	const { isAdmin } = useUser()
-	const { cycleDays: cycleDaysContext, cycleStartDate } = useWell()
-	const cycleDaysFromContext = editable ? cycleDaysContext : null
-	const cycleDays = editable ? cycleDaysFromContext : cycleDaysProp || 7
+	const [scheduleType, setScheduleType] = useState('land')
+
 	const daysOfWeek = useMemo(() => Array.from({ length: cycleDays }, (_, i) => `روز ${numberToPersianOrdinal(i + 1)}`), [cycleDays])
 
 	const generateTimeSlots = () => {
@@ -121,8 +118,6 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 		]
 	}, [landOptions, groupOptions])
 
-	const [scheduleType, setScheduleType] = useState('land')
-
 	const resetModal = () => {
 		setEditingTask(null)
 		setSelectedDay(null)
@@ -136,14 +131,12 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 		? task => {
 				setEditingTask(task)
 				setSelectedDay(task.day)
-
 				let targetValue = undefined
 				if (task.type === 'land') targetValue = task.landId
 				else if (task.type === 'group') {
 					const matchingGroup = landGroups.find(g => g._id === task.groupId || g.title === task.title)
 					if (matchingGroup) targetValue = matchingGroup.groupId
 				}
-
 				form.setFieldsValue({
 					target: targetValue,
 					startTime: dayjs(task.startTime),
@@ -151,7 +144,6 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 					day: task.day ?? 0,
 					color: task.color || '#e0f7e980',
 				})
-
 				setScheduleType(task.type === 'off' ? 'off' : 'land')
 				setIsModalVisible(true)
 		  }
@@ -178,7 +170,6 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 				try {
 					const values = await form.validateFields()
 					setIsLoading(true)
-
 					let payload
 					if (values.color === OFF_HOURS_COLOR) {
 						payload = {
@@ -201,10 +192,8 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 							day: selectedDay,
 						}
 					}
-
 					if (editingTask?.id) await api.patch(`/wells/${wellId}/schedules/${editingTask.id}`, payload)
 					else await api.post(`/wells/${wellId}/schedules`, payload)
-
 					openNotification('success', 'زمان‌بندی ذخیره شد')
 					resetModal()
 					await fetchSchedules()
@@ -234,13 +223,10 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 		const slotHeight = 15
 		const startTime = dayjs(task.startTime)
 		const endTime = dayjs(task.endTime)
-
 		const startMinutes = startTime.hour() * 60 + startTime.minute()
 		const endMinutes = endTime.hour() * 60 + endTime.minute()
-
 		const top = (startMinutes / 15) * slotHeight
 		const height = ((endMinutes - startMinutes) / 15) * slotHeight
-
 		return { top, height }
 	}
 
@@ -264,7 +250,6 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 				currentDayInCycle={currentDayInCycle}
 				cycleStartDate={cycleStartDate}
 			/>
-
 			{editable && isAdmin && (
 				<ScheduleModal
 					visible={isModalVisible}
@@ -281,6 +266,19 @@ const IrrigationScheduleTable = ({ wellId, selectedSnapshot, lands = [], landGro
 			)}
 		</>
 	)
+}
+
+const EditableSchedule = props => {
+	const { cycleDays: cycleDaysContext, cycleStartDate } = useWell()
+	return <ScheduleView {...props} cycleDays={cycleDaysContext || 7} cycleStartDate={cycleStartDate} />
+}
+
+const IrrigationScheduleTable = props => {
+	const { editable = true, cycleDays: cycleDaysProp } = props
+	if (editable) {
+		return <EditableSchedule {...props} />
+	}
+	return <ScheduleView {...props} cycleDays={cycleDaysProp || 7} cycleStartDate={null} />
 }
 
 export default IrrigationScheduleTable

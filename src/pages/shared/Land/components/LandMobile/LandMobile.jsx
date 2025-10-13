@@ -7,6 +7,7 @@ import IrrigationLogsMobile from '../../../../../components/responsive/mobile/Ir
 import HeaderIrrigation from '../../../../../components/irrigation/HeaderIrrigation/HeaderIrrigation'
 
 const LandMobile = ({ landData, landId }) => {
+	const currentIrrigation = landData?.wells?.[0]?.irrigationTarget || null
 	const items = [
 		{
 			key: 'logs',
@@ -20,6 +21,7 @@ const LandMobile = ({ landData, landId }) => {
 					receivedWater={landData.receivedWater}
 					requiredWater={landData.requiredWater}
 					remainingWater={landData.remainingWater}
+					currentIrrigation={currentIrrigation}
 				/>
 			),
 		},

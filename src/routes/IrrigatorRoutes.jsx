@@ -25,7 +25,7 @@ const IrrigatorRoutes = () => (
 			</Route>
 			<Route path='my-notes' element={<MyNotes />} />
 			<Route path='wells/:wellId/groups/:groupId' element={<LandGroup />} />
-			<Route path='schedules/:wellId' element={<SchedulesMobile />} />
+			<Route path='schedules' element={<SchedulesMobile />} />
 		</Route>
 	</Routes>
 )

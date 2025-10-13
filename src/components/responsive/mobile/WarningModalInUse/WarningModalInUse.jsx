@@ -1,70 +1,49 @@
 import { Flex, Typography } from 'antd'
-import { useEffect, useState } from 'react'
-import dayjs from 'dayjs'
-
+import moment from 'moment-jalaali'
 import BottomSheetModal from '../BottomSheetModal/BottomSheetModal'
 import TimerDisplay from '../../../common/TimerDisplay/TimerDisplay'
-import {
-        getIrrigationStartTime,
-        setIrrigationStartTime,
-} from '../../../../utils/irrigationStorageUtils'
-import { parseDurationToMilliseconds } from '../../../../utils/timeUtils'
-
 import styles from './WarningModalInUse.module.css'
 
 const { Text } = Typography
 
-const WarningModalInUse = ({ isOpen, onSubmit, onClose, well }) => {
-	const [startedAt, setStartedAt] = useState(null)
+const parseHhMmToMs = str => {
+	if (!str) return 0
+	const isNeg = String(str).startsWith('-')
+	const clean = isNeg ? String(str).slice(1) : String(str)
+	const [h = '0', m = '0'] = clean.split(':')
+	const ms = (Number(h) * 3600 + Number(m) * 60) * 1000
+	return isNeg ? -ms : ms
+}
 
-	const ongoingLog = well?.logs?.find(log => log.isOngoing)
-	const isGroup = ongoingLog?.isGroupLog
+const WarningModalInUse = ({ isOpen, onSubmit, onClose, irrigationTarget }) => {
+	if (!isOpen || !irrigationTarget) return null
 
-	const entityId = isGroup ? ongoingLog.landGroup : ongoingLog?.land?._id
-	const entityTitle = isGroup ? ongoingLog.landGroupTitle : ongoingLog?.land?.title
+	const requiredMs = parseHhMmToMs(irrigationTarget.requiredWater)
+	const baseReceivedMs = parseHhMmToMs(irrigationTarget.receivedWater)
+	const startedAt = moment(irrigationTarget.startedAt).isValid() ? moment(irrigationTarget.startedAt).toISOString() : null
 
-	useEffect(() => {
-		if (!entityId) return
-
-                let irrigationStartTime = getIrrigationStartTime(entityId)
-
-                if (!irrigationStartTime && ongoingLog?.startedAt) {
-			const apiStart = dayjs(ongoingLog.startedAt).valueOf()
-			setIrrigationStartTime(entityId, apiStart)
-			irrigationStartTime = apiStart
-		}
-
-		if (irrigationStartTime) setStartedAt(irrigationStartTime)
-	}, [entityId, ongoingLog])
-
-	if (!isOpen || !entityId) return null
-
-        const requiredWaterMs = parseDurationToMilliseconds(ongoingLog?.requiredWater) || 2 * 60 * 60 * 1000
-        const remainingWaterMs =
-                parseDurationToMilliseconds(ongoingLog?.remainingWater) || requiredWaterMs
-
-        return (
-                <BottomSheetModal
-                        height={240}
-                        open={isOpen}
-                        onClose={onClose}
-                        title={`شما در حال آبیاری ${isGroup ? 'گروه' : 'زمین'} ${entityTitle} هستید!`}
-                        okText='پایان آبیاری'
-                        closeText='بازگشت'
-                        onSubmit={onSubmit}
-                >
+	return (
+		<BottomSheetModal
+			height={240}
+			open={isOpen}
+			onClose={onClose}
+			title={`شما در حال آبیاری ${irrigationTarget.type === 'landGroup' ? 'گروه' : 'زمین'} ${irrigationTarget.title} هستید!`}
+			okText='پایان آبیاری'
+			closeText='بازگشت'
+			onSubmit={onSubmit}
+		>
 			<Flex vertical gap={2}>
 				<Text className={styles.subtitle}>
 					هنوز مدت زمان
 					<span className={styles.countdown}>
-						<TimerDisplay landId={entityId} startedAt={startedAt} requiredWaterMs={requiredWaterMs} remainingWaterMs={remainingWaterMs} />
+						<TimerDisplay startedAt={startedAt} requiredMs={requiredMs} baseReceivedMs={baseReceivedMs} />
 					</span>
-					به پایان زمان آبیاری {isGroup ? 'گروه' : 'زمین'} {entityTitle} باقی مانده است.
+					به پایان زمان آبیاری {irrigationTarget.type === 'landGroup' ? 'گروه' : 'زمین'} {irrigationTarget.title} باقی مانده است.
 				</Text>
-				<Text className={styles.subtitle}>از پایان دادن به زمان‌ آبیاری اطمینان دارید؟ </Text>
+				<Text className={styles.subtitle}>از پایان دادن به زمان آبیاری اطمینان دارید؟</Text>
 			</Flex>
-                </BottomSheetModal>
-        )
+		</BottomSheetModal>
+	)
 }
 
 export default WarningModalInUse
