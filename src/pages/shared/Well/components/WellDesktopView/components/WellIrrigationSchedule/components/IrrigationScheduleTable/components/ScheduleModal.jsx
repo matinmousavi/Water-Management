@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Modal, Form, Select, TimePicker, Row, Col, Button, Radio, Input } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
@@ -22,7 +23,7 @@ const colorPalette = [
 
 const OFF_HOURS_COLOR = '#00000033'
 
-const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions, scheduleType, setScheduleType }) => {
+const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTask, form, selectOptions, scheduleType, setScheduleType, tasks = [] }) => {
 	const handleScheduleTypeChange = e => {
 		setScheduleType(e.target.value)
 		form.setFieldsValue({
@@ -33,6 +34,30 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 
 	const startTime = Form.useWatch('startTime', form)
 	const endTime = Form.useWatch('endTime', form)
+	const targetId = Form.useWatch('target', form)
+
+	useEffect(() => {
+		// Only run for new tasks and when a target is selected
+		if (!editingTask && targetId) {
+			const isGroup = `${targetId}`.startsWith('group-')
+			const idToFind = isGroup ? `${targetId}`.replace('group-', '') : targetId
+
+			// Search backwards for the last task with the same land/group ID
+			const lastTask = [...tasks].reverse().find(task => {
+				if (isGroup) {
+					return task.type === 'group' && task.groupId === idToFind
+				}
+				return task.type === 'land' && task.landId === idToFind
+			})
+
+			if (lastTask && lastTask.color) {
+				form.setFieldsValue({ color: lastTask.color })
+			} else {
+				// If no history found, reset to the first color in the palette
+				form.setFieldsValue({ color: colorPalette[0] })
+			}
+		}
+	}, [targetId, editingTask, tasks, form])
 
 	let displayDuration = '—'
 	if (startTime && endTime) {
@@ -42,7 +67,10 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 			const diff = dayjs.duration(end.diff(start))
 			const hours = diff.hours()
 			const minutes = diff.minutes()
-			displayDuration = `${hours > 0 ? `${hours} ساعت ` : ''}${minutes > 0 ? `${minutes} دقیقه` : ''}`
+			const durationParts = []
+			if (hours > 0) durationParts.push(`${hours} ساعت`)
+			if (minutes > 0) durationParts.push(`${minutes} دقیقه`)
+			displayDuration = durationParts.join(' ') || '0 دقیقه'
 		}
 	}
 
@@ -93,7 +121,13 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 
 				{scheduleType === 'land' && (
 					<Form.Item label='زمین' name='target' rules={[{ required: scheduleType === 'land', message: 'لطفا زمین را انتخاب کنید' }]}>
-						<Select size='large' placeholder='انتخاب زمین' options={selectOptions} />
+						<Select
+							size='large'
+							placeholder='انتخاب زمین'
+							options={selectOptions}
+							showSearch
+							filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+						/>
 					</Form.Item>
 				)}
 
@@ -129,17 +163,19 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 					</Row>
 				</Form.Item>
 
-				{!editingTask && (
-					<Form.Item label={scheduleType === 'land' ? 'مدت زمان آبیاری' : 'مدت زمان خاموشی'}>
-						<span>{displayDuration}</span>
-					</Form.Item>
-				)}
+				<Form.Item label={scheduleType === 'land' ? 'مدت زمان آبیاری' : 'مدت زمان خاموشی'}>
+					<span>{displayDuration}</span>
+				</Form.Item>
 
 				<Form.Item label='رنگ'>
 					{scheduleType === 'land' ? (
 						<Form.Item name='color' noStyle rules={[{ required: scheduleType === 'land' }]}>
 							<Select
-								options={colorPalette.map(c => ({ value: c, label: <div style={{ background: c, height: 24, borderRadius: 4 }} /> }))}
+								options={colorPalette.map((c, index) => ({
+									value: c,
+									key: `${c}-${index}`,
+									label: <div style={{ background: c, height: 24, borderRadius: 4 }} />,
+								}))}
 								optionLabelProp='label'
 							/>
 						</Form.Item>
@@ -162,11 +198,6 @@ const ScheduleModal = ({ visible, onCancel, onOk, onDelete, isLoading, editingTa
 						</div>
 					)}
 				</Form.Item>
-				{editingTask && (
-					<Form.Item label={scheduleType === 'land' ? 'مدت زمان آبیاری' : 'مدت زمان خاموشی'}>
-						<span>{displayDuration}</span>
-					</Form.Item>
-				)}
 			</Form>
 		</Modal>
 	)

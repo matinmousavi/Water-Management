@@ -262,6 +262,7 @@ const ScheduleView = ({ wellId, selectedSnapshot, lands = [], landGroups = [], e
 					selectOptions={selectOptions}
 					scheduleType={scheduleType}
 					setScheduleType={setScheduleType}
+					tasks={tasks}
 				/>
 			)}
 		</>
