@@ -5,6 +5,14 @@ import useAPI from '../../../hooks/useAPI'
 import useNotification from '../../../hooks/useNotification'
 import { useUser } from '../../../contexts/UserContext'
 import IrrigationLogForm from '../IrrigationLogForm/IrrigationLogForm'
+import dayjs from 'dayjs'
+
+const combineDateTime = (date, time) => {
+	if (!date || !time) return date
+	const validDate = dayjs(date)
+	const validTime = dayjs(time)
+	return validDate.hour(validTime.hour()).minute(validTime.minute()).second(0).millisecond(0)
+}
 
 const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData }) => {
 	const [isOpen, setIsOpen] = useState(false)
@@ -24,23 +32,22 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 	const handleSubmit = async () => {
 		try {
 			const values = await form.validateFields()
-
 			let payload = {}
+
+			// **FIX:** Combine date and time before creating payload
+			const combinedStartDate = combineDateTime(values.startDate, values.startTime)
+			const combinedEndDate = combineDateTime(values.endDate, values.endTime)
 
 			if (page === 'land') {
 				payload = { wellId: values.wellId || wellId, landId: landId, note: values.note || '' }
-
 				if (isAdmin) {
-					payload.startDate = values.startDate
-					payload.startTime = values.startTime
-					payload.endDate = values.endDate
-					payload.endTime = values.endTime
+					payload.startDate = combinedStartDate
+					payload.startTime = combinedStartDate // Send combined object
+					payload.endDate = combinedEndDate
+					payload.endTime = combinedEndDate // Send combined object
 					payload.isOngoing = values.isOngoing
-					payload.endTime = values.isOngoing ? null : values.endTime
-					payload.isOngoing = values.isOngoing
-					payload.note = values.note
 				} else {
-					payload.startTime = values.startTime
+					payload.startTime = combinedStartDate
 					payload.endTime = null
 				}
 			} else if (page === 'well') {
@@ -52,22 +59,22 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 				}
 
 				if (isAdmin) {
-					payload.startDate = values.startDate
-					payload.startTime = values.startTime
+					payload.startDate = combinedStartDate
+					payload.startTime = combinedStartDate
 					payload.isOngoing = values.isOngoing
-					payload.endTime = values.isOngoing ? null : values.endTime
-					payload.endDate = values.isOngoing ? null : values.endDate
-					payload.note = values.note
+					payload.endTime = values.isOngoing ? null : combinedEndDate
+					payload.endDate = values.isOngoing ? null : combinedEndDate
 				} else {
+					// This part seems to have logic for starting/stopping irrigation, kept as is.
 					if (values.isStart) {
-						payload.startDate = values.startDate
-						payload.startTime = values.startTime
+						payload.startDate = combinedStartDate
+						payload.startTime = combinedStartDate
 						payload.endTime = null
 						payload.isStart = true
 					}
 					if (values.isEnd) {
-						payload.endTime = values.endTime
-						payload.endDate = values.endDate
+						payload.endTime = combinedEndDate
+						payload.endDate = combinedEndDate
 						payload.isStart = false
 					}
 				}
@@ -106,6 +113,7 @@ const AddIrrigationLog = ({ setLogs, wellId, landId, page = 'well', landsData })
 				cancelText='انصراف'
 				confirmLoading={irrigationApi?.isLoading}
 				forceRender
+				destroyOnClose
 			>
 				<IrrigationLogForm
 					page={page}

@@ -26,7 +26,7 @@ const EditLandGroupModal = ({ landGroup, onClose, activeLands, setData, wellId, 
 		if (landGroup) {
 			form.setFieldsValue({
 				groupName: landGroup.title,
-				lands: landGroup.lands?.map(l => l._id),
+				lands: landGroup.lands,
 			})
 		}
 	}, [landGroup, form])
