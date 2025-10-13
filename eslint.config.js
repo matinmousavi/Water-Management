@@ -31,8 +31,8 @@ export default [
 	},
 
 	// ✅ Backend (Node.js)
-	{
-		files: ['src/server.js', 'src/backend/**/*.{js,ts}', '**/*.config.js'],
+        {
+                files: ['backend/server.js', 'backend/**/*.{js,ts}', '**/*.config.js'],
 		languageOptions: {
 			ecmaVersion: 2020,
 			globals: globals.node,

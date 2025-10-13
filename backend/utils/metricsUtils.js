@@ -1,4 +1,5 @@
 import { millisecondsToHoursMinutes } from '../../utils/timeUtils.js'
+import { sumTimeRangeDurationsMs } from './timeRangeUtils.js'
 
 /**
  * Computes the total scheduled irrigation duration in milliseconds.
@@ -6,15 +7,7 @@ import { millisecondsToHoursMinutes } from '../../utils/timeUtils.js'
  * @returns {number} Total duration in milliseconds.
  */
 export const sumScheduleDurationsMs = (schedules = []) =>
-        schedules.reduce((total, schedule) => {
-                if (!schedule?.startTime || !schedule?.endTime) return total
-
-                const start = new Date(schedule.startTime)
-                const end = new Date(schedule.endTime)
-                if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return total
-
-                return total + Math.max(0, end - start)
-        }, 0)
+        sumTimeRangeDurationsMs(schedules, { startKey: 'startTime', endKey: 'endTime' })
 
 /**
  * Computes the total irrigation duration in milliseconds from completed logs.
@@ -22,15 +15,7 @@ export const sumScheduleDurationsMs = (schedules = []) =>
  * @returns {number} Total duration in milliseconds.
  */
 export const sumIrrigationDurationsMs = (irrigations = []) =>
-        irrigations.reduce((total, irrigation) => {
-                if (!irrigation?.startedAt || !irrigation?.endedAt) return total
-
-                const start = new Date(irrigation.startedAt)
-                const end = new Date(irrigation.endedAt)
-                if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return total
-
-                return total + Math.max(0, end - start)
-        }, 0)
+        sumTimeRangeDurationsMs(irrigations, { startKey: 'startedAt', endKey: 'endedAt' })
 
 /**
  * Formats water requirement metrics from millisecond aggregates.
