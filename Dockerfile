@@ -23,4 +23,4 @@ COPY ./public/ ./public
 
 EXPOSE 80
 ENV NODE_ENV=production
-CMD node .
+CMD ["node", "server.js"]
