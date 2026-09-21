@@ -1,19 +1,14 @@
-import mongoose from 'mongoose'
+import crypto from 'crypto'
 
 import DemoWorkspace from '../models/DemoWorkspace.model.js'
 import User from '../models/User.model.js'
 import Well from '../models/Well.model.js'
 import Land from '../models/Land.model.js'
 
-const DEMO_WORKSPACE_NAME = 'Demo Workspace'
-
 const DEMO_USERS = [
     {
         role: 'admin',
         fullName: 'مدیر سیستم دمو',
-        mobile: '09990000001',
-        email: 'demo-admin@example.com',
-        accountingCode: 'DEMO-ADM-001',
         address: 'تهران، میدان آزادی',
         status: 'active',
         profilePicture: null,
@@ -21,9 +16,6 @@ const DEMO_USERS = [
     {
         role: 'irrigator',
         fullName: 'میرآب دمو',
-        mobile: '09990000002',
-        email: 'demo-irrigator@example.com',
-        accountingCode: 'DEMO-IRR-001',
         address: 'تهران، میدان آزادی',
         status: 'active',
         profilePicture: null,
@@ -31,9 +23,6 @@ const DEMO_USERS = [
     {
         role: 'landOwner',
         fullName: 'مالک زمین دمو',
-        mobile: '09990000003',
-        email: 'demo-landowner@example.com',
-        accountingCode: 'DEMO-LND-001',
         address: 'تهران، میدان آزادی',
         status: 'active',
         profilePicture: null,
@@ -97,25 +86,51 @@ const DEMO_WELLS = [
     },
 ]
 
-export const seedDemoWorkspace = async () => {
-    let workspace = await DemoWorkspace.findOne({
-        name: DEMO_WORKSPACE_NAME,
+const createWorkspaceKey = workspaceId => {
+    return crypto
+        .createHash('sha256')
+        .update(workspaceId.toString())
+        .digest('hex')
+        .slice(0, 7)
+        .toUpperCase()
+}
+
+const createDemoUserData = (userData, workspaceKey, index) => {
+    const mobile = `0999${workspaceKey}${index}`.slice(0, 11)
+
+    return {
+        ...userData,
+        mobile,
+        email: `demo-${userData.role}-${workspaceKey.toLowerCase()}@example.com`,
+        accountingCode: `DEMO-${userData.role.toUpperCase()}-${workspaceKey}`,
+    }
+}
+
+export const seedDemoWorkspace = async workspaceId => {
+    const workspace = await DemoWorkspace.findOne({
+        _id: workspaceId,
+        type: 'demo',
+        status: 'active',
     })
 
     if (!workspace) {
-        workspace = await DemoWorkspace.create({
-            name: DEMO_WORKSPACE_NAME,
-            status: 'active',
-        })
-
-        console.log('✅ Demo workspace created.')
+        throw new Error('Demo workspace not found.')
     }
+
+    const workspaceKey = createWorkspaceKey(workspace._id)
 
     const users = {}
 
-    for (const userData of DEMO_USERS) {
+    for (let index = 0; index < DEMO_USERS.length; index += 1) {
+        const userData = createDemoUserData(
+            DEMO_USERS[index],
+            workspaceKey,
+            index + 1
+        )
+
         let user = await User.findOne({
-            mobile: userData.mobile,
+            workspaceId: workspace._id,
+            role: userData.role,
         })
 
         if (!user) {
@@ -125,11 +140,6 @@ export const seedDemoWorkspace = async () => {
             })
 
             console.log(`✅ Demo user "${user.fullName}" created.`)
-        } else if (!user.workspaceId) {
-            user.workspaceId = workspace._id
-            await user.save()
-
-            console.log(`🔗 Demo user "${user.fullName}" linked to demo workspace.`)
         }
 
         users[userData.role] = user
@@ -153,6 +163,12 @@ export const seedDemoWorkspace = async () => {
             })
 
             console.log(`✅ Demo land "${land.title}" created.`)
+        } else if (
+            !land.owner ||
+            land.owner.toString() !== users.landOwner._id.toString()
+        ) {
+            land.owner = users.landOwner._id
+            await land.save()
         }
 
         lands.push(land)
@@ -181,7 +197,11 @@ export const seedDemoWorkspace = async () => {
 
         const landId = lands[index]._id
 
-        if (!well.lands.some(id => id.toString() === landId.toString())) {
+        if (
+            !well.lands.some(
+                id => id.toString() === landId.toString()
+            )
+        ) {
             well.lands.push(landId)
         }
 

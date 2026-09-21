@@ -1,6 +1,7 @@
 import express, { Router } from 'express'
 import cookieParser from 'cookie-parser'
 import fileUpload from 'express-fileupload'
+import demo from './demo/demo.js'
 
 import { authMiddleware, isAdmin, isLogin } from '../middlewares/auth.js'
 
@@ -30,6 +31,7 @@ router.use(
 		tempFileDir: '/tmp/',
 	})
 )
+router.use('/demo', demo)
 
 router.use(authMiddleware)
 
