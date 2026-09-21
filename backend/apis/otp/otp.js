@@ -2,6 +2,7 @@ import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 import OTP from '../../models/Otp.model.js'
 import User from '../../models/User.model.js'
+import DemoWorkspace from '../../models/DemoWorkspace.model.js'
 
 const router = Router()
 const isProd = import.meta.env?.PROD
@@ -41,6 +42,7 @@ router.post('/send', async (req, res) => {
 
 		const otp = generateOTP()
 		const expiresAt = new Date(Date.now() + 30 * 1000)
+
 		await OTP.create({
 			mobile,
 			otp,
@@ -84,10 +86,26 @@ router.post('/verify', async (req, res) => {
 			user = await User.create({ mobile })
 		}
 
+		if (!user.workspaceId) {
+			const workspace = await DemoWorkspace.create({
+				name: `Demo Workspace - ${user.fullName}`,
+			})
+
+			user.workspaceId = workspace._id
+			await user.save()
+		}
+
 		record.verified = true
 		await record.save()
 
-		const token = jwt.sign({ mobile }, process.env.JWT_SECRET, { expiresIn: '7d' })
+		const token = jwt.sign(
+			{
+				mobile,
+				workspaceId: user.workspaceId,
+			},
+			process.env.JWT_SECRET,
+			{ expiresIn: '7d' }
+		)
 
 		res.cookie('token', token, {
 			httpOnly: true,
