@@ -3,10 +3,28 @@ import crypto from 'crypto'
 
 import DemoSession from '../../models/DemoSession.model.js'
 import DemoWorkspace from '../../models/DemoWorkspace.model.js'
+import { seedDemoWorkspace } from '../../utils/demoWorkspaceSeeder.js'
 
 const router = Router()
 
 const SESSION_COOKIE = 'demo_session'
+
+const createDemoWorkspace = async sessionId => {
+    const workspace = await DemoWorkspace.create({
+        name: `Demo Workspace - ${sessionId.slice(0, 8)}`,
+        type: 'demo',
+        status: 'active',
+    })
+
+    await DemoSession.create({
+        sessionId,
+        workspaceId: workspace._id,
+    })
+
+    await seedDemoWorkspace(workspace._id)
+
+    return workspace
+}
 
 router.get('/session', async (req, res) => {
     try {
@@ -15,16 +33,7 @@ router.get('/session', async (req, res) => {
         if (!sessionId) {
             sessionId = crypto.randomUUID()
 
-            const workspace = await DemoWorkspace.create({
-                name: `Demo Workspace - ${sessionId.slice(0, 8)}`,
-                type: 'demo',
-                status: 'active',
-            })
-
-            await DemoSession.create({
-                sessionId,
-                workspaceId: workspace._id,
-            })
+            const workspace = await createDemoWorkspace(sessionId)
 
             res.cookie(SESSION_COOKIE, sessionId, {
                 httpOnly: true,
@@ -40,20 +49,18 @@ router.get('/session', async (req, res) => {
             })
         }
 
-        const session = await DemoSession.findOne({
+        let session = await DemoSession.findOne({
             sessionId,
         })
 
         if (!session) {
-            const workspace = await DemoWorkspace.create({
-                name: `Demo Workspace - ${sessionId.slice(0, 8)}`,
-                type: 'demo',
-                status: 'active',
-            })
+            const workspace = await createDemoWorkspace(sessionId)
 
-            await DemoSession.create({
-                sessionId,
-                workspaceId: workspace._id,
+            res.cookie(SESSION_COOKIE, sessionId, {
+                httpOnly: true,
+                secure: import.meta.env?.PROD,
+                sameSite: 'strict',
+                maxAge: 30 * 24 * 60 * 60 * 1000,
             })
 
             return res.json({
@@ -63,16 +70,41 @@ router.get('/session', async (req, res) => {
             })
         }
 
+        const workspace = await DemoWorkspace.findOne({
+            _id: session.workspaceId,
+            type: 'demo',
+            status: 'active',
+        })
+
+        if (!workspace) {
+            session = await DemoSession.deleteOne({
+                _id: session._id,
+            })
+
+            const newSessionId = crypto.randomUUID()
+            const newWorkspace = await createDemoWorkspace(newSessionId)
+
+            res.cookie(SESSION_COOKIE, newSessionId, {
+                httpOnly: true,
+                secure: import.meta.env?.PROD,
+                sameSite: 'strict',
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+            })
+
+            return res.json({
+                success: true,
+                sessionId: newSessionId,
+                workspaceId: newWorkspace._id,
+            })
+        }
+
+        await seedDemoWorkspace(workspace._id)
+
         session.lastActivityAt = new Date()
         await session.save()
 
-        const workspace = await DemoWorkspace.findById(session.workspaceId)
-
-        if (!workspace || workspace.status !== 'active') {
-            return res.status(404).json({
-                message: 'محیط دمو پیدا نشد.',
-            })
-        }
+        workspace.lastActivityAt = new Date()
+        await workspace.save()
 
         return res.json({
             success: true,
