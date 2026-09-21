@@ -14,6 +14,7 @@ import logoImg from '../../../assets/images/default-logo.png'
 const Login = () => {
     const [loginStep, setLoginStep] = useState(1)
     const [demoUsers, setDemoUsers] = useState([])
+    const [demoSessionError, setDemoSessionError] = useState(false)
 
     const [otpFormState, setOtpFormState] = useState({
         mobile: '',
@@ -32,20 +33,35 @@ const Login = () => {
     const { getMe } = useUser()
 
     useEffect(() => {
+        let cancelled = false
+
         const initializeDemoSession = async () => {
             try {
                 const response = await api.get('demo/session')
 
-                if (response.success && response.users) {
+                if (cancelled) return
+
+                if (response.success && Array.isArray(response.users)) {
                     setDemoUsers(response.users)
+                    setDemoSessionError(false)
+                } else {
+                    setDemoUsers([])
+                    setDemoSessionError(true)
                 }
             } catch {
+                if (cancelled) return
+
                 setDemoUsers([])
+                setDemoSessionError(true)
             }
         }
 
         initializeDemoSession()
-    }, [api])
+
+        return () => {
+            cancelled = true
+        }
+    }, [])
 
     useEffect(() => {
         if (!otpFormState.otpExpireDate) return
@@ -294,6 +310,17 @@ const Login = () => {
                                             ))}
                                         </Flex>
                                     </Flex>
+                                )}
+
+                                {demoSessionError && (
+                                    <Typography.Text
+                                        type='danger'
+                                        style={{
+                                            fontSize: 12,
+                                        }}
+                                    >
+                                        ورود آزمایشی موقتاً در دسترس نیست.
+                                    </Typography.Text>
                                 )}
 
                                 <Form.Item
