@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import DemoSession from '../../models/DemoSession.model.js'
 import DemoWorkspace from '../../models/DemoWorkspace.model.js'
 import { seedDemoWorkspace } from '../../utils/demoWorkspaceSeeder.js'
+import User from '../../models/User.model.js'
 
 const router = Router()
 
@@ -26,6 +27,18 @@ const createDemoWorkspace = async sessionId => {
     return workspace
 }
 
+const getDemoUsers = async workspaceId => {
+    return User.find({
+        workspaceId,
+        role: {
+            $in: ['admin', 'irrigator', 'landOwner'],
+        },
+    })
+        .select('role fullName mobile')
+        .sort({ role: 1 })
+        .lean()
+}
+
 router.get('/session', async (req, res) => {
     try {
         let sessionId = req.cookies?.[SESSION_COOKIE]
@@ -34,6 +47,7 @@ router.get('/session', async (req, res) => {
             sessionId = crypto.randomUUID()
 
             const workspace = await createDemoWorkspace(sessionId)
+            const users = await getDemoUsers(workspace._id)
 
             res.cookie(SESSION_COOKIE, sessionId, {
                 httpOnly: true,
@@ -46,6 +60,7 @@ router.get('/session', async (req, res) => {
                 success: true,
                 sessionId,
                 workspaceId: workspace._id,
+                users,
             })
         }
 
@@ -55,6 +70,7 @@ router.get('/session', async (req, res) => {
 
         if (!session) {
             const workspace = await createDemoWorkspace(sessionId)
+            const users = await getDemoUsers(workspace._id)
 
             res.cookie(SESSION_COOKIE, sessionId, {
                 httpOnly: true,
@@ -67,22 +83,25 @@ router.get('/session', async (req, res) => {
                 success: true,
                 sessionId,
                 workspaceId: workspace._id,
+                users,
             })
         }
 
-        const workspace = await DemoWorkspace.findOne({
+        let workspace = await DemoWorkspace.findOne({
             _id: session.workspaceId,
             type: 'demo',
             status: 'active',
         })
 
         if (!workspace) {
-            session = await DemoSession.deleteOne({
+            await DemoSession.deleteOne({
                 _id: session._id,
             })
 
             const newSessionId = crypto.randomUUID()
-            const newWorkspace = await createDemoWorkspace(newSessionId)
+            workspace = await createDemoWorkspace(newSessionId)
+
+            const users = await getDemoUsers(workspace._id)
 
             res.cookie(SESSION_COOKIE, newSessionId, {
                 httpOnly: true,
@@ -94,7 +113,8 @@ router.get('/session', async (req, res) => {
             return res.json({
                 success: true,
                 sessionId: newSessionId,
-                workspaceId: newWorkspace._id,
+                workspaceId: workspace._id,
+                users,
             })
         }
 
@@ -106,10 +126,13 @@ router.get('/session', async (req, res) => {
         workspace.lastActivityAt = new Date()
         await workspace.save()
 
+        const users = await getDemoUsers(workspace._id)
+
         return res.json({
             success: true,
             sessionId,
             workspaceId: workspace._id,
+            users,
         })
     } catch (err) {
         return res.status(500).json({
