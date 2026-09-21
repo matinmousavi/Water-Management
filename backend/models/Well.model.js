@@ -2,6 +2,12 @@ import mongoose from 'mongoose'
 
 const wellSchema = new mongoose.Schema(
 	{
+		workspaceId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'DemoWorkspace',
+			required: true,
+			index: true,
+		},
 		title: {
 			type: String,
 			required: true,

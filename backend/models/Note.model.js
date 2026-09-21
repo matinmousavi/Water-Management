@@ -2,6 +2,12 @@ import mongoose from 'mongoose'
 
 const noteSchema = new mongoose.Schema(
 	{
+		workspaceId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'DemoWorkspace',
+			required: true,
+			index: true,
+		},
 		user: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'User',

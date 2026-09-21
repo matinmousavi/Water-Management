@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema(
 			enum: ['admin', 'irrigator', 'landOwner'],
 			required: true,
 		},
+		workspaceId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'DemoWorkspace',
+			default: null,
+			index: true,
+		},
 		fullName: {
 			type: String,
 			trim: true,

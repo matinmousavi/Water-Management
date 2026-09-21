@@ -2,6 +2,12 @@ import mongoose from '../config/database.js'
 
 const scheduleSnapshotSchema = new mongoose.Schema(
 	{
+		workspaceId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'DemoWorkspace',
+			required: true,
+			index: true,
+		},
 		well: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Well',

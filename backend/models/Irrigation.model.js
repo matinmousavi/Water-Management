@@ -2,6 +2,12 @@ import mongoose from '../config/database.js'
 
 const irrigationSchema = new mongoose.Schema(
 	{
+		workspaceId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'DemoWorkspace',
+			required: true,
+			index: true,
+		},
 		land: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: 'Land',

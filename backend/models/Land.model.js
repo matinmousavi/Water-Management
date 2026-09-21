@@ -3,6 +3,12 @@ import User from './User.model.js'
 
 const landSchema = new mongoose.Schema(
 	{
+		workspaceId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'DemoWorkspace',
+			required: true,
+			index: true,
+		},
 		title: {
 			type: String,
 			required: true,
