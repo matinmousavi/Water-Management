@@ -95,8 +95,19 @@ const createWorkspaceKey = workspaceId => {
         .toUpperCase()
 }
 
-const createDemoUserData = (userData, workspaceKey, index) => {
-    const mobile = `0999${workspaceKey}${index}`.slice(0, 11)
+const createNumericWorkspaceKey = workspaceId => {
+    const hash = crypto
+        .createHash('sha256')
+        .update(workspaceId.toString())
+        .digest('hex')
+
+    const numericValue = parseInt(hash.slice(0, 8), 16) % 10000000
+
+    return numericValue.toString().padStart(7, '0')
+}
+
+const createDemoUserData = (userData, workspaceKey, numericWorkspaceKey, index) => {
+    const mobile = `099${numericWorkspaceKey}${index}`
 
     return {
         ...userData,
@@ -118,6 +129,7 @@ export const seedDemoWorkspace = async workspaceId => {
     }
 
     const workspaceKey = createWorkspaceKey(workspace._id)
+    const numericWorkspaceKey = createNumericWorkspaceKey(workspace._id)
 
     const users = {}
 
@@ -125,6 +137,7 @@ export const seedDemoWorkspace = async workspaceId => {
         const userData = createDemoUserData(
             DEMO_USERS[index],
             workspaceKey,
+            numericWorkspaceKey,
             index + 1
         )
 
