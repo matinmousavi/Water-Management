@@ -1,6 +1,8 @@
 import { Router } from 'express'
+
 import path from 'path'
 import fs from 'fs'
+
 import File from '../../models/File.model.js'
 import User from '../../models/User.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
@@ -11,245 +13,378 @@ import Land from '../../models/Land.model.js'
 const router = Router()
 
 const deleteFile = async fileDoc => {
-	if (fileDoc) {
-		const filePath = path.join('uploads', path.basename(fileDoc.url))
-		fs.unlink(filePath, err => {
-			if (err) console.warn('⚠️ خطا در حذف فایل:', err)
-		})
-		await File.findByIdAndDelete(fileDoc._id)
-	}
+    if (fileDoc) {
+        const filePath = path.join('uploads', path.basename(fileDoc.url))
+
+        fs.unlink(filePath, err => {
+            if (err) console.warn('⚠️ خطا در حذف فایل:', err)
+        })
+
+        await File.findByIdAndDelete(fileDoc._id)
+    }
 }
 
 // GET all users with optional filters
 router.get('/', async (req, res) => {
-	try {
-		const safeQuery = sanitizeQuery(req.query)
-		const filter = {}
+    try {
+        const safeQuery = sanitizeQuery(req.query)
 
-		const allowedFields = ['role', 'fullName', 'mobile', 'email', 'address', 'accountingCode']
+        const filter = {
+            workspaceId: req.workspaceId,
+        }
 
-		allowedFields.forEach(field => {
-			if (safeQuery[field]) {
-				filter[field] = { $regex: `^${safeQuery[field]}$`, $options: 'i' }
-			}
-		})
+        const allowedFields = [
+            'role',
+            'fullName',
+            'mobile',
+            'email',
+            'address',
+            'accountingCode',
+        ]
 
-                const projection = getProjection(req)
-                const users = await User.find(filter, projection ?? undefined).populate('profilePicture').lean()
-		return res.status(200).json({ users })
-	} catch (err) {
-		console.error(err.message)
-		return res.status(500).json({ message: 'خطا در دریافت اطلاعات کاربران!' })
-	}
+        allowedFields.forEach(field => {
+            if (safeQuery[field]) {
+                filter[field] = {
+                    $regex: `^${safeQuery[field]}$`,
+                    $options: 'i',
+                }
+            }
+        })
+
+        const projection = getProjection(req)
+
+        const users = await User.find(
+            filter,
+            projection ?? undefined
+        )
+            .populate('profilePicture')
+            .lean()
+
+        return res.status(200).json({ users })
+    } catch (err) {
+        console.error(err.message)
+
+        return res.status(500).json({
+            message: 'خطا در دریافت اطلاعات کاربران!',
+        })
+    }
 })
 
 // POST create a new user
 router.post('/', async (req, res) => {
-	try {
-		const { role, fullName, mobile, email, accountingCode, address } = req.body
+    try {
+        const {
+            role,
+            fullName,
+            mobile,
+            email,
+            accountingCode,
+            address,
+        } = req.body
 
-		let profilePictureId = null
+        let profilePictureId = null
 
-		if (req.files?.image) {
-			const file = req.files.image
-			const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+        if (req.files?.image) {
+            const file = req.files.image
+            const allowedTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+            ]
 
-			if (!allowedTypes.includes(file.mimetype)) {
-				return res.status(400).json({ message: 'فرمت تصویر معتبر نیست.' })
-			}
+            if (!allowedTypes.includes(file.mimetype)) {
+                return res.status(400).json({
+                    message: 'فرمت تصویر معتبر نیست.',
+                })
+            }
 
-			const fileName = `${Date.now()}_${file.name}`
-			const uploadPath = path.join('uploads', fileName)
-			const uploadUrl = `/uploads/${fileName}`
+            const fileName = `${Date.now()}_${file.name}`
+            const uploadPath = path.join('uploads', fileName)
+            const uploadUrl = `/uploads/${fileName}`
 
-			await file.mv(uploadPath)
+            await file.mv(uploadPath)
 
-			const savedFile = await File.create({
-				name: file.name,
-				md5: file.md5,
-				mimetype: file.mimetype,
-				size: file.size,
-				url: uploadUrl,
-			})
+            const savedFile = await File.create({
+                name: file.name,
+                md5: file.md5,
+                mimetype: file.mimetype,
+                size: file.size,
+                url: uploadUrl,
+            })
 
-			profilePictureId = savedFile._id
-		}
+            profilePictureId = savedFile._id
+        }
 
-		const user = await User.create({
-			role,
-			fullName,
-			mobile,
-			email,
-			accountingCode,
-			address,
-			profilePicture: profilePictureId,
-		})
+        const user = await User.create({
+            role,
+            fullName,
+            mobile,
+            email,
+            accountingCode,
+            address,
+            profilePicture: profilePictureId,
+            workspaceId: req.workspaceId,
+        })
 
-		const populatedUser = await User.findById(user._id).populate('profilePicture')
+        const populatedUser = await User.findById(user._id)
+            .populate('profilePicture')
 
-		return res.status(201).json({ message: 'کاربر با موفقیت ایجاد شد.', user: populatedUser })
-	} catch (err) {
-		console.error(err.message)
+        return res.status(201).json({
+            message: 'کاربر با موفقیت ایجاد شد.',
+            user: populatedUser,
+        })
+    } catch (err) {
+        console.error(err.message)
 
-		if (req.files?.image) {
-			const fileName = `${Date.now()}_${req.files.image.name}`
-			const filePath = path.join('uploads', fileName)
-			if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
-			await File.deleteOne({ name: req.files.image.name })
-		}
+        if (req.files?.image) {
+            const fileName = `${Date.now()}_${req.files.image.name}`
+            const filePath = path.join('uploads', fileName)
 
-		if (err.code === 11000) {
-			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations.users[field] || field
-			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
-		}
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath)
+            }
 
-		if (err.name === 'ValidationError') {
-			const firstError = Object.values(err.errors)[0]
-			const field = firstError.path
-			const fieldName = fieldTranslations.users[field] || field
-			return res.status(400).json({ message: `${fieldName} الزامی است.` })
-		}
+            await File.deleteOne({
+                name: req.files.image.name,
+            })
+        }
 
-		return res.status(500).json({ message: 'خطا در ایجاد کاربر.' })
-	}
+        if (err.code === 11000) {
+            const field = Object.keys(err.keyValue)[0]
+            const fieldName = fieldTranslations.users[field] || field
+
+            return res.status(409).json({
+                message: `این ${fieldName} قبلاً ثبت شده است.`,
+            })
+        }
+
+        if (err.name === 'ValidationError') {
+            const firstError = Object.values(err.errors)[0]
+            const field = firstError.path
+            const fieldName = fieldTranslations.users[field] || field
+
+            return res.status(400).json({
+                message: `${fieldName} الزامی است.`,
+            })
+        }
+
+        return res.status(500).json({
+            message: 'خطا در ایجاد کاربر.',
+        })
+    }
 })
 
 // GET a single user by ID with related resources embedded in user
 router.get('/:userId', async (req, res) => {
-	try {
-		const { userId } = req.params
-                const projection = getProjection(req)
-                if (projection) {
-                        projection.role = 1
-                }
-                const user = await User.findById(userId, projection ?? undefined).populate('profilePicture').lean()
+    try {
+        const { userId } = req.params
 
-		if (!user) {
-			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
-		}
+        const projection = getProjection(req)
 
-		if (user.role === 'irrigator') {
-			const wells = await Well.find({ irrigator: user._id }).select('_id title')
-			user.wells = wells
-		} else if (user.role === 'landOwner') {
-			const lands = await Land.find({ owner: user._id }).select('_id title')
-			user.lands = lands
-		}
+        if (projection) {
+            projection.role = 1
+        }
 
-		return res.status(200).json({ user })
-	} catch (err) {
-		console.error(err.message)
-		return res.status(500).json({ message: 'خطای داخلی سرور' })
-	}
+        const user = await User.findOne(
+            {
+                _id: userId,
+                workspaceId: req.workspaceId,
+            },
+            projection ?? undefined
+        )
+            .populate('profilePicture')
+            .lean()
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'کاربر پیدا نشد.',
+            })
+        }
+
+        if (user.role === 'irrigator') {
+            const wells = await Well.find({
+                workspaceId: req.workspaceId,
+                irrigator: user._id,
+            }).select('_id title')
+
+            user.wells = wells
+        } else if (user.role === 'landOwner') {
+            const lands = await Land.find({
+                workspaceId: req.workspaceId,
+                owner: user._id,
+            }).select('_id title')
+
+            user.lands = lands
+        }
+
+        return res.status(200).json({ user })
+    } catch (err) {
+        console.error(err.message)
+
+        return res.status(500).json({
+            message: 'خطای داخلی سرور',
+        })
+    }
 })
 
 // PATCH update a user by ID
 router.patch('/:userId', async (req, res) => {
-	try {
-		const { userId } = req.params
-		const updates = req.body
+    try {
+        const { userId } = req.params
+        const updates = { ...req.body }
 
-		if (updates.profilePicture === 'null') {
-			updates.profilePicture = null
-		}
+        delete updates.workspaceId
 
-		const user = await User.findById(userId).populate('profilePicture')
-		if (!user) {
-			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
-		}
+        if (updates.profilePicture === 'null') {
+            updates.profilePicture = null
+        }
 
-		if (req.files?.image) {
-			const file = req.files.image
-			const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+        const user = await User.findOne({
+            _id: userId,
+            workspaceId: req.workspaceId,
+        }).populate('profilePicture')
 
-			if (!allowedTypes.includes(file.mimetype)) {
-				return res.status(400).json({ message: 'فرمت تصویر معتبر نیست.' })
-			}
+        if (!user) {
+            return res.status(404).json({
+                message: 'کاربر پیدا نشد.',
+            })
+        }
 
-			if (!user.profilePicture || file.name !== user.profilePicture.name || file.size !== user.profilePicture.size) {
-				if (user.profilePicture) {
-					await deleteFile(user.profilePicture)
-				}
+        if (req.files?.image) {
+            const file = req.files.image
 
-				const fileName = `${Date.now()}_${file.name}`
-				const uploadPath = path.join('uploads', fileName)
-				const uploadUrl = `/uploads/${fileName}`
+            const allowedTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+            ]
 
-				await file.mv(uploadPath)
+            if (!allowedTypes.includes(file.mimetype)) {
+                return res.status(400).json({
+                    message: 'فرمت تصویر معتبر نیست.',
+                })
+            }
 
-				const savedFile = await File.create({
-					name: file.name,
-					md5: file.md5,
-					mimetype: file.mimetype,
-					size: file.size,
-					url: uploadUrl,
-				})
+            if (
+                !user.profilePicture ||
+                file.name !== user.profilePicture.name ||
+                file.size !== user.profilePicture.size
+            ) {
+                if (user.profilePicture) {
+                    await deleteFile(user.profilePicture)
+                }
 
-				user.profilePicture = savedFile._id
-			}
-		} else if (updates.profilePicture === null && user.profilePicture) {
-			await deleteFile(user.profilePicture)
-			user.profilePicture = null
-		}
+                const fileName = `${Date.now()}_${file.name}`
+                const uploadPath = path.join('uploads', fileName)
+                const uploadUrl = `/uploads/${fileName}`
 
-		Object.assign(user, updates)
-		await user.save()
+                await file.mv(uploadPath)
 
-		const populatedUser = await User.findById(user._id).populate('profilePicture')
+                const savedFile = await File.create({
+                    name: file.name,
+                    md5: file.md5,
+                    mimetype: file.mimetype,
+                    size: file.size,
+                    url: uploadUrl,
+                })
 
-		return res.status(200).json({ message: 'کاربر با موفقیت ویرایش شد.', user: populatedUser })
-	} catch (err) {
-		console.error(err.message)
+                user.profilePicture = savedFile._id
+            }
+        } else if (
+            updates.profilePicture === null &&
+            user.profilePicture
+        ) {
+            await deleteFile(user.profilePicture)
+            user.profilePicture = null
+        }
 
-		if (err.code === 11000) {
-			const field = Object.keys(err.keyValue)[0]
-			const fieldName = fieldTranslations.users[field] || field
-			return res.status(409).json({ message: `این ${fieldName} قبلاً ثبت شده است.` })
-		}
+        Object.assign(user, updates)
 
-		if (err.name === 'ValidationError') {
-			const firstError = Object.values(err.errors)[0]
-			const field = firstError.path
-			const fieldName = fieldTranslations.users[field] || field
-			return res.status(400).json({ message: `${fieldName} الزامی است.` })
-		}
+        await user.save()
 
-		return res.status(500).json({ message: 'خطای داخلی سرور' })
-	}
+        const populatedUser = await User.findById(user._id)
+            .populate('profilePicture')
+
+        return res.status(200).json({
+            message: 'کاربر با موفقیت ویرایش شد.',
+            user: populatedUser,
+        })
+    } catch (err) {
+        console.error(err.message)
+
+        if (err.code === 11000) {
+            const field = Object.keys(err.keyValue)[0]
+            const fieldName = fieldTranslations.users[field] || field
+
+            return res.status(409).json({
+                message: `این ${fieldName} قبلاً ثبت شده است.`,
+            })
+        }
+
+        if (err.name === 'ValidationError') {
+            const firstError = Object.values(err.errors)[0]
+            const field = firstError.path
+            const fieldName = fieldTranslations.users[field] || field
+
+            return res.status(400).json({
+                message: `${fieldName} الزامی است.`,
+            })
+        }
+
+        return res.status(500).json({
+            message: 'خطای داخلی سرور',
+        })
+    }
 })
 
 // DELETE a user by ID
 router.delete('/:userId', async (req, res) => {
-	try {
-		const { userId } = req.params
+    try {
+        const { userId } = req.params
 
-		// جلوگیری از حذف خود کاربر
-		if (req.user && req.user._id.toString() === userId) {
-			return res.status(403).json({ message: 'شما نمی‌توانید حساب کاربری خود را حذف کنید.' })
-		}
+        if (req.user && req.user._id.toString() === userId) {
+            return res.status(403).json({
+                message: 'شما نمی‌توانید حساب کاربری خود را حذف کنید.',
+            })
+        }
 
-		const user = await User.findById(userId).populate('profilePicture')
-		if (!user) {
-			return res.status(404).json({ message: 'کاربر پیدا نشد.' })
-		}
+        const user = await User.findOne({
+            _id: userId,
+            workspaceId: req.workspaceId,
+        }).populate('profilePicture')
 
-		if (user.profilePicture) {
-			await deleteFile(user.profilePicture)
-		}
+        if (!user) {
+            return res.status(404).json({
+                message: 'کاربر پیدا نشد.',
+            })
+        }
 
-		await User.findByIdAndDelete(userId)
+        if (user.profilePicture) {
+            await deleteFile(user.profilePicture)
+        }
 
-		return res.status(200).json({ message: 'کاربر با موفقیت حذف شد.' })
-	} catch (err) {
-		console.error(err.message)
-		return res.status(500).json({ message: 'خطای داخلی سرور' })
-	}
+        await User.deleteOne({
+            _id: userId,
+            workspaceId: req.workspaceId,
+        })
+
+        return res.status(200).json({
+            message: 'کاربر با موفقیت حذف شد.',
+        })
+    } catch (err) {
+        console.error(err.message)
+
+        return res.status(500).json({
+            message: 'خطای داخلی سرور',
+        })
+    }
 })
 
 // Fallback for unsupported HTTP methods
 router.all(/.*/, (req, res) => {
-	return res.status(405).send({ error: 'Method Not Allowed' })
+    return res.status(405).send({
+        error: 'Method Not Allowed',
+    })
 })
 
 export default router
