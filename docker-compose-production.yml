@@ -1,5 +1,8 @@
 services:
     water-management:
+        build:
+            context: .
+            dockerfile: Dockerfile
         image: water-management
         container_name: water-management
         restart: unless-stopped

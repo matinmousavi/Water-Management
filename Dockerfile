@@ -21,6 +21,6 @@ COPY --from=dependencies /app/prod_node_modules ./node_modules
 COPY --from=build /app/dist .
 COPY ./public/ ./public
 
-EXPOSE 80
+EXPOSE 5173
 ENV NODE_ENV=production
 CMD ["node", "server.js"]
