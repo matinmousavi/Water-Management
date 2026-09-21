@@ -1,146 +1,213 @@
 import { Router } from 'express'
+
 import User from '../../models/User.model.js'
 import Well from '../../models/Well.model.js'
 import Notification from '../../models/Notification.model.js'
+
 import { getProjection } from '../../utils/queryUtils.js'
 import sendSMS from '../../services/sendSMS.js'
 
 const router = Router()
 
 const notificationRepresentation = notification => ({
-	id: notification._id,
-	message: notification.message,
-	medium: notification.medium,
-	recipientGroup: notification.recipientGroup,
-	recipients: notification.recipients,
-	sentBy: notification.sentBy && {
-		id: notification.sentBy._id,
-		fullName: notification.sentBy.fullName,
-	},
-	sentAt: notification.sentAt,
-	meta: {
-		successCount: notification.meta?.successCount || 0,
-		failCount: notification.meta?.failCount || 0,
-	},
+    id: notification._id,
+    message: notification.message,
+    medium: notification.medium,
+    recipientGroup: notification.recipientGroup,
+    recipients: notification.recipients,
+    sentBy:
+        notification.sentBy && {
+            id: notification.sentBy._id,
+            fullName: notification.sentBy.fullName,
+        },
+    sentAt: notification.sentAt,
+    meta: {
+        successCount: notification.meta?.successCount || 0,
+        failCount: notification.meta?.failCount || 0,
+    },
 })
 
 router.get('/', async (req, res) => {
-	try {
-                const projection = getProjection(req)
-                const notifications = await Notification.find({}, projection ?? undefined)
-                        .sort({ createdAt: -1 })
-                        .populate('sentBy', 'fullName')
+    try {
+        const projection = getProjection(req)
 
-		const data = notifications.map(notificationRepresentation)
+        const notifications = await Notification.find(
+            { workspaceId: req.workspaceId },
+            projection ?? undefined
+        )
+            .sort({ createdAt: -1 })
+            .populate('sentBy', 'fullName')
 
-		res.status(200).json({ data })
-	} catch (err) {
-		console.error(err)
-		res.status(500).json({ error: 'خطا در دریافت نوتیفیکیشن‌ها' })
-	}
+        const data = notifications.map(notificationRepresentation)
+
+        return res.status(200).json({ data })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({
+            error: 'خطا در دریافت نوتیفیکیشن‌ها',
+        })
+    }
 })
 
 router.post('/', async (req, res) => {
-	try {
-		let { recipientGroup, message, medium, wellIds = [] } = req.body
-		const sentBy = req.user?._id
+    try {
+        let { recipientGroup, message, medium, wellIds = [] } = req.body
 
-		if (!sentBy) {
-			return res.status(401).json({ error: 'احراز هویت انجام نشده' })
-		}
+        const sentBy = req.user?._id
 
-		if (!Array.isArray(recipientGroup)) {
-			return res.status(400).json({ error: 'recipientGroup باید یک آرایه باشد' })
-		}
+        if (!sentBy) {
+            return res.status(401).json({
+                error: 'احراز هویت انجام نشده',
+            })
+        }
 
-		const usersMap = new Map()
+        if (!Array.isArray(recipientGroup)) {
+            return res.status(400).json({
+                error: 'recipientGroup باید یک آرایه باشد',
+            })
+        }
 
-		if (wellIds.length > 0) {
-			const wells = await Well.find({ _id: { $in: wellIds } }).populate('lands')
+        const usersMap = new Map()
 
-			const irrigatorIds = new Set()
-			const landOwnerIds = new Set()
+        if (wellIds.length > 0) {
+            const wells = await Well.find({
+                _id: { $in: wellIds },
+                workspaceId: req.workspaceId,
+            }).populate({
+                path: 'lands',
+                match: { workspaceId: req.workspaceId },
+            })
 
-			for (const well of wells) {
-				if (well.irrigator) {
-					irrigatorIds.add(well.irrigator.toString())
-				}
-				for (const land of well.lands) {
-					if (land.owner) {
-						landOwnerIds.add(land.owner.toString())
-					}
-				}
-			}
+            const irrigatorIds = new Set()
+            const landOwnerIds = new Set()
 
-			for (const group of recipientGroup) {
-				let foundUsers = []
-				switch (group) {
-					case 'irrigator':
-						foundUsers = await User.find({ _id: { $in: Array.from(irrigatorIds) } })
-						break
-					case 'landOwner':
-						foundUsers = await User.find({ _id: { $in: Array.from(landOwnerIds) } })
-						break
-					case 'all':
-						foundUsers = await User.find()
-						break
-					default:
-						foundUsers = await User.find({ role: group })
-						break
-				}
-				for (const user of foundUsers) {
-					usersMap.set(user._id.toString(), user)
-				}
-			}
-		} else {
-			for (const group of recipientGroup) {
-				const foundUsers = group === 'all' ? await User.find() : await User.find({ role: group })
+            for (const well of wells) {
+                if (well.irrigator) {
+                    irrigatorIds.add(well.irrigator.toString())
+                }
 
-				for (const user of foundUsers) {
-					usersMap.set(user._id.toString(), user)
-				}
-			}
-		}
+                for (const land of well.lands) {
+                    if (land.owner) {
+                        landOwnerIds.add(land.owner.toString())
+                    }
+                }
+            }
 
-		const users = Array.from(usersMap.values())
+            for (const group of recipientGroup) {
+                let foundUsers = []
 
-		if (!users.length) {
-			return res.status(404).json({ error: 'هیچ کاربری برای این گروه‌ها پیدا نشد.' })
-		}
+                switch (group) {
+                    case 'irrigator':
+                        foundUsers = await User.find({
+                            _id: { $in: Array.from(irrigatorIds) },
+                            workspaceId: req.workspaceId,
+                        })
+                        break
 
-		const recipients = users.map(u => u._id)
-		let successCount = 0
-		let failCount = 0
+                    case 'landOwner':
+                        foundUsers = await User.find({
+                            _id: { $in: Array.from(landOwnerIds) },
+                            workspaceId: req.workspaceId,
+                        })
+                        break
 
-		if (medium === 'sms') {
-			for (const user of users) {
-				try {
-					await sendSMS({ to: user.mobile, message })
-					successCount++
-				} catch (err) {
-					console.error(`❌ ارسال پیامک به ${user.mobile} ناموفق بود:`, err.message)
-					failCount++
-				}
-			}
-		}
+                    case 'all':
+                        foundUsers = await User.find({
+                            workspaceId: req.workspaceId,
+                        })
+                        break
 
-		const notification = await Notification.create({
-			recipientGroup,
-			recipients,
-			message,
-			medium,
-			sentBy,
-			meta: { successCount, failCount },
-		})
+                    default:
+                        foundUsers = await User.find({
+                            role: group,
+                            workspaceId: req.workspaceId,
+                        })
+                        break
+                }
 
-		const populated = await notification.populate('sentBy', 'fullName')
-		const data = notificationRepresentation(populated)
+                for (const user of foundUsers) {
+                    usersMap.set(user._id.toString(), user)
+                }
+            }
+        } else {
+            for (const group of recipientGroup) {
+                const foundUsers =
+                    group === 'all'
+                        ? await User.find({
+                              workspaceId: req.workspaceId,
+                          })
+                        : await User.find({
+                              role: group,
+                              workspaceId: req.workspaceId,
+                          })
 
-		res.status(201).json({ data })
-	} catch (err) {
-		console.error(err)
-		res.status(500).json({ error: 'خطا در ارسال پیام' })
-	}
+                for (const user of foundUsers) {
+                    usersMap.set(user._id.toString(), user)
+                }
+            }
+        }
+
+        const users = Array.from(usersMap.values())
+
+        if (!users.length) {
+            return res.status(404).json({
+                error: 'هیچ کاربری برای این گروه‌ها پیدا نشد.',
+            })
+        }
+
+        const recipients = users.map(user => user._id)
+
+        let successCount = 0
+        let failCount = 0
+
+        if (medium === 'sms') {
+            for (const user of users) {
+                try {
+                    await sendSMS({
+                        to: user.mobile,
+                        message,
+                    })
+
+                    successCount++
+                } catch (err) {
+                    console.error(
+                        `❌ ارسال پیامک به ${user.mobile} ناموفق بود:`,
+                        err.message
+                    )
+
+                    failCount++
+                }
+            }
+        }
+
+        const notification = await Notification.create({
+            workspaceId: req.workspaceId,
+            recipientGroup,
+            recipients,
+            message,
+            medium,
+            sentBy,
+            meta: {
+                successCount,
+                failCount,
+            },
+        })
+
+        const populated = await notification.populate(
+            'sentBy',
+            'fullName'
+        )
+
+        const data = notificationRepresentation(populated)
+
+        return res.status(201).json({ data })
+    } catch (err) {
+        console.error(err)
+
+        return res.status(500).json({
+            error: 'خطا در ارسال پیام',
+        })
+    }
 })
 
 export default router
