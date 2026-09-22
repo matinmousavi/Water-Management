@@ -19,83 +19,145 @@ import Notes from '../../../components/common/Notes/Notes'
 const { Title } = Typography
 
 const Land = () => {
-	const [landData, setLandData] = useState(null)
-	const [allWells, setAllWells] = useState([])
-	const [logs, setLogs] = useState(null)
-	const [status, setStatus] = useState()
-	const { landId } = useParams()
-	const { openNotification } = useNotification()
-	const { isAdmin, isIrrigator } = useUser()
-	const landApi = useAPI()
-	const wellsApi = useAPI()
-	const [pageTitle, setPageTitle] = useState('')
-	const screens = Grid.useBreakpoint()
-	const isMobile = screens.xs && !screens.md
+    const [landData, setLandData] = useState(null)
+    const [allWells, setAllWells] = useState([])
+    const [logs, setLogs] = useState(null)
+    const [status, setStatus] = useState()
+    const { landId } = useParams()
+    const { openNotification } = useNotification()
+    const { isAdmin, isIrrigator, isLandOwner } = useUser()
+    const landApi = useAPI()
+    const wellsApi = useAPI()
+    const [pageTitle, setPageTitle] = useState('')
+    const screens = Grid.useBreakpoint()
+    const isMobile = screens.xs && !screens.md
 
-	const fetchInitialData = async () => {
-		try {
-			const [landRes, wellsRes] = await Promise.all([landApi.get(`lands/${landId}`), wellsApi.get('wells')])
+    const fetchInitialData = async () => {
+        try {
+            const [landRes, wellsRes] = await Promise.all([
+                landApi.get(`lands/${landId}`),
+                wellsApi.get('wells'),
+            ])
 
-			if (landRes?.land) {
-				setLandData(landRes.land)
-				setPageTitle(landRes.land.title)
-				setLogs(landRes.land.logs || [])
-				setStatus(landRes.land.status)
-			}
-			if (wellsRes?.wells) {
-				setAllWells(wellsRes.wells)
-			}
-		} catch (error) {
-			openNotification('error', 'خطا در دریافت اطلاعات صفحه')
-			console.log('خطا: ', error)
-		}
-	}
+            if (landRes?.land) {
+                setLandData(landRes.land)
+                setPageTitle(landRes.land.title)
+                setLogs(landRes.land.logs || [])
+                setStatus(landRes.land.status)
+            }
 
-	useEffect(() => {
-		if (landId) {
-			fetchInitialData()
-		}
-	}, [landId])
+            if (wellsRes?.wells) {
+                setAllWells(wellsRes.wells)
+            }
+        } catch (error) {
+            openNotification('error', 'خطا در دریافت اطلاعات صفحه')
+            console.log('خطا: ', error)
+        }
+    }
 
-	const { enabled, loading, toggle } = useNotificationToggle({
-		landId,
-		initialValue: landData?.notificationsEnabled,
-	})
+    useEffect(() => {
+        if (landId) {
+            fetchInitialData()
+        }
+    }, [landId])
 
-	if (landApi.isLoading || wellsApi.isLoading || !landData) return <Loading />
+    const { enabled, loading, toggle } = useNotificationToggle({
+        landId,
+        initialValue: landData?.notificationsEnabled,
+    })
 
-	return (
-		<>
-			<MetaTitle>{pageTitle ? `زمین ${pageTitle}` : 'جزئیات زمین'}</MetaTitle>
-			{isMobile && isIrrigator && <LandMobile landData={landData} landId={landId} />}
-			{((isIrrigator && !isMobile) || isAdmin) && (
-				<Flex vertical gap={16}>
-					<Flex className='heading-container' align='center' justify='space-between'>
-						<Flex align='center' gap={isMobile ? 8 : 16}>
-							<BackButton backTo='/lands' />
-							<Title level={1} className='text-h3'>
-								{pageTitle}
-							</Title>
-							<LandStatus landId={landId} status={status} setStatus={setStatus} landTitle={pageTitle} />
-						</Flex>
-						{isAdmin && (
-							<Flex align='center' gap={isMobile ? 8 : 16}>
-								<Flex gap={5}>
-									<BellOutlined style={{ color: '#00000080', fontSize: '20px' }} />
-									<span className='text-label'>اطلاع رسانی</span>
-								</Flex>
-								<Switch checked={enabled} onChange={toggle} loading={loading} />
-							</Flex>
-						)}
-					</Flex>
-					<LandInfo landData={landData} setPageTitle={setPageTitle} />
-					<Notes entityType='land' entityReference={landId} notesData={landData?.notes} status={status} />
-					<LandLogsCard landLogs={logs} setLogs={setLogs} defaultWell={landData.wells?.[0]} allWells={allWells} landId={landId} status={status} />
-					{isAdmin && <DeleteCard title={`زمین ${pageTitle}`} api={`lands/${landId}`} backTo='/lands' />}
-				</Flex>
-			)}
-		</>
-	)
+    if (landApi.isLoading || wellsApi.isLoading || !landData) {
+        return <Loading />
+    }
+
+    return (
+        <>
+            <MetaTitle>
+                {pageTitle ? `زمین ${pageTitle}` : 'جزئیات زمین'}
+            </MetaTitle>
+
+            {isMobile && isIrrigator && (
+                <LandMobile landData={landData} landId={landId} />
+            )}
+
+            {((isIrrigator && !isMobile) || isAdmin || isLandOwner) && (
+                <Flex vertical gap={16}>
+                    <Flex
+                        className='heading-container'
+                        align='center'
+                        justify='space-between'
+                    >
+                        <Flex align='center' gap={isMobile ? 8 : 16}>
+                            <BackButton backTo='/lands' />
+
+                            <Title level={1} className='text-h3'>
+                                {pageTitle}
+                            </Title>
+
+                            <LandStatus
+                                landId={landId}
+                                status={status}
+                                setStatus={setStatus}
+                                landTitle={pageTitle}
+                            />
+                        </Flex>
+
+                        {isAdmin && (
+                            <Flex align='center' gap={isMobile ? 8 : 16}>
+                                <Flex gap={5}>
+                                    <BellOutlined
+                                        style={{
+                                            color: '#00000080',
+                                            fontSize: '20px',
+                                        }}
+                                    />
+
+                                    <span className='text-label'>
+                                        اطلاع رسانی
+                                    </span>
+                                </Flex>
+
+                                <Switch
+                                    checked={enabled}
+                                    onChange={toggle}
+                                    loading={loading}
+                                />
+                            </Flex>
+                        )}
+                    </Flex>
+
+                    <LandInfo
+                        landData={landData}
+                        setPageTitle={setPageTitle}
+                    />
+
+                    <Notes
+                        entityType='land'
+                        entityReference={landId}
+                        notesData={landData?.notes}
+                        status={status}
+                    />
+
+                    <LandLogsCard
+                        landLogs={logs}
+                        setLogs={setLogs}
+                        defaultWell={landData.wells?.[0]}
+                        allWells={allWells}
+                        landId={landId}
+                        status={status}
+                    />
+
+                    {isAdmin && (
+                        <DeleteCard
+                            title={`زمین ${pageTitle}`}
+                            api={`lands/${landId}`}
+                            backTo='/lands'
+                        />
+                    )}
+                </Flex>
+            )}
+        </>
+    )
 }
 
 export default Land
