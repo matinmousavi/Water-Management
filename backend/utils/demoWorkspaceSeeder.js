@@ -62,7 +62,6 @@ const DEMO_LANDS = [
 const DEMO_WELLS = [
     {
         title: 'چاه دمو ۱',
-        licenseCode: 'DEMO-WELL-001',
         location: 'منطقه شمالی',
         cycleDays: 7,
         cycleStartDate: new Date(),
@@ -70,7 +69,6 @@ const DEMO_WELLS = [
     },
     {
         title: 'چاه دمو ۲',
-        licenseCode: 'DEMO-WELL-002',
         location: 'منطقه مرکزی',
         cycleDays: 10,
         cycleStartDate: new Date(),
@@ -78,7 +76,6 @@ const DEMO_WELLS = [
     },
     {
         title: 'چاه دمو ۳',
-        licenseCode: 'DEMO-WELL-003',
         location: 'منطقه جنوبی',
         cycleDays: 5,
         cycleStartDate: new Date(),
@@ -106,7 +103,12 @@ const createNumericWorkspaceKey = workspaceId => {
     return numericValue.toString().padStart(7, '0')
 }
 
-const createDemoUserData = (userData, workspaceKey, numericWorkspaceKey, index) => {
+const createDemoUserData = (
+    userData,
+    workspaceKey,
+    numericWorkspaceKey,
+    index
+) => {
     const mobile = `099${numericWorkspaceKey}${index}`
 
     return {
@@ -114,6 +116,16 @@ const createDemoUserData = (userData, workspaceKey, numericWorkspaceKey, index) 
         mobile,
         email: `demo-${userData.role}-${workspaceKey.toLowerCase()}@example.com`,
         accountingCode: `DEMO-${userData.role.toUpperCase()}-${workspaceKey}`,
+    }
+}
+
+const createDemoWellData = (wellData, workspaceKey, index) => {
+    return {
+        ...wellData,
+        licenseCode: `DEMO-${workspaceKey}-WELL-${String(index + 1).padStart(
+            3,
+            '0'
+        )}`,
     }
 }
 
@@ -188,7 +200,11 @@ export const seedDemoWorkspace = async workspaceId => {
     }
 
     for (let index = 0; index < DEMO_WELLS.length; index += 1) {
-        const wellData = DEMO_WELLS[index]
+        const wellData = createDemoWellData(
+            DEMO_WELLS[index],
+            workspaceKey,
+            index
+        )
 
         let well = await Well.findOne({
             licenseCode: wellData.licenseCode,
