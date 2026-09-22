@@ -23,21 +23,12 @@ export async function authMiddleware(req, res, next) {
             mobile: decoded.mobile,
         }).populate('profilePicture')
 
-        if (!user) {
+        if (!user || !user.workspaceId) {
             req.user = null
             req.isLogin = false
             req.isAdmin = false
             req.workspaceId = null
             req.workspaceType = null
-            return next()
-        }
-
-        if (!user.workspaceId) {
-            req.user = user
-            req.isLogin = true
-            req.isAdmin = user.role === 'admin'
-            req.workspaceId = null
-            req.workspaceType = 'owner'
             return next()
         }
 
