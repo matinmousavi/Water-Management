@@ -35,7 +35,7 @@ const DeleteCard = ({ title, api, backTo }) => {
 		<Card className={style.card}>
 			<Flex justify='space-between' align='center'>
 				<Title level={2} className='text-card-title'>
-					حذف چاه
+					حذف زمین
 				</Title>
 				<Button danger onClick={() => open()} loading={deleteAPI.isLoading}>
 					<Flex gap={8} align='center' justify='center'>
