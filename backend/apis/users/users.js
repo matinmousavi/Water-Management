@@ -1,5 +1,4 @@
 import { Router } from 'express'
-
 import path from 'path'
 import fs from 'fs'
 
@@ -234,6 +233,11 @@ router.patch('/:userId', async (req, res) => {
         const updates = { ...req.body }
 
         delete updates.workspaceId
+        delete updates._id
+        delete updates.role
+        delete updates.createdAt
+        delete updates.updatedAt
+        delete updates.__v
 
         if (updates.profilePicture === 'null') {
             updates.profilePicture = null

@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import Well from '../../models/Well.model.js'
+import Land from '../../models/Land.model.js'
 import mongoose from 'mongoose'
 import Irrigation from '../../models/Irrigation.model.js'
 import Schedule from '../../models/Schedule.model.js'
@@ -27,7 +28,12 @@ router.get('/', async (req, res) => {
             },
             wellProjection ?? undefined
         )
-            .populate('landGroups.lands')
+            .populate({
+                path: 'landGroups.lands',
+                match: {
+                    workspaceId: req.workspaceId,
+                },
+            })
             .lean()
 
         if (!well) {
@@ -149,6 +155,12 @@ router.post('/', async (req, res) => {
             })
         }
 
+        if (!Array.isArray(lands)) {
+            return res.status(400).json({
+                message: 'لیست زمین‌ها معتبر نیست.',
+            })
+        }
+
         const well = await Well.findOne({
             _id: wellId,
             workspaceId: req.workspaceId,
@@ -160,10 +172,27 @@ router.post('/', async (req, res) => {
             })
         }
 
+        const validWorkspaceLands = await Land.find({
+            _id: { $in: lands },
+            workspaceId: req.workspaceId,
+        })
+            .select('_id')
+            .lean()
+
+        const validWorkspaceLandIds = new Set(
+            validWorkspaceLands.map(land =>
+                land._id.toString()
+            )
+        )
+
         const invalidLands = lands.filter(
             landId =>
+                !validWorkspaceLandIds.has(
+                    landId.toString()
+                ) ||
                 !well.lands.some(
-                    wLand => wLand._id.equals(landId)
+                    wLand =>
+                        wLand._id.equals(landId)
                 )
         )
 
@@ -207,9 +236,15 @@ router.get('/:groupId', async (req, res) => {
         })
             .populate({
                 path: 'landGroups.lands',
+                match: {
+                    workspaceId: req.workspaceId,
+                },
                 populate: {
                     path: 'owner',
                     model: 'User',
+                    match: {
+                        workspaceId: req.workspaceId,
+                    },
                     select: 'fullName mobile address',
                 },
             })
@@ -314,7 +349,13 @@ router.get('/:groupId', async (req, res) => {
                 .select(
                     '_id land landGroup startedAt isGroupLog wasGroupLog'
                 )
-                .populate('land', '_id title')
+                .populate({
+                    path: 'land',
+                    match: {
+                        workspaceId: req.workspaceId,
+                    },
+                    select: '_id title',
+                })
                 .lean()
 
         let irrigationTarget = null
@@ -556,22 +597,24 @@ router.get('/:groupId', async (req, res) => {
                         : {}),
                 },
             ],
-            lands: group.lands.map(l => ({
-                _id: l._id,
-                title: l.title,
-                owner: l.owner
-                    ? {
-                          _id: l.owner._id,
-                          fullName:
-                              l.owner.fullName,
-                          mobile:
-                              l.owner.mobile,
-                          address:
-                              l.owner.address,
-                      }
-                    : null,
-                location: l.location || '',
-            })),
+            lands: group.lands
+                .filter(Boolean)
+                .map(l => ({
+                    _id: l._id,
+                    title: l.title,
+                    owner: l.owner
+                        ? {
+                              _id: l.owner._id,
+                              fullName:
+                                  l.owner.fullName,
+                              mobile:
+                                  l.owner.mobile,
+                              address:
+                                  l.owner.address,
+                          }
+                        : null,
+                    location: l.location || '',
+                })),
         })
     } catch (err) {
         console.error(err)
@@ -614,8 +657,31 @@ router.patch('/:groupId', async (req, res) => {
         }
 
         if (lands) {
+            if (!Array.isArray(lands)) {
+                return res.status(400).json({
+                    message: 'لیست زمین‌ها معتبر نیست.',
+                })
+            }
+
+            const validWorkspaceLands =
+                await Land.find({
+                    _id: { $in: lands },
+                    workspaceId: req.workspaceId,
+                })
+                    .select('_id')
+                    .lean()
+
+            const validWorkspaceLandIds = new Set(
+                validWorkspaceLands.map(land =>
+                    land._id.toString()
+                )
+            )
+
             const invalidLands = lands.filter(
                 landId =>
+                    !validWorkspaceLandIds.has(
+                        landId.toString()
+                    ) ||
                     !well.lands.some(
                         wLand =>
                             wLand._id.equals(landId)

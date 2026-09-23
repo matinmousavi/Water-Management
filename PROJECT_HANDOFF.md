@@ -1,5 +1,6 @@
-Water Management — Project Handoff
-1. Project Overview
+# Water Management — Project Handoff
+
+## 1. Project Overview
 
 This project is a resume/demo version of a water-management web application.
 
@@ -9,7 +10,7 @@ The main goal is to provide recruiters/employers with a working demo that can be
 
 The project must remain lightweight and practical. Do not introduce unnecessary SaaS-level architecture unless explicitly requested.
 
-2. Repository
+## 2. Repository
 
 GitHub repository:
 
@@ -26,53 +27,81 @@ https://github.com/karyar-studio/water-management.git
 Important:
 
 .env contains secrets and must never be committed.
+
 Never expose JWT secrets, database credentials, API keys, or other private credentials.
+
 The GitHub repository may currently be public temporarily for development/review purposes.
-3. Tech Stack
-Frontend
+
+## 3. Tech Stack
+
+### Frontend
+
 React
+
 Vite
+
 React Router
+
 Ant Design
+
 Ant Design RTL
+
 Vazirmatn / Persian UI
+
 JavaScript
+
 Tailwind / Bootstrap may exist in the project
-Backend
+
+### Backend
+
 Node.js
+
 Express
+
 Mongoose
+
 MongoDB
+
 JWT authentication
+
 Cookie-based authentication
+
 Docker / Docker Compose
-Deployment
+
+### Deployment
 
 The application is containerized with Docker.
 
 The current development/production-like local environment uses Docker Compose.
 
-4. Main Architecture
+## 4. Main Architecture
 
 The application consists of:
 
 Browser
+
 ↓
+
 React / Vite Frontend
+
 ↓
+
 Express API
+
 ↓
+
 MongoDB
 
 Authentication is cookie based.
 
 The backend determines the authenticated user's workspace and uses that workspace to isolate data.
 
-5. Workspace Architecture
+## 5. Workspace Architecture
 
 The current system has two workspace types:
 
 owner
+
 demo
 
 Every workspace-scoped entity must belong to a workspace.
@@ -80,12 +109,19 @@ Every workspace-scoped entity must belong to a workspace.
 Workspace-scoped models include:
 
 User
+
 Land
+
 Well
+
 Irrigation
+
 IrrigationSchedule
+
 ScheduleSnapshot
+
 Note
+
 Notification
 
 The main purpose of workspace isolation is:
@@ -96,34 +132,56 @@ and:
 
 Demo Browser A ≠ Demo Browser B
 
-6. Demo System
+## 6. Demo System
 
 The demo system creates an isolated workspace for each browser/session.
 
 The general flow is:
 
 Browser A
+
 ↓
+
 GET /demo/session
+
 ↓
+
 Create DemoSession A
+
 ↓
+
 Create DemoWorkspace A
+
 ↓
+
 Create demo users
+
 ↓
+
 Create demo lands
+
 ↓
+
 Create demo wells
+
 ↓
+
 Set demo_session cookie
+
 ↓
+
 User selects a role
+
 ↓
+
 OTP authentication
+
 ↓
+
 JWT contains user/workspace information
+
 ↓
+
 Workspace-scoped API access
 
 A second browser receives another session/workspace.
@@ -131,16 +189,19 @@ A second browser receives another session/workspace.
 Therefore:
 
 Browser A → Workspace A
+
 Browser B → Workspace B
 
 Changes made in A must not appear in B.
 
-7. Demo Roles
+## 7. Demo Roles
 
 The demo provides three roles:
 
 admin
+
 irrigator
+
 landOwner
 
 Demo users are generated per workspace.
@@ -150,8 +211,10 @@ Their mobile numbers and well license codes are generated uniquely from the work
 Important commits:
 
 fix: generate unique demo user mobiles
+
 fix: generate unique demo well licenses
-8. Demo Workspace Seeder
+
+## 8. Demo Workspace Seeder
 
 Main file:
 
@@ -160,16 +223,27 @@ backend/utils/demoWorkspaceSeeder.js
 The seeder creates:
 
 Users
+
 Demo Admin
+
 Demo Irrigator
+
 Demo Land Owner
+
 Lands
+
 زمین شمالی دمو
+
 زمین مرکزی دمو
+
 زمین جنوبی دمو
+
 Wells
+
 چاه دمو ۱
+
 چاه دمو ۲
+
 چاه دمو ۳
 
 Each demo workspace receives its own copies.
@@ -178,7 +252,11 @@ Well license codes are workspace-specific.
 
 Demo user mobile numbers are workspace-specific.
 
-9. Demo Session API
+If a seeded demo user is missing from the current demo workspace, the seeder recreates it.
+
+If the demo workspace is recreated, demo users, lands, wells and related seeded data are recreated as well.
+
+## 9. Demo Session API
 
 Main file:
 
@@ -195,15 +273,26 @@ demo_session
 The endpoint:
 
 Creates a session when the browser has no demo cookie.
+
 Creates a demo workspace.
+
 Seeds the workspace.
+
 Returns demo users.
+
 Reuses an existing valid demo session.
+
 Recreates the session/workspace if the previous workspace no longer exists.
 
 The demo session is intentionally browser/session based.
 
-10. Authentication
+Demo users returned to the Login page are restricted to the seeded demo users.
+
+The API identifies demo users using their generated DEMO accounting code pattern, in addition to workspace and role.
+
+Therefore, adding a normal user with the same role inside a demo workspace does not cause that user's mobile number to appear on the demo role button.
+
+## 10. Authentication
 
 Main file:
 
@@ -218,16 +307,27 @@ Users without a valid workspace are no longer treated as authenticated owner use
 The middleware:
 
 Reads JWT from cookie.
+
 Verifies JWT.
+
 Finds the user.
+
 Requires user.workspaceId.
+
 Finds the workspace.
+
 Requires the workspace to be active.
+
 Sets:
+
 req.user
+
 req.isLogin
+
 req.isAdmin
+
 req.workspaceId
+
 req.workspaceType
 
 If the user has no valid workspace, authentication is rejected.
@@ -236,7 +336,7 @@ Important commit:
 
 fix: isolate owner authentication by workspace
 
-11. Owner Workspace
+## 11. Owner Workspace
 
 Current legitimate owner workspace:
 
@@ -262,7 +362,7 @@ Legacy users without a workspace exist in the database.
 
 They must NOT regain access simply because they have old records.
 
-12. Important Legacy Data Issue
+## 12. Important Legacy Data Issue
 
 There were legacy users and records that did not have a workspace.
 
@@ -281,11 +381,12 @@ Owner login was tested afterward.
 Result:
 
 Old legacy lands no longer appeared.
+
 Only the legitimate owner land appeared.
 
 This was an important security/isolation fix.
 
-13. Workspace-Scoped API Rule
+## 13. Workspace-Scoped API Rule
 
 Any API dealing with workspace data should generally include:
 
@@ -296,18 +397,24 @@ in database queries.
 This applies to:
 
 find
+
 findOne
+
 findOneAndUpdate
+
 findOneAndDelete
+
 updateOne
+
 deleteOne
+
 create
 
 Whenever an entity belongs to a workspace, the workspace must be part of the authorization boundary.
 
 Do not rely only on the document _id.
 
-14. Lands API
+## 14. Lands API
 
 Main file:
 
@@ -318,23 +425,49 @@ The Lands API has been audited and workspace-scoped.
 Important protections include:
 
 GET list filtered by workspaceId
+
 GET single land filtered by workspaceId
+
 Land creation includes workspaceId
+
 PATCH filtered by workspaceId
+
 DELETE filtered by workspaceId
+
 Well lookup is workspace-scoped
+
 Notes are workspace-scoped
+
 Attached wells are workspace-scoped
+
+Land owner and well relationships are checked against the current workspace.
 
 This area has already been reviewed and tested.
 
-15. Wells / Land Owner Access
+## 15. Wells / Land Owner Access
+
+Main file:
+
+backend/apis/wells/wells.js
+
+The Wells API has been audited and workspace-scoped.
+
+Important protections include:
+
+Well list filtered by workspaceId
+
+Single well lookup filtered by workspaceId
+
+Irrigator references are workspace-scoped
+
+Land references are workspace-scoped
 
 Land Owner access to land/well details was corrected.
 
 Important frontend files:
 
 Land.jsx
+
 Well.jsx
 
 Land Owner users can now see the required well details.
@@ -343,7 +476,7 @@ Important commit:
 
 fix: enable well details for land owners
 
-16. Irrigation Logs
+## 16. Irrigation Logs
 
 Land Owner log creation was fixed.
 
@@ -359,7 +492,7 @@ fix: fix land owner well log creation
 
 Irrigator operational behavior was also tested.
 
-17. Irrigations API
+## 17. Irrigations API
 
 Main file:
 
@@ -370,17 +503,28 @@ This API has been audited.
 Workspace scoping currently exists for:
 
 irrigation list
+
 irrigation creation
+
 single irrigation
+
 irrigation update
+
 irrigation deletion
+
 well lookups
+
 land lookups
+
 conflict checks
+
 group irrigation queries
+
 related workspace data
+
 SMS-related land/well lookups
-18. Irrigation Workspace Ownership Fix
+
+## 18. Irrigation Workspace Ownership Fix
 
 During the audit, an issue was found in the irrigation update logic.
 
@@ -402,7 +546,7 @@ Relevant commit:
 
 fix: protect irrigation workspace ownership
 
-19. Dashboard
+## 19. Dashboard
 
 Main file:
 
@@ -413,13 +557,21 @@ Dashboard queries were audited and changed to include workspace scoping.
 Workspace-scoped dashboard data includes:
 
 Wells
+
 Irrigations
+
 Schedules
+
 Notes
+
 Notifications / related data
+
 Land references
+
 Well references
+
 Land groups
+
 Personal data where applicable
 
 Reference lookups use workspace-aware queries instead of relying only on IDs.
@@ -434,7 +586,7 @@ Result:
 
 PASS
 
-20. Browser Isolation Test
+## 20. Browser Isolation Test
 
 Browser isolation has been tested.
 
@@ -468,7 +620,7 @@ Result:
 
 PASS
 
-21. Irrigation Log Isolation Test
+## 21. Irrigation Log Isolation Test
 
 A log was created/changed in one demo browser.
 
@@ -478,7 +630,7 @@ Result:
 
 PASS
 
-22. Owner ↔ Demo Isolation
+## 22. Owner ↔ Demo Isolation
 
 Owner and demo workspaces were tested separately.
 
@@ -488,19 +640,128 @@ Owner data must not appear in demo workspace.
 
 This separation was tested and passed.
 
-23. Demo User Isolation
+## 23. Demo User Isolation
 
 The demo user list only exposes users belonging to the current demo workspace.
 
-Legacy users are not exposed through the demo session API.
+Only seeded demo users are exposed through the demo session API.
 
-24. Current Docker State
+Normal users created inside a demo workspace are not exposed through the demo role buttons.
+
+The Login page displays one button per demo role:
+
+مدیر سیستم
+
+میرآب
+
+مالک زمین
+
+Duplicate users with the same role do not create duplicate role buttons.
+
+The demo workspace was also fully removed during testing.
+
+After the next demo session was created:
+
+Demo users were recreated.
+
+Demo lands were recreated.
+
+Demo wells were recreated.
+
+The demo role buttons returned successfully.
+
+The demo data was available again after regeneration.
+
+Result:
+
+PASS
+
+## 24. API Authorization
+
+Stage 7 — API Authorization and Workspace Authorization has been completed.
+
+Audited/updated areas include:
+
+backend/apis/lands/lands.js
+
+backend/apis/wells/wells.js
+
+backend/apis/wells/landGroups.js
+
+backend/apis/users/users.js
+
+backend/apis/demo/demo.js
+
+Important protections include:
+
+Workspace-scoped land access.
+
+Workspace-scoped well access.
+
+Workspace-scoped irrigator and land references.
+
+Workspace validation for Land Groups.
+
+Workspace validation of lands attached to Land Groups.
+
+Workspace-aware populated land/owner references.
+
+Prevention of unauthorized workspaceId changes.
+
+Prevention of unauthorized role changes.
+
+Demo users restricted to the current demo workspace and seeded demo accounts.
+
+Direct API authorization tests were performed.
+
+For a Land Owner:
+
+GET /api/users
+
+Result:
+
+406
+
+Response:
+
+{"message":"دسترسی ممنوع"}
+
+For an Irrigator:
+
+GET /api/users
+
+Result:
+
+406
+
+Response:
+
+{"message":"دسترسی ممنوع"}
+
+A direct PATCH attempt by an Irrigator containing a workspaceId field was also rejected.
+
+Result:
+
+406
+
+Response:
+
+{"message":"دسترسی ممنوع"}
+
+No unauthorized user/workspace modification occurred.
+
+Result:
+
+PASS
+
+## 25. Current Docker State
 
 The project runs through Docker Compose.
 
 Current local containers:
 
 water-management
+
 water-management_mongo
 
 The application container currently uses:
@@ -517,7 +778,7 @@ http://localhost:5173
 
 The Docker environment has been successfully rebuilt after system restart.
 
-25. Docker Restart Test
+## 26. Docker Restart Test
 
 After a system restart:
 
@@ -529,7 +790,7 @@ The application was successfully brought back up.
 
 The site was successfully opened again.
 
-26. Important Docker Note
+## 27. Important Docker Note
 
 The current Docker Compose service name for the application may differ from the container name.
 
@@ -559,7 +820,7 @@ docker compose logs --tail=50 akeep
 
 Do not assume the service name is water-management.
 
-27. Production Dockerfile
+## 28. Production Dockerfile
 
 The production Dockerfile was previously fixed.
 
@@ -576,17 +837,22 @@ A .dockerignore was also added.
 The .dockerignore excludes things such as:
 
 node_modules
+
 dist
+
 .git
+
 .env
+
 .env.*
+
 npm-debug.log*
 
 Important commit:
 
 fix: prepare production docker deployment
 
-28. Current Deployment Goal
+## 29. Current Deployment Goal
 
 This project is intended to be deployed online as a resume/demo application.
 
@@ -595,165 +861,285 @@ It does NOT need to become a full public SaaS application.
 Target:
 
 Recruiter
+
 ↓
+
 Public demo URL
+
 ↓
+
 Demo session
+
 ↓
+
 Choose role
+
 ↓
+
 Test application
 
 The owner/private workspace must remain isolated from public demo workspaces.
 
-29. Current Audit Status
+Deployment remains a later project stage and is not the current stage.
 
-The project has received a focused workspace-isolation audit.
+## 30. Current Audit Status
+
+The project has received a focused workspace-isolation and authorization audit.
 
 Completed areas:
 
 Authentication — PASS
+
 Demo sessions — PASS
+
 Demo workspace creation — PASS
+
+Demo workspace regeneration — PASS
+
+Demo user regeneration — PASS
+
 Browser isolation — PASS
+
 Owner/demo isolation — PASS
+
 User isolation — PASS
+
 Land isolation — PASS
+
 Well isolation — PASS
+
 Irrigation isolation — PASS
+
 Dashboard isolation — PASS
+
 Land Owner well access — PASS
+
 Land Owner log creation — PASS
+
 Irrigator operation — PASS
+
 Group irrigation update — PASS
+
+API authorization — PASS
+
+Non-admin direct /users access rejection — PASS
+
+Unauthorized workspaceId modification rejection — PASS
+
 Docker restart — PASS
 
-The audit is intentionally paused here.
+Stage 7 — API Authorization — COMPLETE
+
+The next stage is:
+
+Stage 8 — Validation / Request Body
 
 Do NOT restart the entire audit from zero unless explicitly requested.
 
-The current priority is deployment.
-
-30. Known / Deferred Work
+## 31. Known / Deferred Work
 
 The application has not been declared a fully audited production SaaS system.
 
 Some deeper security and architecture reviews may still be possible later.
 
-Examples of potential future audit areas:
+Current upcoming audit areas:
 
 strict request-body whitelisting
+
 remaining API edge cases
+
+validation of required request fields
+
+invalid request-body handling
+
+invalid ID handling
+
 authorization checks for every mutable field
+
 rate limiting
+
 public demo abuse prevention
+
 session cleanup / expiration
+
 production reverse proxy
+
 HTTPS
+
 MongoDB exposure
+
 backup strategy
+
 production logging
+
 error handling
+
 deployment hardening
 
 These are intentionally deferred for the resume-demo stage unless specifically requested.
 
-Do not block deployment solely because these deeper production concerns have not been completed.
+The immediate next stage is:
 
-31. Important Development Rule
+Stage 8 — Validation / Request Body
+
+Do not block deployment solely because deeper production concerns have not been completed.
+
+## 32. Important Development Rule
 
 When continuing this project:
 
 Do not restart the project analysis from zero.
+
 Read this handoff first.
+
 Inspect the actual repository files before changing code.
+
 Treat the current repository as the source of truth for implementation.
+
 Treat this document as the source of truth for project history, decisions, completed tests, and deferred work.
+
 Do not repeat tests that are already documented as passed unless a code change could affect them.
+
 Do not undo completed workspace isolation.
+
 Do not remove workspace filtering from APIs.
+
 Do not expose secrets.
+
 Do not introduce unnecessary architecture.
-32. Working Style
+
+## 33. Working Style
 
 The developer/user prefers:
 
 Persian informal communication.
+
 Direct and practical instructions.
+
 One step at a time.
+
 Do not ask unnecessary confirmation questions.
+
 Do not repeat information already known.
+
 Do not restart completed work.
+
 For code changes, provide complete changed files when practical.
+
 User tests the change.
+
 After successful testing, commit.
+
 Git commit titles should be short, professional English.
+
 User handles git add/commit/push.
+
 Do not give unnecessary git commands.
+
 Avoid Postman when browser/UI testing is sufficient.
-33. Current Exact Project State
+
+## 34. Current Exact Project State
 
 The project is currently in this state:
 
 Workspace isolation implemented
+
 ↓
+
 Major isolation tests passed
+
 ↓
-Irrigation audit completed to current checkpoint
+
+API Authorization audit completed
+
 ↓
+
+Demo regeneration and Demo user isolation verified
+
+↓
+
 Docker running successfully
+
 ↓
-Project is suitable to move toward online demo deployment
 
-Current priority:
+Stage 7 — API Authorization — COMPLETE
 
-DEPLOYMENT
-
-Do not continue a large audit unless explicitly requested.
-
-34. Recommended Next Step
-
-The next major task is:
-
-Prepare the current Dockerized application for online deployment as a resume demo.
-
-Recommended deployment architecture:
-
-Domain
 ↓
-Nginx / Reverse Proxy
-↓
-Dockerized Application
-↓
-MongoDB
 
-The deployment should be inexpensive and simple.
+Current next stage:
 
-The project does not need a complex cloud architecture.
+Stage 8 — Validation / Request Body
 
-35. Git / Commit History Relevant to Current State
+Deployment remains a later stage.
+
+Do not continue a large audit outside the current stage unless explicitly requested.
+
+## 35. Recommended Next Step
+
+The next task is:
+
+Stage 8 — Validation / Request Body
+
+The focus should be:
+
+Required fields
+
+Invalid request bodies
+
+Invalid IDs
+
+Invalid values/types
+
+Unexpected fields
+
+Safe update payloads
+
+Consistent API validation behavior
+
+Do not begin deployment yet.
+
+Complete Stage 8 first, then continue to the next planned stage.
+
+## 36. Git / Commit History Relevant to Current State
 
 Relevant commits include:
 
 fix: prepare production docker deployment
+
 fix: generate unique demo user mobiles
+
 fix: generate unique demo well licenses
+
 fix: isolate owner authentication by workspace
+
 fix: enable well details for land owners
+
 fix: fix land owner well log creation
+
 fix: scope dashboard data by workspace
+
 fix: protect irrigation workspace ownership
-36. Handoff Rule
+
+Current Stage 7 commit:
+
+fix: harden api authorization
+
+## 37. Handoff Rule
 
 When a significant project milestone is completed, update this file.
 
 The update should include:
 
 what changed
+
 what was tested
+
 test result
+
 commit title
+
 current next step
+
 any newly deferred issues
 
 This file exists specifically so the project can be continued from a new AI chat without reconstructing the entire previous conversation.

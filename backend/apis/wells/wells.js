@@ -1,6 +1,8 @@
 import { Router } from 'express'
 
 import Well from '../../models/Well.model.js'
+import User from '../../models/User.model.js'
+import Land from '../../models/Land.model.js'
 import Note from '../../models/Note.model.js'
 import Irrigation from '../../models/Irrigation.model.js'
 import { fieldTranslations } from '../../constants/fieldTranslations.js'
@@ -26,6 +28,59 @@ const getLandGroupTitle = (landGroupId, well) => {
     )
 
     return group ? group.title : null
+}
+
+const normalizeIds = values => {
+    if (!Array.isArray(values)) return []
+
+    return [
+        ...new Set(
+            values.map(item =>
+                typeof item === 'string' ? item : item?._id
+            )
+        ),
+    ]
+}
+
+const validateWorkspaceReferences = async ({
+    workspaceId,
+    irrigator,
+    lands,
+}) => {
+    if (irrigator) {
+        const validIrrigator = await User.findOne({
+            _id: irrigator,
+            workspaceId,
+            role: 'irrigator',
+        }).select('_id')
+
+        if (!validIrrigator) {
+            return {
+                valid: false,
+                message: 'میرآب متعلق به این فضای کاری نیست.',
+            }
+        }
+    }
+
+    if (Array.isArray(lands)) {
+        const normalizedLands = normalizeIds(lands)
+
+        if (normalizedLands.length > 0) {
+            const validLands = await Land.find({
+                _id: { $in: normalizedLands },
+                workspaceId,
+            }).select('_id')
+
+            if (validLands.length !== normalizedLands.length) {
+                return {
+                    valid: false,
+                    message: 'یکی از زمین‌های انتخاب‌شده متعلق به این فضای کاری نیست.',
+                }
+            }
+        }
+    }
+
+    return { valid: true }
 }
 
 router.get('/', async (req, res) => {
@@ -398,15 +453,20 @@ router.post('/', async (req, res) => {
         } = req.body
 
         if (Array.isArray(lands)) {
-            lands = [
-                ...new Set(
-                    lands.map(item =>
-                        typeof item === 'string'
-                            ? item
-                            : item._id
-                    )
-                ),
-            ]
+            lands = normalizeIds(lands)
+        }
+
+        const referencesValidation =
+            await validateWorkspaceReferences({
+                workspaceId: req.workspaceId,
+                irrigator,
+                lands,
+            })
+
+        if (!referencesValidation.valid) {
+            return res.status(400).json({
+                message: referencesValidation.message,
+            })
         }
 
         let newWell = await Well.create({
@@ -487,15 +547,7 @@ router.patch('/:wellId', async (req, res) => {
         delete updates.workspaceId
 
         if (updates.lands && Array.isArray(updates.lands)) {
-            updates.lands = [
-                ...new Set(
-                    updates.lands.map(item =>
-                        typeof item === 'string'
-                            ? item
-                            : item._id
-                    )
-                ),
-            ]
+            updates.lands = normalizeIds(updates.lands)
         }
 
         if (updates.startTime && updates.endTime) {
@@ -516,6 +568,19 @@ router.patch('/:wellId', async (req, res) => {
         if (!well) {
             return res.status(404).json({
                 message: 'چاه پیدا نشد.',
+            })
+        }
+
+        const referencesValidation =
+            await validateWorkspaceReferences({
+                workspaceId: req.workspaceId,
+                irrigator: updates.irrigator,
+                lands: updates.lands,
+            })
+
+        if (!referencesValidation.valid) {
+            return res.status(400).json({
+                message: referencesValidation.message,
             })
         }
 

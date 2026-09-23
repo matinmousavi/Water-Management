@@ -6,6 +6,8 @@ import Land from '../../models/Land.model.js'
 
 import Well from '../../models/Well.model.js'
 
+import User from '../../models/User.model.js'
+
 import Irrigation from '../../models/Irrigation.model.js'
 
 import Note from '../../models/Note.model.js'
@@ -49,6 +51,7 @@ async function attachWells(land, { includeLandGroups = false, workspaceId } = {}
 router.get('/', async (req, res) => {
     try {
         const safeQuery = sanitizeQuery(req.query)
+
         const filter = {
             workspaceId: req.workspaceId,
         }
@@ -82,7 +85,10 @@ router.get('/', async (req, res) => {
         return res.status(200).json({ lands: landsWithWells })
     } catch (err) {
         console.error(err.message)
-        return res.status(500).json({ message: 'خطا در دریافت اطلاعات زمین‌ها!' })
+
+        return res.status(500).json({
+            message: 'خطا در دریافت اطلاعات زمین‌ها!',
+        })
     }
 })
 
@@ -93,7 +99,9 @@ router.get('/:landId', async (req, res) => {
         const { landId } = req.params
 
         if (!mongoose.isValidObjectId(landId)) {
-            return res.status(400).json({ message: 'شناسه زمین معتبر نیست.' })
+            return res.status(400).json({
+                message: 'شناسه زمین معتبر نیست.',
+            })
         }
 
         const projection = getProjection(req)
@@ -109,7 +117,9 @@ router.get('/:landId', async (req, res) => {
             .lean()
 
         if (!land) {
-            return res.status(404).json({ message: 'زمین پیدا نشد.' })
+            return res.status(404).json({
+                message: 'زمین پیدا نشد.',
+            })
         }
 
         const landWithWells = await attachWells(land, {
@@ -147,7 +157,11 @@ router.get('/:landId', async (req, res) => {
 
             if (!wellKey) continue
 
-            if (irrigation.isGroupLog && !irrigation.wasGroupLog && irrigation.landGroup) {
+            if (
+                irrigation.isGroupLog &&
+                !irrigation.wasGroupLog &&
+                irrigation.landGroup
+            ) {
                 const landGroupId = irrigation.landGroup.toString()
 
                 const groupTitle =
@@ -234,6 +248,7 @@ router.get('/:landId', async (req, res) => {
                                 well: well._id,
                                 landGroup: irrigationInfo.landGroupId,
                             }).lean(),
+
                             Irrigation.find({
                                 workspaceId: req.workspaceId,
                                 well: well._id,
@@ -305,7 +320,10 @@ router.get('/:landId', async (req, res) => {
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).json({ message: 'خطای داخلی سرور.' })
+
+        return res.status(500).json({
+            message: 'خطای داخلی سرور.',
+        })
     }
 })
 
@@ -326,6 +344,34 @@ router.post('/', async (req, res) => {
         } = req.body
 
         const userId = req.user._id
+
+        if (owner) {
+            const ownerUser = await User.findOne({
+                _id: owner,
+                workspaceId: req.workspaceId,
+            }).select('_id')
+
+            if (!ownerUser) {
+                return res.status(400).json({
+                    message: 'مالک انتخاب‌شده معتبر نیست.',
+                })
+            }
+        }
+
+        let well = null
+
+        if (wellId) {
+            well = await Well.findOne({
+                _id: wellId,
+                workspaceId: req.workspaceId,
+            })
+
+            if (!well) {
+                return res.status(404).json({
+                    message: 'چاه مورد نظر یافت نشد.',
+                })
+            }
+        }
 
         const newLand = await Land.create({
             title,
@@ -349,16 +395,7 @@ router.post('/', async (req, res) => {
             })
         }
 
-        if (wellId) {
-            const well = await Well.findOne({
-                _id: wellId,
-                workspaceId: req.workspaceId,
-            })
-
-            if (!well) {
-                return res.status(404).json({ message: 'چاه مورد نظر یافت نشد.' })
-            }
-
+        if (well) {
             well.lands.push(newLand._id)
             await well.save()
         }
@@ -400,7 +437,9 @@ router.post('/', async (req, res) => {
             })
         }
 
-        return res.status(500).json({ message: 'خطا در ایجاد زمین.' })
+        return res.status(500).json({
+            message: 'خطا در ایجاد زمین.',
+        })
     }
 })
 
@@ -409,10 +448,12 @@ router.post('/', async (req, res) => {
 router.patch('/:landId', async (req, res) => {
     try {
         const { landId } = req.params
+
         const updates = { ...req.body }
         const { wellId } = updates
 
         delete updates.workspaceId
+        delete updates.wellId
 
         const land = await Land.findOne({
             _id: landId,
@@ -420,10 +461,56 @@ router.patch('/:landId', async (req, res) => {
         })
 
         if (!land) {
-            return res.status(404).json({ message: 'زمین پیدا نشد.' })
+            return res.status(404).json({
+                message: 'زمین پیدا نشد.',
+            })
         }
 
+        if (updates.owner) {
+            const ownerUser = await User.findOne({
+                _id: updates.owner,
+                workspaceId: req.workspaceId,
+            }).select('_id')
+
+            if (!ownerUser) {
+                return res.status(400).json({
+                    message: 'مالک انتخاب‌شده معتبر نیست.',
+                })
+            }
+        }
+
+        let well = null
+
         if (wellId) {
+            well = await Well.findOne({
+                _id: wellId,
+                workspaceId: req.workspaceId,
+            })
+
+            if (!well) {
+                return res.status(404).json({
+                    message: 'چاه مورد نظر یافت نشد.',
+                })
+            }
+
+            await Well.updateMany(
+                {
+                    workspaceId: req.workspaceId,
+                    _id: { $ne: well._id },
+                    lands: land._id,
+                },
+                {
+                    $pull: {
+                        lands: land._id,
+                    },
+                }
+            )
+
+            if (!well.lands.some(item => item.equals(land._id))) {
+                well.lands.push(land._id)
+                await well.save()
+            }
+        } else {
             await Well.updateMany(
                 {
                     workspaceId: req.workspaceId,
@@ -435,25 +522,10 @@ router.patch('/:landId', async (req, res) => {
                     },
                 }
             )
-
-            const well = await Well.findOne({
-                _id: wellId,
-                workspaceId: req.workspaceId,
-            })
-
-            if (!well) {
-                return res.status(404).json({ message: 'چاه مورد نظر یافت نشد.' })
-            }
-
-            if (!well.lands.includes(land._id)) {
-                well.lands.push(land._id)
-                await well.save()
-            }
         }
 
-        delete updates.wellId
-
         Object.assign(land, updates)
+
         await land.save()
 
         const populatedLand = await Land.findOne({
@@ -483,7 +555,9 @@ router.patch('/:landId', async (req, res) => {
             })
         }
 
-        return res.status(500).json({ message: 'خطا در ویرایش زمین.' })
+        return res.status(500).json({
+            message: 'خطا در ویرایش زمین.',
+        })
     }
 })
 
@@ -499,7 +573,9 @@ router.delete('/:landId', async (req, res) => {
         })
 
         if (!land) {
-            return res.status(404).json({ message: 'زمین پیدا نشد.' })
+            return res.status(404).json({
+                message: 'زمین پیدا نشد.',
+            })
         }
 
         await Note.deleteMany({
@@ -534,7 +610,9 @@ router.post('/:landId/notes', async (req, res) => {
         })
 
         if (!land) {
-            return res.status(404).json({ message: 'زمین پیدا نشد.' })
+            return res.status(404).json({
+                message: 'زمین پیدا نشد.',
+            })
         }
 
         const newNote = await Note.create({
@@ -578,7 +656,9 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
         })
 
         if (!note) {
-            return res.status(404).json({ message: 'یادداشت پیدا نشد.' })
+            return res.status(404).json({
+                message: 'یادداشت پیدا نشد.',
+            })
         }
 
         if (!note.user.equals(userId) && !isAdmin) {
@@ -588,6 +668,7 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
         }
 
         note.text = text
+
         await note.save()
         await note.populate('user', '_id fullName')
 
