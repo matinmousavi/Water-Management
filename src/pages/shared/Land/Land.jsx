@@ -1,35 +1,63 @@
+
 import { Flex, Grid, Switch, Typography } from 'antd'
+
 import useAPI from '../../../hooks/useAPI'
+
 import Loading from '../../../components/common/Loading/Loading'
+
 import LandInfo from './components/LandInfo/LandInfo'
+
 import MetaTitle from '../../../components/common/MetaTitle/MetaTitle'
+
 import DeleteCard from '../../../components/common/DeleteCard/DeleteCard'
+
 import BackButton from '../../../components/common/BackButton/BackButton'
+
 import LandLogsCard from './components/LandLogsCard/LandLogsCard'
+
 import { useUser } from '../../../contexts/UserContext'
+
 import LandMobile from './components/LandMobile/LandMobile'
+
 import { useEffect, useState } from 'react'
+
 import { useParams } from 'react-router'
+
 import useNotification from '../../../hooks/useNotification'
+
 import useNotificationToggle from '../../../hooks/useNotificationToggle'
+
 import LandStatus from './components/LandStatus'
+
 import { BellOutlined } from '@ant-design/icons'
+
 import Notes from '../../../components/common/Notes/Notes'
 
 const { Title } = Typography
 
 const Land = () => {
     const [landData, setLandData] = useState(null)
+
     const [allWells, setAllWells] = useState([])
+
     const [logs, setLogs] = useState(null)
+
     const [status, setStatus] = useState()
+
     const { landId } = useParams()
+
     const { openNotification } = useNotification()
+
     const { isAdmin, isIrrigator, isLandOwner } = useUser()
+
     const landApi = useAPI()
+
     const wellsApi = useAPI()
+
     const [pageTitle, setPageTitle] = useState('')
+
     const screens = Grid.useBreakpoint()
+
     const isMobile = screens.xs && !screens.md
 
     const fetchInitialData = async () => {
@@ -65,6 +93,27 @@ const Land = () => {
         landId,
         initialValue: landData?.notificationsEnabled,
     })
+
+    const handleLandUpdated = updatedLand => {
+        if (!updatedLand) return
+
+        setLandData(prev => ({
+            ...prev,
+            ...updatedLand,
+        }))
+
+        if (Array.isArray(updatedLand.logs)) {
+            setLogs(updatedLand.logs)
+        }
+
+        if (updatedLand.status !== undefined) {
+            setStatus(updatedLand.status)
+        }
+
+        if (updatedLand.title !== undefined) {
+            setPageTitle(updatedLand.title)
+        }
+    }
 
     if (landApi.isLoading || wellsApi.isLoading || !landData) {
         return <Loading />
@@ -129,6 +178,7 @@ const Land = () => {
                     <LandInfo
                         landData={landData}
                         setPageTitle={setPageTitle}
+                        onLandUpdated={handleLandUpdated}
                     />
 
                     <Notes

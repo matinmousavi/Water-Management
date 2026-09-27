@@ -18,11 +18,118 @@ import { fieldTranslations } from '../../constants/fieldTranslations.js'
 
 import { getProjection, sanitizeQuery } from '../../utils/queryUtils.js'
 
-import { buildWaterMetrics, sumIrrigationDurationsMs, sumScheduleDurationsMs } from '../../utils/metricsUtils.js'
+import {
+    buildWaterMetrics,
+    sumIrrigationDurationsMs,
+    sumScheduleDurationsMs,
+} from '../../utils/metricsUtils.js'
 
 const router = Router()
 
-async function attachWells(land, { includeLandGroups = false, workspaceId } = {}) {
+const ALLOWED_IRRIGATION_TYPES = [
+    'قطره‌ای',
+    'بارانی',
+    'سطحی',
+    'چاه دستی',
+    'سایر',
+]
+
+const ALLOWED_STATUSES = ['active', 'inactive']
+
+const ALLOWED_PATCH_FIELDS = [
+    'title',
+    'owner',
+    'area',
+    'kFactor',
+    'location',
+    'irrigationType',
+    'cropType',
+    'status',
+    'notificationsEnabled',
+]
+
+function isNonEmptyString(value) {
+    return typeof value === 'string' && value.trim().length > 0
+}
+
+function isFiniteNumber(value) {
+    return typeof value === 'number' && Number.isFinite(value)
+}
+
+function isValidObjectId(value) {
+    return typeof value === 'string' && mongoose.isValidObjectId(value)
+}
+
+function normalizeOptionalString(value) {
+    if (value === undefined || value === null) {
+        return undefined
+    }
+
+    if (typeof value !== 'string') {
+        return null
+    }
+
+    const trimmed = value.trim()
+
+    return trimmed || undefined
+}
+
+function normalizeNullableObjectId(value) {
+    if (value === undefined) {
+        return {
+            valid: true,
+            value: undefined,
+        }
+    }
+
+    if (value === null || value === '') {
+        return {
+            valid: true,
+            value: null,
+        }
+    }
+
+    if (!isValidObjectId(value)) {
+        return {
+            valid: false,
+            value: undefined,
+        }
+    }
+
+    return {
+        valid: true,
+        value,
+    }
+}
+
+function getValidationErrorMessage(err) {
+    const firstError = Object.values(err.errors || {})[0]
+
+    if (!firstError) {
+        return 'اطلاعات ارسال‌شده معتبر نیست.'
+    }
+
+    const field = firstError.path
+    const fieldName = fieldTranslations.lands[field] || field
+
+    return `${fieldName} معتبر نیست.`
+}
+
+function hasOnlyAllowedFields(body, allowedFields) {
+    const unknownFields = Object.keys(body).filter(
+        field => !allowedFields.includes(field)
+    )
+
+    return {
+        valid: unknownFields.length === 0,
+        unknownFields,
+    }
+}
+
+async function attachWells(
+    land,
+    { includeLandGroups = false, workspaceId } = {}
+) {
     const projection = {
         _id: 1,
         title: 1,
@@ -56,17 +163,49 @@ router.get('/', async (req, res) => {
             workspaceId: req.workspaceId,
         }
 
-        const allowedFields = ['title', 'owner', 'status', 'irrigationType', 'cropType', 'location']
+        const allowedFields = [
+            'title',
+            'owner',
+            'status',
+            'irrigationType',
+            'cropType',
+            'location',
+        ]
 
-        allowedFields.forEach(field => {
-            if (safeQuery[field]) {
-                if (field === 'owner') {
-                    filter[field] = safeQuery[field]
-                } else {
-                    filter[field] = { $regex: safeQuery[field], $options: 'i' }
+        for (const field of allowedFields) {
+            const value = safeQuery[field]
+
+            if (value === undefined || value === null || value === '') {
+                continue
+            }
+
+            if (typeof value !== 'string') {
+                return res.status(400).json({
+                    message: `فیلتر ${field} معتبر نیست.`,
+                })
+            }
+
+            const trimmedValue = value.trim()
+
+            if (!trimmedValue) {
+                continue
+            }
+
+            if (field === 'owner') {
+                if (!isValidObjectId(trimmedValue)) {
+                    return res.status(400).json({
+                        message: 'شناسه مالک معتبر نیست.',
+                    })
+                }
+
+                filter[field] = trimmedValue
+            } else {
+                filter[field] = {
+                    $regex: trimmedValue,
+                    $options: 'i',
                 }
             }
-        })
+        }
 
         const projection = getProjection(req)
 
@@ -85,6 +224,12 @@ router.get('/', async (req, res) => {
         return res.status(200).json({ lands: landsWithWells })
     } catch (err) {
         console.error(err.message)
+
+        if (err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'فیلتر ارسال‌شده معتبر نیست.',
+            })
+        }
 
         return res.status(500).json({
             message: 'خطا در دریافت اطلاعات زمین‌ها!',
@@ -259,7 +404,8 @@ router.get('/:landId', async (req, res) => {
                         ])
 
                         targetRequiredMs = sumScheduleDurationsMs(schedules)
-                        targetReceivedMs = sumIrrigationDurationsMs(irrigations)
+                        targetReceivedMs =
+                            sumIrrigationDurationsMs(irrigations)
                     }
 
                     const metrics = buildWaterMetrics({
@@ -321,6 +467,12 @@ router.get('/:landId', async (req, res) => {
     } catch (err) {
         console.error(err)
 
+        if (err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'اطلاعات ارسال‌شده معتبر نیست.',
+            })
+        }
+
         return res.status(500).json({
             message: 'خطای داخلی سرور.',
         })
@@ -331,6 +483,35 @@ router.get('/:landId', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({
+                message: 'بدنه درخواست معتبر نیست.',
+            })
+        }
+
+        const {
+            valid,
+            unknownFields,
+        } = hasOnlyAllowedFields(req.body, [
+            'title',
+            'owner',
+            'area',
+            'kFactor',
+            'location',
+            'irrigationType',
+            'cropType',
+            'note',
+            'wellId',
+        ])
+
+        if (!valid) {
+            return res.status(400).json({
+                message: `فیلدهای غیرمجاز در درخواست وجود دارد: ${unknownFields.join(
+                    ', '
+                )}`,
+            })
+        }
+
         const {
             title,
             owner,
@@ -345,9 +526,87 @@ router.post('/', async (req, res) => {
 
         const userId = req.user._id
 
-        if (owner) {
+        if (!isNonEmptyString(title)) {
+            return res.status(400).json({
+                message: 'عنوان زمین الزامی است.',
+            })
+        }
+
+        if (!isFiniteNumber(area) || area <= 0) {
+            return res.status(400).json({
+                message: 'مساحت زمین باید یک عدد مثبت باشد.',
+            })
+        }
+
+        if (!isFiniteNumber(kFactor)) {
+            return res.status(400).json({
+                message: 'ضریب K باید یک عدد معتبر باشد.',
+            })
+        }
+
+        if (
+            irrigationType !== undefined &&
+            irrigationType !== null &&
+            irrigationType !== '' &&
+            (
+                typeof irrigationType !== 'string' ||
+                !ALLOWED_IRRIGATION_TYPES.includes(irrigationType)
+            )
+        ) {
+            return res.status(400).json({
+                message: 'نوع آبیاری انتخاب‌شده معتبر نیست.',
+            })
+        }
+
+        if (
+            location !== undefined &&
+            location !== null &&
+            typeof location !== 'string'
+        ) {
+            return res.status(400).json({
+                message: 'موقعیت زمین معتبر نیست.',
+            })
+        }
+
+        if (
+            cropType !== undefined &&
+            cropType !== null &&
+            typeof cropType !== 'string'
+        ) {
+            return res.status(400).json({
+                message: 'نوع محصول معتبر نیست.',
+            })
+        }
+
+        if (
+            note !== undefined &&
+            note !== null &&
+            typeof note !== 'string'
+        ) {
+            return res.status(400).json({
+                message: 'متن یادداشت معتبر نیست.',
+            })
+        }
+
+        const normalizedOwner = normalizeNullableObjectId(owner)
+
+        if (!normalizedOwner.valid) {
+            return res.status(400).json({
+                message: 'شناسه مالک معتبر نیست.',
+            })
+        }
+
+        const normalizedWell = normalizeNullableObjectId(wellId)
+
+        if (!normalizedWell.valid) {
+            return res.status(400).json({
+                message: 'شناسه چاه معتبر نیست.',
+            })
+        }
+
+        if (normalizedOwner.value) {
             const ownerUser = await User.findOne({
-                _id: owner,
+                _id: normalizedOwner.value,
                 workspaceId: req.workspaceId,
             }).select('_id')
 
@@ -360,9 +619,9 @@ router.post('/', async (req, res) => {
 
         let well = null
 
-        if (wellId) {
+        if (normalizedWell.value) {
             well = await Well.findOne({
-                _id: wellId,
+                _id: normalizedWell.value,
                 workspaceId: req.workspaceId,
             })
 
@@ -374,21 +633,27 @@ router.post('/', async (req, res) => {
         }
 
         const newLand = await Land.create({
-            title,
-            owner,
+            title: title.trim(),
+            owner: normalizedOwner.value || undefined,
             area,
             kFactor,
-            location,
-            irrigationType,
-            cropType,
+            location:
+                typeof location === 'string' ? location.trim() : location,
+            irrigationType:
+                irrigationType === '' ? undefined : irrigationType,
+            cropType:
+                typeof cropType === 'string' ? cropType.trim() : cropType,
             workspaceId: req.workspaceId,
         })
 
-        if (note) {
+        const normalizedNote =
+            typeof note === 'string' ? note.trim() : ''
+
+        if (normalizedNote) {
             await Note.create({
                 workspaceId: req.workspaceId,
                 user: userId,
-                text: note,
+                text: normalizedNote,
                 type: 'land',
                 reference: newLand._id,
                 typeRef: 'Land',
@@ -419,7 +684,7 @@ router.post('/', async (req, res) => {
         console.error(err.message)
 
         if (err.code === 11000) {
-            const field = Object.keys(err.keyValue)[0]
+            const field = Object.keys(err.keyValue || {})[0]
             const fieldName = fieldTranslations.lands[field] || field
 
             return res.status(409).json({
@@ -428,12 +693,14 @@ router.post('/', async (req, res) => {
         }
 
         if (err.name === 'ValidationError') {
-            const firstError = Object.values(err.errors)[0]
-            const field = firstError.path
-            const fieldName = fieldTranslations.lands[field] || field
-
             return res.status(400).json({
-                message: `${fieldName} الزامی است.`,
+                message: getValidationErrorMessage(err),
+            })
+        }
+
+        if (err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'اطلاعات ارسال‌شده معتبر نیست.',
             })
         }
 
@@ -449,11 +716,39 @@ router.patch('/:landId', async (req, res) => {
     try {
         const { landId } = req.params
 
-        const updates = { ...req.body }
-        const { wellId } = updates
+        if (!mongoose.isValidObjectId(landId)) {
+            return res.status(400).json({
+                message: 'شناسه زمین معتبر نیست.',
+            })
+        }
 
-        delete updates.workspaceId
-        delete updates.wellId
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({
+                message: 'بدنه درخواست معتبر نیست.',
+            })
+        }
+
+        if (Object.keys(req.body).length === 0) {
+            return res.status(400).json({
+                message: 'حداقل یک فیلد برای ویرایش ارسال کنید.',
+            })
+        }
+
+        const {
+            valid,
+            unknownFields,
+        } = hasOnlyAllowedFields(req.body, [
+            ...ALLOWED_PATCH_FIELDS,
+            'wellId',
+        ])
+
+        if (!valid) {
+            return res.status(400).json({
+                message: `فیلدهای غیرمجاز در درخواست وجود دارد: ${unknownFields.join(
+                    ', '
+                )}`,
+            })
+        }
 
         const land = await Land.findOne({
             _id: landId,
@@ -466,62 +761,194 @@ router.patch('/:landId', async (req, res) => {
             })
         }
 
-        if (updates.owner) {
-            const ownerUser = await User.findOne({
-                _id: updates.owner,
-                workspaceId: req.workspaceId,
-            }).select('_id')
+        const {
+            title,
+            owner,
+            area,
+            kFactor,
+            location,
+            irrigationType,
+            cropType,
+            status,
+            notificationsEnabled,
+            wellId,
+        } = req.body
 
-            if (!ownerUser) {
+        const updates = {}
+
+        if (title !== undefined) {
+            if (!isNonEmptyString(title)) {
                 return res.status(400).json({
-                    message: 'مالک انتخاب‌شده معتبر نیست.',
+                    message: 'عنوان زمین نمی‌تواند خالی باشد.',
                 })
             }
+
+            updates.title = title.trim()
+        }
+
+        if (owner !== undefined) {
+            const normalizedOwner = normalizeNullableObjectId(owner)
+
+            if (!normalizedOwner.valid) {
+                return res.status(400).json({
+                    message: 'شناسه مالک معتبر نیست.',
+                })
+            }
+
+            if (normalizedOwner.value) {
+                const ownerUser = await User.findOne({
+                    _id: normalizedOwner.value,
+                    workspaceId: req.workspaceId,
+                }).select('_id')
+
+                if (!ownerUser) {
+                    return res.status(400).json({
+                        message: 'مالک انتخاب‌شده معتبر نیست.',
+                    })
+                }
+
+                updates.owner = normalizedOwner.value
+            } else {
+                updates.owner = null
+            }
+        }
+
+        if (area !== undefined) {
+            if (!isFiniteNumber(area) || area <= 0) {
+                return res.status(400).json({
+                    message: 'مساحت زمین باید یک عدد مثبت باشد.',
+                })
+            }
+
+            updates.area = area
+        }
+
+        if (kFactor !== undefined) {
+            if (!isFiniteNumber(kFactor)) {
+                return res.status(400).json({
+                    message: 'ضریب K باید یک عدد معتبر باشد.',
+                })
+            }
+
+            updates.kFactor = kFactor
+        }
+
+        if (location !== undefined) {
+            if (location !== null && typeof location !== 'string') {
+                return res.status(400).json({
+                    message: 'موقعیت زمین معتبر نیست.',
+                })
+            }
+
+            updates.location =
+                typeof location === 'string' ? location.trim() : ''
+        }
+
+        if (irrigationType !== undefined) {
+            if (
+                irrigationType !== null &&
+                irrigationType !== '' &&
+                (
+                    typeof irrigationType !== 'string' ||
+                    !ALLOWED_IRRIGATION_TYPES.includes(irrigationType)
+                )
+            ) {
+                return res.status(400).json({
+                    message: 'نوع آبیاری انتخاب‌شده معتبر نیست.',
+                })
+            }
+
+            updates.irrigationType =
+                irrigationType === '' ? undefined : irrigationType
+        }
+
+        if (cropType !== undefined) {
+            if (cropType !== null && typeof cropType !== 'string') {
+                return res.status(400).json({
+                    message: 'نوع محصول معتبر نیست.',
+                })
+            }
+
+            updates.cropType =
+                typeof cropType === 'string' ? cropType.trim() : ''
+        }
+
+        if (status !== undefined) {
+            if (
+                typeof status !== 'string' ||
+                !ALLOWED_STATUSES.includes(status)
+            ) {
+                return res.status(400).json({
+                    message: 'وضعیت زمین معتبر نیست.',
+                })
+            }
+
+            updates.status = status
+        }
+
+        if (notificationsEnabled !== undefined) {
+            if (typeof notificationsEnabled !== 'boolean') {
+                return res.status(400).json({
+                    message: 'مقدار فعال‌بودن اعلان‌ها باید true یا false باشد.',
+                })
+            }
+
+            updates.notificationsEnabled = notificationsEnabled
         }
 
         let well = null
 
-        if (wellId) {
-            well = await Well.findOne({
-                _id: wellId,
-                workspaceId: req.workspaceId,
-            })
+        if (wellId !== undefined) {
+            const normalizedWell = normalizeNullableObjectId(wellId)
 
-            if (!well) {
-                return res.status(404).json({
-                    message: 'چاه مورد نظر یافت نشد.',
+            if (!normalizedWell.valid) {
+                return res.status(400).json({
+                    message: 'شناسه چاه معتبر نیست.',
                 })
             }
 
-            await Well.updateMany(
-                {
+            if (normalizedWell.value) {
+                well = await Well.findOne({
+                    _id: normalizedWell.value,
                     workspaceId: req.workspaceId,
-                    _id: { $ne: well._id },
-                    lands: land._id,
-                },
-                {
-                    $pull: {
-                        lands: land._id,
-                    },
-                }
-            )
+                })
 
-            if (!well.lands.some(item => item.equals(land._id))) {
-                well.lands.push(land._id)
-                await well.save()
-            }
-        } else {
-            await Well.updateMany(
-                {
-                    workspaceId: req.workspaceId,
-                    lands: land._id,
-                },
-                {
-                    $pull: {
+                if (!well) {
+                    return res.status(404).json({
+                        message: 'چاه مورد نظر یافت نشد.',
+                    })
+                }
+
+                await Well.updateMany(
+                    {
+                        workspaceId: req.workspaceId,
+                        _id: { $ne: well._id },
                         lands: land._id,
                     },
+                    {
+                        $pull: {
+                            lands: land._id,
+                        },
+                    }
+                )
+
+                if (!well.lands.some(item => item.equals(land._id))) {
+                    well.lands.push(land._id)
+                    await well.save()
                 }
-            )
+            } else {
+                await Well.updateMany(
+                    {
+                        workspaceId: req.workspaceId,
+                        lands: land._id,
+                    },
+                    {
+                        $pull: {
+                            lands: land._id,
+                        },
+                    }
+                )
+            }
         }
 
         Object.assign(land, updates)
@@ -547,11 +974,23 @@ router.patch('/:landId', async (req, res) => {
         console.error(err.message)
 
         if (err.code === 11000) {
-            const field = Object.keys(err.keyValue)[0]
+            const field = Object.keys(err.keyValue || {})[0]
             const fieldName = fieldTranslations.lands[field] || field
 
             return res.status(409).json({
                 message: `این ${fieldName} قبلاً ثبت شده است.`,
+            })
+        }
+
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({
+                message: getValidationErrorMessage(err),
+            })
+        }
+
+        if (err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'اطلاعات ارسال‌شده معتبر نیست.',
             })
         }
 
@@ -566,6 +1005,12 @@ router.patch('/:landId', async (req, res) => {
 router.delete('/:landId', async (req, res) => {
     try {
         const { landId } = req.params
+
+        if (!mongoose.isValidObjectId(landId)) {
+            return res.status(400).json({
+                message: 'شناسه زمین معتبر نیست.',
+            })
+        }
 
         const land = await Land.findOneAndDelete({
             _id: landId,
@@ -590,6 +1035,12 @@ router.delete('/:landId', async (req, res) => {
     } catch (err) {
         console.error('خطا در حذف زمین:', err.message)
 
+        if (err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'شناسه زمین معتبر نیست.',
+            })
+        }
+
         return res.status(500).json({
             message: 'خطای داخلی سرور.',
         })
@@ -601,8 +1052,35 @@ router.delete('/:landId', async (req, res) => {
 router.post('/:landId/notes', async (req, res) => {
     try {
         const { landId } = req.params
+
+        if (!mongoose.isValidObjectId(landId)) {
+            return res.status(400).json({
+                message: 'شناسه زمین معتبر نیست.',
+            })
+        }
+
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({
+                message: 'بدنه درخواست معتبر نیست.',
+            })
+        }
+
+        const bodyFields = Object.keys(req.body)
+
+        if (bodyFields.some(field => field !== 'text')) {
+            return res.status(400).json({
+                message: 'فیلد غیرمجاز در درخواست وجود دارد.',
+            })
+        }
+
         const { text } = req.body
         const userId = req.user._id
+
+        if (!isNonEmptyString(text)) {
+            return res.status(400).json({
+                message: 'متن یادداشت الزامی است.',
+            })
+        }
 
         const land = await Land.findOne({
             _id: landId,
@@ -618,7 +1096,7 @@ router.post('/:landId/notes', async (req, res) => {
         const newNote = await Note.create({
             workspaceId: req.workspaceId,
             user: userId,
-            text,
+            text: text.trim(),
             type: 'land',
             reference: landId,
             typeRef: 'Land',
@@ -633,6 +1111,12 @@ router.post('/:landId/notes', async (req, res) => {
     } catch (err) {
         console.error(err.message)
 
+        if (err.name === 'ValidationError' || err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'اطلاعات یادداشت معتبر نیست.',
+            })
+        }
+
         return res.status(500).json({
             message: 'خطا در افزودن یادداشت.',
         })
@@ -644,9 +1128,42 @@ router.post('/:landId/notes', async (req, res) => {
 router.put('/:landId/notes/:noteId', async (req, res) => {
     try {
         const { landId, noteId } = req.params
+
+        if (!mongoose.isValidObjectId(landId)) {
+            return res.status(400).json({
+                message: 'شناسه زمین معتبر نیست.',
+            })
+        }
+
+        if (!mongoose.isValidObjectId(noteId)) {
+            return res.status(400).json({
+                message: 'شناسه یادداشت معتبر نیست.',
+            })
+        }
+
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({
+                message: 'بدنه درخواست معتبر نیست.',
+            })
+        }
+
+        const bodyFields = Object.keys(req.body)
+
+        if (bodyFields.some(field => field !== 'text')) {
+            return res.status(400).json({
+                message: 'فیلد غیرمجاز در درخواست وجود دارد.',
+            })
+        }
+
         const { text } = req.body
         const userId = req.user._id
         const isAdmin = req.isAdmin
+
+        if (!isNonEmptyString(text)) {
+            return res.status(400).json({
+                message: 'متن یادداشت الزامی است.',
+            })
+        }
 
         const note = await Note.findOne({
             _id: noteId,
@@ -667,7 +1184,7 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
             })
         }
 
-        note.text = text
+        note.text = text.trim()
 
         await note.save()
         await note.populate('user', '_id fullName')
@@ -678,6 +1195,12 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
         })
     } catch (err) {
         console.error(err.message)
+
+        if (err.name === 'ValidationError' || err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'اطلاعات یادداشت معتبر نیست.',
+            })
+        }
 
         return res.status(500).json({
             message: 'خطا در ویرایش یادداشت.',
@@ -690,6 +1213,19 @@ router.put('/:landId/notes/:noteId', async (req, res) => {
 router.delete('/:landId/notes/:noteId', async (req, res) => {
     try {
         const { landId, noteId } = req.params
+
+        if (!mongoose.isValidObjectId(landId)) {
+            return res.status(400).json({
+                message: 'شناسه زمین معتبر نیست.',
+            })
+        }
+
+        if (!mongoose.isValidObjectId(noteId)) {
+            return res.status(400).json({
+                message: 'شناسه یادداشت معتبر نیست.',
+            })
+        }
+
         const userId = req.user._id
         const isAdmin = req.isAdmin
 
@@ -719,6 +1255,12 @@ router.delete('/:landId/notes/:noteId', async (req, res) => {
         })
     } catch (err) {
         console.error(err.message)
+
+        if (err.name === 'CastError') {
+            return res.status(400).json({
+                message: 'شناسه یادداشت یا زمین معتبر نیست.',
+            })
+        }
 
         return res.status(500).json({
             message: 'خطا در حذف یادداشت.',
